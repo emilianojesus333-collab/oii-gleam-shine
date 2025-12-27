@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useMemo, useRef } from "react";
+import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp, Settings, RotateCcw, X } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useMemo, useRef, useState } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
+import { toast } from "sonner";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -19,6 +20,7 @@ const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showSettings, setShowSettings] = useState(false);
   
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
@@ -66,6 +68,13 @@ const Home = () => {
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
 
+  const handleResetOnboarding = () => {
+    localStorage.removeItem("liftmate_onboarding");
+    localStorage.removeItem("liftmate_onboarded");
+    toast.success("Onboarding resetado!");
+    navigate("/");
+  };
+
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-background pb-24">
       {/* Hero Background Image with Parallax */}
@@ -93,11 +102,65 @@ const Home = () => {
           <Dumbbell className="h-7 w-7 text-foreground" />
           <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
-          <Flame className="h-5 w-5 text-orange-500" />
-          <span className="font-bold text-foreground">7</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
+            <Flame className="h-5 w-5 text-orange-500" />
+            <span className="font-bold text-foreground">7</span>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSettings(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm"
+          >
+            <Settings className="h-5 w-5 text-foreground" />
+          </motion.button>
         </div>
       </motion.header>
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-foreground">Configurações</h2>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary"
+                >
+                  <X className="h-4 w-4 text-foreground" />
+                </button>
+              </div>
+              
+              <button
+                onClick={handleResetOnboarding}
+                className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                  <RotateCcw className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-foreground">Refazer onboarding</p>
+                  <p className="text-sm text-muted-foreground">Redefine as tuas preferências de treino</p>
+                </div>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Week Calendar */}
       <motion.div
