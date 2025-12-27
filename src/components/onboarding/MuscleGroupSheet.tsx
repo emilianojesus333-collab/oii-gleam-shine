@@ -70,7 +70,7 @@ export const MuscleGroupSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="rounded-t-3xl bg-background px-6 pb-8">
+      <SheetContent side="bottom" className="rounded-t-3xl bg-background px-6 pb-8 [&>button]:hidden">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-center text-lg font-bold text-foreground">
             {selectedDay}
@@ -84,33 +84,34 @@ export const MuscleGroupSheet = ({
           {muscleGroups.map((group, index) => {
             const isSelected = selected.includes(group.label);
             return (
-              <motion.button
+              <motion.div
                 key={group.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                onClick={() => toggleGroup(group.label)}
-                className={cn(
-                  "relative rounded-2xl bg-card px-3 py-4 text-center text-sm font-medium text-foreground transition-all",
-                  isSelected && "bg-primary text-primary-foreground ring-2 ring-primary"
-                )}
               >
-                {isSelected && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary"
-                  >
-                    <Check className="h-3 w-3 text-primary-foreground" />
-                  </motion.div>
-                )}
-                {group.label}
-              </motion.button>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.label)}
+                  className={cn(
+                    "relative w-full rounded-2xl bg-card px-3 py-4 text-center text-sm font-medium text-foreground transition-all active:scale-95",
+                    isSelected && "bg-primary text-primary-foreground ring-2 ring-primary"
+                  )}
+                >
+                  {isSelected && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </span>
+                  )}
+                  {group.label}
+                </button>
+              </motion.div>
             );
           })}
         </div>
 
         <Button
+          type="button"
           onClick={handleConfirm}
           className="mt-6 w-full rounded-full py-6 text-base font-semibold"
         >
