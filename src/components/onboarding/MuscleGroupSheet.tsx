@@ -52,6 +52,8 @@ export const MuscleGroupSheet = ({
     }
   }, [open]);
 
+  const MAX_SELECTIONS = 3;
+
   const toggleGroup = (group: string) => {
     // If selecting "Descanso", clear all others
     if (group === "Descanso") {
@@ -62,12 +64,22 @@ export const MuscleGroupSheet = ({
     // If selecting any other group, remove "Descanso" if present
     setSelected((prev) => {
       const withoutDescanso = prev.filter(g => g !== "Descanso");
+      
+      // If already selected, remove it
       if (withoutDescanso.includes(group)) {
         return withoutDescanso.filter((g) => g !== group);
       }
+      
+      // If at max limit, don't add more
+      if (withoutDescanso.length >= MAX_SELECTIONS) {
+        return withoutDescanso;
+      }
+      
       return [...withoutDescanso, group];
     });
   };
+
+  const isAtLimit = selected.filter(g => g !== "Descanso").length >= MAX_SELECTIONS;
 
   const handleConfirm = () => {
     onSelectGroups(selected);
@@ -82,13 +94,15 @@ export const MuscleGroupSheet = ({
             {selectedDay}
           </SheetTitle>
           <SheetDescription className="text-center text-sm text-muted-foreground">
-            Seleciona os grupos musculares
+            Seleciona até 3 grupos musculares
           </SheetDescription>
         </SheetHeader>
 
         <div className="grid grid-cols-3 gap-3">
           {muscleGroups.map((group, index) => {
             const isSelected = selected.includes(group.label);
+            const isDisabled = !isSelected && isAtLimit && group.label !== "Descanso";
+            
             return (
               <motion.div
                 key={group.id}
@@ -98,10 +112,12 @@ export const MuscleGroupSheet = ({
               >
                 <button
                   type="button"
+                  disabled={isDisabled}
                   onClick={() => toggleGroup(group.label)}
                   className={cn(
                     "relative w-full rounded-2xl bg-card px-3 py-4 text-center text-sm font-medium text-foreground transition-all active:scale-95",
-                    isSelected && "bg-primary text-primary-foreground ring-2 ring-primary"
+                    isSelected && "bg-primary text-primary-foreground ring-2 ring-primary",
+                    isDisabled && "opacity-40 cursor-not-allowed"
                   )}
                 >
                   {isSelected && (
