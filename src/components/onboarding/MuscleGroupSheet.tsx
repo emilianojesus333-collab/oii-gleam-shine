@@ -4,6 +4,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -74,9 +75,9 @@ export const MuscleGroupSheet = ({
           <SheetTitle className="text-center text-lg font-bold text-foreground">
             {selectedDay}
           </SheetTitle>
-          <p className="text-center text-sm text-muted-foreground">
+          <SheetDescription className="text-center text-sm text-muted-foreground">
             Seleciona os grupos musculares
-          </p>
+          </SheetDescription>
         </SheetHeader>
 
         <div className="grid grid-cols-3 gap-3">
