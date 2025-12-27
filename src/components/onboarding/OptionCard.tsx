@@ -12,7 +12,7 @@ export const OptionCard = ({ label, selected, onClick, rightText }: OptionCardPr
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`w-full rounded-2xl px-5 py-4 text-left text-lg font-medium transition-all ${
+      className={`w-full rounded-xl px-4 py-3.5 text-left text-[15px] font-medium transition-all ${
         selected
           ? "bg-foreground text-background"
           : "bg-card text-foreground hover:bg-muted"
@@ -20,7 +20,7 @@ export const OptionCard = ({ label, selected, onClick, rightText }: OptionCardPr
     >
       <span>{label}</span>
       {rightText && (
-        <span className={`text-base ${selected ? "text-background/70" : "text-muted-foreground"}`}>
+        <span className={`text-sm ${selected ? "text-background/70" : "text-muted-foreground"}`}>
           {rightText}
         </span>
       )}

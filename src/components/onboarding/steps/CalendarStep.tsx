@@ -48,21 +48,21 @@ export const CalendarStep = ({
 
   return (
     <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack}>
-      <div className="flex flex-1 flex-col pt-4">
+      <div className="flex flex-1 flex-col pt-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-xl font-bold text-foreground">
             Define o teu calendário
           </h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground">
             Diz-nos o que vais treinar em cada dia
           </p>
         </motion.div>
 
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-2">
           {weekDays.map((day, index) => {
             const dayGroups = schedule[day];
             const hasSelection = dayGroups && dayGroups.length > 0;
@@ -72,7 +72,7 @@ export const CalendarStep = ({
                 key={day}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.04 }}
               >
                 <OptionCard
                   label={day}

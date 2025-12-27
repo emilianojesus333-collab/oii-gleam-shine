@@ -13,7 +13,7 @@ export const SplashStep = ({ onContinue }: SplashStepProps) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-4xl font-black tracking-tight text-foreground"
+          className="text-3xl font-black tracking-tight text-foreground"
         >
           LIFTMATE
         </motion.h1>

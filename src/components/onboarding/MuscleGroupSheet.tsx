@@ -106,17 +106,17 @@ export const MuscleGroupSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="rounded-t-3xl bg-background px-6 pb-8 [&>button]:hidden">
-        <SheetHeader className="mb-6">
-          <SheetTitle className="text-center text-lg font-bold text-foreground">
+      <SheetContent side="bottom" className="rounded-t-2xl bg-background px-5 pb-8 [&>button]:hidden max-w-[390px] mx-auto">
+        <SheetHeader className="mb-5">
+          <SheetTitle className="text-center text-base font-bold text-foreground">
             {selectedDay}
           </SheetTitle>
-          <SheetDescription className="text-center text-sm text-muted-foreground">
+          <SheetDescription className="text-center text-xs text-muted-foreground">
             Seleciona até 3 grupos musculares
           </SheetDescription>
         </SheetHeader>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2.5">
           {muscleGroups.map((group, index) => {
             const isSelected = selected.includes(group.label);
             const isDisabled = !isSelected && isAtLimit && group.label !== "Descanso";
@@ -133,14 +133,14 @@ export const MuscleGroupSheet = ({
                   disabled={isDisabled}
                   onClick={() => toggleGroup(group.label)}
                   className={cn(
-                    "relative w-full rounded-2xl bg-card px-3 py-4 text-center text-sm font-medium text-foreground transition-all active:scale-95",
+                    "relative w-full rounded-xl bg-card px-2.5 py-3 text-center text-[13px] font-medium text-foreground transition-all active:scale-95",
                     isSelected && "bg-primary text-primary-foreground ring-2 ring-primary",
                     isDisabled && "opacity-40 cursor-not-allowed"
                   )}
                 >
                   {isSelected && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-                      <Check className="h-3 w-3 text-primary-foreground" />
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
+                      <Check className="h-2.5 w-2.5 text-primary-foreground" />
                     </span>
                   )}
                   {group.label}
@@ -159,7 +159,7 @@ export const MuscleGroupSheet = ({
             <Button
               type="button"
               onClick={handleConfirm}
-              className="mt-6 w-full rounded-full py-6 text-base font-semibold"
+              className="mt-5 w-full rounded-full py-5 text-sm font-semibold"
             >
               Confirmar ({selected.length})
             </Button>
