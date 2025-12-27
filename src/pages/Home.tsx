@@ -180,16 +180,16 @@ const Home = () => {
             >
               <span className="text-xs text-muted-foreground mb-2">{item.shortDay}</span>
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+                className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "bg-card"
+                    ? "rounded-xl bg-card"
                     : item.workout && item.workout !== "Descanso"
-                    ? "border border-dashed border-muted-foreground/30"
+                    ? "rounded-xl border border-dashed border-muted-foreground/40"
                     : ""
                 }`}
               >
                 <span
-                  className={`text-lg font-bold ${
+                  className={`text-lg font-semibold ${
                     item.isToday ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
@@ -273,24 +273,24 @@ const Home = () => {
           <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
-            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/20">
-              <Target className="h-6 w-6 text-rose-500" />
+            <div className="mt-3 flex justify-center">
+              <Target className="h-6 w-6 text-muted-foreground" />
             </div>
           </div>
           
           <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
-            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20">
-              <TrendingUp className="h-6 w-6 text-amber-500" />
+            <div className="mt-3 flex justify-center">
+              <Dumbbell className="h-6 w-6 text-muted-foreground" />
             </div>
           </div>
           
           <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Min treino</p>
-            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-500/20">
-              <Timer className="h-6 w-6 text-sky-500" />
+            <div className="mt-3 flex justify-center">
+              <Timer className="h-6 w-6 text-muted-foreground" />
             </div>
           </div>
         </motion.div>
