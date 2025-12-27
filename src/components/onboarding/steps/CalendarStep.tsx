@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { OnboardingLayout } from "../OnboardingLayout";
 import { OptionCard } from "../OptionCard";
+import { MuscleGroupSheet } from "../MuscleGroupSheet";
 import { motion } from "framer-motion";
 
 interface CalendarStepProps {
   schedule: Record<string, string>;
-  onSelectDay: (day: string) => void;
+  onSelectGroup: (day: string, group: string) => void;
   onContinue: () => void;
   onBack?: () => void;
 }
@@ -12,7 +14,7 @@ interface CalendarStepProps {
 const weekDays = [
   "Segunda-feira",
   "Terça-feira",
-  "quarta-feira",
+  "Quarta-feira",
   "Quinta-feira",
   "Sexta-feira",
   "Sábado",
@@ -21,10 +23,22 @@ const weekDays = [
 
 export const CalendarStep = ({
   schedule,
-  onSelectDay,
+  onSelectGroup,
   onContinue,
   onBack,
 }: CalendarStepProps) => {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState("");
+
+  const handleDayClick = (day: string) => {
+    setSelectedDay(day);
+    setSheetOpen(true);
+  };
+
+  const handleGroupSelect = (group: string) => {
+    onSelectGroup(selectedDay, group);
+  };
+
   return (
     <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack}>
       <div className="flex flex-1 flex-col pt-4">
@@ -34,7 +48,7 @@ export const CalendarStep = ({
           className="text-center"
         >
           <h1 className="text-2xl font-bold text-foreground">
-            Difine o teu calendario
+            Define o teu calendário
           </h1>
           <p className="mt-3 text-muted-foreground">
             Diz-nos o que vais treinar em cada dia
@@ -53,12 +67,20 @@ export const CalendarStep = ({
                 label={day}
                 rightText={schedule[day] || "Selecionar"}
                 selected={!!schedule[day]}
-                onClick={() => onSelectDay(day)}
+                onClick={() => handleDayClick(day)}
               />
             </motion.div>
           ))}
         </div>
       </div>
+
+      <MuscleGroupSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        selectedDay={selectedDay}
+        onSelectGroup={handleGroupSelect}
+        currentSelection={schedule[selectedDay]}
+      />
     </OnboardingLayout>
   );
 };

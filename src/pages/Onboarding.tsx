@@ -52,12 +52,10 @@ const Onboarding = () => {
     }
   };
 
-  const handleSelectDay = (day: string) => {
+  const handleSelectGroup = (day: string, group: string) => {
     setData((prev) => ({
       ...prev,
-      schedule: prev.schedule[day]
-        ? { ...prev.schedule, [day]: "" }
-        : { ...prev.schedule, [day]: "Treino" },
+      schedule: { ...prev.schedule, [day]: group },
     }));
   };
 
@@ -110,7 +108,7 @@ const Onboarding = () => {
           <CalendarStep
             key="calendar"
             schedule={data.schedule}
-            onSelectDay={handleSelectDay}
+            onSelectGroup={handleSelectGroup}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
