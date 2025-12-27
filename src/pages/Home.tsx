@@ -76,7 +76,7 @@ const Home = () => {
   };
 
   return (
-    <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-24">
+    <div ref={containerRef} className="flex min-h-screen flex-col bg-background pb-24">
       {/* Hero Background Image with Parallax */}
       <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
         <motion.img 
@@ -89,7 +89,7 @@ const Home = () => {
             opacity: imageOpacity 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-background" />
       </div>
 
       {/* Header */}
@@ -103,16 +103,16 @@ const Home = () => {
           <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
-            <Flame className="h-5 w-5 text-blue-400" />
+          <div className="flex items-center gap-2 rounded-full bg-secondary/60 backdrop-blur-md border border-border/30 px-4 py-2">
+            <Flame className="h-5 w-5 text-primary" />
             <span className="font-bold text-foreground">7</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSettings(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/60 backdrop-blur-md border border-border/30"
           >
-            <Settings className="h-5 w-5 text-foreground" />
+            <Settings className="h-5 w-5 text-muted-foreground" />
           </motion.button>
         </div>
       </motion.header>
@@ -133,21 +133,21 @@ const Home = () => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10"
+              className="w-full max-w-lg rounded-t-3xl bg-card/95 backdrop-blur-md border-t border-border/30 p-6 pb-10"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Configurações</h2>
                 <button
                   onClick={() => setShowSettings(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/60"
                 >
-                  <X className="h-4 w-4 text-foreground" />
+                  <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
               
               <button
                 onClick={handleResetOnboarding}
-                className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80"
+                className="flex w-full items-center gap-4 rounded-2xl bg-secondary/60 border border-border/30 p-4 transition-colors hover:bg-secondary/80"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
                   <RotateCcw className="h-6 w-6 text-primary" />
@@ -182,9 +182,9 @@ const Home = () => {
               <div
                 className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "rounded-xl bg-card"
+                    ? "rounded-xl bg-secondary/80 border border-border/40"
                     : item.workout && item.workout !== "Descanso"
-                    ? "rounded-xl border border-dashed border-muted-foreground/40"
+                    ? "rounded-xl border border-dashed border-border/40"
                     : ""
                 }`}
               >
@@ -207,7 +207,7 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-3xl bg-card p-6"
+          className="rounded-3xl bg-card/80 backdrop-blur-md border border-border/30 p-6"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -231,7 +231,7 @@ const Home = () => {
                   stroke="currentColor"
                   strokeWidth="6"
                   fill="none"
-                  className="text-secondary"
+                  className="text-muted/40"
                 />
                 <circle
                   cx="48"
@@ -243,11 +243,11 @@ const Home = () => {
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
-                  className="text-foreground transition-all duration-500"
+                  className="text-muted-foreground transition-all duration-500"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Dumbbell className="h-8 w-8 text-foreground" />
+                <Dumbbell className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
           </div>
@@ -270,7 +270,7 @@ const Home = () => {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="rounded-2xl bg-card p-4">
+          <div className="rounded-2xl bg-card/60 backdrop-blur-md border border-border/30 p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
             <div className="mt-3 flex justify-center">
@@ -278,7 +278,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="rounded-2xl bg-card p-4">
+          <div className="rounded-2xl bg-card/60 backdrop-blur-md border border-border/30 p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
             <div className="mt-3 flex justify-center">
@@ -286,7 +286,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="rounded-2xl bg-card p-4">
+          <div className="rounded-2xl bg-card/60 backdrop-blur-md border border-border/30 p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Min treino</p>
             <div className="mt-3 flex justify-center">
@@ -310,10 +310,10 @@ const Home = () => {
               .map((item) => (
                 <div
                   key={item.fullDay}
-                  className="flex items-center gap-4 rounded-2xl bg-card p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/30 p-4"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
-                    <Dumbbell className="h-6 w-6 text-foreground" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/60">
+                    <Dumbbell className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-foreground">{item.workout}</p>
@@ -323,7 +323,7 @@ const Home = () => {
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <div className="rounded-2xl bg-card p-6 text-center">
+              <div className="rounded-2xl bg-card/60 backdrop-blur-md border border-border/30 p-6 text-center">
                 <p className="text-muted-foreground">
                   Nenhum treino agendado para esta semana
                 </p>
