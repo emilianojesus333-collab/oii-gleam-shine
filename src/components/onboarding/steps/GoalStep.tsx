@@ -10,10 +10,10 @@ interface GoalStepProps {
 }
 
 const goals = [
-  "ganhar massa muscular",
-  "perder gordura",
-  "melhorar o condicionamento",
-  "manter forma física",
+  "Hipertrofia",
+  "Cutting",
+  "Performance",
+  "Manter o shape",
 ];
 
 export const GoalStep = ({ selectedGoal, onSelect, onContinue, onBack }: GoalStepProps) => {
