@@ -19,8 +19,7 @@ export const WelcomeStep = ({ onContinue, onBack }: WelcomeStepProps) => {
             Bem-Vindo ao LiftMate
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">
-            Vamos personalizar a tua{" "}
-            <span className="underline underline-offset-4">experiência</span>
+            Vamos personalizar a tua experiência
           </p>
         </motion.div>
       </div>
