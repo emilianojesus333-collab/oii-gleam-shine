@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useMemo, useRef } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 
 const weekDaysMap: Record<number, string> = {
@@ -18,6 +18,12 @@ const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const Home = () => {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollY } = useScroll();
+  const imageY = useTransform(scrollY, [0, 300], [0, 100]);
+  const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
+  const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
   const { todayWorkout, weekSchedule, todayIndex } = useMemo(() => {
     const onboardingData = localStorage.getItem("liftmate_onboarding");
@@ -61,13 +67,18 @@ const Home = () => {
   const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
-      {/* Hero Background Image */}
+    <div ref={containerRef} className="flex min-h-screen flex-col bg-background pb-24">
+      {/* Hero Background Image with Parallax */}
       <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
-        <img 
+        <motion.img 
           src={gymBackground} 
           alt="" 
           className="h-full w-full object-cover"
+          style={{ 
+            y: imageY, 
+            scale: imageScale,
+            opacity: imageOpacity 
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
       </div>
