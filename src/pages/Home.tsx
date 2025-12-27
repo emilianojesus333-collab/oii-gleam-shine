@@ -93,7 +93,7 @@ const Home = () => {
           <Dumbbell className="h-7 w-7 text-foreground" />
           <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
         </div>
-        <div className="flex items-center gap-2 rounded-full card-subtle backdrop-blur-sm px-4 py-2">
+        <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
           <Flame className="h-5 w-5 text-orange-500" />
           <span className="font-bold text-foreground">7</span>
         </div>
@@ -119,7 +119,7 @@ const Home = () => {
               <div
                 className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
                   item.isToday
-                    ? "card-elevated"
+                    ? "bg-card"
                     : item.workout && item.workout !== "Descanso"
                     ? "border border-dashed border-muted-foreground/30"
                     : ""
@@ -144,7 +144,7 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-3xl card-elevated p-6"
+          className="rounded-3xl bg-card p-6"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -207,27 +207,27 @@ const Home = () => {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="rounded-2xl card-subtle p-4">
+          <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
             <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/20">
-              <Target className="h-6 w-6 text-rose-400" />
+              <Target className="h-6 w-6 text-rose-500" />
             </div>
           </div>
           
-          <div className="rounded-2xl card-subtle p-4">
+          <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
             <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20">
-              <TrendingUp className="h-6 w-6 text-amber-400" />
+              <TrendingUp className="h-6 w-6 text-amber-500" />
             </div>
           </div>
           
-          <div className="rounded-2xl card-subtle p-4">
+          <div className="rounded-2xl bg-card p-4">
             <p className="text-2xl font-black text-foreground">0</p>
             <p className="text-xs text-muted-foreground mt-1">Min treino</p>
             <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-500/20">
-              <Timer className="h-6 w-6 text-sky-400" />
+              <Timer className="h-6 w-6 text-sky-500" />
             </div>
           </div>
         </motion.div>
@@ -247,7 +247,7 @@ const Home = () => {
               .map((item) => (
                 <div
                   key={item.fullDay}
-                  className="flex items-center gap-4 rounded-2xl card-subtle p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-card p-4"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
                     <Dumbbell className="h-6 w-6 text-foreground" />
@@ -260,7 +260,7 @@ const Home = () => {
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <div className="rounded-2xl card-subtle p-6 text-center">
+              <div className="rounded-2xl bg-card p-6 text-center">
                 <p className="text-muted-foreground">
                   Nenhum treino agendado para esta semana
                 </p>
