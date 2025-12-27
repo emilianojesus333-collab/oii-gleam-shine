@@ -76,7 +76,7 @@ const Home = () => {
   };
 
   return (
-    <div ref={containerRef} className="flex min-h-screen flex-col bg-background pb-24">
+    <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-24">
       {/* Hero Background Image with Parallax */}
       <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
         <motion.img 
@@ -89,7 +89,7 @@ const Home = () => {
             opacity: imageOpacity 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black" />
       </div>
 
       {/* Header */}
@@ -104,7 +104,7 @@ const Home = () => {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
-            <Flame className="h-5 w-5 text-orange-500" />
+            <Flame className="h-5 w-5 text-blue-400" />
             <span className="font-bold text-foreground">7</span>
           </div>
           <motion.button
