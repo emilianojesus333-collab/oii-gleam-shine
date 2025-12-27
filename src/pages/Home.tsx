@@ -60,7 +60,7 @@ const Home = () => {
   const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-secondary/50 to-background pb-24">
+    <div className="flex min-h-screen flex-col bg-gym-gradient bg-gym-pattern pb-24">
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
