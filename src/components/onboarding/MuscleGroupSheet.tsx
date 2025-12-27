@@ -38,13 +38,19 @@ export const MuscleGroupSheet = ({
   onSelectGroups,
   currentSelection = [],
 }: MuscleGroupSheetProps) => {
-  const [selected, setSelected] = useState<string[]>(currentSelection);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
+  // Only sync when sheet opens
   useEffect(() => {
-    if (open) {
+    if (open && !initialized) {
       setSelected(currentSelection);
+      setInitialized(true);
     }
-  }, [open, currentSelection]);
+    if (!open) {
+      setInitialized(false);
+    }
+  }, [open]);
 
   const toggleGroup = (group: string) => {
     // If selecting "Descanso", clear all others
