@@ -150,14 +150,20 @@ export const MuscleGroupSheet = ({
           })}
         </div>
 
-        {selected.length > 0 && selected.length < MAX_SELECTIONS && !selected.includes("Descanso") && (
-          <Button
-            type="button"
-            onClick={handleConfirm}
-            className="mt-6 w-full rounded-full py-6 text-base font-semibold"
+        {selected.length > 0 && selected.length < 3 && !selected.includes("Descanso") && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
           >
-            Confirmar ({selected.length})
-          </Button>
+            <Button
+              type="button"
+              onClick={handleConfirm}
+              className="mt-6 w-full rounded-full py-6 text-base font-semibold"
+            >
+              Confirmar ({selected.length})
+            </Button>
+          </motion.div>
         )}
       </SheetContent>
     </Sheet>
