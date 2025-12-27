@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Play, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMemo, useState } from "react";
+import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { useMemo } from "react";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -13,65 +13,12 @@ const weekDaysMap: Record<number, string> = {
   6: "Sábado",
 };
 
-const shortDays = ["D", "S", "T", "Q", "Q", "S", "S"];
-
-// Exercise database by muscle group
-const exercisesByGroup: Record<string, { name: string; duration: string; sets: string }[]> = {
-  "Pernas": [
-    { name: "Agachamento", duration: "12 min", sets: "4x12" },
-    { name: "Leg Press", duration: "10 min", sets: "4x15" },
-    { name: "Extensora", duration: "8 min", sets: "3x12" },
-    { name: "Stiff", duration: "10 min", sets: "4x10" },
-  ],
-  "Peito": [
-    { name: "Supino Reto", duration: "12 min", sets: "4x10" },
-    { name: "Supino Inclinado", duration: "10 min", sets: "4x10" },
-    { name: "Crucifixo", duration: "8 min", sets: "3x12" },
-    { name: "Crossover", duration: "8 min", sets: "3x15" },
-  ],
-  "Costas": [
-    { name: "Puxada Frontal", duration: "10 min", sets: "4x12" },
-    { name: "Remada Curvada", duration: "12 min", sets: "4x10" },
-    { name: "Remada Unilateral", duration: "10 min", sets: "3x12" },
-    { name: "Pulldown", duration: "8 min", sets: "3x15" },
-  ],
-  "Ombros": [
-    { name: "Desenvolvimento", duration: "12 min", sets: "4x10" },
-    { name: "Elevação Lateral", duration: "8 min", sets: "4x15" },
-    { name: "Elevação Frontal", duration: "8 min", sets: "3x12" },
-    { name: "Face Pull", duration: "8 min", sets: "3x15" },
-  ],
-  "Braços": [
-    { name: "Rosca Direta", duration: "10 min", sets: "4x12" },
-    { name: "Tríceps Corda", duration: "8 min", sets: "4x15" },
-    { name: "Rosca Martelo", duration: "8 min", sets: "3x12" },
-    { name: "Tríceps Testa", duration: "10 min", sets: "3x10" },
-  ],
-  "Abdômen": [
-    { name: "Prancha", duration: "8 min", sets: "3x45s" },
-    { name: "Crunch", duration: "8 min", sets: "4x20" },
-    { name: "Elevação de Pernas", duration: "8 min", sets: "3x15" },
-    { name: "Russian Twist", duration: "6 min", sets: "3x20" },
-  ],
-  "Glúteos": [
-    { name: "Hip Thrust", duration: "12 min", sets: "4x12" },
-    { name: "Elevação Pélvica", duration: "8 min", sets: "4x15" },
-    { name: "Abdução", duration: "8 min", sets: "3x15" },
-    { name: "Kickback", duration: "8 min", sets: "3x12" },
-  ],
-};
-
-const restDayTips = [
-  { name: "Alongamento Geral", duration: "15 min", sets: "—" },
-  { name: "Mobilidade Articular", duration: "10 min", sets: "—" },
-  { name: "Caminhada Leve", duration: "20 min", sets: "—" },
-];
+const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const Home = () => {
   const navigate = useNavigate();
-  const [completedExercises, setCompletedExercises] = useState<Record<string, boolean | null>>({});
 
-  const { todayWorkout, weekSchedule, exercises, greeting } = useMemo(() => {
+  const { todayWorkout, weekSchedule, todayIndex } = useMemo(() => {
     const onboardingData = localStorage.getItem("liftmate_onboarding");
     const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
     
@@ -79,11 +26,11 @@ const Home = () => {
     const todayName = weekDaysMap[today.getDay()];
     const workout = data.schedule?.[todayName] || null;
 
-    // Get current week schedule
+    // Get current week schedule (Mon-Sun)
+    const schedule = [];
     const currentDayOfWeek = today.getDay();
     const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
     
-    const schedule = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date();
       date.setDate(today.getDate() + mondayOffset + i);
@@ -96,200 +43,220 @@ const Home = () => {
         workout: dayWorkout,
         date: date.getDate(),
         isToday: date.toDateString() === today.toDateString(),
-        hasWorkout: dayWorkout && dayWorkout !== "Descanso",
       });
     }
 
-    // Get exercises for today
-    const todayExercises = workout && workout !== "Descanso" 
-      ? exercisesByGroup[workout] || []
-      : restDayTips;
-
-    // Greeting based on time
-    const hour = today.getHours();
-    let greet = "Bom dia";
-    if (hour >= 12 && hour < 18) greet = "Boa tarde";
-    else if (hour >= 18) greet = "Boa noite";
+    const todayIdx = schedule.findIndex(d => d.isToday);
 
     return {
       todayWorkout: workout,
       weekSchedule: schedule,
-      exercises: todayExercises,
-      greeting: greet,
+      todayIndex: todayIdx,
     };
   }, []);
 
-  const isRestDay = !todayWorkout || todayWorkout === "Descanso";
-
-  const handleExerciseAction = (exerciseName: string, completed: boolean) => {
-    setCompletedExercises(prev => ({ ...prev, [exerciseName]: completed }));
-    
-    // Store for chat context
-    const history = JSON.parse(localStorage.getItem("liftmate_exercise_log") || "[]");
-    history.push({
-      exercise: exerciseName,
-      completed,
-      date: new Date().toISOString(),
-      workout: todayWorkout,
-    });
-    localStorage.setItem("liftmate_exercise_log", JSON.stringify(history));
-  };
+  const workoutProgress = todayWorkout && todayWorkout !== "Descanso" ? 0 : 100;
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      {/* Minimal Header */}
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-secondary/50 to-background pb-24">
+      {/* Header */}
       <motion.header
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="px-6 pt-14 pb-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between px-6 pt-12 pb-4"
       >
-        <p className="text-muted-foreground text-sm">{greeting}</p>
-        <h1 className="text-3xl font-bold text-foreground mt-1">
-          {isRestDay ? "Dia de Descanso" : todayWorkout}
-        </h1>
+        <div className="flex items-center gap-2">
+          <Dumbbell className="h-7 w-7 text-foreground" />
+          <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
+        </div>
+        <div className="flex items-center gap-2 rounded-full bg-card px-4 py-2 shadow-sm">
+          <Flame className="h-5 w-5 text-orange-500" />
+          <span className="font-bold text-foreground">7</span>
+        </div>
       </motion.header>
 
-      {/* Week Pills - Ultra Minimal */}
+      {/* Week Calendar */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="px-6 py-6"
+        className="px-6 py-4"
       >
         <div className="flex justify-between">
           {weekSchedule.map((item, index) => (
             <motion.div
               key={item.fullDay}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * index }}
-              className="flex flex-col items-center gap-2"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 + index * 0.03 }}
+              className="flex flex-col items-center"
             >
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                {item.shortDay}
-              </span>
+              <span className="text-xs text-muted-foreground mb-2">{item.shortDay}</span>
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
+                className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
                   item.isToday
-                    ? "bg-foreground text-background"
-                    : item.hasWorkout
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground"
+                    ? "bg-card shadow-md"
+                    : item.workout && item.workout !== "Descanso"
+                    ? "border-2 border-dashed border-muted-foreground/30"
+                    : ""
                 }`}
               >
-                <span className="text-sm font-medium">{item.date}</span>
+                <span
+                  className={`text-lg font-bold ${
+                    item.isToday ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {item.date}
+                </span>
               </div>
             </motion.div>
           ))}
         </div>
       </motion.div>
 
-      {/* Main CTA - The Focus */}
-      {!isRestDay && (
+      <main className="flex-1 px-6 space-y-5">
+        {/* Main Workout Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="px-6 mb-6"
+          className="rounded-3xl bg-card p-6 shadow-sm"
         >
-          <button
-            onClick={() => navigate("/chat")}
-            className="w-full flex items-center justify-between bg-foreground text-background rounded-2xl p-5 active:scale-[0.98] transition-transform"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-                <Play className="h-5 w-5 fill-current" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold">Iniciar Treino</p>
-                <p className="text-sm opacity-70">{exercises.length} exercícios</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-4xl font-black text-foreground">
+                {todayWorkout || "Descanso"}
+              </p>
+              <p className="text-muted-foreground mt-1">
+                {todayWorkout && todayWorkout !== "Descanso" 
+                  ? "Treino de hoje" 
+                  : "Dia de recuperação"}
+              </p>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="relative">
+              <svg className="h-24 w-24 -rotate-90">
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="45"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  className="text-secondary"
+                />
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="45"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  className="text-foreground transition-all duration-500"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Dumbbell className="h-8 w-8 text-foreground" />
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 opacity-50" />
-          </button>
+          </div>
+
+          {todayWorkout && todayWorkout !== "Descanso" && (
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/chat")}
+              className="mt-6 w-full rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-all hover:opacity-90"
+            >
+              Iniciar Treino
+            </motion.button>
+          )}
         </motion.div>
-      )}
 
-      {/* Exercise List - Clean Table */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex-1 px-6"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            {isRestDay ? "Sugestões para hoje" : "Exercícios sugeridos"}
-          </h2>
-        </div>
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-3 gap-3"
+        >
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
+              <Target className="h-6 w-6 text-rose-500" />
+            </div>
+          </div>
+          
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+              <TrendingUp className="h-6 w-6 text-amber-500" />
+            </div>
+          </div>
+          
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Min treino</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-100">
+              <Timer className="h-6 w-6 text-sky-500" />
+            </div>
+          </div>
+        </motion.div>
 
-        <div className="space-y-2">
-          <AnimatePresence>
-            {exercises.map((exercise, index) => {
-              const status = completedExercises[exercise.name];
-              const isDone = status === true;
-              const isSkipped = status === false;
-
-              return (
-                <motion.div
-                  key={exercise.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * index }}
-                  className={`flex items-center justify-between py-4 border-b border-border last:border-0 ${
-                    isDone ? "opacity-50" : isSkipped ? "opacity-30" : ""
-                  }`}
+        {/* Recent Workouts Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h3 className="text-xl font-bold text-foreground mb-4">Próximos treinos</h3>
+          
+          <div className="space-y-3">
+            {weekSchedule
+              .filter(d => !d.isToday && d.workout && d.workout !== "Descanso")
+              .slice(0, 3)
+              .map((item) => (
+                <div
+                  key={item.fullDay}
+                  className="flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm"
                 >
-                  <div className="flex-1">
-                    <p className={`font-medium text-foreground ${isDone ? "line-through" : ""}`}>
-                      {exercise.name}
-                    </p>
-                    <div className="flex gap-3 mt-1">
-                      <span className="text-xs text-muted-foreground">{exercise.duration}</span>
-                      <span className="text-xs text-muted-foreground">{exercise.sets}</span>
-                    </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
+                    <Dumbbell className="h-6 w-6 text-foreground" />
                   </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{item.workout}</p>
+                    <p className="text-sm text-muted-foreground">{item.fullDay}</p>
+                  </div>
+                </div>
+              ))}
 
-                  {/* Action Buttons */}
-                  {status === undefined || status === null ? (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleExerciseAction(exercise.name, true)}
-                        className="px-4 py-2 text-xs font-medium text-foreground bg-secondary rounded-full hover:bg-secondary/80 transition-colors"
-                      >
-                        Fiz ✓
-                      </button>
-                      <button
-                        onClick={() => handleExerciseAction(exercise.name, false)}
-                        className="px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        Não fiz
-                      </button>
-                    </div>
-                  ) : (
-                    <span className={`text-xs font-medium ${isDone ? "text-foreground" : "text-muted-foreground"}`}>
-                      {isDone ? "Feito ✓" : "Pulado"}
-                    </span>
-                  )}
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      </motion.div>
+            {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
+              <div className="rounded-2xl bg-card p-6 text-center shadow-sm">
+                <p className="text-muted-foreground">
+                  Nenhum treino agendado para esta semana
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </main>
 
-      {/* Bottom Spacer for FAB */}
-      <div className="h-24" />
-
-      {/* Chat FAB - Subtle */}
+      {/* Chat FAB */}
       <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.5 }}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.5, type: "spring" }}
         onClick={() => navigate("/chat")}
-        className="fixed bottom-8 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-foreground text-background shadow-lg active:scale-95 transition-transform"
+        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
       >
-        <MessageCircle className="h-5 w-5" />
+        <MessageCircle className="h-6 w-6" />
       </motion.button>
     </div>
   );
