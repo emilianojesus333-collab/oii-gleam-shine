@@ -99,20 +99,20 @@ const Home = () => {
         className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
       >
         <div className="flex items-center gap-2">
-          <Dumbbell className="h-7 w-7 text-foreground" />
-          <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
+          <Dumbbell className="h-7 w-7 text-white" />
+          <h1 className="text-2xl font-black text-white">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/90 backdrop-blur-sm px-4 py-2">
             <Flame className="h-5 w-5 text-blue-400" />
-            <span className="font-bold text-foreground">7</span>
+            <span className="font-bold text-white">7</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSettings(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/90 backdrop-blur-sm"
           >
-            <Settings className="h-5 w-5 text-foreground" />
+            <Settings className="h-5 w-5 text-white" />
           </motion.button>
         </div>
       </motion.header>
@@ -178,21 +178,17 @@ const Home = () => {
               transition={{ delay: 0.15 + index * 0.03 }}
               className="flex flex-col items-center"
             >
-              <span className="text-xs text-muted-foreground mb-2">{item.shortDay}</span>
+              <span className="text-xs text-gray-400 mb-2">{item.shortDay}</span>
               <div
                 className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "rounded-xl bg-card"
+                    ? "rounded-xl bg-[#1E1E1E]/90"
                     : item.workout && item.workout !== "Descanso"
-                    ? "rounded-xl border border-dashed border-muted-foreground/40"
+                    ? "rounded-xl border border-dashed border-gray-500/40"
                     : ""
                 }`}
               >
-                <span
-                  className={`text-lg font-semibold ${
-                    item.isToday ? "text-foreground" : "text-muted-foreground"
-                  }`}
-                >
+                <span className="text-lg font-semibold text-white">
                   {item.date}
                 </span>
               </div>
@@ -207,14 +203,14 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-3xl bg-card p-6"
+          className="rounded-3xl bg-[#1E1E1E]/90 p-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-4xl font-black text-foreground">
+              <p className="text-4xl font-black text-white">
                 {todayWorkout || "Descanso"}
               </p>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-gray-400 mt-1">
                 {todayWorkout && todayWorkout !== "Descanso" 
                   ? "Treino de hoje" 
                   : "Dia de recuperação"}
@@ -231,7 +227,7 @@ const Home = () => {
                   stroke="currentColor"
                   strokeWidth="6"
                   fill="none"
-                  className="text-secondary"
+                  className="text-gray-700"
                 />
                 <circle
                   cx="48"
@@ -243,11 +239,11 @@ const Home = () => {
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
-                  className="text-foreground transition-all duration-500"
+                  className="text-white transition-all duration-500"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Dumbbell className="h-8 w-8 text-foreground" />
+                <Dumbbell className="h-8 w-8 text-white" />
               </div>
             </div>
           </div>
@@ -270,27 +266,27 @@ const Home = () => {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="rounded-2xl bg-card p-4">
-            <p className="text-2xl font-black text-foreground">0</p>
-            <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
+          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+            <p className="text-2xl font-black text-white">0</p>
+            <p className="text-xs text-gray-400 mt-1">Séries feitas</p>
             <div className="mt-3 flex justify-center">
-              <Target className="h-6 w-6 text-muted-foreground" />
+              <Target className="h-6 w-6 text-gray-500" />
             </div>
           </div>
           
-          <div className="rounded-2xl bg-card p-4">
-            <p className="text-2xl font-black text-foreground">0</p>
-            <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
+          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+            <p className="text-2xl font-black text-white">0</p>
+            <p className="text-xs text-gray-400 mt-1">Reps totais</p>
             <div className="mt-3 flex justify-center">
-              <Dumbbell className="h-6 w-6 text-muted-foreground" />
+              <Dumbbell className="h-6 w-6 text-gray-500" />
             </div>
           </div>
           
-          <div className="rounded-2xl bg-card p-4">
-            <p className="text-2xl font-black text-foreground">0</p>
-            <p className="text-xs text-muted-foreground mt-1">Min treino</p>
+          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+            <p className="text-2xl font-black text-white">0</p>
+            <p className="text-xs text-gray-400 mt-1">Min treino</p>
             <div className="mt-3 flex justify-center">
-              <Timer className="h-6 w-6 text-muted-foreground" />
+              <Timer className="h-6 w-6 text-gray-500" />
             </div>
           </div>
         </motion.div>
@@ -301,7 +297,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h3 className="text-xl font-bold text-foreground mb-4">Próximos treinos</h3>
+          <h3 className="text-xl font-bold text-white mb-4">Próximos treinos</h3>
           
           <div className="space-y-3">
             {weekSchedule
@@ -310,21 +306,21 @@ const Home = () => {
               .map((item) => (
                 <div
                   key={item.fullDay}
-                  className="flex items-center gap-4 rounded-2xl bg-card p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/90 p-4"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
-                    <Dumbbell className="h-6 w-6 text-foreground" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50">
+                    <Dumbbell className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-foreground">{item.workout}</p>
-                    <p className="text-sm text-muted-foreground">{item.fullDay}</p>
+                    <p className="font-semibold text-white">{item.workout}</p>
+                    <p className="text-sm text-gray-400">{item.fullDay}</p>
                   </div>
                 </div>
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <div className="rounded-2xl bg-card p-6 text-center">
-                <p className="text-muted-foreground">
+              <div className="rounded-2xl bg-[#1E1E1E]/90 p-6 text-center">
+                <p className="text-gray-400">
                   Nenhum treino agendado para esta semana
                 </p>
               </div>
