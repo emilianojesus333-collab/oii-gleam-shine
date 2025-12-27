@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import gymBackground from "@/assets/gym-background.jpeg";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -60,18 +61,28 @@ const Home = () => {
   const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gym-gradient bg-gym-pattern pb-24">
+    <div className="flex min-h-screen flex-col bg-background pb-24">
+      {/* Hero Background Image */}
+      <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
+        <img 
+          src={gymBackground} 
+          alt="" 
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
+      </div>
+
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between px-6 pt-12 pb-4"
+        className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
       >
         <div className="flex items-center gap-2">
           <Dumbbell className="h-7 w-7 text-foreground" />
           <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-card px-4 py-2 shadow-sm">
+        <div className="flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm px-4 py-2 shadow-sm">
           <Flame className="h-5 w-5 text-orange-500" />
           <span className="font-bold text-foreground">7</span>
         </div>
@@ -82,7 +93,7 @@ const Home = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="px-6 py-4"
+        className="relative z-10 px-6 py-4"
       >
         <div className="flex justify-between">
           {weekSchedule.map((item, index) => (
@@ -116,7 +127,7 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <main className="flex-1 px-6 space-y-5">
+      <main className="relative z-10 flex-1 px-6 space-y-5">
         {/* Main Workout Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
