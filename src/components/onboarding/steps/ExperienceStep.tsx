@@ -6,6 +6,7 @@ interface ExperienceStepProps {
   selectedExperience: string | null;
   onSelect: (experience: string) => void;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
 const experiences = [
@@ -19,10 +20,11 @@ export const ExperienceStep = ({
   selectedExperience,
   onSelect,
   onContinue,
+  onBack,
 }: ExperienceStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue} buttonDisabled={!selectedExperience}>
-      <div className="flex flex-1 flex-col pt-12">
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedExperience}>
+      <div className="flex flex-1 flex-col pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 
 interface WelcomeStepProps {
   onContinue: () => void;
+  onBack?: () => void;
 }
 
-export const WelcomeStep = ({ onContinue }: WelcomeStepProps) => {
+export const WelcomeStep = ({ onContinue, onBack }: WelcomeStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue}>
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack}>
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

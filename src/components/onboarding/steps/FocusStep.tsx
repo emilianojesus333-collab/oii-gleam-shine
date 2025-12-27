@@ -6,6 +6,7 @@ interface FocusStepProps {
   selectedFocus: string | null;
   onSelect: (focus: string) => void;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
 const focusOptions = [
@@ -20,10 +21,11 @@ export const FocusStep = ({
   selectedFocus,
   onSelect,
   onContinue,
+  onBack,
 }: FocusStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue} buttonDisabled={!selectedFocus}>
-      <div className="flex flex-1 flex-col pt-12">
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedFocus}>
+      <div className="flex flex-1 flex-col pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
