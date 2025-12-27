@@ -1,21 +1,37 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 interface OnboardingLayoutProps {
   children: ReactNode;
   onContinue: () => void;
+  onBack?: () => void;
   showButton?: boolean;
+  showBackButton?: boolean;
   buttonDisabled?: boolean;
 }
 
 export const OnboardingLayout = ({
   children,
   onContinue,
+  onBack,
   showButton = true,
+  showBackButton = false,
   buttonDisabled = false,
 }: OnboardingLayoutProps) => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {showBackButton && onBack && (
+        <div className="px-4 pt-4">
+          <button
+            onClick={onBack}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-card transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 text-foreground" />
+          </button>
+        </div>
+      )}
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -45,8 +45,14 @@ const Onboarding = () => {
     }
   };
 
+  const goToPreviousStep = () => {
+    const currentIndex = stepFlow.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(stepFlow[currentIndex - 1]);
+    }
+  };
+
   const handleSelectDay = (day: string) => {
-    // For now, just toggle selection with a placeholder
     setData((prev) => ({
       ...prev,
       schedule: prev.schedule[day]
@@ -63,7 +69,11 @@ const Onboarding = () => {
         )}
 
         {currentStep === "welcome" && (
-          <WelcomeStep key="welcome" onContinue={goToNextStep} />
+          <WelcomeStep 
+            key="welcome" 
+            onContinue={goToNextStep} 
+            onBack={goToPreviousStep}
+          />
         )}
 
         {currentStep === "goal" && (
@@ -72,6 +82,7 @@ const Onboarding = () => {
             selectedGoal={data.goal}
             onSelect={(goal) => setData((prev) => ({ ...prev, goal }))}
             onContinue={goToNextStep}
+            onBack={goToPreviousStep}
           />
         )}
 
@@ -81,6 +92,7 @@ const Onboarding = () => {
             selectedExperience={data.experience}
             onSelect={(experience) => setData((prev) => ({ ...prev, experience }))}
             onContinue={goToNextStep}
+            onBack={goToPreviousStep}
           />
         )}
 
@@ -90,6 +102,7 @@ const Onboarding = () => {
             selectedFocus={data.focus}
             onSelect={(focus) => setData((prev) => ({ ...prev, focus }))}
             onContinue={goToNextStep}
+            onBack={goToPreviousStep}
           />
         )}
 
@@ -99,6 +112,7 @@ const Onboarding = () => {
             schedule={data.schedule}
             onSelectDay={handleSelectDay}
             onContinue={goToNextStep}
+            onBack={goToPreviousStep}
           />
         )}
       </AnimatePresence>

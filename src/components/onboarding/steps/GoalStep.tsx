@@ -6,6 +6,7 @@ interface GoalStepProps {
   selectedGoal: string | null;
   onSelect: (goal: string) => void;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
 const goals = [
@@ -15,10 +16,10 @@ const goals = [
   "manter forma física",
 ];
 
-export const GoalStep = ({ selectedGoal, onSelect, onContinue }: GoalStepProps) => {
+export const GoalStep = ({ selectedGoal, onSelect, onContinue, onBack }: GoalStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue} buttonDisabled={!selectedGoal}>
-      <div className="flex flex-1 flex-col pt-12">
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedGoal}>
+      <div className="flex flex-1 flex-col pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

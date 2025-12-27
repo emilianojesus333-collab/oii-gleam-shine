@@ -6,6 +6,7 @@ interface CalendarStepProps {
   schedule: Record<string, string>;
   onSelectDay: (day: string) => void;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
 const weekDays = [
@@ -22,10 +23,11 @@ export const CalendarStep = ({
   schedule,
   onSelectDay,
   onContinue,
+  onBack,
 }: CalendarStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue}>
-      <div className="flex flex-1 flex-col pt-8">
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack}>
+      <div className="flex flex-1 flex-col pt-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +41,7 @@ export const CalendarStep = ({
           </p>
         </motion.div>
 
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-3">
           {weekDays.map((day, index) => (
             <motion.div
               key={day}
