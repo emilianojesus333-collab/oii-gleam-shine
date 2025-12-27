@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Calendar, Dumbbell, ChevronRight } from "lucide-react";
+import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 
@@ -13,21 +13,12 @@ const weekDaysMap: Record<number, string> = {
   6: "Sábado",
 };
 
-const muscleGroupIcons: Record<string, string> = {
-  "Peito": "💪",
-  "Costas": "🔙",
-  "Pernas": "🦵",
-  "Ombros": "🎯",
-  "Braços": "💪",
-  "Abdômen": "🔥",
-  "Glúteos": "🍑",
-  "Descanso": "😴",
-};
+const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const Home = () => {
   const navigate = useNavigate();
 
-  const { todayWorkout, weekSchedule, userName } = useMemo(() => {
+  const { todayWorkout, weekSchedule, todayIndex } = useMemo(() => {
     const onboardingData = localStorage.getItem("liftmate_onboarding");
     const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
     
@@ -35,162 +26,224 @@ const Home = () => {
     const todayName = weekDaysMap[today.getDay()];
     const workout = data.schedule?.[todayName] || null;
 
-    // Get next 7 days schedule
+    // Get current week schedule (Mon-Sun)
     const schedule = [];
+    const currentDayOfWeek = today.getDay();
+    const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+    
     for (let i = 0; i < 7; i++) {
       const date = new Date();
-      date.setDate(today.getDate() + i);
-      const dayName = weekDaysMap[date.getDay()];
+      date.setDate(today.getDate() + mondayOffset + i);
+      const dayIndex = date.getDay();
+      const dayName = weekDaysMap[dayIndex];
       const dayWorkout = data.schedule?.[dayName] || null;
       schedule.push({
-        day: i === 0 ? "Hoje" : i === 1 ? "Amanhã" : dayName.split("-")[0],
+        shortDay: shortDays[dayIndex],
         fullDay: dayName,
         workout: dayWorkout,
         date: date.getDate(),
+        isToday: date.toDateString() === today.toDateString(),
       });
     }
+
+    const todayIdx = schedule.findIndex(d => d.isToday);
 
     return {
       todayWorkout: workout,
       weekSchedule: schedule,
-      userName: "Atleta",
+      todayIndex: todayIdx,
     };
   }, []);
 
+  const workoutProgress = todayWorkout && todayWorkout !== "Descanso" ? 0 : 100;
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
+
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-secondary/50 to-background pb-24">
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="px-6 pt-12 pb-6"
+        className="flex items-center justify-between px-6 pt-12 pb-4"
       >
-        <p className="text-muted-foreground">Olá, {userName}</p>
-        <h1 className="text-2xl font-bold text-foreground">Pronto para treinar?</h1>
+        <div className="flex items-center gap-2">
+          <Dumbbell className="h-7 w-7 text-foreground" />
+          <h1 className="text-2xl font-black text-foreground">LiftMate</h1>
+        </div>
+        <div className="flex items-center gap-2 rounded-full bg-card px-4 py-2 shadow-sm">
+          <Flame className="h-5 w-5 text-orange-500" />
+          <span className="font-bold text-foreground">7</span>
+        </div>
       </motion.header>
 
-      <main className="flex-1 px-6 space-y-6">
-        {/* Today's Workout Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl bg-card p-6"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-              <Dumbbell className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Treino de Hoje</p>
-              <h2 className="text-xl font-bold text-foreground">
-                {todayWorkout || "Dia de descanso"}
-              </h2>
-            </div>
-          </div>
-
-          {todayWorkout && todayWorkout !== "Descanso" && (
-            <button
-              onClick={() => navigate("/chat")}
-              className="flex w-full items-center justify-between rounded-xl bg-secondary px-4 py-3 text-left transition-all hover:bg-secondary/80"
+      {/* Week Calendar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="px-6 py-4"
+      >
+        <div className="flex justify-between">
+          {weekSchedule.map((item, index) => (
+            <motion.div
+              key={item.fullDay}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 + index * 0.03 }}
+              className="flex flex-col items-center"
             >
-              <span className="font-medium text-foreground">Iniciar treino com IA</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </button>
-          )}
+              <span className="text-xs text-muted-foreground mb-2">{item.shortDay}</span>
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+                  item.isToday
+                    ? "bg-card shadow-md"
+                    : item.workout && item.workout !== "Descanso"
+                    ? "border-2 border-dashed border-muted-foreground/30"
+                    : ""
+                }`}
+              >
+                <span
+                  className={`text-lg font-bold ${
+                    item.isToday ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {item.date}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
-          {(!todayWorkout || todayWorkout === "Descanso") && (
-            <p className="text-muted-foreground">
-              {todayWorkout === "Descanso" 
-                ? "Aproveita para recuperar e descansar bem!" 
-                : "Nenhum treino agendado para hoje."}
-            </p>
-          )}
-        </motion.div>
-
-        {/* Weekly Schedule */}
+      <main className="flex-1 px-6 space-y-5">
+        {/* Main Workout Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          className="rounded-3xl bg-card p-6 shadow-sm"
         >
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground">Esta semana</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-4xl font-black text-foreground">
+                {todayWorkout || "Descanso"}
+              </p>
+              <p className="text-muted-foreground mt-1">
+                {todayWorkout && todayWorkout !== "Descanso" 
+                  ? "Treino de hoje" 
+                  : "Dia de recuperação"}
+              </p>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="relative">
+              <svg className="h-24 w-24 -rotate-90">
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="45"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  className="text-secondary"
+                />
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="45"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  className="text-foreground transition-all duration-500"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Dumbbell className="h-8 w-8 text-foreground" />
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
-            {weekSchedule.map((item, index) => (
-              <motion.div
-                key={item.fullDay}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + index * 0.05 }}
-                className={`flex flex-col items-center rounded-xl p-3 ${
-                  index === 0 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-card text-foreground"
-                }`}
-              >
-                <span className={`text-xs ${index === 0 ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                  {item.day.slice(0, 3)}
-                </span>
-                <span className="text-lg font-bold mt-1">{item.date}</span>
-                <span className="text-lg mt-1">
-                  {item.workout ? muscleGroupIcons[item.workout] || "💪" : "—"}
-                </span>
-              </motion.div>
-            ))}
+          {todayWorkout && todayWorkout !== "Descanso" && (
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/chat")}
+              className="mt-6 w-full rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-all hover:opacity-90"
+            >
+              Iniciar Treino
+            </motion.button>
+          )}
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-3 gap-3"
+        >
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Séries feitas</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
+              <Target className="h-6 w-6 text-rose-500" />
+            </div>
+          </div>
+          
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Reps totais</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+              <TrendingUp className="h-6 w-6 text-amber-500" />
+            </div>
+          </div>
+          
+          <div className="rounded-2xl bg-card p-4 shadow-sm">
+            <p className="text-2xl font-black text-foreground">0</p>
+            <p className="text-xs text-muted-foreground mt-1">Min treino</p>
+            <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-100">
+              <Timer className="h-6 w-6 text-sky-500" />
+            </div>
           </div>
         </motion.div>
 
-        {/* Quick Stats */}
+        {/* Recent Workouts Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-4"
         >
-          <div className="rounded-2xl bg-card p-5">
-            <p className="text-sm text-muted-foreground">Treinos esta semana</p>
-            <p className="text-3xl font-bold text-foreground mt-1">
-              {weekSchedule.filter(d => d.workout && d.workout !== "Descanso").length}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-5">
-            <p className="text-sm text-muted-foreground">Dias de descanso</p>
-            <p className="text-3xl font-bold text-foreground mt-1">
-              {weekSchedule.filter(d => !d.workout || d.workout === "Descanso").length}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Workout List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <h3 className="font-semibold text-foreground mb-4">Próximos treinos</h3>
+          <h3 className="text-xl font-bold text-foreground mb-4">Próximos treinos</h3>
+          
           <div className="space-y-3">
             {weekSchedule
-              .filter(d => d.workout && d.workout !== "Descanso")
+              .filter(d => !d.isToday && d.workout && d.workout !== "Descanso")
               .slice(0, 3)
-              .map((item, index) => (
+              .map((item) => (
                 <div
                   key={item.fullDay}
-                  className="flex items-center gap-4 rounded-xl bg-card p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-2xl">
-                    {muscleGroupIcons[item.workout!] || "💪"}
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
+                    <Dumbbell className="h-6 w-6 text-foreground" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">{item.workout}</p>
+                    <p className="font-semibold text-foreground">{item.workout}</p>
                     <p className="text-sm text-muted-foreground">{item.fullDay}</p>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </div>
               ))}
+
+            {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
+              <div className="rounded-2xl bg-card p-6 text-center shadow-sm">
+                <p className="text-muted-foreground">
+                  Nenhum treino agendado para esta semana
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
       </main>
@@ -199,7 +252,7 @@ const Home = () => {
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.6, type: "spring" }}
+        transition={{ delay: 0.5, type: "spring" }}
         onClick={() => navigate("/chat")}
         className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
       >
