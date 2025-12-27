@@ -55,9 +55,17 @@ export const MuscleGroupSheet = ({
   const MAX_SELECTIONS = 3;
 
   const toggleGroup = (group: string) => {
-    // If selecting "Descanso", clear all others
+    // If selecting "Descanso", clear all others and auto-confirm
     if (group === "Descanso") {
-      setSelected(selected.includes("Descanso") ? [] : ["Descanso"]);
+      const newSelection = selected.includes("Descanso") ? [] : ["Descanso"];
+      setSelected(newSelection);
+      if (newSelection.length === 1) {
+        // Auto-confirm when selecting Descanso
+        setTimeout(() => {
+          onSelectGroups(newSelection);
+          onClose();
+        }, 300);
+      }
       return;
     }
     
@@ -75,7 +83,17 @@ export const MuscleGroupSheet = ({
         return withoutDescanso;
       }
       
-      return [...withoutDescanso, group];
+      const newSelection = [...withoutDescanso, group];
+      
+      // Auto-confirm when reaching 3 selections
+      if (newSelection.length === MAX_SELECTIONS) {
+        setTimeout(() => {
+          onSelectGroups(newSelection);
+          onClose();
+        }, 300);
+      }
+      
+      return newSelection;
     });
   };
 
