@@ -5,8 +5,8 @@ import { MuscleGroupSheet } from "../MuscleGroupSheet";
 import { motion } from "framer-motion";
 
 interface CalendarStepProps {
-  schedule: Record<string, string>;
-  onSelectGroup: (day: string, group: string) => void;
+  schedule: Record<string, string[]>;
+  onSelectGroups: (day: string, groups: string[]) => void;
   onContinue: () => void;
   onBack?: () => void;
 }
@@ -23,7 +23,7 @@ const weekDays = [
 
 export const CalendarStep = ({
   schedule,
-  onSelectGroup,
+  onSelectGroups,
   onContinue,
   onBack,
 }: CalendarStepProps) => {
@@ -35,8 +35,15 @@ export const CalendarStep = ({
     setSheetOpen(true);
   };
 
-  const handleGroupSelect = (group: string) => {
-    onSelectGroup(selectedDay, group);
+  const handleGroupsSelect = (groups: string[]) => {
+    onSelectGroups(selectedDay, groups);
+  };
+
+  const formatGroups = (groups: string[] | undefined) => {
+    if (!groups || groups.length === 0) return "Selecionar";
+    if (groups.length === 1) return groups[0];
+    if (groups.length === 2) return groups.join(" + ");
+    return `${groups.slice(0, 2).join(" + ")} +${groups.length - 2}`;
   };
 
   return (
@@ -56,21 +63,26 @@ export const CalendarStep = ({
         </motion.div>
 
         <div className="mt-6 flex flex-col gap-3">
-          {weekDays.map((day, index) => (
-            <motion.div
-              key={day}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <OptionCard
-                label={day}
-                rightText={schedule[day] || "Selecionar"}
-                selected={!!schedule[day]}
-                onClick={() => handleDayClick(day)}
-              />
-            </motion.div>
-          ))}
+          {weekDays.map((day, index) => {
+            const dayGroups = schedule[day];
+            const hasSelection = dayGroups && dayGroups.length > 0;
+            
+            return (
+              <motion.div
+                key={day}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <OptionCard
+                  label={day}
+                  rightText={formatGroups(dayGroups)}
+                  selected={hasSelection}
+                  onClick={() => handleDayClick(day)}
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
@@ -78,7 +90,7 @@ export const CalendarStep = ({
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         selectedDay={selectedDay}
-        onSelectGroup={handleGroupSelect}
+        onSelectGroups={handleGroupsSelect}
         currentSelection={schedule[selectedDay]}
       />
     </OnboardingLayout>

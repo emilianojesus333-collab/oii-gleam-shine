@@ -14,7 +14,7 @@ interface OnboardingData {
   goal: string | null;
   experience: string | null;
   focus: string | null;
-  schedule: Record<string, string>;
+  schedule: Record<string, string[]>;
 }
 
 const Onboarding = () => {
@@ -52,10 +52,10 @@ const Onboarding = () => {
     }
   };
 
-  const handleSelectGroup = (day: string, group: string) => {
+  const handleSelectGroups = (day: string, groups: string[]) => {
     setData((prev) => ({
       ...prev,
-      schedule: { ...prev.schedule, [day]: group },
+      schedule: { ...prev.schedule, [day]: groups },
     }));
   };
 
@@ -108,7 +108,7 @@ const Onboarding = () => {
           <CalendarStep
             key="calendar"
             schedule={data.schedule}
-            onSelectGroup={handleSelectGroup}
+            onSelectGroups={handleSelectGroups}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
