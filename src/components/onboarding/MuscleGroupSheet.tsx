@@ -150,13 +150,15 @@ export const MuscleGroupSheet = ({
           })}
         </div>
 
-        <Button
-          type="button"
-          onClick={handleConfirm}
-          className="mt-6 w-full rounded-full py-6 text-base font-semibold"
-        >
-          Confirmar {selected.length > 0 && `(${selected.length})`}
-        </Button>
+        {selected.length > 0 && selected.length < MAX_SELECTIONS && !selected.includes("Descanso") && (
+          <Button
+            type="button"
+            onClick={handleConfirm}
+            className="mt-6 w-full rounded-full py-6 text-base font-semibold"
+          >
+            Confirmar ({selected.length})
+          </Button>
+        )}
       </SheetContent>
     </Sheet>
   );
