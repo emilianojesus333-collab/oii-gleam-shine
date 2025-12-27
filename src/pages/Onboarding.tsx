@@ -3,14 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { SplashStep } from "@/components/onboarding/steps/SplashStep";
 import { WelcomeStep } from "@/components/onboarding/steps/WelcomeStep";
+import { PersonalDataStep } from "@/components/onboarding/steps/PersonalDataStep";
 import { GoalStep } from "@/components/onboarding/steps/GoalStep";
 import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
 import { FocusStep } from "@/components/onboarding/steps/FocusStep";
 import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
 
-type Step = "splash" | "welcome" | "goal" | "experience" | "focus" | "calendar";
+type Step = "splash" | "welcome" | "personal" | "goal" | "experience" | "focus" | "calendar";
+
+interface PersonalData {
+  name: string;
+  height: string;
+  weight: string;
+  gender: string;
+  birthYear: string;
+}
 
 interface OnboardingData {
+  personal: PersonalData;
   goal: string | null;
   experience: string | null;
   focus: string | null;
@@ -21,6 +31,13 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>("splash");
   const [data, setData] = useState<OnboardingData>({
+    personal: {
+      name: "",
+      height: "170",
+      weight: "",
+      gender: "",
+      birthYear: "",
+    },
     goal: null,
     experience: null,
     focus: null,
@@ -34,7 +51,7 @@ const Onboarding = () => {
     navigate("/home");
   };
 
-  const stepFlow: Step[] = ["splash", "welcome", "goal", "experience", "focus", "calendar"];
+  const stepFlow: Step[] = ["splash", "welcome", "personal", "goal", "experience", "focus", "calendar"];
 
   const goToNextStep = () => {
     const currentIndex = stepFlow.indexOf(currentStep);
@@ -59,6 +76,13 @@ const Onboarding = () => {
     }));
   };
 
+  const handleUpdatePersonal = (updates: Partial<PersonalData>) => {
+    setData((prev) => ({
+      ...prev,
+      personal: { ...prev.personal, ...updates },
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AnimatePresence mode="wait">
@@ -70,6 +94,16 @@ const Onboarding = () => {
           <WelcomeStep 
             key="welcome" 
             onContinue={goToNextStep} 
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "personal" && (
+          <PersonalDataStep
+            key="personal"
+            personalData={data.personal}
+            onUpdate={handleUpdatePersonal}
+            onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
         )}
