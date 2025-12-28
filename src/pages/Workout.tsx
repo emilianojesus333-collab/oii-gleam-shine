@@ -25,16 +25,45 @@ const weekDaysMap: Record<number, string> = {
 
 type TrainingType = "Força" | "Hipertrofia" | "Resistência";
 
-const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string; restTime: number }> = {
-  "Força": { icon: Zap, description: "Cargas altas, poucas reps", restTime: 180 },
-  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado", restTime: 90 },
-  "Resistência": { icon: Clock, description: "Mais reps, menos descanso", restTime: 45 },
+const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string }> = {
+  "Força": { icon: Zap, description: "Cargas altas, poucas reps" },
+  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado" },
+  "Resistência": { icon: Clock, description: "Mais reps, menos descanso" },
+};
+
+// Calculate rest time based on exercise parameters
+const calculateRestTime = (weight: number, reps: number, sets: number): number => {
+  // Base rest time calculation
+  let baseRest = 60;
+  
+  // Higher weight = more rest (every 10kg adds 10 seconds)
+  baseRest += Math.floor(weight / 10) * 10;
+  
+  // Lower reps = more rest (strength training needs more recovery)
+  if (reps <= 5) {
+    baseRest += 60; // Heavy strength work
+  } else if (reps <= 8) {
+    baseRest += 30; // Moderate strength
+  } else if (reps <= 12) {
+    baseRest += 0; // Hypertrophy range
+  } else {
+    baseRest -= 15; // Endurance, less rest
+  }
+  
+  // More sets = slightly more rest
+  if (sets >= 4) {
+    baseRest += 15;
+  }
+  
+  // Clamp between 30 seconds and 5 minutes
+  return Math.max(30, Math.min(300, baseRest));
 };
 
 const Workout = () => {
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
-  const [weight, setWeight] = useState("80");
-  const [reps, setReps] = useState("10");
+  const [selectedExercise, setSelectedExercise] = useState("");
+  const [weight, setWeight] = useState("30");
+  const [reps, setReps] = useState("7");
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
   
@@ -64,12 +93,20 @@ const Workout = () => {
     return getExercisesForGroups(muscleGroups);
   }, [todayWorkout]);
 
-  // Update rest time when training type changes
+  // Auto-calculate rest time when exercise parameters change
   useEffect(() => {
-    const newRestTime = trainingTypeConfig[trainingType].restTime;
-    setRestTime(String(newRestTime));
-    setRestRemaining(newRestTime);
-  }, [trainingType]);
+    const weightNum = parseInt(weight) || 0;
+    const repsNum = parseInt(reps) || 0;
+    const setsNum = parseInt(sets) || 0;
+    
+    if (weightNum > 0 && repsNum > 0 && setsNum > 0) {
+      const calculatedRest = calculateRestTime(weightNum, repsNum, setsNum);
+      setRestTime(String(calculatedRest));
+      if (!isRestRunning) {
+        setRestRemaining(calculatedRest);
+      }
+    }
+  }, [weight, reps, sets, isRestRunning]);
 
   // Rest timer logic
   useEffect(() => {
