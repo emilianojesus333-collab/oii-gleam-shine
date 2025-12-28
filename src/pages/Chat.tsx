@@ -213,18 +213,18 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
       {/* Header */}
-      <header className="flex items-center gap-4 border-b border-border px-4 py-4">
+      <header className="flex items-center gap-4 border-b border-white/10 px-4 py-4 bg-[#0d0d0d]">
         <button
           onClick={() => navigate(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-card"
+          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
         >
-          <ArrowLeft className="h-5 w-5 text-foreground" />
+          <ArrowLeft className="h-5 w-5 text-white" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-semibold text-foreground">LiftMate IA</h1>
-          <p className="text-sm text-muted-foreground">O teu treinador pessoal</p>
+          <h1 className="text-lg font-semibold text-white">LiftMate IA</h1>
+          <p className="text-sm text-white/50">O teu treinador pessoal</p>
         </div>
       </header>
 
@@ -235,14 +235,14 @@ const Chat = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-border"
+            className="overflow-hidden border-b border-white/10"
           >
-            <div className="bg-primary/10 px-4 py-3">
+            <div className="bg-white/5 px-4 py-3">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-foreground">O teu progresso</p>
+                <p className="text-sm font-medium text-white">O teu progresso</p>
                 <button
                   onClick={() => setShowWorkoutContext(false)}
-                  className="text-xs text-muted-foreground hover:text-foreground"
+                  className="text-xs text-white/50 hover:text-white"
                 >
                   Ocultar
                 </button>
@@ -250,25 +250,25 @@ const Chat = () => {
               
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-2">
-                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
                   <Calendar className="h-4 w-4 text-primary" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="text-sm font-bold text-foreground">{workoutStats.totalSessions}</p>
+                    <p className="text-xs text-white/50">Total</p>
+                    <p className="text-sm font-bold text-white">{workoutStats.totalSessions}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
                   <Flame className="h-4 w-4 text-orange-500" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Streak</p>
-                    <p className="text-sm font-bold text-foreground">{workoutStats.currentStreak}d</p>
+                    <p className="text-xs text-white/50">Streak</p>
+                    <p className="text-sm font-bold text-white">{workoutStats.currentStreak}d</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Taxa</p>
-                    <p className="text-sm font-bold text-foreground">{workoutStats.averageCompletionRate}%</p>
+                    <p className="text-xs text-white/50">Taxa</p>
+                    <p className="text-sm font-bold text-white">{workoutStats.averageCompletionRate}%</p>
                   </div>
                 </div>
               </div>
@@ -286,7 +286,7 @@ const Chat = () => {
                     </span>
                   ))}
                   {completedExercisesData.exercises.length > 4 && (
-                    <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/50">
                       +{completedExercisesData.exercises.length - 4}
                     </span>
                   )}
@@ -310,8 +310,8 @@ const Chat = () => {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.isUser
-                    ? "bg-foreground text-background"
-                    : "bg-card text-foreground"
+                    ? "bg-white text-[#0d0d0d]"
+                    : "bg-[#1a1a1a] text-white border border-white/10"
                 }`}
               >
                 <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
@@ -322,7 +322,7 @@ const Chat = () => {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border p-4 safe-area-bottom">
+      <div className="border-t border-white/10 p-4 safe-area-bottom bg-[#0d0d0d]">
         <div className="flex items-center gap-3">
           <input
             type="text"
@@ -330,12 +330,12 @@ const Chat = () => {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Escreve a tua mensagem..."
-            className="flex-1 rounded-2xl bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
           />
           <button
             onClick={handleSend}
             disabled={!inputValue.trim()}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             <Send className="h-5 w-5" />
           </button>
