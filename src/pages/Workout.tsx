@@ -16,7 +16,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
 import { toast } from "sonner";
-import { ExerciseInsightsCarousel } from "@/components/workout/ExerciseInsightsCarousel";
+import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -318,131 +318,28 @@ const Workout = () => {
             </div>
           </motion.div>
 
-          {/* Exercise Registration Form */}
+          {/* Main Carousel Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
+            className="bg-[#1E1E1E]/50 rounded-[20px] overflow-hidden"
           >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <span className="text-primary text-lg font-bold">+</span>
-              </div>
-              <h2 className="text-lg font-semibold text-white/70">Registar Exercício</h2>
-            </div>
-
-            {/* Insights Carousel */}
-            <ExerciseInsightsCarousel
+            <MainWorkoutCarousel
               selectedExercise={selectedExercise}
+              setSelectedExercise={setSelectedExercise}
               weight={weight}
+              setWeight={setWeight}
               reps={reps}
-              exerciseFocus={todayExercises.find(e => e.name === selectedExercise)?.focus}
+              setReps={setReps}
+              sets={sets}
+              setSets={setSets}
+              restTime={restTime}
+              setRestTime={setRestTime}
+              todayExercises={todayExercises}
+              saveExercise={saveExercise}
+              justSaved={justSaved}
             />
-
-            {/* Exercise selector with text input */}
-            <div className="mb-4">
-              <label className="text-sm text-gray-400/70 mb-2 block">Nome do Exercício</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="exercise-options"
-                  value={selectedExercise}
-                  onChange={(e) => setSelectedExercise(e.target.value)}
-                  placeholder="Escreve ou seleciona um exercício..."
-                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                />
-                <datalist id="exercise-options">
-                  {todayExercises.map((exercise) => (
-                    <option key={exercise.name} value={exercise.name} />
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            {/* Input Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm text-gray-400/70 mb-2 block">Peso (kg)</label>
-                <input
-                  type="number"
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  placeholder="80"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400/70 mb-2 block">Repetições</label>
-                <input
-                  type="number"
-                  value={reps}
-                  onChange={(e) => setReps(e.target.value)}
-                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  placeholder="10"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400/70 mb-2 block">Séries</label>
-                <input
-                  type="number"
-                  value={sets}
-                  onChange={(e) => setSets(e.target.value)}
-                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  placeholder="3"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400/70 mb-2 block">Descanso (seg)</label>
-                <input
-                  type="number"
-                  value={restTime}
-                  onChange={(e) => setRestTime(e.target.value)}
-                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  placeholder="90"
-                />
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={saveExercise}
-              disabled={!selectedExercise.trim()}
-              className={`w-full mt-5 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                justSaved
-                  ? "bg-green-500 text-white"
-                  : selectedExercise.trim()
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                  : "bg-[#2A2A2A]/50 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              <AnimatePresence mode="wait">
-                {justSaved ? (
-                  <motion.div
-                    key="saved"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Check className="w-5 h-5" />
-                    Guardado!
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="save"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Save className="w-5 h-5" />
-                    Guardar Exercício
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
           </motion.div>
 
           {/* Saved Exercises Today */}
