@@ -1,7 +1,9 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, TrendingUp, History, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity } from "lucide-react";
+import { Dumbbell, TrendingUp, History, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity, BookmarkPlus, TrendingDown, User } from "lucide-react";
 import { getWorkoutHistory } from "@/data/workoutHistory";
+import { useOneRMRecords } from "@/hooks/useOneRMRecords";
+import { useNavigate } from "react-router-dom";
 
 interface MainWorkoutCarouselProps {
   selectedExercise: string;
@@ -79,11 +81,23 @@ export const MainWorkoutCarousel = ({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  const navigate = useNavigate();
+  const { saveRecord, getProgressData, isAuthenticated, fetchRecords } = useOneRMRecords();
+  
   // 1RM Calculator state (independent from registration)
   const [calcExercise, setCalcExercise] = useState("");
   const [calcWeight, setCalcWeight] = useState("");
   const [calcReps, setCalcReps] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [savingRM, setSavingRM] = useState(false);
+  const [savedRM, setSavedRM] = useState(false);
+
+  // Fetch records when exercise changes
+  useEffect(() => {
+    if (calcExercise) {
+      fetchRecords(calcExercise);
+    }
+  }, [calcExercise]);
 
   // Get last workout data for this exercise
   const lastWorkout = useMemo(() => {
@@ -136,7 +150,38 @@ export const MainWorkoutCarousel = ({
     setCalcExercise("");
     setCalcWeight("");
     setCalcReps("");
+    setSavedRM(false);
   };
+
+  const handleSaveRM = async () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+    
+    if (!calcExercise || !calculatedRM) return;
+    
+    setSavingRM(true);
+    const success = await saveRecord(
+      calcExercise,
+      parseFloat(calcWeight),
+      parseInt(calcReps),
+      calculatedRM.average
+    );
+    setSavingRM(false);
+    
+    if (success) {
+      setSavedRM(true);
+    }
+  };
+
+  // Get progress data for current exercise
+  const progressData = useMemo(() => {
+    if (calcExercise && showResults) {
+      return getProgressData(calcExercise);
+    }
+    return null;
+  }, [calcExercise, showResults, getProgressData]);
 
   const slides = [
     { id: "register", icon: Dumbbell, title: "Registar Exercício" },
@@ -495,14 +540,72 @@ export const MainWorkoutCarousel = ({
                         </div>
                       </div>
 
-                      {/* Reset Button */}
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={resetCalculator}
-                        className="w-full py-3 rounded-xl font-medium text-sm bg-[#2A2A2A]/50 text-gray-400 hover:bg-[#2A2A2A]/80 transition-all"
-                      >
-                        Calcular outro exercício
-                      </motion.button>
+                      {/* Progress indicator */}
+                      {progressData && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`rounded-xl p-3 flex items-center justify-between ${
+                            progressData.isImprovement ? "bg-green-500/10" : "bg-red-500/10"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {progressData.isImprovement ? (
+                              <TrendingUp className="w-4 h-4 text-green-400" />
+                            ) : (
+                              <TrendingDown className="w-4 h-4 text-red-400" />
+                            )}
+                            <span className="text-xs text-gray-300">Evolução</span>
+                          </div>
+                          <span className={`text-sm font-bold ${
+                            progressData.isImprovement ? "text-green-400" : "text-red-400"
+                          }`}>
+                            {progressData.isImprovement ? "+" : ""}{progressData.percentageChange}%
+                          </span>
+                        </motion.div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleSaveRM}
+                          disabled={savingRM || savedRM || !calcExercise}
+                          className={`flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                            savedRM
+                              ? "bg-green-500 text-white"
+                              : !calcExercise
+                              ? "bg-[#2A2A2A]/50 text-gray-600 cursor-not-allowed"
+                              : "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                          }`}
+                        >
+                          {savingRM ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : savedRM ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Guardado!
+                            </>
+                          ) : !isAuthenticated ? (
+                            <>
+                              <User className="w-4 h-4" />
+                              Login para guardar
+                            </>
+                          ) : (
+                            <>
+                              <BookmarkPlus className="w-4 h-4" />
+                              Guardar 1RM
+                            </>
+                          )}
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={resetCalculator}
+                          className="px-4 py-3 rounded-xl font-medium text-sm bg-[#2A2A2A]/50 text-gray-400 hover:bg-[#2A2A2A]/80 transition-all"
+                        >
+                          Novo
+                        </motion.button>
+                      </div>
                     </motion.div>
                   )}
                 </div>
