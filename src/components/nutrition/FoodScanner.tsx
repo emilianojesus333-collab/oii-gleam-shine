@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Loader2, Sparkles, X, Plus, Utensils } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock } from 'lucide-react';
+import { useState, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,9 @@ import {
   DrawerFooter,
 } from '@/components/ui/drawer';
 import { Meal, FoodItem, mealTypeLabels } from '@/hooks/useNutrition';
+import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
+import { searchFoods, getPreWorkoutFoods, getPostWorkoutFoods, FoodDatabaseItem, categoryLabels } from '@/data/foodDatabase';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface FoodScannerProps {
   onMealAdded: (meal: Omit<Meal, 'id'>) => void;
@@ -39,21 +42,44 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [manualInput, setManualInput] = useState('');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [selectedMealType, setSelectedMealType] = useState<Meal['type']>('lunch');
+  const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFoods, setSelectedFoods] = useState<FoodDatabaseItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Workout sync
+  const workoutContext = useWorkoutNutritionSync();
+  
+  // Search results
+  const searchResults = useMemo(() => {
+    return searchFoods(searchQuery);
+  }, [searchQuery]);
+  
+  // Suggested foods based on workout phase
+  const suggestedFoods = useMemo(() => {
+    if (workoutContext.phase === 'pre_workout') {
+      return getPreWorkoutFoods().slice(0, 6);
+    }
+    if (workoutContext.phase === 'post_workout') {
+      return getPostWorkoutFoods().slice(0, 6);
+    }
+    return [];
+  }, [workoutContext.phase]);
 
   const resetState = () => {
     setImagePreview(null);
     setManualInput('');
     setAnalysisResult(null);
     setIsAnalyzing(false);
+    setSearchQuery('');
+    setSelectedFoods([]);
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create preview
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
@@ -120,6 +146,56 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     }
   };
 
+  const addFoodFromDatabase = (food: FoodDatabaseItem) => {
+    setSelectedFoods(prev => [...prev, food]);
+    toast({
+      title: `${food.name} adicionado`,
+      description: `${food.calories} kcal`,
+    });
+  };
+
+  const removeFoodFromSelection = (foodId: string) => {
+    setSelectedFoods(prev => prev.filter(f => f.id !== foodId));
+  };
+
+  const handleSaveFromDatabase = () => {
+    if (selectedFoods.length === 0) return;
+
+    const foods: FoodItem[] = selectedFoods.map(food => ({
+      name: food.name,
+      portion: food.portion,
+      calories: food.calories,
+      protein: food.protein,
+      carbs: food.carbs,
+      fat: food.fat,
+      fiber: food.fiber,
+    }));
+
+    const total = selectedFoods.reduce((acc, food) => ({
+      calories: acc.calories + food.calories,
+      protein: acc.protein + food.protein,
+      carbs: acc.carbs + food.carbs,
+      fat: acc.fat + food.fat,
+      fiber: acc.fiber + food.fiber,
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+
+    const meal: Omit<Meal, 'id'> = {
+      type: selectedMealType,
+      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+      foods,
+      total,
+    };
+
+    onMealAdded(meal);
+    setIsOpen(false);
+    resetState();
+
+    toast({
+      title: 'Refeição adicionada!',
+      description: `${total.calories} kcal registadas`,
+    });
+  };
+
   const handleSaveMeal = () => {
     if (!analysisResult) return;
 
@@ -144,214 +220,452 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
   const mealTypes: Meal['type'][] = ['breakfast', 'lunch', 'dinner', 'snack', 'pre_workout', 'post_workout'];
 
+  // Update default meal type based on workout context
+  const handleOpen = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      setSelectedMealType(workoutContext.suggestedMealType);
+    } else {
+      resetState();
+    }
+  };
+
   return (
-    <Drawer open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetState(); }}>
-      <DrawerTrigger asChild>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium shadow-lg shadow-primary/25"
+    <div className="space-y-3">
+      {/* Workout Context Banner */}
+      {workoutContext.phase !== 'none' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-3 rounded-xl border flex items-start gap-3 ${
+            workoutContext.phase === 'post_workout'
+              ? 'bg-green-500/10 border-green-500/20'
+              : workoutContext.phase === 'pre_workout'
+              ? 'bg-amber-500/10 border-amber-500/20'
+              : 'bg-blue-500/10 border-blue-500/20'
+          }`}
         >
-          <Camera className="w-5 h-5" />
-          <span>Escanear Refeição com IA</span>
-          <Sparkles className="w-4 h-4" />
-        </motion.button>
-      </DrawerTrigger>
-
-      <DrawerContent className="max-h-[90vh]">
-        <DrawerHeader>
-          <DrawerTitle className="flex items-center gap-2">
-            <Utensils className="w-5 h-5" />
-            Adicionar Refeição
-          </DrawerTitle>
-        </DrawerHeader>
-
-        <div className="px-4 pb-4 space-y-4 overflow-y-auto">
-          {/* Image upload / preview */}
-          <AnimatePresence mode="wait">
-            {!imagePreview && !analysisResult && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="space-y-4"
-              >
-                {/* Camera button */}
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
-                >
-                  <Camera className="w-10 h-10 text-primary" />
-                  <span className="text-sm text-muted-foreground">Tirar foto ou escolher imagem</span>
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-
-                {/* Divider */}
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-xs text-muted-foreground">ou descreve</span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-
-                {/* Manual input */}
-                <div className="flex gap-2">
-                  <Input
-                    value={manualInput}
-                    onChange={(e) => setManualInput(e.target.value)}
-                    placeholder="Ex: 200g frango grelhado, arroz integral..."
-                    onKeyDown={(e) => e.key === 'Enter' && analyzeText()}
-                  />
-                  <Button onClick={analyzeText} disabled={!manualInput.trim() || isAnalyzing}>
-                    {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </motion.div>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+            workoutContext.phase === 'post_workout'
+              ? 'bg-green-500/20'
+              : workoutContext.phase === 'pre_workout'
+              ? 'bg-amber-500/20'
+              : 'bg-blue-500/20'
+          }`}>
+            {workoutContext.phase === 'post_workout' ? (
+              <Zap className="w-4 h-4 text-green-500" />
+            ) : workoutContext.phase === 'pre_workout' ? (
+              <Dumbbell className="w-4 h-4 text-amber-500" />
+            ) : (
+              <Clock className="w-4 h-4 text-blue-500" />
             )}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              {workoutContext.phase === 'post_workout' && 'Janela Pós-Treino'}
+              {workoutContext.phase === 'pre_workout' && 'Preparação Pré-Treino'}
+              {workoutContext.phase === 'recovery' && 'Recuperação Ativa'}
+            </p>
+            <p className="text-xs text-muted-foreground">{workoutContext.nutritionTip}</p>
+          </div>
+        </motion.div>
+      )}
 
-            {imagePreview && !analysisResult && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="relative"
+      <Drawer open={isOpen} onOpenChange={handleOpen}>
+        <DrawerTrigger asChild>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium shadow-lg shadow-primary/25"
+          >
+            <Camera className="w-5 h-5" />
+            <span>Adicionar Refeição</span>
+            <Sparkles className="w-4 h-4" />
+          </motion.button>
+        </DrawerTrigger>
+
+        <DrawerContent className="max-h-[90vh]">
+          <DrawerHeader>
+            <DrawerTitle className="flex items-center gap-2">
+              <Utensils className="w-5 h-5" />
+              Adicionar Refeição
+            </DrawerTitle>
+          </DrawerHeader>
+
+          {/* Tab Switcher */}
+          <div className="px-4 mb-4">
+            <div className="flex bg-muted/50 rounded-xl p-1">
+              <button
+                onClick={() => setActiveTab('ai')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'ai'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
               >
-                <img
-                  src={imagePreview}
-                  alt="Food preview"
-                  className="w-full aspect-video object-cover rounded-xl"
-                />
-                {isAnalyzing && (
-                  <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center gap-3">
-                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                    <span className="text-white text-sm">A analisar com IA...</span>
-                  </div>
-                )}
-                <button
-                  onClick={resetState}
-                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-              </motion.div>
-            )}
-
-            {analysisResult && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
+                <Sparkles className="w-4 h-4" />
+                IA Scanner
+              </button>
+              <button
+                onClick={() => setActiveTab('search')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'search'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
               >
-                {/* Image preview small */}
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Food"
-                    className="w-full h-24 object-cover rounded-xl"
-                  />
-                )}
-
-                {/* Meal type selector */}
-                <div className="flex flex-wrap gap-2">
-                  {mealTypes.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => setSelectedMealType(type)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        selectedMealType === type
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                      }`}
-                    >
-                      {mealTypeLabels[type]}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Foods list */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Alimentos identificados</h4>
-                  {analysisResult.foods.map((food, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-card/50 border border-border/50">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium text-sm">{food.name}</p>
-                          <p className="text-xs text-muted-foreground">{food.portion}</p>
-                        </div>
-                        <span className="text-sm font-semibold text-primary">
-                          {food.calories} kcal
-                        </span>
-                      </div>
-                      <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
-                        <span>P: {food.protein}g</span>
-                        <span>C: {food.carbs}g</span>
-                        <span>G: {food.fat}g</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Totals */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold">Total</span>
-                    <span className="text-xl font-bold text-primary">
-                      {analysisResult.total.calories} kcal
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                    <div>
-                      <p className="font-semibold">{analysisResult.total.protein}g</p>
-                      <p className="text-muted-foreground">Proteína</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">{analysisResult.total.carbs}g</p>
-                      <p className="text-muted-foreground">Carbs</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">{analysisResult.total.fat}g</p>
-                      <p className="text-muted-foreground">Gordura</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">{analysisResult.total.fiber}g</p>
-                      <p className="text-muted-foreground">Fibra</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tips */}
-                {analysisResult.tips && (
-                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                    <Sparkles className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                    <p className="text-xs text-amber-700 dark:text-amber-300">
-                      {analysisResult.tips}
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {analysisResult && (
-          <DrawerFooter>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={resetState} className="flex-1">
-                Nova Análise
-              </Button>
-              <Button onClick={handleSaveMeal} className="flex-1">
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar
-              </Button>
+                <Search className="w-4 h-4" />
+                Pesquisar
+              </button>
             </div>
-          </DrawerFooter>
-        )}
-      </DrawerContent>
-    </Drawer>
+          </div>
+
+          <ScrollArea className="flex-1 max-h-[60vh]">
+            <div className="px-4 pb-4 space-y-4">
+              {/* AI Tab */}
+              {activeTab === 'ai' && (
+                <AnimatePresence mode="wait">
+                  {!imagePreview && !analysisResult && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="space-y-4"
+                    >
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
+                      >
+                        <Camera className="w-10 h-10 text-primary" />
+                        <span className="text-sm text-muted-foreground">Tirar foto ou escolher imagem</span>
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-px bg-border" />
+                        <span className="text-xs text-muted-foreground">ou descreve</span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Input
+                          value={manualInput}
+                          onChange={(e) => setManualInput(e.target.value)}
+                          placeholder="Ex: 200g frango grelhado, arroz integral..."
+                          onKeyDown={(e) => e.key === 'Enter' && analyzeText()}
+                        />
+                        <Button onClick={analyzeText} disabled={!manualInput.trim() || isAnalyzing}>
+                          {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {imagePreview && !analysisResult && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="relative"
+                    >
+                      <img
+                        src={imagePreview}
+                        alt="Food preview"
+                        className="w-full aspect-video object-cover rounded-xl"
+                      />
+                      {isAnalyzing && (
+                        <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center gap-3">
+                          <Loader2 className="w-8 h-8 text-white animate-spin" />
+                          <span className="text-white text-sm">A analisar com IA...</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={resetState}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {analysisResult && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-4"
+                    >
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Food"
+                          className="w-full h-24 object-cover rounded-xl"
+                        />
+                      )}
+
+                      {/* Meal type selector */}
+                      <div className="flex flex-wrap gap-2">
+                        {mealTypes.map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => setSelectedMealType(type)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                              selectedMealType === type
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                            }`}
+                          >
+                            {mealTypeLabels[type]}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Foods list */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-medium">Alimentos identificados</h4>
+                        {analysisResult.foods.map((food, i) => (
+                          <div key={i} className="p-3 rounded-xl bg-card/50 border border-border/50">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium text-sm">{food.name}</p>
+                                <p className="text-xs text-muted-foreground">{food.portion}</p>
+                              </div>
+                              <span className="text-sm font-semibold text-primary">
+                                {food.calories} kcal
+                              </span>
+                            </div>
+                            <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
+                              <span>P: {food.protein}g</span>
+                              <span>C: {food.carbs}g</span>
+                              <span>G: {food.fat}g</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Totals */}
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-semibold">Total</span>
+                          <span className="text-xl font-bold text-primary">
+                            {analysisResult.total.calories} kcal
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                          <div>
+                            <p className="font-semibold">{analysisResult.total.protein}g</p>
+                            <p className="text-muted-foreground">Proteína</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{analysisResult.total.carbs}g</p>
+                            <p className="text-muted-foreground">Carbs</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{analysisResult.total.fat}g</p>
+                            <p className="text-muted-foreground">Gordura</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{analysisResult.total.fiber}g</p>
+                            <p className="text-muted-foreground">Fibra</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {analysisResult.tips && (
+                        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                          <Sparkles className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            {analysisResult.tips}
+                          </p>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Search Tab */}
+              {activeTab === 'search' && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-4"
+                >
+                  {/* Meal type selector */}
+                  <div className="flex flex-wrap gap-2">
+                    {mealTypes.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSelectedMealType(type)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          selectedMealType === type
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                        }`}
+                      >
+                        {mealTypeLabels[type]}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search input */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Pesquisar alimentos..."
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Suggested foods based on workout */}
+                  {suggestedFoods.length > 0 && !searchQuery && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-500" />
+                        Sugestões {workoutContext.phase === 'post_workout' ? 'Pós-Treino' : 'Pré-Treino'}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {suggestedFoods.map((food) => (
+                          <button
+                            key={food.id}
+                            onClick={() => addFoodFromDatabase(food)}
+                            className="p-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-left hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
+                          >
+                            <p className="font-medium text-sm truncate">{food.name}</p>
+                            <p className="text-xs text-muted-foreground">{food.calories} kcal</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Search results */}
+                  {searchQuery && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Resultados</h4>
+                      {searchResults.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Nenhum alimento encontrado
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {searchResults.map((food) => (
+                            <button
+                              key={food.id}
+                              onClick={() => addFoodFromDatabase(food)}
+                              className="w-full p-3 rounded-xl bg-card/50 border border-border/50 text-left hover:bg-card transition-all"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium text-sm">{food.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {food.portion} • {categoryLabels[food.category]}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-semibold text-primary">{food.calories} kcal</p>
+                                  <p className="text-xs text-muted-foreground">P: {food.protein}g</p>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Selected foods */}
+                  {selectedFoods.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium flex items-center justify-between">
+                        <span>Selecionados</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                          {selectedFoods.length} itens
+                        </span>
+                      </h4>
+                      <div className="space-y-2">
+                        {selectedFoods.map((food, index) => (
+                          <div
+                            key={`${food.id}-${index}`}
+                            className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20"
+                          >
+                            <div>
+                              <p className="font-medium text-sm">{food.name}</p>
+                              <p className="text-xs text-muted-foreground">{food.portion}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold">{food.calories} kcal</span>
+                              <button
+                                onClick={() => removeFoodFromSelection(food.id)}
+                                className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20"
+                              >
+                                <X className="w-3 h-3 text-destructive" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Totals for selected foods */}
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-semibold">Total</span>
+                          <span className="text-xl font-bold text-primary">
+                            {selectedFoods.reduce((sum, f) => sum + f.calories, 0)} kcal
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                          <div>
+                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.protein, 0)}g</p>
+                            <p className="text-muted-foreground">Proteína</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.carbs, 0)}g</p>
+                            <p className="text-muted-foreground">Carbs</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.fat, 0)}g</p>
+                            <p className="text-muted-foreground">Gordura</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.fiber, 0)}g</p>
+                            <p className="text-muted-foreground">Fibra</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </ScrollArea>
+
+          {/* Footer buttons */}
+          {((activeTab === 'ai' && analysisResult) || (activeTab === 'search' && selectedFoods.length > 0)) && (
+            <DrawerFooter>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={resetState} className="flex-1">
+                  {activeTab === 'ai' ? 'Nova Análise' : 'Limpar'}
+                </Button>
+                <Button 
+                  onClick={activeTab === 'ai' ? handleSaveMeal : handleSaveFromDatabase} 
+                  className="flex-1"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar
+                </Button>
+              </div>
+            </DrawerFooter>
+          )}
+        </DrawerContent>
+      </Drawer>
+    </div>
   );
 };
