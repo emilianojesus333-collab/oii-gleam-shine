@@ -1,10 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Settings, RotateCcw, X } from "lucide-react";
+import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
-
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
   1: "Segunda-feira",
@@ -21,6 +26,21 @@ const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    };
+
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
   
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
@@ -242,39 +262,89 @@ const Home = () => {
           )}
         </motion.div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { value: "0", label: "Séries feitas", delay: 0.3 },
-            { value: "0", label: "Reps totais", delay: 0.4 },
-            { value: "0", label: "Min treino", delay: 0.5 },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 30, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ 
-                delay: stat.delay,
-                duration: 0.4,
-                type: "spring",
-                stiffness: 120,
-                damping: 12
-              }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="rounded-2xl bg-[#1E1E1E]/50 p-4"
-            >
-              <motion.p 
-                className="text-2xl font-black text-white/70"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: stat.delay + 0.2 }}
-              >
-                {stat.value}
-              </motion.p>
-              <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
+        {/* Stats Carousel */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Carousel className="w-full" setApi={setCarouselApi}>
+            <CarouselContent>
+              {/* State 1: Stats */}
+              <CarouselItem>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: "0", label: "Séries feitas" },
+                    { value: "0", label: "Reps totais" },
+                    { value: "0", label: "Min treino" },
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        delay: 0.3 + index * 0.1,
+                        duration: 0.4,
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 12
+                      }}
+                      className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                    >
+                      <p className="text-2xl font-black text-white/70">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </CarouselItem>
+
+              {/* State 2: AI Suggestions */}
+              <CarouselItem>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { icon: Brain, title: "Barra em V", label: "Treino Sugerido" },
+                    { icon: Target, title: "Contração", label: "Foco" },
+                    { icon: Heart, title: "90s descanso", label: "Recovery Coach" },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        delay: 0.3 + index * 0.1,
+                        duration: 0.4,
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 12
+                      }}
+                      className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                    >
+                      <item.icon className="h-5 w-5 text-primary mb-2" />
+                      <p className="text-sm font-bold text-white/70 leading-tight">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-gray-400/70 mt-1">{item.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
+          
+          {/* Carousel Indicators */}
+          <div className="flex justify-center gap-2 mt-3">
+            <button 
+              onClick={() => carouselApi?.scrollTo(0)}
+              className={`h-1.5 w-6 rounded-full transition-colors ${currentSlide === 0 ? 'bg-primary/60' : 'bg-white/20'}`} 
+            />
+            <button 
+              onClick={() => carouselApi?.scrollTo(1)}
+              className={`h-1.5 w-6 rounded-full transition-colors ${currentSlide === 1 ? 'bg-primary/60' : 'bg-white/20'}`} 
+            />
+          </div>
+        </motion.div>
 
         {/* Recent Workouts Section */}
         <motion.div
