@@ -42,26 +42,20 @@ const Workout = () => {
   const [isRestRunning, setIsRestRunning] = useState(false);
   const [restRemaining, setRestRemaining] = useState(90);
 
-  // Get user data
-  const userData = useMemo(() => {
-    const saved = localStorage.getItem("liftmate_user_data");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  }, []);
-
-  // Get today's workout
+  // Get today's workout from the same source as Home.tsx
   const todayWorkout = useMemo(() => {
-    if (!userData?.calendar) return null;
-    const today = new Date().getDay();
-    const dayName = weekDaysMap[today];
-    return userData.calendar[dayName] || null;
-  }, [userData]);
+    const onboardingData = localStorage.getItem("liftmate_onboarding");
+    const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
+    
+    const today = new Date();
+    const todayName = weekDaysMap[today.getDay()];
+    const muscleGroups = data.schedule?.[todayName] || null;
+    
+    // Format workout display (join muscle groups)
+    return muscleGroups 
+      ? (Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups)
+      : null;
+  }, []);
 
   // Get exercises for today
   const todayExercises = useMemo(() => {
