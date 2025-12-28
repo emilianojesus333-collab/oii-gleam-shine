@@ -103,14 +103,14 @@ const Home = () => {
           <h1 className="text-2xl font-black text-white">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/90 backdrop-blur-sm px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/70 backdrop-blur-sm px-4 py-2">
             <Flame className="h-5 w-5 text-blue-400" />
             <span className="font-bold text-white">7</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSettings(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/90 backdrop-blur-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/70 backdrop-blur-sm"
           >
             <Settings className="h-5 w-5 text-white" />
           </motion.button>
@@ -182,7 +182,7 @@ const Home = () => {
               <div
                 className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "rounded-xl bg-[#1E1E1E]/90"
+                    ? "rounded-xl bg-[#1E1E1E]/70"
                     : item.workout && item.workout !== "Descanso"
                     ? "rounded-xl border border-dashed border-gray-500/40"
                     : ""
@@ -203,7 +203,7 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-3xl bg-[#1E1E1E]/90 p-6"
+          className="rounded-3xl bg-[#1E1E1E]/70 p-6"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -266,7 +266,7 @@ const Home = () => {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
             <p className="text-2xl font-black text-white">0</p>
             <p className="text-xs text-gray-400 mt-1">Séries feitas</p>
             <div className="mt-3 flex justify-center">
@@ -274,7 +274,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
             <p className="text-2xl font-black text-white">0</p>
             <p className="text-xs text-gray-400 mt-1">Reps totais</p>
             <div className="mt-3 flex justify-center">
@@ -282,7 +282,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="rounded-2xl bg-[#1E1E1E]/90 p-4">
+          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
             <p className="text-2xl font-black text-white">0</p>
             <p className="text-xs text-gray-400 mt-1">Min treino</p>
             <div className="mt-3 flex justify-center">
@@ -306,7 +306,7 @@ const Home = () => {
               .map((item) => (
                 <div
                   key={item.fullDay}
-                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/90 p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/70 p-4"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50">
                     <Dumbbell className="h-6 w-6 text-white" />
@@ -319,7 +319,7 @@ const Home = () => {
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <div className="rounded-2xl bg-[#1E1E1E]/90 p-6 text-center">
+              <div className="rounded-2xl bg-[#1E1E1E]/70 p-6 text-center">
                 <p className="text-gray-400">
                   Nenhum treino agendado para esta semana
                 </p>
