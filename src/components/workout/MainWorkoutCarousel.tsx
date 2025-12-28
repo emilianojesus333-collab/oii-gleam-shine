@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo, useRef } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { Dumbbell, TrendingUp, History, Save, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { getWorkoutHistory } from "@/data/workoutHistory";
 
@@ -35,7 +35,9 @@ export const MainWorkoutCarousel = ({
   justSaved,
 }: MainWorkoutCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [dragStart, setDragStart] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Get last workout data for this exercise
   const lastWorkout = useMemo(() => {
@@ -79,29 +81,53 @@ export const MainWorkoutCarousel = ({
     { id: "history", icon: History, title: "Histórico" },
   ];
 
-  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
-    const threshold = 50;
-    if (info.offset.x < -threshold && activeSlide < slides.length - 1) {
-      setActiveSlide(activeSlide + 1);
-    } else if (info.offset.x > threshold && activeSlide > 0) {
-      setActiveSlide(activeSlide - 1);
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
+  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsDragging(false);
+    const swipe = swipePower(info.offset.x, info.velocity.x);
+    
+    if (swipe < -swipeConfidenceThreshold && activeSlide < slides.length - 1) {
+      paginate(1);
+    } else if (swipe > swipeConfidenceThreshold && activeSlide > 0) {
+      paginate(-1);
+    }
+  };
+
+  const paginate = (newDirection: number) => {
+    const newSlide = activeSlide + newDirection;
+    if (newSlide >= 0 && newSlide < slides.length) {
+      setDirection(newDirection);
+      setActiveSlide(newSlide);
     }
   };
 
   const goToSlide = (index: number) => {
+    setDirection(index > activeSlide ? 1 : -1);
     setActiveSlide(index);
   };
 
-  const nextSlide = () => {
-    if (activeSlide < slides.length - 1) {
-      setActiveSlide(activeSlide + 1);
-    }
-  };
-
-  const prevSlide = () => {
-    if (activeSlide > 0) {
-      setActiveSlide(activeSlide - 1);
-    }
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.95,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.95,
+    }),
   };
 
   return (
@@ -121,7 +147,7 @@ export const MainWorkoutCarousel = ({
         {/* Navigation arrows */}
         <div className="flex items-center gap-1">
           <button
-            onClick={prevSlide}
+            onClick={() => paginate(-1)}
             disabled={activeSlide === 0}
             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
               activeSlide === 0 ? "text-gray-600" : "text-gray-400 hover:bg-white/10"
@@ -130,7 +156,7 @@ export const MainWorkoutCarousel = ({
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            onClick={nextSlide}
+            onClick={() => paginate(1)}
             disabled={activeSlide === slides.length - 1}
             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
               activeSlide === slides.length - 1 ? "text-gray-600" : "text-gray-400 hover:bg-white/10"
@@ -142,23 +168,27 @@ export const MainWorkoutCarousel = ({
       </div>
 
       {/* Carousel Content */}
-      <div className="overflow-hidden">
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.1}
-          onDragEnd={handleDragEnd}
-          className="cursor-grab active:cursor-grabbing"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSlide}
-              initial={{ opacity: 0, x: activeSlide > 0 ? 50 : -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: activeSlide > 0 ? -50 : 50 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="px-5 pb-5"
-            >
+      <div className="overflow-hidden" ref={containerRef}>
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={activeSlide}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+              scale: { duration: 0.2 },
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={handleDragEnd}
+            className={`px-5 pb-5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          >
               {activeSlide === 0 && (
                 <div className="space-y-4">
                   {/* Exercise selector */}
@@ -335,9 +365,8 @@ export const MainWorkoutCarousel = ({
                   )}
                 </div>
               )}
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Navigation Dots */}
