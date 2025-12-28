@@ -4,6 +4,7 @@ import { Dumbbell, TrendingUp, History, Save, Check, ChevronLeft, ChevronRight, 
 import { getWorkoutHistory } from "@/data/workoutHistory";
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useNavigate } from "react-router-dom";
+import { OneRMProgressChart } from "./OneRMProgressChart";
 
 interface MainWorkoutCarouselProps {
   selectedExercise: string;
@@ -82,7 +83,7 @@ export const MainWorkoutCarousel = ({
   const containerRef = useRef<HTMLDivElement>(null);
   
   const navigate = useNavigate();
-  const { saveRecord, getProgressData, isAuthenticated, fetchRecords } = useOneRMRecords();
+  const { saveRecord, getProgressData, isAuthenticated, fetchRecords, records } = useOneRMRecords();
   
   // 1RM Calculator state (independent from registration)
   const [calcExercise, setCalcExercise] = useState("");
@@ -540,29 +541,12 @@ export const MainWorkoutCarousel = ({
                         </div>
                       </div>
 
-                      {/* Progress indicator */}
-                      {progressData && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`rounded-xl p-3 flex items-center justify-between ${
-                            progressData.isImprovement ? "bg-green-500/10" : "bg-red-500/10"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            {progressData.isImprovement ? (
-                              <TrendingUp className="w-4 h-4 text-green-400" />
-                            ) : (
-                              <TrendingDown className="w-4 h-4 text-red-400" />
-                            )}
-                            <span className="text-xs text-gray-300">Evolução</span>
-                          </div>
-                          <span className={`text-sm font-bold ${
-                            progressData.isImprovement ? "text-green-400" : "text-red-400"
-                          }`}>
-                            {progressData.isImprovement ? "+" : ""}{progressData.percentageChange}%
-                          </span>
-                        </motion.div>
+                      {/* Progress Chart */}
+                      {calcExercise && isAuthenticated && (
+                        <OneRMProgressChart 
+                          records={records} 
+                          exerciseName={calcExercise} 
+                        />
                       )}
 
                       {/* Action Buttons */}
