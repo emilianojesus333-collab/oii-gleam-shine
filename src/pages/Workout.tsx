@@ -174,7 +174,7 @@ const Workout = () => {
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* Header */}
       <div className="px-5 pt-12 pb-6">
         <motion.div
@@ -182,14 +182,14 @@ const Workout = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#1E1E1E]/50 flex items-center justify-center">
             <Dumbbell className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">
+            <h1 className="text-xl font-bold text-white/70">
               {isRestDay ? "Dia de Descanso" : todayWorkout}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-400/70">
               {weekDaysMap[new Date().getDay()]}
             </p>
           </div>
@@ -202,11 +202,11 @@ const Workout = () => {
           animate={{ opacity: 1 }}
           className="px-5 py-12 text-center"
         >
-          <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mx-auto mb-6 border border-border/50">
-            <Target className="w-10 h-10 text-muted-foreground" />
+          <div className="w-20 h-20 rounded-full bg-[#1E1E1E]/50 flex items-center justify-center mx-auto mb-6">
+            <Target className="w-10 h-10 text-gray-400/70" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">Recuperação Ativa</h3>
-          <p className="text-muted-foreground max-w-xs mx-auto">
+          <h3 className="text-xl font-semibold text-white/70 mb-2">Recuperação Ativa</h3>
+          <p className="text-gray-400/70 max-w-xs mx-auto">
             O descanso é tão importante quanto o treino. Aproveita para recuperar!
           </p>
         </motion.div>
@@ -217,9 +217,9 @@ const Workout = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-card rounded-[20px] p-5 border border-border/30"
+            className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
           >
-            <span className="text-sm font-medium text-muted-foreground mb-4 block">
+            <span className="text-sm font-medium text-gray-400/70 mb-4 block">
               Tipo de Treino
             </span>
             <div className="flex gap-2">
@@ -233,7 +233,7 @@ const Workout = () => {
                     className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
                       isSelected
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-border/50"
+                        : "bg-[#2A2A2A]/50 text-gray-400/70 hover:bg-[#2A2A2A]/80"
                     }`}
                   >
                     {type}
@@ -248,18 +248,18 @@ const Workout = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-card rounded-[20px] p-5 border border-border/30"
+            className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
           >
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 <span className="text-primary text-lg font-bold">+</span>
               </div>
-              <h2 className="text-lg font-semibold text-foreground">Registar Exercício</h2>
+              <h2 className="text-lg font-semibold text-white/70">Registar Exercício</h2>
             </div>
 
             {/* Exercise selector with text input */}
             <div className="mb-4">
-              <label className="text-sm text-muted-foreground mb-2 block">Nome do Exercício</label>
+              <label className="text-sm text-gray-400/70 mb-2 block">Nome do Exercício</label>
               <div className="relative">
                 <input
                   type="text"
@@ -267,7 +267,7 @@ const Workout = () => {
                   value={selectedExercise}
                   onChange={(e) => setSelectedExercise(e.target.value)}
                   placeholder="Escreve ou seleciona um exercício..."
-                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 />
                 <datalist id="exercise-options">
                   {todayExercises.map((exercise) => (
@@ -285,42 +285,42 @@ const Workout = () => {
             {/* Input Grid */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Peso (kg)</label>
+                <label className="text-sm text-gray-400/70 mb-2 block">Peso (kg)</label>
                 <input
                   type="number"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
-                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="80"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Repetições</label>
+                <label className="text-sm text-gray-400/70 mb-2 block">Repetições</label>
                 <input
                   type="number"
                   value={reps}
                   onChange={(e) => setReps(e.target.value)}
-                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="10"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Séries</label>
+                <label className="text-sm text-gray-400/70 mb-2 block">Séries</label>
                 <input
                   type="number"
                   value={sets}
                   onChange={(e) => setSets(e.target.value)}
-                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="3"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Descanso (seg)</label>
+                <label className="text-sm text-gray-400/70 mb-2 block">Descanso (seg)</label>
                 <input
                   type="number"
                   value={restTime}
                   onChange={(e) => setRestTime(e.target.value)}
-                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white/70 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="90"
                 />
               </div>
@@ -332,10 +332,10 @@ const Workout = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-card rounded-[20px] p-5 border border-border/30"
+            className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-muted-foreground">Cálculo do Descanso</span>
+              <span className="text-sm font-medium text-gray-400/70">Cálculo do Descanso</span>
               <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
                 {restBreakdown.repsCategory}
               </span>
@@ -345,19 +345,19 @@ const Workout = () => {
               {/* Base time */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Tempo base</span>
+                  <div className="w-2 h-2 rounded-full bg-gray-500" />
+                  <span className="text-sm text-gray-400/70">Tempo base</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">{restBreakdown.base}s</span>
+                <span className="text-sm font-medium text-white/70">{restBreakdown.base}s</span>
               </div>
               
               {/* Weight bonus */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="text-sm text-muted-foreground">Peso ({weight}kg)</span>
+                  <span className="text-sm text-gray-400/70">Peso ({weight}kg)</span>
                 </div>
-                <span className={`text-sm font-medium ${restBreakdown.weightBonus > 0 ? "text-primary" : "text-muted-foreground"}`}>
+                <span className={`text-sm font-medium ${restBreakdown.weightBonus > 0 ? "text-primary" : "text-gray-400/70"}`}>
                   +{restBreakdown.weightBonus}s
                 </span>
               </div>
@@ -366,9 +366,9 @@ const Workout = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${restBreakdown.repsAdjustment >= 0 ? "bg-amber-500" : "bg-green-500"}`} />
-                  <span className="text-sm text-muted-foreground">Repetições ({reps})</span>
+                  <span className="text-sm text-gray-400/70">Repetições ({reps})</span>
                 </div>
-                <span className={`text-sm font-medium ${restBreakdown.repsAdjustment > 0 ? "text-amber-500" : restBreakdown.repsAdjustment < 0 ? "text-green-500" : "text-muted-foreground"}`}>
+                <span className={`text-sm font-medium ${restBreakdown.repsAdjustment > 0 ? "text-amber-500" : restBreakdown.repsAdjustment < 0 ? "text-green-500" : "text-gray-400/70"}`}>
                   {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
                 </span>
               </div>
@@ -377,19 +377,19 @@ const Workout = () => {
               {restBreakdown.setsBonus > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                    <span className="text-sm text-muted-foreground">Séries altas ({sets})</span>
+                    <div className="w-2 h-2 rounded-full bg-blue-400" />
+                    <span className="text-sm text-gray-400/70">Séries altas ({sets})</span>
                   </div>
-                  <span className="text-sm font-medium text-blue-500">+{restBreakdown.setsBonus}s</span>
+                  <span className="text-sm font-medium text-blue-400">+{restBreakdown.setsBonus}s</span>
                 </div>
               )}
               
               {/* Divider */}
-              <div className="border-t border-border/50 my-2" />
+              <div className="border-t border-gray-700/50 my-2" />
               
               {/* Total */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-foreground">Total recomendado</span>
+                <span className="text-sm font-semibold text-white/70">Total recomendado</span>
                 <span className="text-lg font-bold text-primary">{restTime}s</span>
               </div>
             </div>
@@ -400,9 +400,9 @@ const Workout = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-gradient-to-br from-primary/10 via-primary/5 to-card rounded-[20px] p-6 border border-primary/20"
+            className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20"
           >
-            <span className="text-sm font-medium text-muted-foreground text-center block mb-4">
+            <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
               Timer de Descanso
             </span>
             
@@ -415,7 +415,7 @@ const Workout = () => {
             >
               <span 
                 className={`text-7xl font-mono font-bold tracking-tight ${
-                  isRestRunning ? "text-primary" : "text-foreground"
+                  isRestRunning ? "text-primary" : "text-white/70"
                 }`}
               >
                 {formatRestTime(restRemaining)}
@@ -429,7 +429,7 @@ const Workout = () => {
                 onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
                 className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                   isRestRunning
-                    ? "bg-destructive/90 text-destructive-foreground"
+                    ? "bg-red-500/90 text-white"
                     : "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                 }`}
               >
@@ -448,7 +448,7 @@ const Workout = () => {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={resetRestTimer}
-                className="w-14 h-14 rounded-xl bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-all"
+                className="w-14 h-14 rounded-xl bg-[#2A2A2A]/50 flex items-center justify-center text-gray-400/70 hover:bg-[#2A2A2A]/80 transition-all"
               >
                 <RotateCcw className="w-5 h-5" />
               </motion.button>
