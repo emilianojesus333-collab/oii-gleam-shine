@@ -1,10 +1,20 @@
 // Workout history management
 
+export interface ExerciseLog {
+  name: string;
+  weight: number;
+  reps: number;
+  sets: number;
+  restTime: number;
+  timestamp: number;
+}
+
 export interface WorkoutSession {
   date: string; // ISO date string (YYYY-MM-DD)
   dayOfWeek: string;
   muscleGroups: string[];
   exercisesCompleted: string[];
+  exerciseLogs: ExerciseLog[];
   totalExercises: number;
   completionRate: number; // percentage
   timestamp: number;

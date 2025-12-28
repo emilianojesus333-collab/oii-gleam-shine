@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Play, 
   Pause, 
@@ -8,10 +8,14 @@ import {
   Target,
   Zap,
   TrendingUp,
-  Clock
+  Clock,
+  Save,
+  Check
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
+import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
+import { toast } from "sonner";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -99,6 +103,20 @@ const Workout = () => {
   // Rest timer state
   const [isRestRunning, setIsRestRunning] = useState(false);
   const [restRemaining, setRestRemaining] = useState(90);
+  
+  // Saved exercises state
+  const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
+  const [justSaved, setJustSaved] = useState(false);
+  
+  // Load today's saved exercises on mount
+  useEffect(() => {
+    const history = getWorkoutHistory();
+    const today = new Date().toISOString().split("T")[0];
+    const todaySession = history.sessions.find(s => s.date === today);
+    if (todaySession?.exerciseLogs) {
+      setSavedExercises(todaySession.exerciseLogs);
+    }
+  }, []);
 
   // Get today's workout from the same source as Home.tsx
   const todayWorkout = useMemo(() => {
@@ -169,6 +187,62 @@ const Workout = () => {
   const resetRestTimer = () => {
     setIsRestRunning(false);
     setRestRemaining(parseInt(restTime));
+  };
+
+  const saveExercise = () => {
+    if (!selectedExercise.trim()) {
+      toast.error("Seleciona um exercício primeiro");
+      return;
+    }
+    
+    const newLog: ExerciseLog = {
+      name: selectedExercise,
+      weight: parseInt(weight) || 0,
+      reps: parseInt(reps) || 0,
+      sets: parseInt(sets) || 0,
+      restTime: parseInt(restTime) || 0,
+      timestamp: Date.now(),
+    };
+    
+    // Update local state
+    const updatedExercises = [...savedExercises, newLog];
+    setSavedExercises(updatedExercises);
+    
+    // Save to localStorage
+    const history = getWorkoutHistory();
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0];
+    
+    const existingIndex = history.sessions.findIndex(s => s.date === dateStr);
+    
+    if (existingIndex >= 0) {
+      history.sessions[existingIndex].exerciseLogs = updatedExercises;
+      history.sessions[existingIndex].exercisesCompleted = updatedExercises.map(e => e.name);
+      history.sessions[existingIndex].timestamp = Date.now();
+    } else {
+      const muscleGroups = todayWorkout?.split(" + ") || [];
+      history.sessions.push({
+        date: dateStr,
+        dayOfWeek: weekDaysMap[today.getDay()],
+        muscleGroups,
+        exercisesCompleted: [selectedExercise],
+        exerciseLogs: updatedExercises,
+        totalExercises: todayExercises.length,
+        completionRate: Math.round((updatedExercises.length / todayExercises.length) * 100),
+        timestamp: Date.now(),
+      });
+    }
+    
+    history.lastUpdated = Date.now();
+    localStorage.setItem("liftmate_workout_history", JSON.stringify(history));
+    
+    // Show feedback
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2000);
+    toast.success(`${selectedExercise} guardado!`);
+    
+    // Clear form for next exercise
+    setSelectedExercise("");
   };
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
@@ -325,7 +399,87 @@ const Workout = () => {
                 />
               </div>
             </div>
+
+            {/* Save Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={saveExercise}
+              disabled={!selectedExercise.trim()}
+              className={`w-full mt-5 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+                justSaved
+                  ? "bg-green-500 text-white"
+                  : selectedExercise.trim()
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-[#2A2A2A]/50 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <AnimatePresence mode="wait">
+                {justSaved ? (
+                  <motion.div
+                    key="saved"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className="w-5 h-5" />
+                    Guardado!
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="save"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="w-5 h-5" />
+                    Guardar Exercício
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </motion.div>
+
+          {/* Saved Exercises Today */}
+          {savedExercises.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-gray-400/70">Exercícios Guardados Hoje</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
+                  {savedExercises.length}
+                </span>
+              </div>
+              
+              <div className="space-y-2">
+                {savedExercises.map((exercise, index) => (
+                  <motion.div
+                    key={exercise.timestamp}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between bg-[#2A2A2A]/50 rounded-xl px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-white/70">{exercise.name}</p>
+                      <p className="text-xs text-gray-400/70">
+                        {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-primary">{exercise.weight}kg</p>
+                      <p className="text-xs text-gray-400/70">{exercise.sets}x{exercise.reps}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Rest Time Breakdown */}
           <motion.div

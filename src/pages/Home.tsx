@@ -77,6 +77,7 @@ const Home = () => {
         dayOfWeek: weekDaysMap[today.getDay()],
         muscleGroups: todayMuscleGroups || [],
         exercisesCompleted: Array.from(newSet),
+        exerciseLogs: [],
         totalExercises: totalExercises,
         completionRate: totalExercises > 0 ? Math.round((newSet.size / totalExercises) * 100) : 0,
       });
