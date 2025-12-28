@@ -205,7 +205,7 @@ const Home = () => {
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowSettings(true)}
+            onClick={() => navigate("/settings")}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm"
           >
             <Settings className="h-5 w-5 text-white/70" />
