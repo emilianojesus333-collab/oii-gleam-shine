@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useTimerNotification } from "@/hooks/useTimerNotification";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Play, 
@@ -158,13 +159,23 @@ const Workout = () => {
   }, [weight, reps, sets, isRestRunning]);
 
   // Rest timer logic
+  const { notifyTimerEnd } = useTimerNotification();
+  const hasNotifiedRef = useRef(false);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRestRunning && restRemaining > 0) {
+      hasNotifiedRef.current = false;
       interval = setInterval(() => {
         setRestRemaining((prev) => {
           if (prev <= 1) {
             setIsRestRunning(false);
+            // Trigger notification when timer ends
+            if (!hasNotifiedRef.current) {
+              hasNotifiedRef.current = true;
+              notifyTimerEnd();
+              toast.success("Tempo de descanso terminado! 💪");
+            }
             return parseInt(restTime);
           }
           return prev - 1;
@@ -172,7 +183,7 @@ const Workout = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRestRunning, restRemaining, restTime]);
+  }, [isRestRunning, restRemaining, restTime, notifyTimerEnd]);
 
   const formatRestTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
