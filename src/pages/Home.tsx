@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Dumbbell, Target, Timer, TrendingUp, Settings, RotateCcw, X } from "lucide-react";
+import { MessageCircle, Flame, Settings, RotateCcw, X } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
@@ -99,7 +99,6 @@ const Home = () => {
         className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
       >
         <div className="flex items-center gap-2">
-          <Dumbbell className="h-7 w-7 text-white/70" />
           <h1 className="text-2xl font-black text-white/70">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
@@ -212,59 +211,20 @@ const Home = () => {
           whileHover={{ scale: 1.02 }}
           className="rounded-3xl bg-[#1E1E1E]/50 p-6"
         >
-          <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
-            >
-              <p className="text-4xl font-black text-white/70">
-                {todayWorkout || "Descanso"}
-              </p>
-              <p className="text-gray-400/70 mt-1">
-                {todayWorkout && todayWorkout !== "Descanso" 
-                  ? "Treino de hoje" 
-                  : "Dia de recuperação"}
-              </p>
-            </motion.div>
-            
-            {/* Progress Ring */}
-            <motion.div 
-              className="relative"
-              initial={{ opacity: 0, rotate: -180, scale: 0 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
-            >
-              <svg className="h-24 w-24 -rotate-90">
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="45"
-                  stroke="currentColor"
-                  strokeWidth="6"
-                  fill="none"
-                  className="text-gray-700"
-                />
-                <motion.circle
-                  cx="48"
-                  cy="48"
-                  r="45"
-                  stroke="currentColor"
-                  strokeWidth="6"
-                  fill="none"
-                  strokeDasharray={circumference}
-                  initial={{ strokeDashoffset: circumference }}
-                  animate={{ strokeDashoffset: strokeDashoffset }}
-                  transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
-                  strokeLinecap="round"
-                  className="text-white/70"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Dumbbell className="h-8 w-8 text-white/70" />
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          >
+            <p className="text-4xl font-black text-white/70">
+              {todayWorkout || "Descanso"}
+            </p>
+            <p className="text-gray-400/70 mt-1">
+              {todayWorkout && todayWorkout !== "Descanso" 
+                ? "Treino de hoje" 
+                : "Dia de recuperação"}
+            </p>
+          </motion.div>
 
           {todayWorkout && todayWorkout !== "Descanso" && (
             <motion.button
@@ -284,9 +244,9 @@ const Home = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { value: "0", label: "Séries feitas", icon: Target, delay: 0.3 },
-            { value: "0", label: "Reps totais", icon: Dumbbell, delay: 0.4 },
-            { value: "0", label: "Min treino", icon: Timer, delay: 0.5 },
+            { value: "0", label: "Séries feitas", delay: 0.3 },
+            { value: "0", label: "Reps totais", delay: 0.4 },
+            { value: "0", label: "Min treino", delay: 0.5 },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -311,14 +271,6 @@ const Home = () => {
                 {stat.value}
               </motion.p>
               <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
-              <motion.div 
-                className="mt-3 flex justify-center"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: stat.delay + 0.3, type: "spring" }}
-              >
-                <stat.icon className="h-6 w-6 text-gray-500/70" />
-              </motion.div>
             </motion.div>
           ))}
         </div>
@@ -357,12 +309,6 @@ const Home = () => {
                   whileHover={{ scale: 1.02, x: 5 }}
                   className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/50 p-4"
                 >
-                  <motion.div 
-                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50"
-                    whileHover={{ rotate: 10 }}
-                  >
-                    <Dumbbell className="h-6 w-6 text-white/70" />
-                  </motion.div>
                   <div className="flex-1">
                     <p className="font-semibold text-white/70">{item.workout}</p>
                     <p className="text-sm text-gray-400/70">{item.fullDay}</p>
