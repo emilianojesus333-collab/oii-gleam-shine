@@ -99,20 +99,20 @@ const Home = () => {
         className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
       >
         <div className="flex items-center gap-2">
-          <Dumbbell className="h-7 w-7 text-white" />
-          <h1 className="text-2xl font-black text-white">LiftMate</h1>
+          <Dumbbell className="h-7 w-7 text-white/70" />
+          <h1 className="text-2xl font-black text-white/70">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm px-4 py-2">
             <Flame className="h-5 w-5 text-blue-400" />
-            <span className="font-bold text-white">7</span>
+            <span className="font-bold text-white/70">7</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSettings(true)}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm"
           >
-            <Settings className="h-5 w-5 text-white" />
+            <Settings className="h-5 w-5 text-white/70" />
           </motion.button>
         </div>
       </motion.header>
@@ -178,7 +178,7 @@ const Home = () => {
               transition={{ delay: 0.15 + index * 0.03 }}
               className="flex flex-col items-center"
             >
-              <span className="text-xs text-gray-400 mb-2">{item.shortDay}</span>
+              <span className="text-xs text-gray-400/70 mb-2">{item.shortDay}</span>
               <div
                 className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
@@ -188,7 +188,7 @@ const Home = () => {
                     : ""
                 }`}
               >
-                <span className="text-lg font-semibold text-white">
+                <span className="text-lg font-semibold text-white/70">
                   {item.date}
                 </span>
               </div>
@@ -218,10 +218,10 @@ const Home = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.4 }}
             >
-              <p className="text-4xl font-black text-white">
+              <p className="text-4xl font-black text-white/70">
                 {todayWorkout || "Descanso"}
               </p>
-              <p className="text-gray-400 mt-1">
+              <p className="text-gray-400/70 mt-1">
                 {todayWorkout && todayWorkout !== "Descanso" 
                   ? "Treino de hoje" 
                   : "Dia de recuperação"}
@@ -257,11 +257,11 @@ const Home = () => {
                   animate={{ strokeDashoffset: strokeDashoffset }}
                   transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
                   strokeLinecap="round"
-                  className="text-white"
+                  className="text-white/70"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Dumbbell className="h-8 w-8 text-white" />
+                <Dumbbell className="h-8 w-8 text-white/70" />
               </div>
             </motion.div>
           </div>
@@ -303,21 +303,21 @@ const Home = () => {
               className="rounded-2xl bg-[#1E1E1E]/50 p-4"
             >
               <motion.p 
-                className="text-2xl font-black text-white"
+                className="text-2xl font-black text-white/70"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: stat.delay + 0.2 }}
               >
                 {stat.value}
               </motion.p>
-              <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+              <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
               <motion.div 
                 className="mt-3 flex justify-center"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: stat.delay + 0.3, type: "spring" }}
               >
-                <stat.icon className="h-6 w-6 text-gray-500" />
+                <stat.icon className="h-6 w-6 text-gray-500/70" />
               </motion.div>
             </motion.div>
           ))}
@@ -330,7 +330,7 @@ const Home = () => {
           transition={{ delay: 0.5 }}
         >
           <motion.h3 
-            className="text-xl font-bold text-white mb-4"
+            className="text-xl font-bold text-white/70 mb-4"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.55 }}
@@ -361,11 +361,11 @@ const Home = () => {
                     className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50"
                     whileHover={{ rotate: 10 }}
                   >
-                    <Dumbbell className="h-6 w-6 text-white" />
+                    <Dumbbell className="h-6 w-6 text-white/70" />
                   </motion.div>
                   <div className="flex-1">
-                    <p className="font-semibold text-white">{item.workout}</p>
-                    <p className="text-sm text-gray-400">{item.fullDay}</p>
+                    <p className="font-semibold text-white/70">{item.workout}</p>
+                    <p className="text-sm text-gray-400/70">{item.fullDay}</p>
                   </div>
                 </motion.div>
               ))}
@@ -377,7 +377,7 @@ const Home = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, type: "spring" }}
               >
-                <p className="text-gray-400">
+                <p className="text-gray-400/70">
                   Nenhum treino agendado para esta semana
                 </p>
               </motion.div>
