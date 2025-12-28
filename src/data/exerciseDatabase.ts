@@ -99,6 +99,50 @@ export const exerciseDatabase: Record<string, MuscleGroupData> = {
     ],
     recoveryTips: ["Recuperação ativa", "Hidratação", "Alongamentos"],
   },
+  Trapézio: {
+    exercises: [
+      { name: "Encolhimento", focus: "Squeeze no topo" },
+      { name: "Remada alta", focus: "Cotovelos acima" },
+      { name: "Face pull", focus: "Rotação externa" },
+      { name: "Farmer's walk", focus: "Grip forte" },
+      { name: "Encolhimento inclinado", focus: "Trapézio médio" },
+      { name: "Y raises", focus: "Trapézio inferior" },
+    ],
+    recoveryTips: ["60s descanso", "Alongar pescoço", "Evitar peso excessivo"],
+  },
+  Antebraços: {
+    exercises: [
+      { name: "Rosca de punho", focus: "Controle total" },
+      { name: "Rosca inversa", focus: "Extensores" },
+      { name: "Farmer's walk", focus: "Grip isométrico" },
+      { name: "Dead hang", focus: "Resistência de grip" },
+      { name: "Wrist roller", focus: "Movimento lento" },
+      { name: "Pinch grip", focus: "Dedos fortes" },
+    ],
+    recoveryTips: ["30-45s descanso", "Alongar punhos", "Massagem"],
+  },
+  Panturrilhas: {
+    exercises: [
+      { name: "Elevação em pé", focus: "Contração no topo" },
+      { name: "Elevação sentado", focus: "Sóleo" },
+      { name: "Elevação unilateral", focus: "Equilíbrio" },
+      { name: "Donkey calf raise", focus: "Alongamento máximo" },
+      { name: "Jump rope", focus: "Explosividade" },
+      { name: "Elevação no leg press", focus: "Carga pesada" },
+    ],
+    recoveryTips: ["45-60s descanso", "Alongar bem", "Volume alto"],
+  },
+  "Full Body": {
+    exercises: [
+      { name: "Deadlift", focus: "Costas neutras" },
+      { name: "Clean and press", focus: "Explosividade" },
+      { name: "Burpees", focus: "Ritmo constante" },
+      { name: "Turkish get-up", focus: "Controle total" },
+      { name: "Thrusters", focus: "Fluidez" },
+      { name: "Kettlebell swing", focus: "Quadril" },
+    ],
+    recoveryTips: ["2-3min descanso", "Hidratação", "Nutrição pós-treino"],
+  },
   Descanso: {
     exercises: [
       { name: "Alongamentos", focus: "Relaxar músculos" },
