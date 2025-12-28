@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, Dumbbell, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Send, Dumbbell, CheckCircle2, TrendingUp, Flame, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getWorkoutStats } from "@/data/workoutHistory";
 
 interface Message {
   id: string;
@@ -13,12 +14,116 @@ interface CompletedExercisesData {
   date: string;
   exercises: string[];
   workout: string | null;
+  muscleGroups?: string[];
+}
+
+// AI Response generator based on context
+function generateAIResponse(
+  input: string, 
+  stats: ReturnType<typeof getWorkoutStats>,
+  todayExercises: CompletedExercisesData | null
+): string {
+  const lowerInput = input.toLowerCase();
+  
+  // Progress/stats questions
+  if (lowerInput.includes("progresso") || lowerInput.includes("estatística") || lowerInput.includes("stats")) {
+    if (stats.totalSessions === 0) {
+      return "Ainda não tens sessões registadas. Começa a marcar exercícios como concluídos na Home e vou acompanhar o teu progresso!";
+    }
+    
+    let response = `📊 Aqui está o teu progresso:\n\n`;
+    response += `• Total de sessões: ${stats.totalSessions}\n`;
+    response += `• Esta semana: ${stats.thisWeekSessions} sessões\n`;
+    response += `• Streak atual: ${stats.currentStreak} dias 🔥\n`;
+    response += `• Taxa média de conclusão: ${stats.averageCompletionRate}%\n`;
+    
+    if (stats.mostTrainedMuscles.length > 0) {
+      response += `\n💪 Músculos mais treinados:\n`;
+      stats.mostTrainedMuscles.slice(0, 3).forEach((m, i) => {
+        response += `${i + 1}. ${m.muscle} (${m.count}x)\n`;
+      });
+    }
+    
+    return response;
+  }
+  
+  // Streak questions
+  if (lowerInput.includes("streak") || lowerInput.includes("consecutivo")) {
+    if (stats.currentStreak > 0) {
+      return `🔥 Tens uma streak de ${stats.currentStreak} dias consecutivos! Continua assim para não quebrar o ritmo. Cada dia conta!`;
+    }
+    return "Ainda não tens uma streak ativa. Treina hoje e amanhã para começares uma!";
+  }
+  
+  // Recovery/tired
+  if (lowerInput.includes("dor") || lowerInput.includes("cansado") || lowerInput.includes("cansaço") || lowerInput.includes("recuper")) {
+    const todayCount = todayExercises?.exercises.length || 0;
+    let response = "";
+    
+    if (todayCount > 0) {
+      response = `Depois de ${todayCount} exercícios hoje, é normal sentir alguma fadiga. `;
+    }
+    
+    response += "Recomendo:\n\n";
+    response += "• Hidratação adequada (2-3L de água)\n";
+    response += "• Alongamentos de 10-15 min\n";
+    response += "• Sono de qualidade (7-8h)\n";
+    response += "• Proteína na próxima refeição\n\n";
+    response += "Amanhã vais estar mais forte! 💪";
+    
+    return response;
+  }
+  
+  // What to do next
+  if (lowerInput.includes("próximo") || lowerInput.includes("seguir") || lowerInput.includes("agora") || lowerInput.includes("fazer")) {
+    if (todayExercises && todayExercises.exercises.length > 0) {
+      return `Já completaste ${todayExercises.exercises.length} exercícios hoje! Continua com o próximo da lista, mantendo boa forma e respiração controlada. Se já terminaste tudo, foca na recuperação!`;
+    }
+    return "Começa pelo primeiro exercício da tua lista. Aquecimento de 5-10 min, depois foca na técnica antes de aumentar a carga!";
+  }
+  
+  // Positive feedback
+  if (lowerInput.includes("bem") || lowerInput.includes("ótimo") || lowerInput.includes("bom") || lowerInput.includes("consegui")) {
+    const todayCount = todayExercises?.exercises.length || 0;
+    if (todayCount > 0) {
+      return `Fantástico! Com ${todayCount} exercícios feitos hoje e ${stats.totalSessions} sessões no total, estás a evoluir muito bem! 🔥\n\nMantém essa consistência - é ela que traz resultados!`;
+    }
+    return "Fico feliz! A consistência é a chave. Continua assim e os resultados vão aparecer! 💪";
+  }
+  
+  // Muscles trained
+  if (lowerInput.includes("músculo") || lowerInput.includes("treinei") || lowerInput.includes("treino mais")) {
+    if (stats.mostTrainedMuscles.length > 0) {
+      let response = "📈 Análise dos teus treinos:\n\n";
+      stats.mostTrainedMuscles.forEach((m, i) => {
+        response += `${i + 1}. ${m.muscle}: ${m.count} sessões\n`;
+      });
+      
+      // Check for imbalances
+      if (stats.mostTrainedMuscles.length >= 2) {
+        const top = stats.mostTrainedMuscles[0].count;
+        const second = stats.mostTrainedMuscles[1].count;
+        if (top > second * 2) {
+          response += `\n⚠️ Atenção: Estás a treinar muito mais ${stats.mostTrainedMuscles[0].muscle}. Considera equilibrar com outros grupos!`;
+        }
+      }
+      
+      return response;
+    }
+    return "Ainda não tenho dados suficientes. Continua a registar os teus treinos e vou analisar os padrões!";
+  }
+  
+  // Default response
+  return `Entendi! Com base no teu histórico de ${stats.totalSessions} sessões${stats.currentStreak > 0 ? ` e streak de ${stats.currentStreak} dias` : ""}, estou aqui para te ajudar. Pergunta-me sobre o teu progresso, dicas de recuperação, ou sugestões de treino!`;
 }
 
 const Chat = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [showWorkoutContext, setShowWorkoutContext] = useState(true);
+
+  // Load workout stats
+  const workoutStats = useMemo(() => getWorkoutStats(), []);
 
   // Load completed exercises from localStorage
   const completedExercisesData = useMemo((): CompletedExercisesData | null => {
@@ -36,19 +141,45 @@ const Chat = () => {
     return null;
   }, []);
 
-  // Build initial message based on workout context
+  // Build initial message based on workout context and history
   const getInitialMessage = (): Message => {
-    if (completedExercisesData && completedExercisesData.exercises.length > 0) {
-      const exerciseList = completedExercisesData.exercises.join(", ");
+    const hasHistory = workoutStats.totalSessions > 0;
+    const hasTodayExercises = completedExercisesData && completedExercisesData.exercises.length > 0;
+
+    if (hasTodayExercises && hasHistory) {
+      const exerciseList = completedExercisesData!.exercises.slice(0, 3).join(", ");
+      const moreCount = completedExercisesData!.exercises.length > 3 
+        ? ` e mais ${completedExercisesData!.exercises.length - 3}` 
+        : "";
+      
+      let streakMessage = "";
+      if (workoutStats.currentStreak > 1) {
+        streakMessage = `\n\n🔥 Estás numa streak de ${workoutStats.currentStreak} dias consecutivos! `;
+      }
+      
       return {
         id: "1",
-        text: `Olá! Vi que já completaste ${completedExercisesData.exercises.length} exercício(s) hoje: ${exerciseList}. Excelente trabalho! 💪\n\nComo te sentes? Posso ajudar-te com dicas de recuperação, sugerir variações, ou analisar o teu progresso.`,
+        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}${moreCount}. Excelente trabalho! 💪${streakMessage}\n\nCom ${workoutStats.totalSessions} sessões no teu histórico, posso analisar o teu progresso e dar-te sugestões personalizadas. Como te posso ajudar?`,
+        isUser: false,
+      };
+    } else if (hasHistory) {
+      return {
+        id: "1",
+        text: `Olá! Tens ${workoutStats.totalSessions} sessões registadas. ${workoutStats.currentStreak > 0 ? `🔥 Streak atual: ${workoutStats.currentStreak} dias!` : ""}\n\nPosso analisar o teu progresso, sugerir exercícios ou ajudar-te com o treino de hoje. O que precisas?`,
+        isUser: false,
+      };
+    } else if (hasTodayExercises) {
+      const exerciseList = completedExercisesData!.exercises.join(", ");
+      return {
+        id: "1",
+        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}. Excelente trabalho! 💪\n\nComo te sentes? Posso ajudar-te com dicas de recuperação ou sugerir variações.`,
         isUser: false,
       };
     }
+    
     return {
       id: "1",
-      text: "Olá! Sou o teu assistente de treino. Como posso ajudar-te hoje?",
+      text: "Olá! Sou o teu assistente de treino. Começa a marcar exercícios como concluídos e vou acompanhar o teu progresso ao longo do tempo. Como posso ajudar-te hoje?",
       isUser: false,
     };
   };
@@ -67,33 +198,10 @@ const Chat = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Build context for AI response
-    const workoutContext = completedExercisesData 
-      ? `O utilizador completou hoje: ${completedExercisesData.exercises.join(", ")}. Treino: ${completedExercisesData.workout || "Não especificado"}.`
-      : "O utilizador ainda não completou exercícios hoje.";
-
-    // Simulate AI response with workout context
+    // Simulate AI response with full context
     setTimeout(() => {
-      let responseText = "Entendi! Vou analisar isso e preparar uma sugestão personalizada para ti.";
+      const responseText = generateAIResponse(inputValue, workoutStats, completedExercisesData);
       
-      // Simple context-aware responses
-      const lowerInput = inputValue.toLowerCase();
-      if (lowerInput.includes("dor") || lowerInput.includes("cansado") || lowerInput.includes("cansaço")) {
-        responseText = completedExercisesData 
-          ? `Depois de completares ${completedExercisesData.exercises.length} exercícios, é normal sentir algum cansaço. Recomendo: descanso adequado, hidratação, e alongamentos leves. Amanhã vais estar mais forte! 💪`
-          : "Descanso é fundamental! Certifica-te que estás a dormir bem e a manter-te hidratado.";
-      } else if (lowerInput.includes("próximo") || lowerInput.includes("seguir") || lowerInput.includes("agora")) {
-        if (completedExercisesData && completedExercisesData.exercises.length > 0) {
-          responseText = `Ótimo progresso! Já completaste ${completedExercisesData.exercises.length} exercícios. Continua com o próximo da lista, mantendo boa forma e respiração controlada.`;
-        } else {
-          responseText = "Começa pelo primeiro exercício da tua lista. Foca na técnica antes de aumentar a carga!";
-        }
-      } else if (lowerInput.includes("bem") || lowerInput.includes("ótimo") || lowerInput.includes("bom")) {
-        responseText = completedExercisesData
-          ? `Fantástico! Com ${completedExercisesData.exercises.length} exercícios feitos, estás no caminho certo. Mantém essa energia! 🔥`
-          : "Fico feliz em ouvir isso! Vamos manter esse ritmo!";
-      }
-
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: responseText,
@@ -119,9 +227,9 @@ const Chat = () => {
         </div>
       </header>
 
-      {/* Workout Context Banner */}
+      {/* Stats Banner */}
       <AnimatePresence>
-        {showWorkoutContext && completedExercisesData && completedExercisesData.exercises.length > 0 && (
+        {showWorkoutContext && workoutStats.totalSessions > 0 && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -129,21 +237,8 @@ const Chat = () => {
             className="overflow-hidden border-b border-border"
           >
             <div className="bg-primary/10 px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
-                    <Dumbbell className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Treino de hoje: {completedExercisesData.workout || "Não definido"}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-primary" />
-                      {completedExercisesData.exercises.length} exercício(s) concluído(s)
-                    </p>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-foreground">O teu progresso</p>
                 <button
                   onClick={() => setShowWorkoutContext(false)}
                   className="text-xs text-muted-foreground hover:text-foreground"
@@ -152,23 +247,50 @@ const Chat = () => {
                 </button>
               </div>
               
-              {/* Exercise pills */}
-              <div className="mt-2 flex flex-wrap gap-1">
-                {completedExercisesData.exercises.slice(0, 5).map((exercise, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-xs text-primary"
-                  >
-                    <CheckCircle2 className="h-3 w-3" />
-                    {exercise}
-                  </span>
-                ))}
-                {completedExercisesData.exercises.length > 5 && (
-                  <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-                    +{completedExercisesData.exercises.length - 5} mais
-                  </span>
-                )}
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-sm font-bold text-foreground">{workoutStats.totalSessions}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                  <Flame className="h-4 w-4 text-orange-500" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Streak</p>
+                    <p className="text-sm font-bold text-foreground">{workoutStats.currentStreak}d</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg bg-background/50 p-2">
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Taxa</p>
+                    <p className="text-sm font-bold text-foreground">{workoutStats.averageCompletionRate}%</p>
+                  </div>
+                </div>
               </div>
+              
+              {/* Today's exercises */}
+              {completedExercisesData && completedExercisesData.exercises.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {completedExercisesData.exercises.slice(0, 4).map((exercise, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-xs text-primary"
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      {exercise}
+                    </span>
+                  ))}
+                  {completedExercisesData.exercises.length > 4 && (
+                    <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                      +{completedExercisesData.exercises.length - 4}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

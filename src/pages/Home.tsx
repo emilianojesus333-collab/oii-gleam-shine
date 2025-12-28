@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
+import { saveWorkoutSession } from "@/data/workoutHistory";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -63,8 +64,21 @@ const Home = () => {
         date: new Date().toDateString(),
         exercises: Array.from(newSet),
         workout: todayWorkout,
+        muscleGroups: todayMuscleGroups,
       };
       localStorage.setItem("liftmate_completed_exercises", JSON.stringify(toSave));
+      
+      // Also save to workout history for long-term tracking
+      const today = new Date();
+      const totalExercises = aiSuggestions.allExercises.length;
+      saveWorkoutSession({
+        date: today.toISOString().split("T")[0],
+        dayOfWeek: weekDaysMap[today.getDay()],
+        muscleGroups: todayMuscleGroups || [],
+        exercisesCompleted: Array.from(newSet),
+        totalExercises: totalExercises,
+        completionRate: totalExercises > 0 ? Math.round((newSet.size / totalExercises) * 100) : 0,
+      });
       
       return newSet;
     });
