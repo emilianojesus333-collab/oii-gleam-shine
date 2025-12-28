@@ -200,10 +200,6 @@ const Home = () => {
           <h1 className="text-2xl font-black text-white/70">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm px-4 py-2">
-            <Flame className="h-5 w-5 text-blue-400" />
-            <span className="font-bold text-white/70">7</span>
-          </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
