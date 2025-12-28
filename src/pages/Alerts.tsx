@@ -1,13 +1,16 @@
 import { motion } from 'framer-motion';
 import { Bell, Sparkles } from 'lucide-react';
+import { useEffect } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { HydrationCard } from '@/components/alerts/HydrationCard';
 import { SupplementsCard } from '@/components/alerts/SupplementsCard';
 import { SleepCard } from '@/components/alerts/SleepCard';
 import { StreakCard } from '@/components/alerts/StreakCard';
 import { QuickTimerCard } from '@/components/alerts/QuickTimerCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
+import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 
 const Alerts = () => {
   const {
@@ -26,6 +29,53 @@ const Alerts = () => {
     activeQuickTimer,
     quickTimerRemaining,
   } = useAlerts();
+
+  const {
+    permission,
+    isSupported,
+    requestPermission,
+    scheduleHydrationReminder,
+    scheduleSupplementReminder,
+    scheduleSleepReminder,
+    cancelAllNotifications,
+  } = usePushNotifications();
+
+  // Schedule notifications when settings change
+  useEffect(() => {
+    if (permission !== 'granted') return;
+
+    // Clear existing and reschedule
+    cancelAllNotifications();
+
+    // Hydration reminders
+    if (state.hydration.enabled) {
+      scheduleHydrationReminder(state.hydration.intervalMinutes);
+    }
+
+    // Supplement reminders
+    state.supplements
+      .filter(s => s.enabled)
+      .forEach(supplement => {
+        scheduleSupplementReminder(supplement.name, supplement.time, supplement.days);
+      });
+
+    // Sleep reminder
+    if (state.sleep.enabled) {
+      scheduleSleepReminder(state.sleep.bedtime, state.sleep.reminderMinutesBefore);
+    }
+  }, [
+    permission,
+    state.hydration.enabled,
+    state.hydration.intervalMinutes,
+    state.supplements,
+    state.sleep.enabled,
+    state.sleep.bedtime,
+    state.sleep.reminderMinutesBefore,
+    scheduleHydrationReminder,
+    scheduleSupplementReminder,
+    scheduleSleepReminder,
+    cancelAllNotifications,
+  ]);
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -61,6 +111,12 @@ const Alerts = () => {
 
       {/* Content */}
       <div className="px-4 py-6 space-y-4">
+        {/* Notification Permission */}
+        <NotificationPermissionCard
+          permission={permission}
+          isSupported={isSupported}
+          onRequestPermission={requestPermission}
+        />
         {/* Streak - Most important, always visible */}
         <StreakCard 
           streak={state.streak} 
