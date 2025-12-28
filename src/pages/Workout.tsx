@@ -16,6 +16,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
 import { toast } from "sonner";
+import { ExerciseInsightsCarousel } from "@/components/workout/ExerciseInsightsCarousel";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -331,6 +332,14 @@ const Workout = () => {
               <h2 className="text-lg font-semibold text-white/70">Registar Exercício</h2>
             </div>
 
+            {/* Insights Carousel */}
+            <ExerciseInsightsCarousel
+              selectedExercise={selectedExercise}
+              weight={weight}
+              reps={reps}
+              exerciseFocus={todayExercises.find(e => e.name === selectedExercise)?.focus}
+            />
+
             {/* Exercise selector with text input */}
             <div className="mb-4">
               <label className="text-sm text-gray-400/70 mb-2 block">Nome do Exercício</label>
@@ -349,11 +358,6 @@ const Workout = () => {
                   ))}
                 </datalist>
               </div>
-              {selectedExercise && todayExercises.find(e => e.name === selectedExercise)?.focus && (
-                <p className="text-xs text-primary mt-2">
-                  💡 Foco: {todayExercises.find(e => e.name === selectedExercise)?.focus}
-                </p>
-              )}
             </div>
 
             {/* Input Grid */}
