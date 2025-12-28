@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
 import {
@@ -10,6 +10,8 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { getSuggestedExercise, getRecoverySuggestion } from "@/data/exerciseDatabase";
+
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
   1: "Segunda-feira",
@@ -47,13 +49,18 @@ const Home = () => {
   const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
   const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
-  const { todayWorkout, weekSchedule, todayIndex } = useMemo(() => {
+  const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions } = useMemo(() => {
     const onboardingData = localStorage.getItem("liftmate_onboarding");
     const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
     
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
-    const workout = data.schedule?.[todayName] || null;
+    const muscleGroups = data.schedule?.[todayName] || null;
+    
+    // Format workout display (join muscle groups)
+    const workout = muscleGroups 
+      ? (Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups)
+      : null;
 
     // Get current week schedule (Mon-Sun)
     const schedule = [];
@@ -65,7 +72,10 @@ const Home = () => {
       date.setDate(today.getDate() + mondayOffset + i);
       const dayIndex = date.getDay();
       const dayName = weekDaysMap[dayIndex];
-      const dayWorkout = data.schedule?.[dayName] || null;
+      const dayGroups = data.schedule?.[dayName] || null;
+      const dayWorkout = dayGroups 
+        ? (Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups)
+        : null;
       schedule.push({
         shortDay: shortDays[dayIndex],
         fullDay: dayName,
@@ -75,12 +85,21 @@ const Home = () => {
       });
     }
 
-    const todayIdx = schedule.findIndex(d => d.isToday);
+    // Generate AI suggestions based on today's muscle groups
+    const { exercise, focus } = getSuggestedExercise(muscleGroups);
+    const recovery = getRecoverySuggestion(muscleGroups);
+    
+    const suggestions = {
+      exercise: exercise?.name || "Alongamentos",
+      focus: focus,
+      recovery: recovery,
+    };
 
     return {
       todayWorkout: workout,
+      todayMuscleGroups: muscleGroups,
       weekSchedule: schedule,
-      todayIndex: todayIdx,
+      aiSuggestions: suggestions,
     };
   }, []);
 
@@ -312,9 +331,9 @@ const Home = () => {
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
                   {[
-                    { icon: Brain, title: "Barra em V", label: "Treino Sugerido" },
-                    { icon: Target, title: "Contração", label: "Foco" },
-                    { icon: Heart, title: "90s descanso", label: "Recovery Coach" },
+                    { icon: Brain, title: aiSuggestions.exercise, label: "Treino Sugerido" },
+                    { icon: Target, title: aiSuggestions.focus, label: "Foco" },
+                    { icon: Heart, title: aiSuggestions.recovery, label: "Recovery Coach" },
                   ].map((item, index) => (
                     <motion.div
                       key={item.label}
