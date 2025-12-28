@@ -13,6 +13,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
 import { saveWorkoutSession } from "@/data/workoutHistory";
+import { BottomNav } from "@/components/BottomNav";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -623,6 +624,8 @@ const Home = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <BottomNav />
     </div>
   );
 };
