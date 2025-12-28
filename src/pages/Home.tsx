@@ -103,14 +103,14 @@ const Home = () => {
           <h1 className="text-2xl font-black text-white">LiftMate</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/70 backdrop-blur-sm px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm px-4 py-2">
             <Flame className="h-5 w-5 text-blue-400" />
             <span className="font-bold text-white">7</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSettings(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/70 backdrop-blur-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm"
           >
             <Settings className="h-5 w-5 text-white" />
           </motion.button>
@@ -182,7 +182,7 @@ const Home = () => {
               <div
                 className={`flex h-11 w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "rounded-xl bg-[#1E1E1E]/70"
+                    ? "rounded-xl bg-[#1E1E1E]/50"
                     : item.workout && item.workout !== "Descanso"
                     ? "rounded-xl border border-dashed border-gray-500/40"
                     : ""
@@ -210,7 +210,7 @@ const Home = () => {
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-3xl bg-[#1E1E1E]/70 p-6"
+          className="rounded-3xl bg-[#1E1E1E]/50 p-6"
         >
           <div className="flex items-center justify-between">
             <motion.div
@@ -300,7 +300,7 @@ const Home = () => {
                 damping: 12
               }}
               whileHover={{ scale: 1.05, y: -5 }}
-              className="rounded-2xl bg-[#1E1E1E]/70 p-4"
+              className="rounded-2xl bg-[#1E1E1E]/50 p-4"
             >
               <motion.p 
                 className="text-2xl font-black text-white"
@@ -355,7 +355,7 @@ const Home = () => {
                     damping: 15
                   }}
                   whileHover={{ scale: 1.02, x: 5 }}
-                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/70 p-4"
+                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/50 p-4"
                 >
                   <motion.div 
                     className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50"
@@ -372,7 +372,7 @@ const Home = () => {
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
               <motion.div 
-                className="rounded-2xl bg-[#1E1E1E]/70 p-6 text-center"
+                className="rounded-2xl bg-[#1E1E1E]/50 p-6 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, type: "spring" }}
