@@ -227,17 +227,29 @@ const Workout = () => {
               <h2 className="text-lg font-semibold text-foreground">Registar Exercício</h2>
             </div>
 
-            {/* Exercise selector */}
+            {/* Exercise selector with text input */}
             <div className="mb-4">
               <label className="text-sm text-muted-foreground mb-2 block">Nome do Exercício</label>
-              <select className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                <option value="">Selecionar exercício...</option>
-                {todayExercises.map((exercise) => (
-                  <option key={exercise.name} value={exercise.name}>
-                    {exercise.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  list="exercise-options"
+                  value={selectedExercise}
+                  onChange={(e) => setSelectedExercise(e.target.value)}
+                  placeholder="Escreve ou seleciona um exercício..."
+                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                />
+                <datalist id="exercise-options">
+                  {todayExercises.map((exercise) => (
+                    <option key={exercise.name} value={exercise.name} />
+                  ))}
+                </datalist>
+              </div>
+              {selectedExercise && todayExercises.find(e => e.name === selectedExercise)?.focus && (
+                <p className="text-xs text-primary mt-2">
+                  💡 Foco: {todayExercises.find(e => e.name === selectedExercise)?.focus}
+                </p>
+              )}
             </div>
 
             {/* Input Grid */}
