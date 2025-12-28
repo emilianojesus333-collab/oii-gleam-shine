@@ -31,33 +31,55 @@ const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: 
   "Resistência": { icon: Clock, description: "Mais reps, menos descanso" },
 };
 
-// Calculate rest time based on exercise parameters
-const calculateRestTime = (weight: number, reps: number, sets: number): number => {
-  // Base rest time calculation
-  let baseRest = 60;
+// Calculate rest time based on exercise parameters with breakdown
+const calculateRestTime = (weight: number, reps: number, sets: number): { total: number; breakdown: RestBreakdown } => {
+  const breakdown: RestBreakdown = {
+    base: 60,
+    weightBonus: 0,
+    repsAdjustment: 0,
+    setsBonus: 0,
+    repsCategory: "Hipertrofia",
+  };
   
   // Higher weight = more rest (every 10kg adds 10 seconds)
-  baseRest += Math.floor(weight / 10) * 10;
+  breakdown.weightBonus = Math.floor(weight / 10) * 10;
   
   // Lower reps = more rest (strength training needs more recovery)
   if (reps <= 5) {
-    baseRest += 60; // Heavy strength work
+    breakdown.repsAdjustment = 60;
+    breakdown.repsCategory = "Força máxima";
   } else if (reps <= 8) {
-    baseRest += 30; // Moderate strength
+    breakdown.repsAdjustment = 30;
+    breakdown.repsCategory = "Força/Hipertrofia";
   } else if (reps <= 12) {
-    baseRest += 0; // Hypertrophy range
+    breakdown.repsAdjustment = 0;
+    breakdown.repsCategory = "Hipertrofia";
   } else {
-    baseRest -= 15; // Endurance, less rest
+    breakdown.repsAdjustment = -15;
+    breakdown.repsCategory = "Resistência";
   }
   
   // More sets = slightly more rest
   if (sets >= 4) {
-    baseRest += 15;
+    breakdown.setsBonus = 15;
   }
   
+  const total = breakdown.base + breakdown.weightBonus + breakdown.repsAdjustment + breakdown.setsBonus;
+  
   // Clamp between 30 seconds and 5 minutes
-  return Math.max(30, Math.min(300, baseRest));
+  return { 
+    total: Math.max(30, Math.min(300, total)),
+    breakdown 
+  };
 };
+
+interface RestBreakdown {
+  base: number;
+  weightBonus: number;
+  repsAdjustment: number;
+  setsBonus: number;
+  repsCategory: string;
+}
 
 const Workout = () => {
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
@@ -66,6 +88,13 @@ const Workout = () => {
   const [reps, setReps] = useState("7");
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
+  const [restBreakdown, setRestBreakdown] = useState<RestBreakdown>({
+    base: 60,
+    weightBonus: 30,
+    repsAdjustment: 30,
+    setsBonus: 0,
+    repsCategory: "Força/Hipertrofia",
+  });
   
   // Rest timer state
   const [isRestRunning, setIsRestRunning] = useState(false);
@@ -100,10 +129,11 @@ const Workout = () => {
     const setsNum = parseInt(sets) || 0;
     
     if (weightNum > 0 && repsNum > 0 && setsNum > 0) {
-      const calculatedRest = calculateRestTime(weightNum, repsNum, setsNum);
-      setRestTime(String(calculatedRest));
+      const { total, breakdown } = calculateRestTime(weightNum, repsNum, setsNum);
+      setRestTime(String(total));
+      setRestBreakdown(breakdown);
       if (!isRestRunning) {
-        setRestRemaining(calculatedRest);
+        setRestRemaining(total);
       }
     }
   }, [weight, reps, sets, isRestRunning]);
@@ -297,11 +327,79 @@ const Workout = () => {
             </div>
           </motion.div>
 
-          {/* Rest Timer */}
+          {/* Rest Time Breakdown */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+            className="bg-card rounded-[20px] p-5 border border-border/30"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-muted-foreground">Cálculo do Descanso</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
+                {restBreakdown.repsCategory}
+              </span>
+            </div>
+            
+            <div className="space-y-3">
+              {/* Base time */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Tempo base</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">{restBreakdown.base}s</span>
+              </div>
+              
+              {/* Weight bonus */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="text-sm text-muted-foreground">Peso ({weight}kg)</span>
+                </div>
+                <span className={`text-sm font-medium ${restBreakdown.weightBonus > 0 ? "text-primary" : "text-muted-foreground"}`}>
+                  +{restBreakdown.weightBonus}s
+                </span>
+              </div>
+              
+              {/* Reps adjustment */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${restBreakdown.repsAdjustment >= 0 ? "bg-amber-500" : "bg-green-500"}`} />
+                  <span className="text-sm text-muted-foreground">Repetições ({reps})</span>
+                </div>
+                <span className={`text-sm font-medium ${restBreakdown.repsAdjustment > 0 ? "text-amber-500" : restBreakdown.repsAdjustment < 0 ? "text-green-500" : "text-muted-foreground"}`}>
+                  {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
+                </span>
+              </div>
+              
+              {/* Sets bonus */}
+              {restBreakdown.setsBonus > 0 && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="text-sm text-muted-foreground">Séries altas ({sets})</span>
+                  </div>
+                  <span className="text-sm font-medium text-blue-500">+{restBreakdown.setsBonus}s</span>
+                </div>
+              )}
+              
+              {/* Divider */}
+              <div className="border-t border-border/50 my-2" />
+              
+              {/* Total */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">Total recomendado</span>
+                <span className="text-lg font-bold text-primary">{restTime}s</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Rest Timer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
             className="bg-gradient-to-br from-primary/10 via-primary/5 to-card rounded-[20px] p-6 border border-primary/20"
           >
             <span className="text-sm font-medium text-muted-foreground text-center block mb-4">
