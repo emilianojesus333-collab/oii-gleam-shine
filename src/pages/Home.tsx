@@ -272,7 +272,11 @@ const Home = () => {
             <CarouselContent>
               {/* State 1: Stats */}
               <CarouselItem>
-                <div className="grid grid-cols-3 gap-3">
+                <motion.div 
+                  className="grid grid-cols-3 gap-3"
+                  animate={{ opacity: currentSlide === 0 ? 1 : 0.3 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                >
                   {[
                     { value: "0", label: "Séries feitas" },
                     { value: "0", label: "Reps totais" },
@@ -297,12 +301,16 @@ const Home = () => {
                       <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </CarouselItem>
 
               {/* State 2: AI Suggestions */}
               <CarouselItem>
-                <div className="grid grid-cols-3 gap-3">
+                <motion.div 
+                  className="grid grid-cols-3 gap-3"
+                  animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                >
                   {[
                     { icon: Brain, title: "Barra em V", label: "Treino Sugerido" },
                     { icon: Target, title: "Contração", label: "Foco" },
@@ -328,7 +336,7 @@ const Home = () => {
                       <p className="text-xs text-gray-400/70 mt-1">{item.label}</p>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </CarouselItem>
             </CarouselContent>
           </Carousel>
