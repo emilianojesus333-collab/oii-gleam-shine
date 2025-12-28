@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Target, History } from "lucide-react";
-import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
+import { Dumbbell, TrendingUp, History } from "lucide-react";
+import { getWorkoutHistory } from "@/data/workoutHistory";
 
 interface ExerciseInsightsCarouselProps {
   selectedExercise: string;
@@ -14,7 +14,6 @@ export const ExerciseInsightsCarousel = ({
   selectedExercise,
   weight,
   reps,
-  exerciseFocus,
 }: ExerciseInsightsCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -55,61 +54,34 @@ export const ExerciseInsightsCarousel = ({
     return null;
   }, [oneRM]);
 
-  // AI tips based on exercise
-  const aiTips: Record<string, string> = {
-    "Supino Reto": "Squeeze nas escápulas, peito para cima",
-    "Supino Inclinado": "Foco na porção superior do peitoral",
-    "Supino Declinado": "Controla a descida, explosão na subida",
-    "Crucifixo com Halteres": "Mantém os cotovelos ligeiramente fletidos",
-    "Agachamento Livre": "Mantém o core ativado, joelhos alinhados",
-    "Leg Press": "Não trava os joelhos no topo",
-    "Hack Squat": "Costas sempre apoiadas na máquina",
-    "Cadeira Extensora": "Contração máxima no topo do movimento",
-    "Cadeira Flexora": "Não levanta a anca durante o movimento",
-    "Stiff": "Mantém as costas retas, foco nos isquiotibiais",
-    "Puxada Frontal": "Puxa com os cotovelos, não com as mãos",
-    "Remada Curvada": "Squeeze nas omoplatas no topo",
-    "Remada Baixa": "Peito para fora, costas retas",
-    "Pull-up": "Controla a descida, ativa o dorsal",
-    "Rosca Direta": "Cotovelos fixos ao lado do corpo",
-    "Rosca Martelo": "Movimento controlado, sem balanço",
-    "Rosca Scott": "Isola o bíceps, sem impulso",
-    "Tríceps Corda": "Separa as pontas da corda no final",
-    "Tríceps Francês": "Cotovelos apontados para cima",
-    "Desenvolvimento": "Core ativado, não arqueia as costas",
-    "Elevação Lateral": "Cotovelos ligeiramente acima das mãos",
-    "Elevação Frontal": "Movimento controlado até a altura dos ombros",
-    default: "Mantém a forma correta em cada repetição",
-  };
-
-  const currentTip = aiTips[selectedExercise] || aiTips.default;
-
   const slides = [
     {
-      id: "ai-suggestion",
-      icon: Sparkles,
-      title: "Sugestão IA",
+      id: "register",
+      icon: Dumbbell,
+      title: "Registar Exercício",
+      content: (
+        <p className="text-white text-sm">
+          {selectedExercise 
+            ? `Pronto para registar: ${selectedExercise}`
+            : "Seleciona um exercício para começar"}
+        </p>
+      ),
+    },
+    {
+      id: "1rm",
+      icon: TrendingUp,
+      title: "1RM",
       content: oneRM ? (
         <div className="space-y-1">
           <p className="text-white font-semibold">1RM estimado: {oneRM}kg</p>
           <p className="text-gray-400 text-xs">
-            Carga recomendada hoje:{" "}
+            Carga recomendada:{" "}
             <span className="text-primary font-medium">{recommendedLoad}kg</span>
           </p>
         </div>
       ) : (
         <p className="text-gray-400 text-xs">
-          Preenche peso e reps para ver recomendações
-        </p>
-      ),
-    },
-    {
-      id: "focus",
-      icon: Target,
-      title: "Foco Técnico",
-      content: (
-        <p className="text-white text-sm">
-          💡 {exerciseFocus || currentTip}
+          Preenche peso e reps para calcular
         </p>
       ),
     },
