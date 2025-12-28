@@ -19,7 +19,7 @@ export const BottomNav = () => {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="flex items-center justify-between bg-white rounded-full shadow-lg shadow-black/10 px-2 py-2"
+        className="flex items-center justify-between bg-white/70 backdrop-blur-md rounded-full shadow-lg shadow-black/10 px-2 py-2"
       >
         {/* Left nav items */}
         <div className="flex items-center gap-1">
