@@ -11,6 +11,7 @@ import Workout from "./pages/Workout";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import Alerts from "./pages/Alerts";
+import Nutrition from "./pages/Nutrition";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/nutrition" element={<Nutrition />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
