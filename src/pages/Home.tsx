@@ -200,13 +200,24 @@ const Home = () => {
       <main className="relative z-10 flex-1 px-6 space-y-5">
         {/* Main Workout Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, y: 40, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ 
+            delay: 0.2, 
+            duration: 0.5,
+            type: "spring",
+            stiffness: 100,
+            damping: 15
+          }}
+          whileHover={{ scale: 1.02 }}
           className="rounded-3xl bg-[#1E1E1E]/70 p-6"
         >
           <div className="flex items-center justify-between">
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+            >
               <p className="text-4xl font-black text-white">
                 {todayWorkout || "Descanso"}
               </p>
@@ -215,10 +226,15 @@ const Home = () => {
                   ? "Treino de hoje" 
                   : "Dia de recuperação"}
               </p>
-            </div>
+            </motion.div>
             
             {/* Progress Ring */}
-            <div className="relative">
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, rotate: -180, scale: 0 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
+            >
               <svg className="h-24 w-24 -rotate-90">
                 <circle
                   cx="48"
@@ -229,7 +245,7 @@ const Home = () => {
                   fill="none"
                   className="text-gray-700"
                 />
-                <circle
+                <motion.circle
                   cx="48"
                   cy="48"
                   r="45"
@@ -237,20 +253,26 @@ const Home = () => {
                   strokeWidth="6"
                   fill="none"
                   strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
+                  initial={{ strokeDashoffset: circumference }}
+                  animate={{ strokeDashoffset: strokeDashoffset }}
+                  transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
                   strokeLinecap="round"
-                  className="text-white transition-all duration-500"
+                  className="text-white"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <Dumbbell className="h-8 w-8 text-white" />
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {todayWorkout && todayWorkout !== "Descanso" && (
             <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
               whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.02 }}
               onClick={() => navigate("/chat")}
               className="mt-6 w-full rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-all hover:opacity-90"
             >
@@ -260,70 +282,105 @@ const Home = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-3"
-        >
-          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
-            <p className="text-2xl font-black text-white">0</p>
-            <p className="text-xs text-gray-400 mt-1">Séries feitas</p>
-            <div className="mt-3 flex justify-center">
-              <Target className="h-6 w-6 text-gray-500" />
-            </div>
-          </div>
-          
-          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
-            <p className="text-2xl font-black text-white">0</p>
-            <p className="text-xs text-gray-400 mt-1">Reps totais</p>
-            <div className="mt-3 flex justify-center">
-              <Dumbbell className="h-6 w-6 text-gray-500" />
-            </div>
-          </div>
-          
-          <div className="rounded-2xl bg-[#1E1E1E]/70 p-4">
-            <p className="text-2xl font-black text-white">0</p>
-            <p className="text-xs text-gray-400 mt-1">Min treino</p>
-            <div className="mt-3 flex justify-center">
-              <Timer className="h-6 w-6 text-gray-500" />
-            </div>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { value: "0", label: "Séries feitas", icon: Target, delay: 0.3 },
+            { value: "0", label: "Reps totais", icon: Dumbbell, delay: 0.4 },
+            { value: "0", label: "Min treino", icon: Timer, delay: 0.5 },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 30, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ 
+                delay: stat.delay,
+                duration: 0.4,
+                type: "spring",
+                stiffness: 120,
+                damping: 12
+              }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-[#1E1E1E]/70 p-4"
+            >
+              <motion.p 
+                className="text-2xl font-black text-white"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: stat.delay + 0.2 }}
+              >
+                {stat.value}
+              </motion.p>
+              <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+              <motion.div 
+                className="mt-3 flex justify-center"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: stat.delay + 0.3, type: "spring" }}
+              >
+                <stat.icon className="h-6 w-6 text-gray-500" />
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Recent Workouts Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
         >
-          <h3 className="text-xl font-bold text-white mb-4">Próximos treinos</h3>
+          <motion.h3 
+            className="text-xl font-bold text-white mb-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            Próximos treinos
+          </motion.h3>
           
           <div className="space-y-3">
             {weekSchedule
               .filter(d => !d.isToday && d.workout && d.workout !== "Descanso")
               .slice(0, 3)
-              .map((item) => (
-                <div
+              .map((item, index) => (
+                <motion.div
                   key={item.fullDay}
+                  initial={{ opacity: 0, x: -40, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={{ 
+                    delay: 0.6 + index * 0.1,
+                    duration: 0.4,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15
+                  }}
+                  whileHover={{ scale: 1.02, x: 5 }}
                   className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/70 p-4"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50">
+                  <motion.div 
+                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-700/50"
+                    whileHover={{ rotate: 10 }}
+                  >
                     <Dumbbell className="h-6 w-6 text-white" />
-                  </div>
+                  </motion.div>
                   <div className="flex-1">
                     <p className="font-semibold text-white">{item.workout}</p>
                     <p className="text-sm text-gray-400">{item.fullDay}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <div className="rounded-2xl bg-[#1E1E1E]/70 p-6 text-center">
+              <motion.div 
+                className="rounded-2xl bg-[#1E1E1E]/70 p-6 text-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, type: "spring" }}
+              >
                 <p className="text-gray-400">
                   Nenhum treino agendado para esta semana
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
         </motion.div>
