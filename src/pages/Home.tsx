@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart } from "lucide-react";
+import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
@@ -10,7 +10,8 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { getSuggestedExercise, getRecoverySuggestion } from "@/data/exerciseDatabase";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -28,6 +29,7 @@ const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showExercises, setShowExercises] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -89,10 +91,14 @@ const Home = () => {
     const { exercise, focus } = getSuggestedExercise(muscleGroups);
     const recovery = getRecoverySuggestion(muscleGroups);
     
+    // Get all exercises for today's muscle groups
+    const allExercises = muscleGroups ? getExercisesForGroups(muscleGroups) : [];
+    
     const suggestions = {
       exercise: exercise?.name || "Alongamentos",
       focus: focus,
       recovery: recovery,
+      allExercises: allExercises,
     };
 
     return {
@@ -330,31 +336,68 @@ const Home = () => {
                   animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
-                  {[
-                    { icon: Brain, title: aiSuggestions.exercise, label: "Treino Sugerido" },
-                    { icon: Target, title: aiSuggestions.focus, label: "Foco" },
-                    { icon: Heart, title: aiSuggestions.recovery, label: "Recovery Coach" },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ 
-                        delay: 0.3 + index * 0.1,
-                        duration: 0.4,
-                        type: "spring",
-                        stiffness: 120,
-                        damping: 12
-                      }}
-                      className="rounded-2xl bg-[#1E1E1E]/50 p-4"
-                    >
-                      <item.icon className="h-5 w-5 text-primary mb-2" />
-                      <p className="text-sm font-bold text-white/70 leading-tight">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-gray-400/70 mt-1">{item.label}</p>
-                    </motion.div>
-                  ))}
+                  {/* Treino Sugerido - Clickable */}
+                  <motion.button
+                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: 0.3,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 12
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowExercises(true)}
+                    className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-left relative group"
+                  >
+                    <Brain className="h-5 w-5 text-primary mb-2" />
+                    <p className="text-sm font-bold text-white/70 leading-tight">
+                      {aiSuggestions.exercise}
+                    </p>
+                    <p className="text-xs text-gray-400/70 mt-1">Treino Sugerido</p>
+                    <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-hover:text-primary transition-colors" />
+                  </motion.button>
+
+                  {/* Foco */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: 0.4,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 12
+                    }}
+                    className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                  >
+                    <Target className="h-5 w-5 text-primary mb-2" />
+                    <p className="text-sm font-bold text-white/70 leading-tight">
+                      {aiSuggestions.focus}
+                    </p>
+                    <p className="text-xs text-gray-400/70 mt-1">Foco</p>
+                  </motion.div>
+
+                  {/* Recovery Coach */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: 0.5,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 12
+                    }}
+                    className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                  >
+                    <Heart className="h-5 w-5 text-primary mb-2" />
+                    <p className="text-sm font-bold text-white/70 leading-tight">
+                      {aiSuggestions.recovery}
+                    </p>
+                    <p className="text-xs text-gray-400/70 mt-1">Recovery Coach</p>
+                  </motion.div>
                 </motion.div>
               </CarouselItem>
             </CarouselContent>
@@ -440,6 +483,52 @@ const Home = () => {
       >
         <MessageCircle className="h-6 w-6" />
       </motion.button>
+
+      {/* Exercises Sheet */}
+      <Sheet open={showExercises} onOpenChange={setShowExercises}>
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl bg-card border-t-0">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Dumbbell className="h-5 w-5 text-primary" />
+              Exercícios Sugeridos
+            </SheetTitle>
+            <p className="text-sm text-muted-foreground">
+              {todayWorkout || "Dia de descanso"}
+            </p>
+          </SheetHeader>
+          
+          <div className="overflow-y-auto h-[calc(100%-80px)] pb-6 -mx-2 px-2">
+            <div className="space-y-3">
+              {aiSuggestions.allExercises.length > 0 ? (
+                aiSuggestions.allExercises.map((exercise: Exercise, index: number) => (
+                  <motion.div
+                    key={`${exercise.name}-${index}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center gap-4 rounded-2xl bg-secondary/50 p-4"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
+                      <Dumbbell className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">{exercise.name}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Target className="h-3 w-3" />
+                        {exercise.focus}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Dia de descanso - aproveita para recuperar!</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
