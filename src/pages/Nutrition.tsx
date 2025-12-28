@@ -7,6 +7,7 @@ import { FoodScanner } from '@/components/nutrition/FoodScanner';
 import { MealCard } from '@/components/nutrition/MealCard';
 import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
 import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
+import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 
 const Nutrition = () => {
   const {
@@ -16,6 +17,10 @@ const Nutrition = () => {
     progress,
     remaining,
     weeklyData,
+    weeklyStats,
+    monthlyData,
+    allLogs,
+    achievements,
     addMeal,
     removeMeal,
     updateProfile,
@@ -51,12 +56,21 @@ const Nutrition = () => {
               </div>
             </div>
             
-            <ProfileSetup
-              profile={profile}
-              goals={goals}
-              onUpdateProfile={updateProfile}
-              onSetGoals={setCustomGoals}
-            />
+            <div className="flex items-center gap-2">
+              <NutritionHistory
+                allLogs={allLogs}
+                monthlyData={monthlyData}
+                weeklyStats={weeklyStats}
+                goals={goals}
+                achievements={achievements}
+              />
+              <ProfileSetup
+                profile={profile}
+                goals={goals}
+                onUpdateProfile={updateProfile}
+                onSetGoals={setCustomGoals}
+              />
+            </div>
           </div>
         </div>
       </motion.div>
