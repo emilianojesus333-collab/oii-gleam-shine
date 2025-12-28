@@ -30,7 +30,22 @@ const Home = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
-  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
+    // Load from localStorage on init
+    const saved = localStorage.getItem("liftmate_completed_exercises");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Check if it's from today
+        if (parsed.date === new Date().toDateString()) {
+          return new Set(parsed.exercises);
+        }
+      } catch (e) {
+        console.error("Error parsing completed exercises:", e);
+      }
+    }
+    return new Set();
+  });
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -42,6 +57,15 @@ const Home = () => {
       } else {
         newSet.add(exerciseName);
       }
+      
+      // Save to localStorage with today's date
+      const toSave = {
+        date: new Date().toDateString(),
+        exercises: Array.from(newSet),
+        workout: todayWorkout,
+      };
+      localStorage.setItem("liftmate_completed_exercises", JSON.stringify(toSave));
+      
       return newSet;
     });
   };
