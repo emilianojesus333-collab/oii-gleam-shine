@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight } from "lucide-react";
+import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight, Check } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
@@ -30,8 +30,21 @@ const Home = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const toggleExerciseComplete = (exerciseName: string) => {
+    setCompletedExercises(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(exerciseName)) {
+        newSet.delete(exerciseName);
+      } else {
+        newSet.add(exerciseName);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -498,28 +511,71 @@ const Home = () => {
           </SheetHeader>
           
           <div className="overflow-y-auto h-[calc(100%-80px)] pb-6 -mx-2 px-2">
+            {/* Progress indicator */}
+            {aiSuggestions.allExercises.length > 0 && (
+              <div className="mb-4 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Progresso</span>
+                <span className="font-semibold text-primary">
+                  {completedExercises.size}/{aiSuggestions.allExercises.length} concluídos
+                </span>
+              </div>
+            )}
+            
             <div className="space-y-3">
               {aiSuggestions.allExercises.length > 0 ? (
-                aiSuggestions.allExercises.map((exercise: Exercise, index: number) => (
-                  <motion.div
-                    key={`${exercise.name}-${index}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-4 rounded-2xl bg-secondary/50 p-4"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
-                      <Dumbbell className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground">{exercise.name}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Target className="h-3 w-3" />
-                        {exercise.focus}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))
+                aiSuggestions.allExercises.map((exercise: Exercise, index: number) => {
+                  const isCompleted = completedExercises.has(exercise.name);
+                  return (
+                    <motion.button
+                      key={`${exercise.name}-${index}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => toggleExerciseComplete(exercise.name)}
+                      className={`flex items-center gap-4 rounded-2xl p-4 w-full text-left transition-all ${
+                        isCompleted 
+                          ? 'bg-primary/20 border border-primary/30' 
+                          : 'bg-secondary/50 hover:bg-secondary/70'
+                      }`}
+                    >
+                      <motion.div 
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                          isCompleted ? 'bg-primary' : 'bg-primary/20'
+                        }`}
+                        animate={{ scale: isCompleted ? [1, 1.2, 1] : 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {isCompleted ? (
+                          <Check className="h-5 w-5 text-primary-foreground" />
+                        ) : (
+                          <Dumbbell className="h-5 w-5 text-primary" />
+                        )}
+                      </motion.div>
+                      <div className="flex-1">
+                        <p className={`font-semibold transition-all ${
+                          isCompleted ? 'text-primary line-through' : 'text-foreground'
+                        }`}>
+                          {exercise.name}
+                        </p>
+                        <p className={`text-sm flex items-center gap-1 ${
+                          isCompleted ? 'text-primary/60' : 'text-muted-foreground'
+                        }`}>
+                          <Target className="h-3 w-3" />
+                          {exercise.focus}
+                        </p>
+                      </div>
+                      {isCompleted && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="text-xs text-primary font-medium"
+                        >
+                          ✓ Feito
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>Dia de descanso - aproveita para recuperar!</p>
