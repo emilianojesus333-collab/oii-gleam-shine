@@ -212,9 +212,10 @@ const Home = () => {
           className="rounded-3xl bg-[#1E1E1E]/50 p-6"
         >
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.4 }}
+            className="text-center"
           >
             <p className="text-4xl font-black text-white/70">
               {todayWorkout || "Descanso"}
