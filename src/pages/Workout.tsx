@@ -1,8 +1,17 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, RotateCcw, Timer, Dumbbell, Target, Flame, ChevronRight, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Dumbbell, 
+  Target,
+  Zap,
+  TrendingUp,
+  Clock
+} from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
-import { getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
+import { getExercisesForGroups } from "@/data/exerciseDatabase";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -14,23 +23,24 @@ const weekDaysMap: Record<number, string> = {
   6: "Sábado",
 };
 
+type TrainingType = "Força" | "Hipertrofia" | "Resistência";
+
+const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string; restTime: number }> = {
+  "Força": { icon: Zap, description: "Cargas altas, poucas reps", restTime: 180 },
+  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado", restTime: 90 },
+  "Resistência": { icon: Clock, description: "Mais reps, menos descanso", restTime: 45 },
+};
+
 const Workout = () => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
-    const saved = localStorage.getItem("liftmate_completed_exercises");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.date === new Date().toDateString()) {
-          return new Set(parsed.exercises);
-        }
-      } catch (e) {
-        console.error("Error parsing completed exercises:", e);
-      }
-    }
-    return new Set();
-  });
+  const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
+  const [weight, setWeight] = useState("80");
+  const [reps, setReps] = useState("10");
+  const [sets, setSets] = useState("3");
+  const [restTime, setRestTime] = useState("90");
+  
+  // Rest timer state
+  const [isRestRunning, setIsRestRunning] = useState(false);
+  const [restRemaining, setRestRemaining] = useState(90);
 
   // Get user data
   const userData = useMemo(() => {
@@ -60,204 +70,251 @@ const Workout = () => {
     return getExercisesForGroups(muscleGroups);
   }, [todayWorkout]);
 
-  // Timer logic
+  // Update rest time when training type changes
+  useEffect(() => {
+    const newRestTime = trainingTypeConfig[trainingType].restTime;
+    setRestTime(String(newRestTime));
+    setRestRemaining(newRestTime);
+  }, [trainingType]);
+
+  // Rest timer logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isRunning) {
+    if (isRestRunning && restRemaining > 0) {
       interval = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
+        setRestRemaining((prev) => {
+          if (prev <= 1) {
+            setIsRestRunning(false);
+            return parseInt(restTime);
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRestRunning, restRemaining, restTime]);
 
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
+  const formatRestTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    if (hrs > 0) {
-      return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const toggleExercise = (exerciseName: string) => {
-    setCompletedExercises((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(exerciseName)) {
-        newSet.delete(exerciseName);
-      } else {
-        newSet.add(exerciseName);
-      }
-      const toSave = {
-        date: new Date().toDateString(),
-        exercises: Array.from(newSet),
-        workout: todayWorkout,
-      };
-      localStorage.setItem("liftmate_completed_exercises", JSON.stringify(toSave));
-      return newSet;
-    });
+  const startRestTimer = () => {
+    setRestRemaining(parseInt(restTime));
+    setIsRestRunning(true);
   };
 
-  const completionRate = todayExercises.length > 0
-    ? Math.round((completedExercises.size / todayExercises.length) * 100)
-    : 0;
+  const resetRestTimer = () => {
+    setIsRestRunning(false);
+    setRestRemaining(parseInt(restTime));
+  };
+
+  const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-12 pb-8">
+      <div className="px-5 pt-12 pb-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
+          className="flex items-center gap-3"
         >
-          <h1 className="text-3xl font-bold text-foreground">Treino de Hoje</h1>
-          <p className="text-muted-foreground">
-            {todayWorkout || "Sem treino definido"}
+          <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
+            <Dumbbell className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">
+              {isRestDay ? "Dia de Descanso" : todayWorkout}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {weekDaysMap[new Date().getDay()]}
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {isRestDay ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="px-5 py-12 text-center"
+        >
+          <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mx-auto mb-6 border border-border/50">
+            <Target className="w-10 h-10 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">Recuperação Ativa</h3>
+          <p className="text-muted-foreground max-w-xs mx-auto">
+            O descanso é tão importante quanto o treino. Aproveita para recuperar!
           </p>
         </motion.div>
-
-        {/* Timer Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="mt-6 bg-card/80 backdrop-blur-sm rounded-3xl p-6 border border-border/50"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Timer className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Cronómetro</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm text-muted-foreground">{completionRate}% concluído</span>
-            </div>
-          </div>
-
-          {/* Timer Display */}
-          <div className="text-center py-4">
-            <motion.span
-              key={elapsedTime}
-              initial={{ scale: 1.05 }}
-              animate={{ scale: 1 }}
-              className="text-6xl font-mono font-bold text-foreground tracking-tight"
-            >
-              {formatTime(elapsedTime)}
-            </motion.span>
-          </div>
-
-          {/* Timer Controls */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setElapsedTime(0)}
-              className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setIsRunning(!isRunning)}
-              className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-colors ${
-                isRunning
-                  ? "bg-red-500 text-white shadow-red-500/30"
-                  : "bg-primary text-primary-foreground shadow-primary/30"
-              }`}
-            >
-              {isRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
-            </motion.button>
-            <div className="w-14 h-14" /> {/* Spacer for symmetry */}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Exercise List */}
-      <div className="px-6 mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">Exercícios</h2>
-          <span className="text-sm text-muted-foreground">
-            {completedExercises.size}/{todayExercises.length}
-          </span>
-        </div>
-
-        <div className="space-y-3">
-          <AnimatePresence>
-            {todayExercises.length > 0 ? (
-              todayExercises.map((exercise, index) => {
-                const isCompleted = completedExercises.has(exercise.name);
+      ) : (
+        <div className="px-5 space-y-5">
+          {/* Training Type Selector */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-card rounded-[20px] p-5 border border-border/30"
+          >
+            <span className="text-sm font-medium text-muted-foreground mb-4 block">
+              Tipo de Treino
+            </span>
+            <div className="flex gap-2">
+              {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
+                const isSelected = trainingType === type;
                 return (
                   <motion.button
-                    key={exercise.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => toggleExercise(exercise.name)}
-                    className={`w-full p-4 rounded-2xl border transition-all text-left ${
-                      isCompleted
-                        ? "bg-primary/10 border-primary/30"
-                        : "bg-card border-border/50 hover:border-border"
+                    key={type}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setTrainingType(type)}
+                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-border/50"
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                          isCompleted ? "bg-primary text-primary-foreground" : "bg-muted"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <Check className="w-6 h-6" />
-                        ) : (
-                          <Dumbbell className="w-5 h-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3
-                          className={`font-medium ${
-                            isCompleted ? "text-primary" : "text-foreground"
-                          }`}
-                        >
-                          {exercise.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {exercise.focus}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            isCompleted
-                              ? "bg-primary/20 text-primary"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {exercise.focus}
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                    </div>
+                    {type}
                   </motion.button>
                 );
-              })
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
+              })}
+            </div>
+          </motion.div>
+
+          {/* Exercise Registration Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-card rounded-[20px] p-5 border border-border/30"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span className="text-primary text-lg font-bold">+</span>
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">Registar Exercício</h2>
+            </div>
+
+            {/* Exercise selector */}
+            <div className="mb-4">
+              <label className="text-sm text-muted-foreground mb-2 block">Nome do Exercício</label>
+              <select className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
+                <option value="">Selecionar exercício...</option>
+                {todayExercises.map((exercise) => (
+                  <option key={exercise.name} value={exercise.name}>
+                    {exercise.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Input Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Peso (kg)</label>
+                <input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  placeholder="80"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Repetições</label>
+                <input
+                  type="number"
+                  value={reps}
+                  onChange={(e) => setReps(e.target.value)}
+                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  placeholder="10"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Séries</label>
+                <input
+                  type="number"
+                  value={sets}
+                  onChange={(e) => setSets(e.target.value)}
+                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  placeholder="3"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Descanso (seg)</label>
+                <input
+                  type="number"
+                  value={restTime}
+                  onChange={(e) => setRestTime(e.target.value)}
+                  className="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-foreground text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  placeholder="90"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Rest Timer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-gradient-to-br from-primary/10 via-primary/5 to-card rounded-[20px] p-6 border border-primary/20"
+          >
+            <span className="text-sm font-medium text-muted-foreground text-center block mb-4">
+              Timer de Descanso
+            </span>
+            
+            {/* Timer Display */}
+            <motion.div
+              key={restRemaining}
+              initial={{ scale: 1.02 }}
+              animate={{ scale: 1 }}
+              className="text-center mb-6"
+            >
+              <span 
+                className={`text-7xl font-mono font-bold tracking-tight ${
+                  isRestRunning ? "text-primary" : "text-foreground"
+                }`}
               >
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="font-medium text-foreground mb-1">Dia de Descanso</h3>
-                <p className="text-sm text-muted-foreground">
-                  Aproveita para recuperar e voltar mais forte!
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {formatRestTime(restRemaining)}
+              </span>
+            </motion.div>
+
+            {/* Timer Controls */}
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
+                className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+                  isRestRunning
+                    ? "bg-destructive/90 text-destructive-foreground"
+                    : "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                }`}
+              >
+                {isRestRunning ? (
+                  <>
+                    <Pause className="w-5 h-5" />
+                    Pausar
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
+                    Iniciar Descanso
+                  </>
+                )}
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={resetRestTimer}
+                className="w-14 h-14 rounded-xl bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-all"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
-      </div>
+      )}
 
       <BottomNav />
     </div>
