@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Send, Dumbbell, CheckCircle2, TrendingUp, Flame, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
+import { BottomNav } from "@/components/BottomNav";
 
 interface Message {
   id: string;
@@ -340,6 +341,8 @@ const Chat = () => {
           </button>
         </div>
       </div>
+
+      <BottomNav />
     </div>
   );
 };
