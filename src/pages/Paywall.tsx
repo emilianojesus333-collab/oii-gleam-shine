@@ -171,7 +171,7 @@ const Paywall = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center mt-8 space-y-3"
+          className="text-center mt-8 space-y-4"
         >
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <Shield className="w-4 h-4" />
@@ -180,6 +180,14 @@ const Paywall = () => {
           <p className="text-xs text-muted-foreground/70 max-w-xs mx-auto">
             Teste gratuito de 7 dias. Cancela quando quiseres, sem compromisso.
           </p>
+          
+          {/* Skip Button - Dev mode */}
+          <button
+            onClick={() => window.location.href = "/home"}
+            className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-2"
+          >
+            Pular por agora (dev)
+          </button>
         </motion.div>
       </div>
     </div>
