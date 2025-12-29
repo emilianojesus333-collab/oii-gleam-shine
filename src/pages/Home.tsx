@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight, Check } from "lucide-react";
+import { MessageCircle, Flame, Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight, Check, Trophy } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 import {
   Carousel,
   CarouselContent,
@@ -53,6 +54,42 @@ const Home = () => {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Celebration function
+  const triggerCelebration = useCallback(() => {
+    // Fire confetti from both sides
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors: colors
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors: colors
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+
+    // Show success toast
+    toast.success("Treino completo! 💪", {
+      description: "Parabéns, completaste todos os exercícios de hoje!",
+      duration: 5000,
+    });
+  }, []);
+
   const toggleExerciseComplete = (exerciseName: string) => {
     setCompletedExercises(prev => {
       const newSet = new Set(prev);
@@ -83,6 +120,11 @@ const Home = () => {
         totalExercises: totalExercises,
         completionRate: totalExercises > 0 ? Math.round((newSet.size / totalExercises) * 100) : 0,
       });
+
+      // Trigger celebration when all exercises are completed
+      if (newSet.size === totalExercises && totalExercises > 0 && !prev.has(exerciseName)) {
+        setTimeout(() => triggerCelebration(), 300);
+      }
       
       return newSet;
     });
