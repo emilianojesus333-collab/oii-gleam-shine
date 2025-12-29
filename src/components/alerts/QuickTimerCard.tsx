@@ -31,8 +31,8 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
           <Timer className="w-6 h-6 text-emerald-400" />
         </div>
         <div>
-          <h3 className="font-semibold text-foreground">Timer Rápido</h3>
-          <p className="text-xs text-muted-foreground">Descanso entre séries</p>
+          <h3 className="font-semibold text-white">Timer Rápido</h3>
+          <p className="text-xs text-gray-400">Descanso entre séries</p>
         </div>
       </div>
 
@@ -75,11 +75,11 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
                   key={remaining}
                   initial={{ scale: 1.2 }}
                   animate={{ scale: 1 }}
-                  className="text-4xl font-bold text-foreground tabular-nums"
+                  className="text-4xl font-bold text-white tabular-nums"
                 >
                   {formatTime(remaining)}
                 </motion.span>
-                <span className="text-xs text-muted-foreground">restantes</span>
+                <span className="text-xs text-gray-400">restantes</span>
               </div>
             </div>
 
@@ -120,7 +120,7 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
                 className="flex flex-col items-center justify-center gap-1 p-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-all border border-emerald-500/20"
               >
                 <Play className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm font-semibold text-foreground">{timer.label}</span>
+                <span className="text-sm font-semibold text-white">{timer.label}</span>
               </motion.button>
             ))}
           </motion.div>

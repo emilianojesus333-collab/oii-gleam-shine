@@ -49,8 +49,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
             <BedDouble className="w-6 h-6 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Sono & Recuperação</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="font-semibold text-white">Sono & Recuperação</h3>
+            <p className="text-xs text-gray-400">
               Lembrete {settings.reminderMinutesBefore}min antes
             </p>
           </div>
@@ -60,7 +60,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           <Drawer open={isOpen} onOpenChange={setIsOpen}>
             <DrawerTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings2 className="w-4 h-4 text-muted-foreground" />
+                <Settings2 className="w-4 h-4 text-gray-400" />
               </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -131,8 +131,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           <div className="flex items-center gap-2">
             <Moon className="w-5 h-5 text-indigo-400" />
             <div>
-              <p className="text-lg font-semibold text-foreground">{settings.bedtime}</p>
-              <p className="text-[10px] text-muted-foreground">Dormir</p>
+              <p className="text-lg font-semibold text-white">{settings.bedtime}</p>
+              <p className="text-[10px] text-gray-400">Dormir</p>
             </div>
           </div>
           
@@ -145,8 +145,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           
           <div className="flex items-center gap-2">
             <div className="text-right">
-              <p className="text-lg font-semibold text-foreground">{settings.wakeTime}</p>
-              <p className="text-[10px] text-muted-foreground">Acordar</p>
+              <p className="text-lg font-semibold text-white">{settings.wakeTime}</p>
+              <p className="text-[10px] text-gray-400">Acordar</p>
             </div>
             <Sun className="w-5 h-5 text-amber-400" />
           </div>
@@ -162,11 +162,11 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-500/10">
           <span>💪</span>
-          <span className="text-muted-foreground">Sono = Ganhos</span>
+          <span className="text-gray-300">Sono = Ganhos</span>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-500/10">
           <span>🔋</span>
-          <span className="text-muted-foreground">Recupera músculos</span>
+          <span className="text-gray-300">Recupera músculos</span>
         </div>
       </div>
     </motion.div>

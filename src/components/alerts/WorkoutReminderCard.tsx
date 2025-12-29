@@ -42,8 +42,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
             <Dumbbell className="w-6 h-6 text-amber-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Lembrete de Treino</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="font-semibold text-white">Lembrete de Treino</h3>
+            <p className="text-xs text-gray-400">
               {settings.minutesBefore}min antes do treino
             </p>
           </div>
@@ -53,7 +53,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
           <Drawer open={isOpen} onOpenChange={setIsOpen}>
             <DrawerTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings2 className="w-4 h-4 text-muted-foreground" />
+                <Settings2 className="w-4 h-4 text-gray-400" />
               </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -108,7 +108,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
-        className="p-4 rounded-xl bg-card/50 border border-border/50"
+        className="p-4 rounded-xl bg-white/5 border border-white/10"
       >
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -116,14 +116,14 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-medium text-sm">Hora de Treinar!</span>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="font-medium text-sm text-white">Hora de Treinar!</span>
+              <div className="flex items-center gap-1 text-xs text-gray-400">
                 <Clock className="w-3 h-3" />
                 <span>agora</span>
               </div>
             </div>
             {settings.motivationalMessage && (
-              <p className="text-xs text-muted-foreground line-clamp-2">
+              <p className="text-xs text-gray-400 line-clamp-2">
                 {randomQuote}
               </p>
             )}
@@ -131,7 +131,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
         </div>
       </motion.div>
 
-      <p className="text-xs text-muted-foreground mt-3 text-center">
+      <p className="text-xs text-gray-500 mt-3 text-center">
         Pré-visualização da notificação
       </p>
     </motion.div>

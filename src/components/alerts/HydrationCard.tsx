@@ -37,8 +37,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
             <Droplets className="w-6 h-6 text-blue-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Hidratação</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="font-semibold text-white">Hidratação</h3>
+            <p className="text-xs text-gray-400">
               A cada {settings.intervalMinutes} min
             </p>
           </div>
@@ -48,7 +48,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
           <Drawer open={isOpen} onOpenChange={setIsOpen}>
             <DrawerTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings2 className="w-4 h-4 text-muted-foreground" />
+                <Settings2 className="w-4 h-4 text-gray-400" />
               </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -130,10 +130,10 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-lg font-bold text-foreground">
+            <span className="text-lg font-bold text-white">
               {settings.currentIntake.toFixed(1)}L
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[10px] text-gray-400">
               /{settings.dailyGoalLiters}L
             </span>
           </div>
@@ -161,7 +161,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
           animate={{ opacity: 1 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onUpdate({ currentIntake: Math.max(0, settings.currentIntake - 0.25) })}
-          className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
           <Minus className="w-4 h-4" />
           Remover 0.25L
