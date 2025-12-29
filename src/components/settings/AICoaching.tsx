@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap } from "lucide-react";
+import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkoutStats } from "@/data/workoutHistory";
@@ -16,17 +16,11 @@ interface CoachingTip {
   actionable: string;
 }
 
-interface CoachingAnalysis {
-  success: boolean;
-  error?: string;
-  tips?: CoachingTip[];
-  summary?: string;
-}
-
 interface UserGoals {
-  weightGoal?: number; // kg to gain/lose
+  weightGoal?: number;
   focusMuscles?: string[];
   trainingFocus?: string;
+  confirmed?: boolean;
 }
 
 const STORAGE_KEY = 'liftmate_ai_coaching';
@@ -50,7 +44,7 @@ export const AICoaching = () => {
   const [summary, setSummary] = useState<string>("");
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [canRefresh, setCanRefresh] = useState(true);
-  const [showGoalsForm, setShowGoalsForm] = useState(false);
+  const [step, setStep] = useState<'goals' | 'confirm' | 'results'>('goals');
   const [userGoals, setUserGoals] = useState<UserGoals>({});
   const [tempWeightGoal, setTempWeightGoal] = useState<string>('');
   const [tempFocusMuscles, setTempFocusMuscles] = useState<string[]>([]);
@@ -74,22 +68,39 @@ export const AICoaching = () => {
         setTempWeightGoal(data.weightGoal?.toString() || '');
         setTempFocusMuscles(data.focusMuscles || []);
         setTempTrainingFocus(data.trainingFocus || '');
+        if (data.confirmed) {
+          setStep('results');
+        }
       } catch (e) {
         console.error('Error loading goals:', e);
       }
     }
   };
 
-  const saveUserGoals = () => {
-    const goals: UserGoals = {
+  const saveUserGoals = (confirmed: boolean = false) => {
+    const newGoals: UserGoals = {
       weightGoal: tempWeightGoal ? parseFloat(tempWeightGoal) : undefined,
       focusMuscles: tempFocusMuscles.length > 0 ? tempFocusMuscles : undefined,
       trainingFocus: tempTrainingFocus || undefined,
+      confirmed,
     };
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
-    setUserGoals(goals);
-    setShowGoalsForm(false);
-    toast.success('Objetivos guardados!');
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(newGoals));
+    setUserGoals(newGoals);
+  };
+
+  const handleGoToConfirm = () => {
+    if (!tempWeightGoal && !tempFocusMuscles.length && !tempTrainingFocus) {
+      toast.error('Define pelo menos um objetivo');
+      return;
+    }
+    saveUserGoals(false);
+    setStep('confirm');
+  };
+
+  const handleConfirmGoals = async () => {
+    saveUserGoals(true);
+    setStep('results');
+    await analyzePatterns();
   };
 
   const toggleMuscle = (muscle: string) => {
@@ -166,7 +177,7 @@ export const AICoaching = () => {
     const highPriorityTips = newTips.filter(t => t.priority === 'high');
     
     for (const tip of highPriorityTips) {
-      await showNotification(`🔥 ${tip.title}`, {
+      await showNotification(tip.title, {
         body: tip.actionable,
         tag: 'coaching-high-priority',
         data: { category: tip.category }
@@ -200,16 +211,27 @@ export const AICoaching = () => {
       setSummary(data.summary || '');
       saveCoachingData(data.tips || [], data.summary || '');
       
-      // Send push notifications for high priority tips
       await sendHighPriorityNotifications(data.tips || []);
       
-      toast.success('Análise concluída!');
+      toast.success('Análise concluída');
     } catch (error) {
       console.error('Error in AI coaching:', error);
       toast.error('Erro ao gerar dicas. Tenta novamente.');
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const resetGoals = () => {
+    localStorage.removeItem(GOALS_STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    setUserGoals({});
+    setTempWeightGoal('');
+    setTempFocusMuscles([]);
+    setTempTrainingFocus('');
+    setTips([]);
+    setSummary('');
+    setStep('goals');
   };
 
   const getCategoryIcon = (category: string) => {
@@ -246,6 +268,22 @@ export const AICoaching = () => {
     return `Há ${hours} horas`;
   };
 
+  const getGoalSummaryText = () => {
+    const parts = [];
+    if (tempWeightGoal) {
+      const val = parseFloat(tempWeightGoal);
+      parts.push(val > 0 ? `Ganhar ${val}kg` : `Perder ${Math.abs(val)}kg`);
+    }
+    if (tempTrainingFocus) {
+      const label = TRAINING_FOCUS_OPTIONS.find(o => o.value === tempTrainingFocus)?.label;
+      if (label) parts.push(`Foco: ${label}`);
+    }
+    if (tempFocusMuscles.length) {
+      parts.push(`Músculos: ${tempFocusMuscles.join(', ')}`);
+    }
+    return parts;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -262,7 +300,7 @@ export const AICoaching = () => {
             <p className="text-xs text-muted-foreground">Dicas personalizadas</p>
           </div>
         </div>
-        {tips.length > 0 && canRefresh && (
+        {step === 'results' && tips.length > 0 && canRefresh && (
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={analyzePatterns}
@@ -277,19 +315,11 @@ export const AICoaching = () => {
       {isAnalyzing ? (
         <div className="flex flex-col items-center justify-center py-8 gap-4">
           <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-          <p className="text-sm text-foreground/70">A analisar os teus padrões...</p>
+          <p className="text-sm text-foreground/70">A gerar dicas para os teus objetivos...</p>
         </div>
-      ) : showGoalsForm ? (
+      ) : step === 'goals' ? (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Os Teus Objetivos</h3>
-            <button 
-              onClick={() => setShowGoalsForm(false)}
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              Cancelar
-            </button>
-          </div>
+          <p className="text-sm text-foreground/80">Define os teus objetivos:</p>
 
           {/* Weight Goal */}
           <div className="space-y-2">
@@ -354,82 +384,58 @@ export const AICoaching = () => {
 
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={saveUserGoals}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm"
+            onClick={handleGoToConfirm}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2"
           >
-            Guardar Objetivos
+            Continuar
+            <ChevronRight className="w-4 h-4" />
           </motion.button>
         </div>
-      ) : tips.length === 0 ? (
+      ) : step === 'confirm' ? (
         <div className="space-y-4">
-          {/* Goals Summary */}
-          {(userGoals.weightGoal || userGoals.focusMuscles?.length || userGoals.trainingFocus) && (
-            <div className="p-3 rounded-xl bg-background/30 border border-border/50 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground/80">Os teus objetivos:</span>
-                <button 
-                  onClick={() => setShowGoalsForm(true)}
-                  className="text-xs text-blue-400 hover:underline"
-                >
-                  Editar
-                </button>
-              </div>
-              {userGoals.weightGoal && (
-                <p className="text-xs text-foreground/60">
-                  {userGoals.weightGoal > 0 ? `Ganhar ${userGoals.weightGoal}kg` : `Perder ${Math.abs(userGoals.weightGoal)}kg`}
-                </p>
-              )}
-              {userGoals.trainingFocus && (
-                <p className="text-xs text-foreground/60">
-                  Foco: {TRAINING_FOCUS_OPTIONS.find(o => o.value === userGoals.trainingFocus)?.label}
-                </p>
-              )}
-              {userGoals.focusMuscles?.length && (
-                <p className="text-xs text-foreground/60">
-                  Músculos: {userGoals.focusMuscles.join(', ')}
-                </p>
-              )}
-            </div>
-          )}
-
-          <p className="text-sm text-foreground/80">
-            {userGoals.weightGoal || userGoals.focusMuscles?.length 
-              ? 'Pronto para analisar com base nos teus objetivos!'
-              : 'Define os teus objetivos para dicas mais personalizadas.'}
-          </p>
+          <p className="text-sm font-medium text-foreground">Confirma os teus objetivos:</p>
           
-          {!userGoals.weightGoal && !userGoals.focusMuscles?.length && (
+          <div className="p-4 rounded-xl bg-background/30 border border-border/50 space-y-2">
+            {getGoalSummaryText().map((text, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
+                <Check className="w-4 h-4 text-green-400" />
+                {text}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowGoalsForm(true)}
-              className="w-full py-3 rounded-xl bg-background/30 border border-border/50 text-foreground font-medium text-sm flex items-center justify-center gap-2 hover:bg-background/50 transition-colors"
+              onClick={() => setStep('goals')}
+              className="flex-1 py-3 rounded-xl bg-background/30 border border-border/50 text-foreground font-medium text-sm"
             >
-              <Target className="w-4 h-4" />
-              Definir Objetivos
-              <ChevronRight className="w-4 h-4" />
+              Voltar
             </motion.button>
-          )}
-          
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={analyzePatterns}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-5 h-5" />
-            Gerar Dicas Personalizadas
-          </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleConfirmGoals}
+              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2"
+            >
+              <Check className="w-4 h-4" />
+              Confirmar
+            </motion.button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
           {/* Goals Edit Button */}
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setShowGoalsForm(true)}
+              onClick={resetGoals}
               className="text-xs text-blue-400 hover:underline flex items-center gap-1"
             >
               <Target className="w-3 h-3" />
-              {userGoals.weightGoal || userGoals.focusMuscles?.length ? 'Editar objetivos' : 'Definir objetivos'}
+              Alterar objetivos
             </button>
+            {lastUpdate && (
+              <span className="text-xs text-muted-foreground">{formatLastUpdate()}</span>
+            )}
           </div>
 
           {/* Summary */}
@@ -440,43 +446,49 @@ export const AICoaching = () => {
           )}
 
           {/* Tips */}
-          <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-            <AnimatePresence>
-              {tips.map((tip, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`p-3 rounded-xl border ${getCategoryColor(tip.category)}`}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
-                      {getCategoryIcon(tip.category)}
-                      <span className="font-medium text-sm">{tip.title}</span>
+          {tips.length > 0 ? (
+            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+              <AnimatePresence>
+                {tips.map((tip, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`p-3 rounded-xl border ${getCategoryColor(tip.category)}`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(tip.category)}
+                        <span className="font-medium text-sm">{tip.title}</span>
+                      </div>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityBadge(tip.priority)}`}>
+                        {tip.priority === 'high' ? 'Urgente' : tip.priority === 'medium' ? 'Importante' : 'Dica'}
+                      </span>
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityBadge(tip.priority)}`}>
-                      {tip.priority === 'high' ? 'Urgente' : tip.priority === 'medium' ? 'Importante' : 'Dica'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-foreground/70 mb-2">{tip.message}</p>
-                  <div className="flex items-center gap-1.5 text-xs text-foreground/60">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>{tip.actionable}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Last update */}
-          {lastUpdate && (
-            <p className="text-xs text-center text-muted-foreground">
-              Atualizado {formatLastUpdate()}
-            </p>
+                    <p className="text-xs text-foreground/70 mb-2">{tip.message}</p>
+                    <div className="flex items-center gap-1.5 text-xs font-medium">
+                      <TrendingUp className="w-3 h-3" />
+                      {tip.actionable}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={analyzePatterns}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-5 h-5" />
+              Gerar Dicas
+            </motion.button>
           )}
         </div>
       )}
     </motion.div>
   );
 };
+
+export default AICoaching;
