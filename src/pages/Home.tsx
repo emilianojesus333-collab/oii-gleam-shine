@@ -17,6 +17,7 @@ import { saveWorkoutSession, getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
+import { NameAIBanner } from "@/components/home/NameAIBanner";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -335,6 +336,9 @@ const Home = () => {
       </motion.div>
 
       <main className="relative z-10 flex-1 px-6 space-y-5">
+        {/* Name AI Banner */}
+        <NameAIBanner />
+
         {/* Main Workout Card */}
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.9 }}
