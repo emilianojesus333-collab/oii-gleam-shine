@@ -20,9 +20,9 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-2xl bg-card/50 border border-border/50"
+      className="p-4 rounded-2xl bg-white/5 border border-white/10"
     >
-      <h3 className="font-semibold mb-4">Últimos 7 dias</h3>
+      <h3 className="font-semibold mb-4 text-white">Últimos 7 dias</h3>
       
       <div className="h-40">
         <ResponsiveContainer width="100%" height="100%">
@@ -62,13 +62,13 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
+      <div className="flex items-center justify-center gap-4 mt-2 text-xs text-gray-400">
         <div className="flex items-center gap-1">
           <div className="w-3 h-0.5 bg-primary rounded" />
           <span>Calorias</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-muted-foreground/50 rounded" style={{ borderStyle: 'dashed' }} />
+          <div className="w-3 h-0.5 bg-gray-500 rounded" style={{ borderStyle: 'dashed' }} />
           <span>Meta</span>
         </div>
       </div>

@@ -62,25 +62,25 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-green-500'}`} />
-            <motion.span
+              <motion.span
               key={consumed.calories}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
-              className="text-2xl font-bold text-foreground"
+              className="text-2xl font-bold text-white"
             >
               {consumed.calories}
             </motion.span>
-            <span className="text-xs text-muted-foreground">/{goals.calories} kcal</span>
+            <span className="text-xs text-gray-400">/{goals.calories} kcal</span>
           </div>
         </div>
 
         <div className="space-y-2">
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">Restante</p>
-            <p className={`text-3xl font-bold ${isOverCalories ? 'text-red-500' : 'text-foreground'}`}>
+            <p className="text-sm text-gray-400">Restante</p>
+            <p className={`text-3xl font-bold ${isOverCalories ? 'text-red-500' : 'text-white'}`}>
               {isOverCalories ? '+' : ''}{Math.abs(goals.calories - consumed.calories)}
             </p>
-            <p className="text-xs text-muted-foreground">kcal</p>
+            <p className="text-xs text-gray-400">kcal</p>
           </div>
         </div>
       </div>
@@ -107,9 +107,9 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
                 >
                   <Icon className="w-4 h-4" style={{ color }} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">{label}</p>
-                  <p className="text-sm font-semibold">
+              <div className="flex-1">
+                  <p className="text-xs text-gray-400">{label}</p>
+                  <p className="text-sm font-semibold text-white">
                     {value}/{goal}{unit}
                   </p>
                 </div>

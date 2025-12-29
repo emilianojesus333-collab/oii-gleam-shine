@@ -261,12 +261,12 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             )}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-white">
               {workoutContext.phase === 'post_workout' && 'Janela Pós-Treino'}
               {workoutContext.phase === 'pre_workout' && 'Preparação Pré-Treino'}
               {workoutContext.phase === 'recovery' && 'Recuperação Ativa'}
             </p>
-            <p className="text-xs text-muted-foreground">{workoutContext.nutritionTip}</p>
+            <p className="text-xs text-gray-400">{workoutContext.nutritionTip}</p>
           </div>
         </motion.div>
       )}
@@ -283,9 +283,9 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           </motion.button>
         </DrawerTrigger>
 
-        <DrawerContent className="max-h-[90vh]">
+        <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10">
           <DrawerHeader>
-            <DrawerTitle className="flex items-center gap-2">
+            <DrawerTitle className="flex items-center gap-2 text-white">
               <Utensils className="w-5 h-5" />
               Adicionar Refeição
             </DrawerTitle>
@@ -293,13 +293,13 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
           {/* Tab Switcher */}
           <div className="px-4 mb-4">
-            <div className="flex bg-muted/50 rounded-xl p-1">
+            <div className="flex bg-white/5 rounded-xl p-1">
               <button
                 onClick={() => setActiveTab('ai')}
                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'ai'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-gray-400'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
@@ -309,8 +309,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                 onClick={() => setActiveTab('search')}
                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'search'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-gray-400'
                 }`}
               >
                 <Search className="w-4 h-4" />
@@ -331,12 +331,12 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                       exit={{ opacity: 0 }}
                       className="space-y-4"
                     >
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
-                      >
-                        <Camera className="w-10 h-10 text-primary" />
-                        <span className="text-sm text-muted-foreground">Tirar foto ou escolher imagem</span>
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
+                        >
+                          <Camera className="w-10 h-10 text-primary" />
+                          <span className="text-sm text-gray-400">Tirar foto ou escolher imagem</span>
                       </button>
                       <input
                         ref={fileInputRef}
@@ -347,10 +347,10 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         className="hidden"
                       />
 
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs text-muted-foreground">ou descreve</span>
-                        <div className="flex-1 h-px bg-border" />
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-px bg-white/10" />
+                          <span className="text-xs text-gray-400">ou descreve</span>
+                          <div className="flex-1 h-px bg-white/10" />
                       </div>
 
                       <div className="flex gap-2">
@@ -417,7 +417,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                               selectedMealType === type
                                 ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
                             }`}
                           >
                             {mealTypeLabels[type]}
@@ -425,55 +425,55 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         ))}
                       </div>
 
-                      {/* Foods list */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium">Alimentos identificados</h4>
-                        {analysisResult.foods.map((food, i) => (
-                          <div key={i} className="p-3 rounded-xl bg-card/50 border border-border/50">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium text-sm">{food.name}</p>
-                                <p className="text-xs text-muted-foreground">{food.portion}</p>
+                        {/* Foods list */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium text-white">Alimentos identificados</h4>
+                          {analysisResult.foods.map((food, i) => (
+                            <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/10">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium text-sm text-white">{food.name}</p>
+                                  <p className="text-xs text-gray-400">{food.portion}</p>
+                                </div>
+                                <span className="text-sm font-semibold text-primary">
+                                  {food.calories} kcal
+                                </span>
                               </div>
-                              <span className="text-sm font-semibold text-primary">
-                                {food.calories} kcal
-                              </span>
+                              <div className="flex gap-3 mt-2 text-xs text-gray-400">
+                                <span>P: {food.protein}g</span>
+                                <span>C: {food.carbs}g</span>
+                                <span>G: {food.fat}g</span>
+                              </div>
                             </div>
-                            <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
-                              <span>P: {food.protein}g</span>
-                              <span>C: {food.carbs}g</span>
-                              <span>G: {food.fat}g</span>
-                            </div>
-                          </div>
                         ))}
                       </div>
 
-                      {/* Totals */}
-                      <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-semibold">Total</span>
-                          <span className="text-xl font-bold text-primary">
-                            {analysisResult.total.calories} kcal
-                          </span>
+                        {/* Totals */}
+                        <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-semibold text-white">Total</span>
+                            <span className="text-xl font-bold text-primary">
+                              {analysisResult.total.calories} kcal
+                            </span>
                         </div>
-                        <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                          <div>
-                            <p className="font-semibold">{analysisResult.total.protein}g</p>
-                            <p className="text-muted-foreground">Proteína</p>
+                          <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                            <div>
+                              <p className="font-semibold text-white">{analysisResult.total.protein}g</p>
+                              <p className="text-gray-400">Proteína</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white">{analysisResult.total.carbs}g</p>
+                              <p className="text-gray-400">Carbs</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white">{analysisResult.total.fat}g</p>
+                              <p className="text-gray-400">Gordura</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white">{analysisResult.total.fiber}g</p>
+                              <p className="text-gray-400">Fibra</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold">{analysisResult.total.carbs}g</p>
-                            <p className="text-muted-foreground">Carbs</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">{analysisResult.total.fat}g</p>
-                            <p className="text-muted-foreground">Gordura</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">{analysisResult.total.fiber}g</p>
-                            <p className="text-muted-foreground">Fibra</p>
-                          </div>
-                        </div>
                       </div>
 
                       {analysisResult.tips && (

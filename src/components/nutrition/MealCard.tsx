@@ -20,8 +20,8 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
         <div className="flex items-center gap-3">
           <span className="text-2xl">{mealTypeIcons[meal.type]}</span>
           <div>
-            <h4 className="font-medium text-sm">{mealTypeLabels[meal.type]}</h4>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <h4 className="font-medium text-sm text-white">{mealTypeLabels[meal.type]}</h4>
+            <div className="flex items-center gap-1 text-xs text-gray-400">
               <Clock className="w-3 h-3" />
               {meal.time}
             </div>
@@ -44,7 +44,7 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
       {/* Foods list */}
       <div className="space-y-1 mb-3">
         {meal.foods.map((food, i) => (
-          <div key={i} className="flex justify-between text-xs text-muted-foreground">
+          <div key={i} className="flex justify-between text-xs text-gray-400">
             <span>{food.name} ({food.portion})</span>
             <span>{food.calories} kcal</span>
           </div>
@@ -52,7 +52,7 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
       </div>
 
       {/* Macros */}
-      <div className="flex gap-4 text-xs">
+      <div className="flex gap-4 text-xs text-gray-300">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-red-500" />
           <span>{meal.total.protein}g P</span>
