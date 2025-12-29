@@ -229,20 +229,20 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                   {/* Day totals */}
                   <div className="p-3 rounded-xl bg-card/50 border border-border/50">
                     <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                      <div>
-                        <p className="font-bold">{selectedPlan.days[selectedDay].totals.calories}</p>
+                      <div className="min-w-0">
+                        <p className="font-bold truncate">{Math.round(selectedPlan.days[selectedDay].totals.calories)}</p>
                         <p className="text-xs text-muted-foreground">kcal</p>
                       </div>
-                      <div>
-                        <p className="font-bold text-red-500">{selectedPlan.days[selectedDay].totals.protein}g</p>
+                      <div className="min-w-0">
+                        <p className="font-bold text-red-500 truncate">{Math.round(selectedPlan.days[selectedDay].totals.protein)}g</p>
                         <p className="text-xs text-muted-foreground">Prot</p>
                       </div>
-                      <div>
-                        <p className="font-bold text-yellow-500">{selectedPlan.days[selectedDay].totals.carbs}g</p>
+                      <div className="min-w-0">
+                        <p className="font-bold text-yellow-500 truncate">{Math.round(selectedPlan.days[selectedDay].totals.carbs)}g</p>
                         <p className="text-xs text-muted-foreground">Carbs</p>
                       </div>
-                      <div>
-                        <p className="font-bold text-blue-500">{selectedPlan.days[selectedDay].totals.fat}g</p>
+                      <div className="min-w-0">
+                        <p className="font-bold text-blue-500 truncate">{Math.round(selectedPlan.days[selectedDay].totals.fat)}g</p>
                         <p className="text-xs text-muted-foreground">Gord</p>
                       </div>
                     </div>
@@ -277,8 +277,8 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                             ))}
                           </div>
                           <div className="flex gap-3 text-xs text-muted-foreground">
-                            <span>{mealTotals.calories} kcal</span>
-                            <span>P: {mealTotals.protein}g</span>
+                            <span>{Math.round(mealTotals.calories)} kcal</span>
+                            <span>P: {Math.round(mealTotals.protein)}g</span>
                           </div>
                         </div>
                       );
