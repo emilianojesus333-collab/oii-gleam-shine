@@ -98,13 +98,21 @@ const Support = () => {
 
         {/* FAQ Section */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-primary" />
-            Perguntas Frequentes
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-primary" />
+              Perguntas Frequentes
+            </h3>
+            <button
+              onClick={() => navigate("/faq")}
+              className="text-sm text-primary font-medium hover:underline"
+            >
+              Ver todas →
+            </button>
+          </div>
           
           <div className="space-y-2">
-            {faqs.map((faq, index) => {
+            {faqs.slice(0, 3).map((faq, index) => {
               const Icon = faq.icon;
               const isOpen = openFaq === index;
               
@@ -143,6 +151,14 @@ const Support = () => {
               );
             })}
           </div>
+          
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/faq")}
+            className="w-full bg-muted/30 text-foreground py-3 rounded-xl font-medium text-sm hover:bg-muted/50 transition-colors"
+          >
+            Ver todas as perguntas
+          </motion.button>
         </div>
 
         {/* Contact Form */}
