@@ -28,9 +28,9 @@ export const SUBSCRIPTION_PRODUCTS = {
   },
 };
 
-export const useSubscription = () => {
+export const useSubscription = (enabled: boolean = true) => {
   const [state, setState] = useState<SubscriptionState>({
-    isLoading: true,
+    isLoading: enabled,
     subscribed: false,
     productId: null,
     subscriptionEnd: null,
@@ -149,6 +149,19 @@ export const useSubscription = () => {
   }, []);
 
   useEffect(() => {
+    // Only check subscription if enabled (user is authenticated)
+    if (!enabled) {
+      setState({
+        isLoading: false,
+        subscribed: false,
+        productId: null,
+        subscriptionEnd: null,
+        isTrialing: false,
+        error: null,
+      });
+      return;
+    }
+
     checkSubscription();
 
     // Listen for auth changes
@@ -163,7 +176,7 @@ export const useSubscription = () => {
       subscription.unsubscribe();
       clearInterval(interval);
     };
-  }, [checkSubscription]);
+  }, [checkSubscription, enabled]);
 
   return {
     ...state,
