@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Check, Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat } from "lucide-react";
@@ -21,6 +21,32 @@ const Paywall = () => {
   const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading } = useSubscription();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [devTapCount, setDevTapCount] = useState(0);
+  const devTapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Secret dev mode: tap logo 5 times to bypass
+  const handleDevTap = () => {
+    setDevTapCount(prev => prev + 1);
+    
+    if (devTapTimeoutRef.current) {
+      clearTimeout(devTapTimeoutRef.current);
+    }
+    
+    devTapTimeoutRef.current = setTimeout(() => {
+      setDevTapCount(0);
+    }, 2000);
+    
+    if (devTapCount + 1 >= 5) {
+      localStorage.setItem("liftmate_dev_bypass", "true");
+      toast({
+        title: "🔓 Modo Dev Ativado",
+        description: "Podes agora aceder ao app sem subscrição.",
+      });
+      setTimeout(() => {
+        navigate("/home", { replace: true });
+      }, 500);
+    }
+  };
 
   // CRITICAL: Check if user already has valid subscription and redirect
   useEffect(() => {
@@ -70,7 +96,10 @@ const Paywall = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
+          <div 
+            className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4 cursor-pointer select-none"
+            onClick={handleDevTap}
+          >
             <Crown className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-primary">LiftMate Pro</span>
           </div>
