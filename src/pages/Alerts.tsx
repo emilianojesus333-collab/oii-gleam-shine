@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Bell, Sparkles, Timer, Heart } from 'lucide-react';
+import { Bell, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
@@ -12,7 +12,6 @@ import { QuickTimerCard } from '@/components/alerts/QuickTimerCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
-import { AlertsCarousel } from '@/components/alerts/AlertsCarousel';
 
 const Alerts = () => {
   const {
@@ -116,7 +115,7 @@ const Alerts = () => {
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 px-6 py-4 space-y-5">
+      <div className="relative z-10 px-6 py-4 space-y-4">
         {/* Notification Permission */}
         <NotificationPermissionCard
           permission={permission}
@@ -124,51 +123,45 @@ const Alerts = () => {
           onRequestPermission={requestPermission}
         />
 
-        {/* Carousel: Timers & Treino */}
-        <AlertsCarousel 
-          title="Timers & Treino" 
-          icon={<Timer className="w-4 h-4 text-orange-400" />}
-        >
-          <StreakCard 
-            streak={state.streak} 
-            onRecordWorkout={recordWorkout} 
-          />
-          <QuickTimerCard
-            timers={state.quickTimers}
-            activeTimer={activeQuickTimer}
-            remaining={quickTimerRemaining}
-            onStart={startQuickTimer}
-            onStop={stopQuickTimer}
-          />
-          <WorkoutReminderCard
-            settings={state.workout}
-            onUpdate={updateWorkoutReminder}
-          />
-        </AlertsCarousel>
-
-        {/* Carousel: Saúde & Hábitos */}
-        <AlertsCarousel 
-          title="Saúde & Hábitos" 
-          icon={<Heart className="w-4 h-4 text-rose-400" />}
-        >
-          <HydrationCard
-            settings={state.hydration}
-            onUpdate={updateHydration}
-            onAddWater={addWaterIntake}
-          />
-          <MealNotificationCard />
-          <SupplementsCard
-            supplements={state.supplements}
-            onUpdate={updateSupplement}
-            onAdd={addSupplement}
-            onRemove={removeSupplement}
-          />
-          <SleepCard
-            settings={state.sleep}
-            sleepHours={getSleepHours()}
-            onUpdate={updateSleep}
-          />
-        </AlertsCarousel>
+        {/* All Cards */}
+        <StreakCard 
+          streak={state.streak} 
+          onRecordWorkout={recordWorkout} 
+        />
+        
+        <QuickTimerCard
+          timers={state.quickTimers}
+          activeTimer={activeQuickTimer}
+          remaining={quickTimerRemaining}
+          onStart={startQuickTimer}
+          onStop={stopQuickTimer}
+        />
+        
+        <WorkoutReminderCard
+          settings={state.workout}
+          onUpdate={updateWorkoutReminder}
+        />
+        
+        <HydrationCard
+          settings={state.hydration}
+          onUpdate={updateHydration}
+          onAddWater={addWaterIntake}
+        />
+        
+        <MealNotificationCard />
+        
+        <SupplementsCard
+          supplements={state.supplements}
+          onUpdate={updateSupplement}
+          onAdd={addSupplement}
+          onRemove={removeSupplement}
+        />
+        
+        <SleepCard
+          settings={state.sleep}
+          sleepHours={getSleepHours()}
+          onUpdate={updateSleep}
+        />
       </div>
 
       <BottomNav />
