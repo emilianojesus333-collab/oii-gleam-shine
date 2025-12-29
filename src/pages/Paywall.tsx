@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Check, Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat } from "lucide-react";
@@ -18,9 +18,19 @@ const benefits = [
 
 const Paywall = () => {
   const navigate = useNavigate();
-  const { createCheckout } = useSubscription();
+  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading } = useSubscription();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  // CRITICAL: Check if user already has valid subscription and redirect
+  useEffect(() => {
+    if (!isLoading) {
+      // If user has valid subscription, redirect to home immediately
+      if (!shouldShowPaywall() || isSubscriptionValid()) {
+        navigate("/home", { replace: true });
+      }
+    }
+  }, [isLoading, shouldShowPaywall, isSubscriptionValid, navigate]);
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     try {
@@ -37,6 +47,14 @@ const Paywall = () => {
     }
   };
 
+  // Show loading while checking subscription
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
