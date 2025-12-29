@@ -19,11 +19,6 @@ import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
-import { BodyMeasurementsCard } from "@/components/tracking/BodyMeasurementsCard";
-import { ChallengesWidget } from "@/components/tracking/ChallengesWidget";
-import { ProgressPhotosCard } from "@/components/tracking/ProgressPhotosCard";
-import { WeeklyReportCard } from "@/components/tracking/WeeklyReportCard";
-import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -564,49 +559,11 @@ const Home = () => {
           </div>
         </motion.div>
 
-        {/* AI Workout Generator */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-        >
-          <AIWorkoutGenerator />
-        </motion.div>
-
         {/* AI Insights Widget */}
         <AIInsightsWidget />
 
         {/* Favorites Widget */}
         <FavoritesWidget />
-
-        {/* Weekly Report Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <WeeklyReportCard />
-        </motion.div>
-
-        {/* Challenges Widget */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
-        >
-          <ChallengesWidget />
-        </motion.div>
-
-        {/* Body Measurements & Progress Photos Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="grid grid-cols-1 gap-4"
-        >
-          <BodyMeasurementsCard />
-          <ProgressPhotosCard />
-        </motion.div>
 
         {/* Recent Workouts Section */}
         <motion.div
