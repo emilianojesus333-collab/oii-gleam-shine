@@ -39,10 +39,10 @@ const Nutrition = () => {
   }, {} as Record<string, typeof todayLog.meals>);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
       <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/25 via-emerald-600/10 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/25 via-emerald-600/10 to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-400/15 via-transparent to-transparent" />
       </div>
 
@@ -58,8 +58,8 @@ const Nutrition = () => {
               <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-foreground">Nutrição</h1>
-              <p className="text-xs text-emerald-500">
+              <h1 className="text-2xl font-black text-white">Nutrição</h1>
+              <p className="text-xs text-emerald-400">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -119,8 +119,8 @@ const Nutrition = () => {
             transition={{ delay: 0.1 }}
             className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border border-rose-500/30 p-4 text-center"
           >
-            <p className="text-2xl font-black text-rose-500">{remaining.protein}g</p>
-            <p className="text-xs text-foreground/70 mt-1">Proteína</p>
+            <p className="text-2xl font-black text-rose-400">{remaining.protein}g</p>
+            <p className="text-xs text-gray-300 mt-1">Proteína</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -128,8 +128,8 @@ const Nutrition = () => {
             transition={{ delay: 0.15 }}
             className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/30 p-4 text-center"
           >
-            <p className="text-2xl font-black text-amber-500">{remaining.carbs}g</p>
-            <p className="text-xs text-foreground/70 mt-1">Carbs</p>
+            <p className="text-2xl font-black text-amber-400">{remaining.carbs}g</p>
+            <p className="text-xs text-gray-300 mt-1">Carbs</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -137,14 +137,14 @@ const Nutrition = () => {
             transition={{ delay: 0.2 }}
             className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border border-sky-500/30 p-4 text-center"
           >
-            <p className="text-2xl font-black text-sky-500">{remaining.fat}g</p>
-            <p className="text-xs text-foreground/70 mt-1">Gordura</p>
+            <p className="text-2xl font-black text-sky-400">{remaining.fat}g</p>
+            <p className="text-xs text-gray-300 mt-1">Gordura</p>
           </motion.div>
         </div>
 
         {/* Today's meals */}
         <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2 text-foreground">
+          <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
@@ -156,9 +156,9 @@ const Nutrition = () => {
                 animate={{ opacity: 1 }}
                 className="text-center py-8"
               >
-                <Apple className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">Ainda não registaste nenhuma refeição</p>
-                <p className="text-xs text-muted-foreground/70">Usa o scanner IA acima para começar!</p>
+                <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                <p className="text-sm text-gray-300">Ainda não registaste nenhuma refeição</p>
+                <p className="text-xs text-gray-400">Usa o scanner IA acima para começar!</p>
               </motion.div>
             ) : (
               <div className="space-y-3">
@@ -175,32 +175,32 @@ const Nutrition = () => {
 
         {/* Tips section */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-foreground">Dicas para Atletas</h3>
+          <h3 className="font-semibold text-white">Dicas para Atletas</h3>
           <div className="grid gap-3">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-card/50 border border-border/30"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10"
             >
               <span className="text-xl">💪</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Pós-treino</p>
-                <p className="text-xs text-muted-foreground">Proteína + carbs até 2h após treino</p>
+                <p className="text-sm font-medium text-white">Pós-treino</p>
+                <p className="text-xs text-gray-400">Proteína + carbs até 2h após treino</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-gray-500" />
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-card/50 border border-border/30"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10"
             >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Proteína distribuída</p>
-                <p className="text-xs text-muted-foreground">20-40g por refeição é ideal</p>
+                <p className="text-sm font-medium text-white">Proteína distribuída</p>
+                <p className="text-xs text-gray-400">20-40g por refeição é ideal</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-gray-500" />
             </motion.div>
           </div>
         </div>

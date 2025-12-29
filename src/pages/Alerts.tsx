@@ -79,10 +79,10 @@ const Alerts = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
       <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/25 via-blue-600/10 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/25 via-blue-600/10 to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400/15 via-transparent to-transparent" />
       </div>
 
@@ -98,8 +98,8 @@ const Alerts = () => {
               <Bell className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-foreground">Alertas</h1>
-              <p className="text-xs text-cyan-500">O teu assistente de treino</p>
+              <h1 className="text-2xl font-black text-white">Alertas</h1>
+              <p className="text-xs text-cyan-400">O teu assistente de treino</p>
             </div>
           </div>
           
@@ -109,7 +109,7 @@ const Alerts = () => {
             className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30"
           >
             <Sparkles className="w-3 h-3 text-cyan-400" />
-            <span className="text-xs font-medium text-cyan-500">Pro</span>
+            <span className="text-xs font-medium text-cyan-400">Pro</span>
           </motion.div>
         </div>
       </motion.div>
