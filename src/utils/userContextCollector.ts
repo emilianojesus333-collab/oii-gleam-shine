@@ -74,6 +74,61 @@ export interface UserContext {
     nextTrainingDays: string[];
     scheduledWorkouts: { day: string; type: string }[];
   };
+
+  // Body Measurements
+  bodyMeasurements: {
+    latest?: {
+      weight?: number;
+      bodyFat?: number;
+      chest?: number;
+      waist?: number;
+      hips?: number;
+      arms?: number;
+      thighs?: number;
+      date: string;
+    };
+    changes?: {
+      weight?: number;
+      bodyFat?: number;
+      waist?: number;
+    };
+    goals?: {
+      weight?: number;
+      bodyFat?: number;
+      waist?: number;
+    };
+  };
+
+  // Challenges & Badges
+  challenges: {
+    active: {
+      type: string;
+      target: number;
+      progress: number;
+      completed: boolean;
+    }[];
+    completedThisWeek: number;
+    totalBadges: number;
+    recentBadges: string[];
+  };
+
+  // Progress Photos
+  progressPhotos: {
+    totalPhotos: number;
+    latestPhotoDate?: string;
+    daysSinceLastPhoto?: number;
+    poses: string[];
+  };
+
+  // Weekly Report
+  weeklyReport: {
+    overallScore: number;
+    nutritionScore: number;
+    workoutScore: number;
+    consistencyScore: number;
+    highlights: string[];
+    improvements: string[];
+  };
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -120,6 +175,25 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
     schedule: {
       nextTrainingDays: [],
       scheduledWorkouts: [],
+    },
+    bodyMeasurements: {},
+    challenges: {
+      active: [],
+      completedThisWeek: 0,
+      totalBadges: 0,
+      recentBadges: [],
+    },
+    progressPhotos: {
+      totalPhotos: 0,
+      poses: [],
+    },
+    weeklyReport: {
+      overallScore: 0,
+      nutritionScore: 0,
+      workoutScore: 0,
+      consistencyScore: 0,
+      highlights: [],
+      improvements: [],
     },
   };
 
@@ -307,6 +381,105 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       }
     }
 
+    // 6. Body Measurements from localStorage
+    const measurementsData = localStorage.getItem("body_measurements");
+    if (measurementsData) {
+      const parsed = JSON.parse(measurementsData);
+      
+      if (parsed.measurements?.length > 0) {
+        const sorted = [...parsed.measurements].sort((a: any, b: any) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        const latest = sorted[0];
+        
+        context.bodyMeasurements.latest = {
+          weight: latest.weight,
+          bodyFat: latest.bodyFat,
+          chest: latest.chest,
+          waist: latest.waist,
+          hips: latest.hips,
+          arms: latest.arms,
+          thighs: latest.thighs,
+          date: latest.date,
+        };
+        
+        // Calculate changes from first to last
+        if (sorted.length > 1) {
+          const first = sorted[sorted.length - 1];
+          context.bodyMeasurements.changes = {
+            weight: latest.weight && first.weight ? latest.weight - first.weight : undefined,
+            bodyFat: latest.bodyFat && first.bodyFat ? latest.bodyFat - first.bodyFat : undefined,
+            waist: latest.waist && first.waist ? latest.waist - first.waist : undefined,
+          };
+        }
+      }
+      
+      if (parsed.goals) {
+        context.bodyMeasurements.goals = parsed.goals;
+      }
+    }
+
+    // 7. Challenges from localStorage
+    const challengesData = localStorage.getItem("fitness_challenges");
+    if (challengesData) {
+      const parsed = JSON.parse(challengesData);
+      
+      if (parsed.activeChallenges) {
+        context.challenges.active = parsed.activeChallenges.map((c: any) => ({
+          type: c.type,
+          target: c.target,
+          progress: c.progress || 0,
+          completed: c.completed || false,
+        }));
+        context.challenges.completedThisWeek = parsed.activeChallenges.filter((c: any) => c.completed).length;
+      }
+      
+      if (parsed.unlockedBadges) {
+        context.challenges.totalBadges = parsed.unlockedBadges.length;
+        context.challenges.recentBadges = parsed.unlockedBadges.slice(-3).map((b: any) => b.id || b);
+      }
+    }
+
+    // 8. Progress Photos from localStorage
+    const photosData = localStorage.getItem("progress_photos");
+    if (photosData) {
+      const parsed = JSON.parse(photosData);
+      
+      if (parsed.photos?.length > 0) {
+        context.progressPhotos.totalPhotos = parsed.photos.length;
+        
+        const sorted = [...parsed.photos].sort((a: any, b: any) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        const latest = sorted[0];
+        context.progressPhotos.latestPhotoDate = latest.date;
+        
+        const daysSince = Math.floor(
+          (new Date().getTime() - new Date(latest.date).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        context.progressPhotos.daysSinceLastPhoto = daysSince;
+        
+        // Unique poses
+        const poses = new Set<string>();
+        parsed.photos.forEach((p: any) => poses.add(p.pose));
+        context.progressPhotos.poses = Array.from(poses);
+      }
+    }
+
+    // 9. Weekly Report calculation
+    const weeklyReportData = localStorage.getItem("weekly_report_cache");
+    if (weeklyReportData) {
+      const parsed = JSON.parse(weeklyReportData);
+      context.weeklyReport = {
+        overallScore: parsed.overallScore || 0,
+        nutritionScore: parsed.nutritionScore || 0,
+        workoutScore: parsed.workoutScore || 0,
+        consistencyScore: parsed.consistencyScore || 0,
+        highlights: parsed.highlights || [],
+        improvements: parsed.improvements || [],
+      };
+    }
+
   } catch (error) {
     console.error("Error collecting user context:", error);
   }
@@ -408,6 +581,73 @@ ${ctx.oneRM.recentPRs.map(r => `- ${r.exercise}: ${r.weight}kg (+${r.improvement
     if (enabledSupps.length > 0) {
       parts.push(`\n💊 SUPLEMENTOS CONFIGURADOS:
 ${enabledSupps.map(s => `- ${s.name} às ${s.time}`).join("\n")}`);
+    }
+  }
+
+  // Body Measurements
+  if (ctx.bodyMeasurements.latest) {
+    const m = ctx.bodyMeasurements.latest;
+    parts.push(`\n📏 MEDIDAS CORPORAIS (${m.date}):
+- Peso: ${m.weight ? `${m.weight}kg` : "Não registado"}
+- Gordura corporal: ${m.bodyFat ? `${m.bodyFat}%` : "Não registado"}
+- Cintura: ${m.waist ? `${m.waist}cm` : "Não registado"}
+- Peito: ${m.chest ? `${m.chest}cm` : "Não registado"}
+- Braços: ${m.arms ? `${m.arms}cm` : "Não registado"}`);
+
+    if (ctx.bodyMeasurements.changes) {
+      const c = ctx.bodyMeasurements.changes;
+      parts.push(`\n📉 EVOLUÇÃO DAS MEDIDAS:
+${c.weight !== undefined ? `- Peso: ${c.weight > 0 ? '+' : ''}${c.weight.toFixed(1)}kg` : ""}
+${c.bodyFat !== undefined ? `- Gordura: ${c.bodyFat > 0 ? '+' : ''}${c.bodyFat.toFixed(1)}%` : ""}
+${c.waist !== undefined ? `- Cintura: ${c.waist > 0 ? '+' : ''}${c.waist.toFixed(1)}cm` : ""}`);
+    }
+
+    if (ctx.bodyMeasurements.goals?.weight) {
+      const diff = m.weight ? m.weight - ctx.bodyMeasurements.goals.weight : 0;
+      parts.push(`- Meta de peso: ${ctx.bodyMeasurements.goals.weight}kg (${diff > 0 ? `faltam ${diff.toFixed(1)}kg para perder` : `já atingiu!`})`);
+    }
+  }
+
+  // Challenges
+  if (ctx.challenges.active.length > 0) {
+    parts.push(`\n🏆 DESAFIOS ATIVOS:
+${ctx.challenges.active.map(c => `- ${c.type}: ${c.progress}/${c.target} ${c.completed ? '✅' : `(${Math.round((c.progress/c.target)*100)}%)`}`).join("\n")}
+- Desafios completos esta semana: ${ctx.challenges.completedThisWeek}
+- Total de badges: ${ctx.challenges.totalBadges}`);
+
+    if (ctx.challenges.recentBadges.length > 0) {
+      parts.push(`- Badges recentes: ${ctx.challenges.recentBadges.join(", ")}`);
+    }
+  }
+
+  // Progress Photos
+  if (ctx.progressPhotos.totalPhotos > 0) {
+    parts.push(`\n📸 FOTOS DE PROGRESSO:
+- Total de fotos: ${ctx.progressPhotos.totalPhotos}
+- Última foto: ${ctx.progressPhotos.latestPhotoDate} (há ${ctx.progressPhotos.daysSinceLastPhoto} dias)
+- Poses registadas: ${ctx.progressPhotos.poses.join(", ")}`);
+    
+    if (ctx.progressPhotos.daysSinceLastPhoto && ctx.progressPhotos.daysSinceLastPhoto >= 7) {
+      parts.push(`⚠️ Lembrete: Já passaram ${ctx.progressPhotos.daysSinceLastPhoto} dias desde a última foto de progresso!`);
+    }
+  }
+
+  // Weekly Report
+  if (ctx.weeklyReport.overallScore > 0) {
+    parts.push(`\n📊 RELATÓRIO SEMANAL:
+- Score geral: ${ctx.weeklyReport.overallScore}/100
+- Nutrição: ${ctx.weeklyReport.nutritionScore}/100
+- Treinos: ${ctx.weeklyReport.workoutScore}/100
+- Consistência: ${ctx.weeklyReport.consistencyScore}/100`);
+
+    if (ctx.weeklyReport.highlights.length > 0) {
+      parts.push(`\n✨ DESTAQUES DA SEMANA:
+${ctx.weeklyReport.highlights.map(h => `- ${h}`).join("\n")}`);
+    }
+
+    if (ctx.weeklyReport.improvements.length > 0) {
+      parts.push(`\n🎯 ÁREAS A MELHORAR:
+${ctx.weeklyReport.improvements.map(i => `- ${i}`).join("\n")}`);
     }
   }
 
