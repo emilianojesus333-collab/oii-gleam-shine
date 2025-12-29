@@ -23,6 +23,7 @@ import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { useNutrition } from "@/hooks/useNutrition";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Input } from "@/components/ui/input";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const weekDays = [
   "Segunda-feira",
@@ -316,9 +317,12 @@ const Settings = () => {
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Subscrição</h3>
-                <p className="text-xs text-muted-foreground">Gerir plano e pagamento</p>
+              <div className="flex items-center gap-2">
+                <div>
+                  <h3 className="font-semibold text-foreground">Subscrição</h3>
+                  <p className="text-xs text-muted-foreground">Gerir plano e pagamento</p>
+                </div>
+                <SubscriptionBadge />
               </div>
             </div>
             

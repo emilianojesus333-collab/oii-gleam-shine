@@ -18,6 +18,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -241,8 +242,9 @@ const Home = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <h1 className="text-2xl font-black text-white/70">LiftMate</h1>
+          <SubscriptionBadge variant="compact" />
         </div>
         <div className="flex items-center gap-3">
           <motion.button
