@@ -27,9 +27,11 @@ export const UserProfileCard = () => {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        if (data.personalData) {
-          setUserData(data.personalData);
-          setEditData(data.personalData);
+        // Support both 'personal' and 'personalData' keys for backwards compatibility
+        const personalData = data.personal || data.personalData;
+        if (personalData) {
+          setUserData(personalData);
+          setEditData(personalData);
         }
       } catch (e) {
         console.error("Error loading user data:", e);
@@ -52,7 +54,8 @@ export const UserProfileCard = () => {
     // Save to localStorage
     const saved = localStorage.getItem("liftmate_onboarding");
     const data = saved ? JSON.parse(saved) : {};
-    data.personalData = editData;
+    data.personal = editData; // Use 'personal' key to match onboarding
+    data.personalData = editData; // Also set personalData for backwards compatibility
     localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
 
     setUserData(editData);
