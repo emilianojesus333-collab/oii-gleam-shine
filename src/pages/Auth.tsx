@@ -103,7 +103,7 @@ const Auth = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-5xl md:text-6xl font-bold text-white leading-tight"
           >
-            Welcome to
+            Bem-vindo ao
             <br />
             <span className="text-primary">LiftMate</span>
           </motion.h1>
@@ -114,7 +114,7 @@ const Auth = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-gray-300/80 text-lg mt-4"
           >
-            Your workout journey starts here.
+            A tua jornada de treino começa aqui.
           </motion.p>
         </div>
 
@@ -167,7 +167,7 @@ const Auth = () => {
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name"
+                      placeholder="O teu nome"
                       className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                     />
                   </div>
@@ -195,7 +195,7 @@ const Auth = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
+                    placeholder="Palavra-passe"
                     required
                     minLength={6}
                     className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
@@ -209,10 +209,10 @@ const Auth = () => {
                 disabled={loading}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-semibold transition-colors disabled:opacity-50"
               >
-                {loading ? (
+              {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
                 ) : (
-                  isLogin ? "Log In" : "Create Account"
+                  isLogin ? "Entrar" : "Criar Conta"
                 )}
               </motion.button>
 
@@ -223,10 +223,10 @@ const Auth = () => {
                   onClick={() => setIsLogin(!isLogin)}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
-                  {isLogin ? (
-                    <>Don't have an account? <span className="text-primary font-medium">Sign Up</span></>
+                {isLogin ? (
+                    <>Não tens conta? <span className="text-primary font-medium">Criar Conta</span></>
                   ) : (
-                    <>Already have an account? <span className="text-primary font-medium">Log In</span></>
+                    <>Já tens conta? <span className="text-primary font-medium">Entrar</span></>
                   )}
                 </button>
                 <button
@@ -234,7 +234,7 @@ const Auth = () => {
                   onClick={handleBackToMain}
                   className="text-gray-400 hover:text-white transition-colors text-sm"
                 >
-                  ← Back
+                  ← Voltar
                 </button>
               </div>
             </motion.form>
