@@ -3,22 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export const NameAIBanner = () => {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const { settings, isLoading } = useUserSettings();
 
   useEffect(() => {
-    // Check if AI name is already set
-    const aiName = localStorage.getItem("liftmate_ai_name");
+    if (isLoading) return;
+    
+    // Check if AI name is already set in database
+    const hasAiName = settings?.ai_name && settings.ai_name !== "LiftMate" && settings.ai_name !== "Liftmate";
     const bannerDismissed = localStorage.getItem("liftmate_name_banner_dismissed");
     
     // Show banner if no AI name and not dismissed
-    if (!aiName && !bannerDismissed) {
+    if (!hasAiName && !bannerDismissed) {
       setVisible(true);
+    } else {
+      setVisible(false);
     }
-  }, []);
+  }, [settings, isLoading]);
 
   const handleDismiss = () => {
     setDismissed(true);

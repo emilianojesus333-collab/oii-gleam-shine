@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from './useAuth';
 
 export interface ProgressPhoto {
   id: string;
@@ -18,25 +19,42 @@ interface ProgressPhotosState {
   photos: ProgressPhoto[];
 }
 
-const STORAGE_KEY = 'liftmate_progress_photos';
+const STORAGE_KEY_PREFIX = 'liftmate_progress_photos_';
 
 export const useProgressPhotos = () => {
-  const [state, setState] = useState<ProgressPhotosState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  const { user } = useAuth();
+  const [state, setState] = useState<ProgressPhotosState>({ photos: [] });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load from user-specific localStorage key
+  useEffect(() => {
+    if (!user) {
+      setState({ photos: [] });
+      setIsLoading(false);
+      return;
+    }
+
+    const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+    const saved = localStorage.getItem(userKey);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        setState(JSON.parse(saved));
       } catch {
-        return { photos: [] };
+        setState({ photos: [] });
       }
+    } else {
+      setState({ photos: [] });
     }
-    return { photos: [] };
-  });
+    setIsLoading(false);
+  }, [user]);
 
-  // Persist state
+  // Persist state to user-specific localStorage key
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (!user || isLoading) return;
+    
+    const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+    localStorage.setItem(userKey, JSON.stringify(state));
+  }, [state, user, isLoading]);
 
   const addPhoto = useCallback((photo: Omit<ProgressPhoto, 'id'>) => {
     const newPhoto: ProgressPhoto = {
@@ -116,6 +134,7 @@ export const useProgressPhotos = () => {
 
   return {
     photos: state.photos,
+    isLoading,
     latestPhotos,
     comparisonPairs,
     shouldTakePhotos,
