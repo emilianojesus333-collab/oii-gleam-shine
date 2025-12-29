@@ -243,7 +243,7 @@ const Chat = () => {
     }
   };
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const messageText = text || inputValue;
     if (!messageText.trim() || isLoading) return;
 
@@ -254,16 +254,20 @@ const Chat = () => {
       timestamp: Date.now(),
     };
 
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+
     // If no current conversation, create one
     let convId = currentConversationId;
     if (!convId) {
-      convId = createConversation(userMessage);
+      convId = await createConversation(userMessage);
+      if (!convId) {
+        toast.error("Erro ao criar conversa. Faz login para guardar o histórico.");
+        return;
+      }
     } else {
       addMessage(convId, userMessage);
     }
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue("");
 
     // Stream AI response
     streamChat(messageText, convId);
