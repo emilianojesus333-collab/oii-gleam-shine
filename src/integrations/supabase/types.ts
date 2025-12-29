@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_measurements: {
+        Row: {
+          arms: number | null
+          body_fat: number | null
+          chest: number | null
+          created_at: string
+          date: string
+          hips: number | null
+          id: string
+          notes: string | null
+          thighs: number | null
+          user_id: string
+          waist: number | null
+          weight: number | null
+        }
+        Insert: {
+          arms?: number | null
+          body_fat?: number | null
+          chest?: number | null
+          created_at?: string
+          date: string
+          hips?: number | null
+          id?: string
+          notes?: string | null
+          thighs?: number | null
+          user_id: string
+          waist?: number | null
+          weight?: number | null
+        }
+        Update: {
+          arms?: number | null
+          body_fat?: number | null
+          chest?: number | null
+          created_at?: string
+          date?: string
+          hips?: number | null
+          id?: string
+          notes?: string | null
+          thighs?: number | null
+          user_id?: string
+          waist?: number | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -70,6 +115,87 @@ export type Database = {
           },
         ]
       }
+      nutrition_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          meals: Json
+          totals: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          meals?: Json
+          totals?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          meals?: Json
+          totals?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_profiles: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          created_at: string
+          gender: string | null
+          goal: string | null
+          goal_calories: number | null
+          goal_carbs: number | null
+          goal_fat: number | null
+          goal_protein: number | null
+          height: number | null
+          id: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          gender?: string | null
+          goal?: string | null
+          goal_calories?: number | null
+          goal_carbs?: number | null
+          goal_fat?: number | null
+          goal_protein?: number | null
+          height?: number | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          gender?: string | null
+          goal?: string | null
+          goal_calories?: number | null
+          goal_carbs?: number | null
+          goal_fat?: number | null
+          goal_protein?: number | null
+          height?: number | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
       one_rm_records: {
         Row: {
           calculated_1rm: number
@@ -97,6 +223,78 @@ export type Database = {
           reps_performed?: number
           user_id?: string | null
           weight_used?: number
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          ai_name: string | null
+          alerts_config: Json | null
+          created_at: string
+          id: string
+          onboarding_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_name?: string | null
+          alerts_config?: Json | null
+          created_at?: string
+          id?: string
+          onboarding_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_name?: string | null
+          alerts_config?: Json | null
+          created_at?: string
+          id?: string
+          onboarding_data?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_sessions: {
+        Row: {
+          completion_rate: number | null
+          created_at: string
+          date: string
+          day_of_week: string | null
+          exercise_logs: Json
+          exercises_completed: string[] | null
+          id: string
+          muscle_groups: string[] | null
+          total_exercises: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_rate?: number | null
+          created_at?: string
+          date: string
+          day_of_week?: string | null
+          exercise_logs?: Json
+          exercises_completed?: string[] | null
+          id?: string
+          muscle_groups?: string[] | null
+          total_exercises?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_rate?: number | null
+          created_at?: string
+          date?: string
+          day_of_week?: string | null
+          exercise_logs?: Json
+          exercises_completed?: string[] | null
+          id?: string
+          muscle_groups?: string[] | null
+          total_exercises?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
