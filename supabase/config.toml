@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.analyze-physique]
 verify_jwt = false
+
+[functions.ai-coaching]
+verify_jwt = false
