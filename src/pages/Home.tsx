@@ -256,9 +256,9 @@ const Home = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-24">
+    <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
       {/* Hero Background Image with Parallax and Flicker Effect */}
-      <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-64 sm:h-80 overflow-hidden">
         <motion.img 
           src={gymBackground} 
           alt="" 
@@ -281,19 +281,19 @@ const Home = () => {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 flex items-center justify-between px-6 pt-12 pb-4"
+        className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top"
       >
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-white/70">LiftMate</h1>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <h1 className="text-xl sm:text-2xl font-black text-white/70">LiftMate</h1>
           <SubscriptionBadge variant="compact" />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target"
           >
-            <Settings className="h-5 w-5 text-white/70" />
+            <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
           </motion.button>
         </div>
       </motion.header>
@@ -348,28 +348,28 @@ const Home = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="relative z-10 px-6 py-4"
+        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4"
       >
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-1">
           {weekSchedule.map((item, index) => (
             <motion.div
               key={item.fullDay}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 + index * 0.03 }}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center flex-1"
             >
-              <span className="text-xs text-gray-400/70 mb-2">{item.shortDay}</span>
+              <span className="text-[10px] sm:text-xs text-gray-400/70 mb-1.5 sm:mb-2">{item.shortDay}</span>
               <div
-                className={`flex h-11 w-11 items-center justify-center transition-all ${
+                className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
                   item.isToday
-                    ? "rounded-xl bg-[#1E1E1E]/50"
+                    ? "rounded-lg sm:rounded-xl bg-[#1E1E1E]/50"
                     : item.workout && item.workout !== "Descanso"
-                    ? "rounded-xl border border-dashed border-gray-500/40"
+                    ? "rounded-lg sm:rounded-xl border border-dashed border-gray-500/40"
                     : ""
                 }`}
               >
-                <span className="text-lg font-semibold text-white/70">
+                <span className="text-base sm:text-lg font-semibold text-white/70">
                   {item.date}
                 </span>
               </div>
@@ -378,7 +378,7 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <main className="relative z-10 flex-1 px-6 space-y-5">
+      <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5">
         {/* Name AI Banner */}
         <NameAIBanner />
 
@@ -394,7 +394,7 @@ const Home = () => {
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-3xl bg-[#1E1E1E]/50 p-6"
+          className="rounded-2xl sm:rounded-3xl bg-[#1E1E1E]/50 p-4 sm:p-6"
         >
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -402,10 +402,10 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.4 }}
             className="text-center"
           >
-            <p className="text-4xl font-black text-white/70">
+            <p className="text-2xl sm:text-4xl font-black text-white/70">
               {todayWorkout || "Descanso"}
             </p>
-            <p className="text-gray-400/70 mt-1">
+            <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
               {todayWorkout && todayWorkout !== "Descanso" 
                 ? "Treino de hoje" 
                 : "Dia de recuperação"}
@@ -417,19 +417,19 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-6"
+              className="mt-4 sm:mt-6"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400/70">Progresso</span>
+                <span className="text-xs sm:text-sm text-gray-400/70">Progresso</span>
                 <button
                   onClick={() => setShowExercises(true)}
-                  className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
+                  className="flex items-center gap-1 text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors touch-target"
                 >
                   <span className="font-semibold">{completedExercises.size}/{aiSuggestions.allExercises.length}</span>
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
-              <div className="h-2 w-full rounded-full bg-[#2A2A2A]/50 overflow-hidden">
+              <div className="h-1.5 sm:h-2 w-full rounded-full bg-[#2A2A2A]/50 overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ 
@@ -456,7 +456,7 @@ const Home = () => {
               {/* State 1: Stats */}
               <CarouselItem>
                 <motion.div 
-                  className="grid grid-cols-3 gap-3"
+                  className="grid grid-cols-3 gap-2 sm:gap-3"
                   animate={{ opacity: currentSlide === 0 ? 1 : 0.3 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
@@ -479,12 +479,12 @@ const Home = () => {
                         stiffness: 120,
                         damping: 12
                       }}
-                      className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                      className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
                     >
-                      <p className="text-2xl font-black text-white/70">
+                      <p className="text-xl sm:text-2xl font-black text-white/70">
                         {stat.value}
                       </p>
-                      <p className="text-xs text-gray-400/70 mt-1">{stat.label}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
                     </motion.div>
                   ))}
                 </motion.div>
@@ -493,7 +493,7 @@ const Home = () => {
               {/* State 2: AI Suggestions */}
               <CarouselItem>
                 <motion.div 
-                  className="grid grid-cols-3 gap-3"
+                  className="grid grid-cols-3 gap-2 sm:gap-3"
                   animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
@@ -510,14 +510,14 @@ const Home = () => {
                     }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowExercises(true)}
-                    className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-left relative group"
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4 text-left relative group touch-target"
                   >
-                    <Brain className="h-5 w-5 text-primary mb-2" />
-                    <p className="text-sm font-bold text-white/70 leading-tight">
+                    <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
+                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.exercise}
                     </p>
-                    <p className="text-xs text-gray-400/70 mt-1">Treino Sugerido</p>
-                    <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-hover:text-primary transition-colors" />
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Treino Sugerido</p>
+                    <ChevronRight className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-white/30 group-hover:text-primary transition-colors" />
                   </motion.button>
 
                   {/* Foco */}
@@ -531,13 +531,13 @@ const Home = () => {
                       stiffness: 120,
                       damping: 12
                     }}
-                    className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
                   >
-                    <Target className="h-5 w-5 text-primary mb-2" />
-                    <p className="text-sm font-bold text-white/70 leading-tight">
+                    <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
+                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.focus}
                     </p>
-                    <p className="text-xs text-gray-400/70 mt-1">Foco</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Foco</p>
                   </motion.div>
 
                   {/* Recovery Coach */}
@@ -551,13 +551,13 @@ const Home = () => {
                       stiffness: 120,
                       damping: 12
                     }}
-                    className="rounded-2xl bg-[#1E1E1E]/50 p-4"
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
                   >
-                    <Heart className="h-5 w-5 text-primary mb-2" />
-                    <p className="text-sm font-bold text-white/70 leading-tight">
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
+                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.recovery}
                     </p>
-                    <p className="text-xs text-gray-400/70 mt-1">Recovery Coach</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Recovery Coach</p>
                   </motion.div>
                 </motion.div>
               </CarouselItem>
@@ -565,14 +565,14 @@ const Home = () => {
           </Carousel>
           
           {/* Carousel Indicators */}
-          <div className="flex justify-center gap-2 mt-3">
+          <div className="flex justify-center gap-2 mt-2 sm:mt-3">
             <button 
               onClick={() => carouselApi?.scrollTo(0)}
-              className={`h-1.5 w-6 rounded-full transition-colors ${currentSlide === 0 ? 'bg-primary/60' : 'bg-white/20'}`} 
+              className={`h-1 sm:h-1.5 w-5 sm:w-6 rounded-full transition-colors touch-target ${currentSlide === 0 ? 'bg-primary/60' : 'bg-white/20'}`} 
             />
             <button 
               onClick={() => carouselApi?.scrollTo(1)}
-              className={`h-1.5 w-6 rounded-full transition-colors ${currentSlide === 1 ? 'bg-primary/60' : 'bg-white/20'}`} 
+              className={`h-1 sm:h-1.5 w-5 sm:w-6 rounded-full transition-colors touch-target ${currentSlide === 1 ? 'bg-primary/60' : 'bg-white/20'}`} 
             />
           </div>
         </motion.div>
@@ -590,7 +590,7 @@ const Home = () => {
           transition={{ delay: 0.5 }}
         >
           <motion.h3 
-            className="text-xl font-bold text-white/70 mb-4"
+            className="text-lg sm:text-xl font-bold text-white/70 mb-3 sm:mb-4"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.55 }}
@@ -598,7 +598,7 @@ const Home = () => {
             Próximos treinos
           </motion.h3>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {weekSchedule
               .filter(d => !d.isToday && d.workout && d.workout !== "Descanso")
               .slice(0, 3)
@@ -615,23 +615,23 @@ const Home = () => {
                     damping: 15
                   }}
                   whileHover={{ scale: 1.02, x: 5 }}
-                  className="flex items-center gap-4 rounded-2xl bg-[#1E1E1E]/50 p-4"
+                  className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
                 >
                   <div className="flex-1">
-                    <p className="font-semibold text-white/70">{item.workout}</p>
-                    <p className="text-sm text-gray-400/70">{item.fullDay}</p>
+                    <p className="font-semibold text-white/70 text-sm sm:text-base">{item.workout}</p>
+                    <p className="text-xs sm:text-sm text-gray-400/70">{item.fullDay}</p>
                   </div>
                 </motion.div>
               ))}
 
             {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
               <motion.div 
-                className="rounded-2xl bg-[#1E1E1E]/50 p-6 text-center"
+                className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-4 sm:p-6 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, type: "spring" }}
               >
-                <p className="text-gray-400/70">
+                <p className="text-gray-400/70 text-sm sm:text-base">
                   Nenhum treino agendado para esta semana
                 </p>
               </motion.div>
@@ -646,14 +646,14 @@ const Home = () => {
         animate={{ scale: 1 }}
         transition={{ delay: 0.5, type: "spring" }}
         onClick={() => navigate("/chat")}
-        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 touch-target z-40"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
       </motion.button>
 
       {/* Exercises Sheet */}
       <Sheet open={showExercises} onOpenChange={setShowExercises}>
-        <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl bg-card border-t-0">
+        <SheetContent side="bottom" className="h-[75vh] sm:h-[70vh] rounded-t-2xl sm:rounded-t-3xl bg-card border-t-0">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold text-foreground flex items-center gap-2">
               <Dumbbell className="h-5 w-5 text-primary" />
