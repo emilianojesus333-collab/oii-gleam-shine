@@ -58,7 +58,7 @@ const Nutrition = () => {
               <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white/80">Nutrição</h1>
+              <h1 className="text-2xl font-black text-white">Nutrição</h1>
               <p className="text-xs text-emerald-400/70">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
@@ -144,7 +144,7 @@ const Nutrition = () => {
 
         {/* Today's meals */}
         <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2">
+          <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
@@ -157,8 +157,8 @@ const Nutrition = () => {
                 className="text-center py-8"
               >
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-400/70">Ainda não registaste nenhuma refeição</p>
-                <p className="text-xs text-gray-500/50">Usa o scanner IA acima para começar!</p>
+                <p className="text-sm text-gray-400">Ainda não registaste nenhuma refeição</p>
+                <p className="text-xs text-gray-500">Usa o scanner IA acima para começar!</p>
               </motion.div>
             ) : (
               <div className="space-y-3">
@@ -175,7 +175,7 @@ const Nutrition = () => {
 
         {/* Tips section */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-white/70">Dicas para Atletas</h3>
+          <h3 className="font-semibold text-white">Dicas para Atletas</h3>
           <div className="grid gap-3">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -184,8 +184,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">💪</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white/70">Pós-treino</p>
-                <p className="text-xs text-gray-400/70">Proteína + carbs até 2h após treino</p>
+                <p className="text-sm font-medium text-white">Pós-treino</p>
+                <p className="text-xs text-gray-400">Proteína + carbs até 2h após treino</p>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-500" />
             </motion.div>
@@ -197,8 +197,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white/70">Proteína distribuída</p>
-                <p className="text-xs text-gray-400/70">20-40g por refeição é ideal</p>
+                <p className="text-sm font-medium text-white">Proteína distribuída</p>
+                <p className="text-xs text-gray-400">20-40g por refeição é ideal</p>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-500" />
             </motion.div>
