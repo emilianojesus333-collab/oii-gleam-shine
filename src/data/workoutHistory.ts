@@ -169,7 +169,36 @@ export const getWorkoutStats = (): {
   };
 };
 
-// Generate AI context string
+// Get today's workout stats
+export const getTodayStats = (): {
+  totalSets: number;
+  totalReps: number;
+  totalMinutes: number;
+} => {
+  const history = getWorkoutHistory();
+  const today = new Date().toISOString().split("T")[0];
+  const todaySession = history.sessions.find(s => s.date === today);
+  
+  if (!todaySession || !todaySession.exerciseLogs || todaySession.exerciseLogs.length === 0) {
+    return { totalSets: 0, totalReps: 0, totalMinutes: 0 };
+  }
+  
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalRestSeconds = 0;
+  
+  todaySession.exerciseLogs.forEach(log => {
+    totalSets += log.sets || 0;
+    totalReps += (log.reps || 0) * (log.sets || 1);
+    totalRestSeconds += (log.restTime || 0) * (log.sets || 1);
+  });
+  
+  // Estimate workout time: ~45 seconds per set + rest time
+  const workSeconds = totalSets * 45;
+  const totalMinutes = Math.round((workSeconds + totalRestSeconds) / 60);
+  
+  return { totalSets, totalReps, totalMinutes };
+};
 export const generateAIContext = (): string => {
   const stats = getWorkoutStats();
   
