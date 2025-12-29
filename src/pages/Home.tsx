@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
-import { saveWorkoutSession } from "@/data/workoutHistory";
+import { saveWorkoutSession, getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
@@ -371,11 +371,14 @@ const Home = () => {
                   animate={{ opacity: currentSlide === 0 ? 1 : 0.3 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
-                  {[
-                    { value: "0", label: "Séries feitas" },
-                    { value: "0", label: "Reps totais" },
-                    { value: "0", label: "Min treino" },
-                  ].map((stat, index) => (
+                  {(() => {
+                    const todayStats = getTodayStats();
+                    return [
+                      { value: todayStats.totalSets.toString(), label: "Séries feitas" },
+                      { value: todayStats.totalReps.toString(), label: "Reps totais" },
+                      { value: todayStats.totalMinutes.toString(), label: "Min treino" },
+                    ];
+                  })().map((stat, index) => (
                     <motion.div
                       key={stat.label}
                       initial={{ opacity: 0, y: 30, scale: 0.8 }}
