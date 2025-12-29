@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import gymBackground from "@/assets/gym-background.jpeg";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const Auth = () => {
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
@@ -45,7 +47,7 @@ const Auth = () => {
           password,
         });
         if (error) throw error;
-        toast.success("Login efetuado com sucesso!");
+        toast.success(t("auth.loginSuccess"));
         navigate("/home");
       } else {
         const { error } = await supabase.auth.signUp({
@@ -59,16 +61,16 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success("Conta criada com sucesso!");
+        toast.success(t("auth.signupSuccess"));
         navigate("/home");
       }
     } catch (error: any) {
       if (error.message.includes("User already registered")) {
-        toast.error("Este email já está registado. Tenta fazer login.");
+        toast.error(t("auth.emailAlreadyRegistered"));
       } else if (error.message.includes("Invalid login credentials")) {
-        toast.error("Email ou password incorretos.");
+        toast.error(t("auth.invalidCredentials"));
       } else {
-        toast.error(error.message || "Ocorreu um erro");
+        toast.error(error.message || t("auth.error"));
       }
     } finally {
       setLoading(false);
@@ -103,7 +105,7 @@ const Auth = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-5xl md:text-6xl font-bold text-white leading-tight"
           >
-            Bem-vindo ao
+            {t("auth.welcome")}
             <br />
             <span className="text-primary">LiftMate</span>
           </motion.h1>
@@ -114,7 +116,7 @@ const Auth = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-gray-300/80 text-lg mt-4"
           >
-            A tua jornada de treino começa aqui.
+            {t("auth.tagline")}
           </motion.p>
         </div>
 
@@ -136,7 +138,7 @@ const Auth = () => {
                 }}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-semibold transition-colors"
               >
-                Criar Conta
+                {t("auth.createAccount")}
               </motion.button>
 
               {/* Login Button */}
@@ -148,7 +150,7 @@ const Auth = () => {
                 }}
                 className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-white py-4 rounded-xl font-semibold transition-colors"
               >
-                Entrar
+                {t("auth.login")}
               </motion.button>
             </>
           ) : (
@@ -167,7 +169,7 @@ const Auth = () => {
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="O teu nome"
+                      placeholder={t("auth.yourName")}
                       className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                     />
                   </div>
@@ -181,7 +183,7 @@ const Auth = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
+                    placeholder={t("auth.email")}
                     required
                     className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   />
@@ -195,7 +197,7 @@ const Auth = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Palavra-passe"
+                    placeholder={t("auth.password")}
                     required
                     minLength={6}
                     className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
@@ -212,7 +214,7 @@ const Auth = () => {
               {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
                 ) : (
-                  isLogin ? "Entrar" : "Criar Conta"
+                  isLogin ? t("auth.login") : t("auth.createAccount")
                 )}
               </motion.button>
 
@@ -224,9 +226,9 @@ const Auth = () => {
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                 {isLogin ? (
-                    <>Não tens conta? <span className="text-primary font-medium">Criar Conta</span></>
+                    <>{t("auth.noAccount")} <span className="text-primary font-medium">{t("auth.createAccount")}</span></>
                   ) : (
-                    <>Já tens conta? <span className="text-primary font-medium">Entrar</span></>
+                    <>{t("auth.hasAccount")} <span className="text-primary font-medium">{t("auth.login")}</span></>
                   )}
                 </button>
                 <button
@@ -234,7 +236,7 @@ const Auth = () => {
                   onClick={handleBackToMain}
                   className="text-gray-400 hover:text-white transition-colors text-sm"
                 >
-                  ← Voltar
+                  ← {t("auth.back")}
                 </button>
               </div>
             </motion.form>
@@ -243,11 +245,11 @@ const Auth = () => {
           {/* Legal Links */}
           <div className="flex justify-center gap-4 pt-4 text-xs text-gray-400">
             <a href="/terms" className="hover:text-white transition-colors">
-              Termos de Uso
+              {t("auth.terms")}
             </a>
             <span>•</span>
             <a href="/privacy" className="hover:text-white transition-colors">
-              Política de Privacidade
+              {t("auth.privacy")}
             </a>
           </div>
         </motion.div>

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, Apple, BookOpen, History } from 'lucide-react';
+import { Utensils, Apple } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { useNutrition, mealTypeLabels, mealTypeIcons } from '@/hooks/useNutrition';
 import { MacroRings } from '@/components/nutrition/MacroRings';
@@ -13,8 +13,10 @@ import { RecipesView } from '@/components/nutrition/RecipesView';
 import { FavoritesView } from '@/components/nutrition/FavoritesView';
 import { NutritionCarousel } from '@/components/nutrition/NutritionCarousel';
 import { MealPlan } from '@/data/mealPlans';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const Nutrition = () => {
+  const { t } = useLanguage();
   const {
     profile,
     goals,
@@ -59,7 +61,7 @@ const Nutrition = () => {
               <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">Nutrição</h1>
+              <h1 className="text-2xl font-black text-white">{t("nutrition.title")}</h1>
               <p className="text-xs text-emerald-400">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
@@ -95,7 +97,7 @@ const Nutrition = () => {
         />
 
         {/* Carousel: Planos & Receitas */}
-        <NutritionCarousel title="Planos & Receitas">
+        <NutritionCarousel title={t("nutrition.plansAndRecipes")}>
           <MealPlansView 
             currentGoal={profile.goal} 
             onApplyPlan={(plan: MealPlan) => {
@@ -120,7 +122,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border border-rose-500/30 p-4 text-center"
           >
             <p className="text-2xl font-black text-rose-400">{remaining.protein}g</p>
-            <p className="text-xs text-gray-300 mt-1">Proteína</p>
+            <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -129,7 +131,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/30 p-4 text-center"
           >
             <p className="text-2xl font-black text-amber-400">{remaining.carbs}g</p>
-            <p className="text-xs text-gray-300 mt-1">Carbs</p>
+            <p className="text-xs text-gray-300 mt-1">{t("nutrition.carbs")}</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -138,7 +140,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border border-sky-500/30 p-4 text-center"
           >
             <p className="text-2xl font-black text-sky-400">{remaining.fat}g</p>
-            <p className="text-xs text-gray-300 mt-1">Gordura</p>
+            <p className="text-xs text-gray-300 mt-1">{t("nutrition.fat")}</p>
           </motion.div>
         </div>
 
@@ -146,7 +148,7 @@ const Nutrition = () => {
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
-            Refeições de Hoje
+            {t("nutrition.todayMeals")}
           </h3>
           
           <AnimatePresence>
@@ -157,8 +159,8 @@ const Nutrition = () => {
                 className="text-center py-8"
               >
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-300">Ainda não registaste nenhuma refeição</p>
-                <p className="text-xs text-gray-400">Usa o scanner IA acima para começar!</p>
+                <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
+                <p className="text-xs text-gray-400">{t("nutrition.useScannerHint")}</p>
               </motion.div>
             ) : (
               <div className="space-y-3">
@@ -175,7 +177,7 @@ const Nutrition = () => {
 
         {/* Tips section */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-white">Dicas para Atletas</h3>
+          <h3 className="font-semibold text-white">{t("nutrition.tipsTitle")}</h3>
           <div className="grid gap-3">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -184,8 +186,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">💪</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Pós-treino</p>
-                <p className="text-xs text-gray-400">Proteína + carbs até 2h após treino</p>
+                <p className="text-sm font-medium text-white">{t("nutrition.postWorkout")}</p>
+                <p className="text-xs text-gray-400">{t("nutrition.postWorkoutTip")}</p>
               </div>
             </motion.div>
             <motion.div 
@@ -196,8 +198,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Proteína distribuída</p>
-                <p className="text-xs text-gray-400">20-40g por refeição é ideal</p>
+                <p className="text-sm font-medium text-white">{t("nutrition.proteinDistributed")}</p>
+                <p className="text-xs text-gray-400">{t("nutrition.proteinDistributedTip")}</p>
               </div>
             </motion.div>
           </div>

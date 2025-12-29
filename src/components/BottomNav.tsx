@@ -1,17 +1,19 @@
 import { Home, Dumbbell, MessageCircle, Bell, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-
-const navItems = [
-  { icon: Home, label: "Início", path: "/home" },
-  { icon: Dumbbell, label: "Treino", path: "/workout" },
-  { icon: MessageCircle, label: "Chat", path: "/chat" },
-  { icon: Bell, label: "Alertas", path: "/alerts" },
-];
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { icon: Home, label: t("nav.home"), path: "/home" },
+    { icon: Dumbbell, label: t("nav.workout"), path: "/workout" },
+    { icon: MessageCircle, label: t("nav.chat"), path: "/chat" },
+    { icon: Bell, label: t("nav.alerts"), path: "/alerts" },
+  ];
 
   // Hide BottomNav on Chat page to not block keyboard
   if (location.pathname === '/chat') {
@@ -58,7 +60,7 @@ export const BottomNav = () => {
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
             <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
           </div>
-          <span className="text-[9px] sm:text-[10px] font-medium mt-0.5 sm:mt-1 text-foreground">Nutrição</span>
+          <span className="text-[9px] sm:text-[10px] font-medium mt-0.5 sm:mt-1 text-foreground">{t("nav.nutrition")}</span>
         </motion.button>
 
         {/* Right nav items */}
