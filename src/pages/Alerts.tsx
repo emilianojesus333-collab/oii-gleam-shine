@@ -13,8 +13,10 @@ import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
 import { toast } from 'sonner';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const Alerts = () => {
+  const { t } = useLanguage();
   const {
     state,
     updateHydration,
@@ -110,13 +112,13 @@ const Alerts = () => {
     const newStreak = previousStreak + 1;
     if (permission === 'granted' && (newStreak === 7 || newStreak === 30 || newStreak === 100 || newStreak % 50 === 0)) {
       await showNotification('🔥 Streak Milestone!', {
-        body: `Incrível! ${newStreak} dias consecutivos de treino!`,
+        body: `${t("alerts.streakMilestone")} ${newStreak} ${t("alerts.consecutiveDays")}`,
         tag: 'streak-milestone',
       });
     }
     
-    toast.success('Treino registado! 💪');
-  }, [recordWorkout, state.streak.currentStreak, permission, showNotification]);
+    toast.success(t("alerts.workoutRecorded"));
+  }, [recordWorkout, state.streak.currentStreak, permission, showNotification, t]);
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -138,8 +140,8 @@ const Alerts = () => {
               <Bell className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">Alertas</h1>
-              <p className="text-xs text-cyan-400">O teu assistente de treino</p>
+              <h1 className="text-2xl font-black text-white">{t("alerts.title")}</h1>
+              <p className="text-xs text-cyan-400">{t("alerts.subtitle")}</p>
             </div>
           </div>
           
