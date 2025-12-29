@@ -113,6 +113,13 @@
     --gradient-start: 220 10% 25%;
     --gradient-mid: 220 10% 20%;
     --gradient-end: 220 10% 15%;
+    
+    /* Nutrition & Alerts accent colors */
+    --nutrition-primary: 142 71% 45%;
+    --nutrition-glow: 142 76% 36%;
+    --alerts-primary: 199 89% 48%;
+    --alerts-glow: 217 91% 60%;
+    
     --chart-1: 199 95% 73%;
     --chart-2: 211 96% 78%;
     --chart-3: 215 20% 65%;

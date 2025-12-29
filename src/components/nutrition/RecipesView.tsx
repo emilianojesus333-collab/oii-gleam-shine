@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChefHat, Clock, Users, Search, ChevronRight, Flame, X } from 'lucide-react';
+import { ChefHat, Clock, Users, Search, ChevronRight, Flame, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -8,11 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { fitnessRecipes, FitnessRecipe, categoryLabels, searchRecipes, getRecipesByCategory } from '@/data/fitnessRecipes';
+import { useFavorites } from '@/hooks/useFavorites';
 
 export const RecipesView = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const { isRecipeFavorite, toggleRecipeFavorite } = useFavorites();
 
   const filteredRecipes = searchQuery 
     ? searchRecipes(searchQuery)
@@ -21,9 +23,9 @@ export const RecipesView = () => {
       : getRecipesByCategory(activeCategory as FitnessRecipe['category']);
 
   const difficultyColors = {
-    easy: 'bg-green-500/20 text-green-500',
-    medium: 'bg-yellow-500/20 text-yellow-500',
-    hard: 'bg-red-500/20 text-red-500',
+    easy: 'bg-emerald-500/20 text-emerald-400',
+    medium: 'bg-amber-500/20 text-amber-400',
+    hard: 'bg-rose-500/20 text-rose-400',
   };
 
   const difficultyLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
@@ -34,19 +36,20 @@ export const RecipesView = () => {
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 cursor-pointer"
+          className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse" />
+          <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                <ChefHat className="w-6 h-6 text-orange-500" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <ChefHat className="w-6 h-6 text-orange-400" />
               </div>
               <div>
-                <h3 className="font-semibold">Receitas Fitness</h3>
-                <p className="text-xs text-muted-foreground">{fitnessRecipes.length} receitas internacionais</p>
+                <h3 className="font-semibold text-white">Receitas Fitness</h3>
+                <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas internacionais</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            <ChevronRight className="w-5 h-5 text-orange-400/70" />
           </div>
         </motion.div>
       </SheetTrigger>
@@ -101,9 +104,19 @@ export const RecipesView = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-4 pr-2"
                 >
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)}>
-                    <X className="w-4 h-4 mr-2" /> Voltar
-                  </Button>
+                  <div className="flex justify-between items-center">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)}>
+                      <X className="w-4 h-4 mr-2" /> Voltar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={isRecipeFavorite(selectedRecipe.id) ? 'text-rose-400' : 'text-muted-foreground'}
+                      onClick={() => toggleRecipeFavorite(selectedRecipe)}
+                    >
+                      <Heart className="w-5 h-5" fill={isRecipeFavorite(selectedRecipe.id) ? 'currentColor' : 'none'} />
+                    </Button>
+                  </div>
 
                   <div className="text-center">
                     <span className="text-5xl">{selectedRecipe.imageEmoji}</span>
@@ -127,19 +140,19 @@ export const RecipesView = () => {
 
                   <div className="grid grid-cols-4 gap-2 p-3 bg-card rounded-xl">
                     <div className="text-center">
-                      <p className="text-lg font-bold text-primary">{Math.round(selectedRecipe.totalMacros.calories / selectedRecipe.servings)}</p>
+                      <p className="text-lg font-bold text-emerald-400">{Math.round(selectedRecipe.totalMacros.calories / selectedRecipe.servings)}</p>
                       <p className="text-xs text-muted-foreground">kcal</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold text-red-500">{Math.round(selectedRecipe.totalMacros.protein / selectedRecipe.servings)}g</p>
+                      <p className="text-lg font-bold text-rose-400">{Math.round(selectedRecipe.totalMacros.protein / selectedRecipe.servings)}g</p>
                       <p className="text-xs text-muted-foreground">Proteína</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold text-yellow-500">{Math.round(selectedRecipe.totalMacros.carbs / selectedRecipe.servings)}g</p>
+                      <p className="text-lg font-bold text-amber-400">{Math.round(selectedRecipe.totalMacros.carbs / selectedRecipe.servings)}g</p>
                       <p className="text-xs text-muted-foreground">Carbs</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold text-blue-500">{Math.round(selectedRecipe.totalMacros.fat / selectedRecipe.servings)}g</p>
+                      <p className="text-lg font-bold text-sky-400">{Math.round(selectedRecipe.totalMacros.fat / selectedRecipe.servings)}g</p>
                       <p className="text-xs text-muted-foreground">Gordura</p>
                     </div>
                   </div>
@@ -158,10 +171,10 @@ export const RecipesView = () => {
                       ))}
                     </TabsContent>
                     <TabsContent value="steps" className="space-y-3 mt-3">
-                      {selectedRecipe.steps.map((step, i) => (
-                        <div key={i} className="flex gap-3 text-sm">
-                          <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 text-xs font-bold">
-                            {i + 1}
+                        {selectedRecipe.steps.map((step, i) => (
+                          <div key={i} className="flex gap-3 text-sm">
+                            <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
+                              {i + 1}
                           </span>
                           <p>{step}</p>
                         </div>
@@ -189,11 +202,10 @@ export const RecipesView = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      onClick={() => setSelectedRecipe(recipe)}
                       className="flex items-center gap-3 p-3 bg-card/50 rounded-xl border border-border/50 cursor-pointer hover:bg-card transition-colors"
                     >
-                      <span className="text-3xl">{recipe.imageEmoji}</span>
-                      <div className="flex-1 min-w-0">
+                      <span className="text-3xl" onClick={() => setSelectedRecipe(recipe)}>{recipe.imageEmoji}</span>
+                      <div className="flex-1 min-w-0" onClick={() => setSelectedRecipe(recipe)}>
                         <h4 className="font-medium truncate">{recipe.name}</h4>
                         <p className="text-xs text-muted-foreground">{recipe.cuisine}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -207,6 +219,14 @@ export const RecipesView = () => {
                           </span>
                         </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={isRecipeFavorite(recipe.id) ? 'text-rose-400' : 'text-muted-foreground hover:text-rose-400'}
+                        onClick={() => toggleRecipeFavorite(recipe)}
+                      >
+                        <Heart className="w-4 h-4" fill={isRecipeFavorite(recipe.id) ? 'currentColor' : 'none'} />
+                      </Button>
                       <Badge className={difficultyColors[recipe.difficulty]} variant="outline">
                         {difficultyLabels[recipe.difficulty]}
                       </Badge>
