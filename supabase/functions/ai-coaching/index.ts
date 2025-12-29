@@ -21,71 +21,83 @@ serve(async (req) => {
     console.log('Starting AI coaching analysis...', context);
 
     const userGoals = context.userGoals || {};
-    const goalsInfo = [];
+    
+    // Build goal description for the prompt
+    const goalParts = [];
     if (userGoals.weightGoal) {
-      goalsInfo.push(userGoals.weightGoal > 0 ? `Quer ganhar ${userGoals.weightGoal}kg` : `Quer perder ${Math.abs(userGoals.weightGoal)}kg`);
+      goalParts.push(userGoals.weightGoal > 0 ? `Quer GANHAR ${userGoals.weightGoal}kg` : `Quer PERDER ${Math.abs(userGoals.weightGoal)}kg`);
     }
     if (userGoals.trainingFocus) {
       const focusLabels: Record<string, string> = { hypertrophy: 'Hipertrofia', strength: 'Força', endurance: 'Resistência' };
-      goalsInfo.push(`Foco: ${focusLabels[userGoals.trainingFocus] || userGoals.trainingFocus}`);
+      goalParts.push(`Foco de treino: ${focusLabels[userGoals.trainingFocus] || userGoals.trainingFocus}`);
     }
     if (userGoals.focusMuscles?.length) {
-      goalsInfo.push(`Músculos prioritários: ${userGoals.focusMuscles.join(', ')}`);
+      goalParts.push(`Músculos prioritários: ${userGoals.focusMuscles.join(', ')}`);
     }
 
-    const systemPrompt = `Você é um coach de fitness e nutrição experiente e motivador.
-Analise os dados do utilizador e forneça dicas personalizadas e acionáveis.
+    const systemPrompt = `Você é um coach de fitness experiente e direto.
+O utilizador definiu objetivos específicos e quer dicas FOCADAS nesses objetivos.
 
-CONTEXTO DO UTILIZADOR:
-- Treino: ${JSON.stringify(context.workout)}
-- Nutrição: ${JSON.stringify(context.nutrition)}
-- Recuperação: ${JSON.stringify(context.recovery)}
-${goalsInfo.length > 0 ? `- OBJETIVOS DO UTILIZADOR: ${goalsInfo.join(' | ')}` : ''}
+OBJETIVOS DO UTILIZADOR:
+${goalParts.length > 0 ? goalParts.join('\n') : 'Nenhum objetivo específico definido'}
 
-REGRAS:
-1. Seja motivador mas realista
-2. Baseie as dicas nos dados fornecidos
-3. ${goalsInfo.length > 0 ? 'PRIORIZE dicas relacionadas aos objetivos definidos pelo utilizador!' : 'Foque em melhorias incrementais'}
-4. Use linguagem portuguesa de Portugal
-5. Máximo 4 dicas priorizadas
-6. ${userGoals.focusMuscles?.length ? `Inclua dicas específicas para trabalhar: ${userGoals.focusMuscles.join(', ')}` : ''}
-7. ${userGoals.weightGoal ? `Adapte dicas de nutrição ao objetivo de ${userGoals.weightGoal > 0 ? 'ganhar' : 'perder'} peso` : ''}
+REGRAS IMPORTANTES:
+1. FOQUE APENAS nos objetivos definidos pelo utilizador
+2. NÃO mencione nutrição, sono ou hidratação a menos que seja diretamente relevante ao objetivo
+3. Dê dicas práticas e acionáveis para alcançar os objetivos
+4. Seja motivador mas realista
+5. Use linguagem portuguesa de Portugal
+6. Máximo 3-4 dicas focadas
+7. NÃO use emojis excessivos - apenas onde realmente necessário
+
+${userGoals.weightGoal > 0 ? `
+DICAS PARA GANHAR ${userGoals.weightGoal}KG:
+- Foque em superávit calórico
+- Treino de hipertrofia
+- Progressão de carga
+- Exercícios compostos
+` : ''}
+
+${userGoals.weightGoal < 0 ? `
+DICAS PARA PERDER ${Math.abs(userGoals.weightGoal)}KG:
+- Déficit calórico moderado
+- Manter proteína alta
+- Cardio complementar
+- Treino de força para manter massa
+` : ''}
+
+${userGoals.focusMuscles?.length ? `
+DICAS PARA DESENVOLVER ${userGoals.focusMuscles.join(', ').toUpperCase()}:
+- Exercícios específicos para estes grupos
+- Frequência ideal de treino
+- Técnicas de intensificação
+- Volume adequado
+` : ''}
 
 Responda SEMPRE em JSON válido com esta estrutura:
 {
   "success": true,
-  "summary": "Resumo curto da análise (1-2 frases) ${goalsInfo.length > 0 ? 'mencionando os objetivos do utilizador' : ''}",
+  "summary": "Resumo curto focado nos objetivos do utilizador (1-2 frases)",
   "tips": [
     {
       "category": "treino" | "nutrição" | "recuperação" | "geral",
-      "title": "Título curto",
-      "message": "Explicação da dica baseada nos dados",
-      "priority": "low" | "medium" | "high",
-      "actionable": "Ação específica a tomar hoje"
+      "title": "Título curto e direto",
+      "message": "Explicação prática focada no objetivo",
+      "priority": "high" | "medium" | "low",
+      "actionable": "Ação específica a tomar"
     }
   ]
-}
+}`;
 
-EXEMPLOS DE DICAS BASEADAS EM PADRÕES:
-- Se proteína < 80% do objetivo: dica de nutrição alta prioridade
-- Se streak > 5: elogio + dica de recuperação
-- Se hidratação < 50%: dica de recuperação alta prioridade
-- Se sono < 7h: dica de recuperação
-- Se treinou muito um grupo muscular: dica de variar treino
-${userGoals.focusMuscles?.length ? `- PRIORIDADE: Dicas específicas para desenvolver ${userGoals.focusMuscles.join(', ')}` : ''}`;
+    const userPrompt = `Com base nos meus objetivos, dá-me dicas específicas para alcançá-los.
 
-    const userPrompt = `Analisa os meus dados e dá-me dicas personalizadas para hoje.
-${goalsInfo.length > 0 ? `\nOS MEUS OBJETIVOS:\n${goalsInfo.map(g => `- ${g}`).join('\n')}\n` : ''}
-Dados:
+Os meus objetivos:
+${goalParts.length > 0 ? goalParts.map(g => `- ${g}`).join('\n') : '- Melhorar o treino em geral'}
+
+Dados de contexto (use apenas se relevante para os objetivos):
 - Treinos esta semana: ${context.workout.thisWeek}
 - Streak atual: ${context.workout.streak} dias
-- Taxa de conclusão: ${(context.workout.completionRate * 100).toFixed(0)}%
-- Grupos mais treinados: ${context.workout.mostTrained?.map((m: any) => m.muscle).join(', ') || 'Nenhum'}
-- Calorias hoje: ${context.nutrition.todayCalories}/${context.nutrition.goalCalories}
-- Proteína hoje: ${context.nutrition.todayProtein}g/${context.nutrition.goalProtein}g
-- Média semanal calorias: ${context.nutrition.weeklyAverage || 0}
-- Hidratação: ${context.recovery.hydration}/${context.recovery.hydrationGoal}ml
-- Sono: ${context.recovery.sleepHours || 'não registado'}h`;
+- Grupos mais treinados: ${context.workout.mostTrained?.map((m: any) => m.muscle).join(', ') || 'Nenhum'}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -138,7 +150,6 @@ Dados:
       throw new Error('No response from AI');
     }
 
-    // Parse the JSON response
     let analysis;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
