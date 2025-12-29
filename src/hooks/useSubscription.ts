@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+type SubscriptionStatus = "never_subscribed" | "active" | "expired" | "canceled_but_active";
+
 interface SubscriptionState {
   isLoading: boolean;
   subscribed: boolean;
+  status: SubscriptionStatus;
   productId: string | null;
   subscriptionEnd: string | null;
+  subscriptionStart: string | null;
   isTrialing: boolean;
   error: string | null;
 }
@@ -32,11 +36,66 @@ export const useSubscription = (enabled: boolean = true) => {
   const [state, setState] = useState<SubscriptionState>({
     isLoading: enabled,
     subscribed: false,
+    status: "never_subscribed",
     productId: null,
     subscriptionEnd: null,
+    subscriptionStart: null,
     isTrialing: false,
     error: null,
   });
+
+  // Check local database first for faster initial load
+  const checkLocalSubscription = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking local subscription:", error);
+        return null;
+      }
+
+      if (data) {
+        const now = new Date();
+        const endDate = data.subscription_end_date ? new Date(data.subscription_end_date) : null;
+        
+        // If we have local data and subscription is active (end date in future)
+        if (data.status === "active" || data.status === "canceled_but_active") {
+          if (endDate && endDate > now) {
+            return {
+              subscribed: true,
+              status: data.status as SubscriptionStatus,
+              subscriptionEnd: data.subscription_end_date,
+              subscriptionStart: data.subscription_start_date,
+            };
+          } else if (endDate && endDate <= now) {
+            // Subscription has expired, update local state
+            return {
+              subscribed: false,
+              status: "expired" as SubscriptionStatus,
+              subscriptionEnd: data.subscription_end_date,
+              subscriptionStart: data.subscription_start_date,
+            };
+          }
+        }
+        
+        return {
+          subscribed: false,
+          status: data.status as SubscriptionStatus,
+          subscriptionEnd: data.subscription_end_date,
+          subscriptionStart: data.subscription_start_date,
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error in checkLocalSubscription:", error);
+      return null;
+    }
+  }, []);
 
   const checkSubscription = useCallback(async () => {
     try {
@@ -50,23 +109,58 @@ export const useSubscription = (enabled: boolean = true) => {
         setState({
           isLoading: false,
           subscribed: false,
+          status: "never_subscribed",
           productId: null,
           subscriptionEnd: null,
+          subscriptionStart: null,
           isTrialing: false,
           error: null,
         });
         return;
       }
 
-      // Pass the access token explicitly to avoid "Invalid JWT" issues.
-      const authHeaders = { Authorization: `Bearer ${session.access_token}` };
+      // First, check local database for fast response
+      const localData = await checkLocalSubscription(session.user.id);
+      if (localData && localData.subscribed) {
+        // User has active subscription in local DB, show immediately
+        setState({
+          isLoading: false,
+          subscribed: localData.subscribed,
+          status: localData.status,
+          productId: null,
+          subscriptionEnd: localData.subscriptionEnd,
+          subscriptionStart: localData.subscriptionStart,
+          isTrialing: false,
+          error: null,
+        });
+        
+        // Still sync with Stripe in background
+        syncWithStripe(session.access_token);
+        return;
+      }
+
+      // If no local active subscription, check Stripe
+      await syncWithStripe(session.access_token);
+    } catch (error) {
+      console.error("Error in checkSubscription:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }));
+    }
+  }, [checkLocalSubscription]);
+
+  const syncWithStripe = async (accessToken: string) => {
+    try {
+      const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
       const { data, error } = await supabase.functions.invoke("check-subscription", {
         headers: authHeaders,
       });
 
       if (error) {
-        console.error("Error checking subscription:", error);
+        console.error("Error checking subscription with Stripe:", error);
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -78,20 +172,22 @@ export const useSubscription = (enabled: boolean = true) => {
       setState({
         isLoading: false,
         subscribed: data.subscribed || false,
+        status: data.status || "never_subscribed",
         productId: data.product_id || null,
         subscriptionEnd: data.subscription_end || null,
+        subscriptionStart: data.subscription_start || null,
         isTrialing: data.is_trialing || false,
         error: null,
       });
     } catch (error) {
-      console.error("Error in checkSubscription:", error);
+      console.error("Error syncing with Stripe:", error);
       setState((prev) => ({
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : "Unknown error",
       }));
     }
-  }, []);
+  };
 
   const createCheckout = useCallback(async (priceId: string) => {
     try {
@@ -148,14 +244,31 @@ export const useSubscription = (enabled: boolean = true) => {
     }
   }, []);
 
+  // Check if user should see paywall
+  const shouldShowPaywall = useCallback(() => {
+    // Only show paywall if status is "never_subscribed" or "expired"
+    return state.status === "never_subscribed" || state.status === "expired";
+  }, [state.status]);
+
+  // Check if subscription is currently valid
+  const isSubscriptionValid = useCallback(() => {
+    if (state.status === "active" || state.status === "canceled_but_active") {
+      if (state.subscriptionEnd) {
+        return new Date(state.subscriptionEnd) > new Date();
+      }
+    }
+    return false;
+  }, [state.status, state.subscriptionEnd]);
+
   useEffect(() => {
-    // Only check subscription if enabled (user is authenticated)
     if (!enabled) {
       setState({
         isLoading: false,
         subscribed: false,
+        status: "never_subscribed",
         productId: null,
         subscriptionEnd: null,
+        subscriptionStart: null,
         isTrialing: false,
         error: null,
       });
@@ -183,5 +296,7 @@ export const useSubscription = (enabled: boolean = true) => {
     checkSubscription,
     createCheckout,
     openCustomerPortal,
+    shouldShowPaywall,
+    isSubscriptionValid,
   };
 };

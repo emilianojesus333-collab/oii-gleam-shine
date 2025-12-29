@@ -3,10 +3,33 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
+  const [subscriptionSynced, setSubscriptionSynced] = useState(false);
+  const { checkSubscription } = useSubscription();
+
+  // Sync subscription status with Stripe immediately
+  useEffect(() => {
+    const syncSubscription = async () => {
+      try {
+        // Wait a moment for Stripe to process the payment
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Force refresh subscription status from Stripe
+        await checkSubscription();
+        setSubscriptionSynced(true);
+      } catch (error) {
+        console.error("Error syncing subscription:", error);
+        // Even if sync fails, allow navigation
+        setSubscriptionSynced(true);
+      }
+    };
+
+    syncSubscription();
+  }, [checkSubscription]);
 
   useEffect(() => {
     // Trigger confetti celebration
@@ -50,6 +73,9 @@ const PaymentSuccess = () => {
   }, []);
 
   useEffect(() => {
+    // Only start countdown after subscription is synced
+    if (!subscriptionSynced) return;
+
     // Countdown timer
     const interval = setInterval(() => {
       setCountdown((prev) => {
@@ -70,7 +96,7 @@ const PaymentSuccess = () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [navigate]);
+  }, [navigate, subscriptionSynced]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
@@ -131,17 +157,28 @@ const PaymentSuccess = () => {
         transition={{ delay: 0.8 }}
         className="mt-12 text-center"
       >
-        <p className="text-sm text-muted-foreground mb-2">
-          A redirecionar para a Home em
-        </p>
-        <motion.div
-          key={countdown}
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-4xl font-bold text-primary"
-        >
-          {countdown}
-        </motion.div>
+        {subscriptionSynced ? (
+          <>
+            <p className="text-sm text-muted-foreground mb-2">
+              A redirecionar para a Home em
+            </p>
+            <motion.div
+              key={countdown}
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-4xl font-bold text-primary"
+            >
+              {countdown}
+            </motion.div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground">
+              A ativar a tua subscrição...
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* Manual redirect button */}
@@ -151,9 +188,10 @@ const PaymentSuccess = () => {
         transition={{ delay: 1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => navigate("/home", { replace: true })}
-        className="mt-8 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold"
+        disabled={!subscriptionSynced}
+        className="mt-8 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold disabled:opacity-50"
       >
-        Ir para a Home agora
+        {subscriptionSynced ? "Ir para a Home agora" : "A processar..."}
       </motion.button>
     </div>
   );
