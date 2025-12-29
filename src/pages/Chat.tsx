@@ -1,11 +1,16 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, CheckCircle2, TrendingUp, Flame, Calendar, History } from "lucide-react";
+import { Send, CheckCircle2, TrendingUp, Flame, Calendar, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
-import { QuickCommands } from "@/components/chat/QuickCommands";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CompletedExercisesData {
   date: string;
@@ -333,31 +338,66 @@ const Chat = () => {
     loadConversation(id);
   };
 
+  const quickCommands = [
+    { label: "Sugere treino", icon: Dumbbell, command: "Sugere-me um treino para hoje" },
+    { label: "Recuperação", icon: Heart, command: "Dá-me dicas de recuperação" },
+    { label: "Substituir", icon: RefreshCw, command: "Quero substituir um exercício" },
+    { label: "Progresso", icon: Progress, command: "Mostra o meu progresso" },
+    { label: "Nutrição", icon: Utensils, command: "Dicas de nutrição" },
+    { label: "Descanso", icon: Moon, command: "Dicas de sono e descanso" },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
-      {/* Header */}
-      <header className="flex items-center gap-4 border-b border-white/10 px-4 py-4 bg-[#0d0d0d]">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-        >
-          <ArrowLeft className="h-5 w-5 text-white" />
-        </button>
-        <div className="flex-1">
-          <h1 className="text-lg font-semibold text-white">LiftMate IA</h1>
-          <p className="text-sm text-white/50">O teu treinador pessoal</p>
-        </div>
+      {/* Header - ChatGPT style */}
+      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-[#0d0d0d]">
+        {/* Left - History menu */}
         <button
           onClick={() => setShowHistorySheet(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5 relative"
+          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
         >
-          <History className="h-5 w-5 text-white" />
-          {conversations.length > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
-              {conversations.length}
-            </span>
-          )}
+          <Menu className="h-5 w-5 text-white" />
         </button>
+
+        {/* Center - Title */}
+        <div className="flex items-center gap-1">
+          <h1 className="text-base font-semibold text-white">LiftMate IA</h1>
+          {conversations.length > 0 && (
+            <span className="text-xs text-white/40">{conversations.length}</span>
+          )}
+        </div>
+
+        {/* Right - Actions */}
+        <div className="flex items-center gap-1">
+          {/* New chat */}
+          <button
+            onClick={handleNewConversation}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
+          >
+            <Plus className="h-5 w-5 text-white" />
+          </button>
+
+          {/* Quick commands dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+                <MoreHorizontal className="h-5 w-5 text-white" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-[#1a1a1a] border-white/10">
+              {quickCommands.map((cmd) => (
+                <DropdownMenuItem
+                  key={cmd.label}
+                  onClick={() => handleQuickCommand(cmd.command)}
+                  className="flex items-center gap-2 text-white hover:bg-white/10 focus:bg-white/10"
+                >
+                  <cmd.icon className="h-4 w-4 text-white/60" />
+                  <span>{cmd.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </header>
 
       {/* Stats Banner */}
@@ -429,8 +469,6 @@ const Chat = () => {
         )}
       </AnimatePresence>
 
-      {/* Quick Commands */}
-      <QuickCommands onCommand={handleQuickCommand} />
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
