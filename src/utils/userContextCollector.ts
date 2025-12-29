@@ -198,21 +198,73 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
   };
 
   try {
-    // 1. Profile & Onboarding data from localStorage
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    if (onboardingData) {
-      const parsed = JSON.parse(onboardingData);
-      context.profile = {
-        goal: parsed.goal,
-        experience: parsed.experience,
-        focusMuscles: parsed.focusMuscles,
-        trainingDays: parsed.trainingDays,
-      };
-      context.schedule.nextTrainingDays = parsed.trainingDays || [];
+    // Get current user if not provided
+    let currentUserId = userId;
+    if (!currentUserId) {
+      const { data: { session } } = await supabase.auth.getSession();
+      currentUserId = session?.user?.id;
     }
 
-    // AI Name
-    context.profile.aiName = localStorage.getItem("liftmate_ai_name") || "LiftMate";
+    // 1. Profile & Onboarding data from DATABASE (per-user)
+    if (currentUserId) {
+      const { data: userSettings } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", currentUserId)
+        .maybeSingle();
+
+      if (userSettings) {
+        const onboardingData = userSettings.onboarding_data as {
+          personal?: { name?: string; height?: string; weight?: string; gender?: string; birthYear?: string };
+          goal?: string;
+          experience?: string;
+          focus?: string;
+          schedule?: Record<string, string[]>;
+        } | null;
+
+        if (onboardingData) {
+          context.profile = {
+            goal: onboardingData.goal || undefined,
+            experience: onboardingData.experience || undefined,
+            focusMuscles: onboardingData.focus ? [onboardingData.focus] : undefined,
+            trainingDays: onboardingData.schedule ? Object.keys(onboardingData.schedule).filter(day => 
+              onboardingData.schedule && onboardingData.schedule[day]?.length > 0
+            ) : [],
+            weight: onboardingData.personal?.weight ? parseFloat(onboardingData.personal.weight) : undefined,
+            height: onboardingData.personal?.height ? parseFloat(onboardingData.personal.height) : undefined,
+            gender: onboardingData.personal?.gender,
+          };
+          context.schedule.nextTrainingDays = context.profile.trainingDays || [];
+        }
+
+        // AI Name from database
+        context.profile.aiName = userSettings.ai_name || "LiftMate";
+      }
+    }
+
+    // Fallback to localStorage for backward compatibility (will be removed later)
+    if (!context.profile.goal) {
+      const onboardingData = localStorage.getItem("liftmate_onboarding");
+      if (onboardingData) {
+        const parsed = JSON.parse(onboardingData);
+        context.profile = {
+          ...context.profile,
+          goal: parsed.goal,
+          experience: parsed.experience,
+          focusMuscles: parsed.focusMuscles,
+          trainingDays: parsed.trainingDays,
+        };
+        context.schedule.nextTrainingDays = parsed.trainingDays || [];
+      }
+    }
+
+    // Fallback AI Name from localStorage
+    if (!context.profile.aiName || context.profile.aiName === "LiftMate") {
+      const localAiName = localStorage.getItem("liftmate_ai_name");
+      if (localAiName) {
+        context.profile.aiName = localAiName;
+      }
+    }
 
     // 2. Nutrition data from localStorage
     const nutritionData = localStorage.getItem("nutrition_data");

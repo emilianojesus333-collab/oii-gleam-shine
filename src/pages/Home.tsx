@@ -19,6 +19,7 @@ import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -38,7 +39,7 @@ const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
-    // Load from localStorage on init
+    // Load from localStorage on init (daily reset - this is OK as localStorage for session-only data)
     const saved = localStorage.getItem("liftmate_completed_exercises");
     if (saved) {
       try {
@@ -55,6 +56,9 @@ const Home = () => {
   });
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Load user settings from database (per-user data)
+  const { settings, isLoading: settingsLoading } = useUserSettings();
 
   // Celebration function
   const triggerCelebration = useCallback(() => {
@@ -151,12 +155,12 @@ const Home = () => {
   const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
   const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions } = useMemo(() => {
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
+    // Load schedule from user settings (database) - per-user data
+    const userSchedule = settings?.onboarding_data?.schedule || {};
     
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
-    const muscleGroups = data.schedule?.[todayName] || null;
+    const muscleGroups = userSchedule[todayName] || null;
     
     // Format workout display (join muscle groups)
     const workout = muscleGroups 
@@ -173,7 +177,7 @@ const Home = () => {
       date.setDate(today.getDate() + mondayOffset + i);
       const dayIndex = date.getDay();
       const dayName = weekDaysMap[dayIndex];
-      const dayGroups = data.schedule?.[dayName] || null;
+      const dayGroups = userSchedule[dayName] || null;
       const dayWorkout = dayGroups 
         ? (Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups)
         : null;
@@ -206,7 +210,7 @@ const Home = () => {
       weekSchedule: schedule,
       aiSuggestions: suggestions,
     };
-  }, []);
+  }, [settings]);
 
   const workoutProgress = todayWorkout && todayWorkout !== "Descanso" ? 0 : 100;
   const circumference = 2 * Math.PI * 45;
