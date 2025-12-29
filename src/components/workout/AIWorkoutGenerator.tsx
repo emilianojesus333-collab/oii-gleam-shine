@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface GeneratedExercise {
   name: string;
@@ -39,21 +40,12 @@ interface AIWorkoutGeneratorProps {
   onSelectExercise?: (exercise: string) => void;
 }
 
-const weekDaysMap: Record<number, string> = {
-  0: "Domingo",
-  1: "Segunda-feira",
-  2: "Terça-feira",
-  3: "Quarta-feira",
-  4: "Quinta-feira",
-  5: "Sexta-feira",
-  6: "Sábado",
-};
-
 export const AIWorkoutGenerator = ({ 
   todayMuscleGroups, 
   trainingType,
   onSelectExercise 
 }: AIWorkoutGeneratorProps) => {
+  const { t } = useLanguage();
   const [isGenerating, setIsGenerating] = useState(false);
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null);
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
@@ -74,7 +66,7 @@ export const AIWorkoutGenerator = ({
 
   const generateWorkout = async () => {
     if (todayMuscleGroups.length === 0) {
-      toast.error("Não há grupos musculares definidos para hoje");
+      toast.error(t("aiWorkout.noMuscleGroups"));
       return;
     }
 
@@ -97,13 +89,13 @@ export const AIWorkoutGenerator = ({
 
       if (data?.workout) {
         setWorkout(data.workout);
-        toast.success("Treino gerado com sucesso! 💪");
+        toast.success(t("aiWorkout.success"));
       } else if (data?.error) {
         throw new Error(data.error);
       }
     } catch (error: any) {
       console.error("Error generating workout:", error);
-      toast.error(error.message || "Erro ao gerar treino. Tenta novamente.");
+      toast.error(error.message || t("aiWorkout.error"));
     } finally {
       setIsGenerating(false);
     }
@@ -140,7 +132,7 @@ export const AIWorkoutGenerator = ({
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-white">Gerador de Treino IA</h3>
+          <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
           <p className="text-xs text-gray-400">
             {todayMuscleGroups.join(" + ")} • {trainingType}
           </p>
@@ -162,12 +154,12 @@ export const AIWorkoutGenerator = ({
               >
                 <Sparkles className="w-5 h-5" />
               </motion.div>
-              A gerar treino personalizado...
+              {t("aiWorkout.generating")}
             </>
           ) : (
             <>
               <Sparkles className="w-5 h-5" />
-              Gerar Treino para {todayMuscleGroups.join(" + ")}
+              {t("aiWorkout.generateFor")} {todayMuscleGroups.join(" + ")}
             </>
           )}
         </motion.button>
@@ -176,9 +168,9 @@ export const AIWorkoutGenerator = ({
           {/* Progress Bar */}
           <div className="bg-[#2A2A2A]/50 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-400">Progresso</span>
+              <span className="text-sm text-gray-400">{t("aiWorkout.progress")}</span>
               <span className="text-sm font-semibold text-primary">
-                {completedExercises.size}/{workout.exercises.length} exercícios
+                {completedExercises.size}/{workout.exercises.length} {t("aiWorkout.exercises")}
               </span>
             </div>
             <div className="h-2 bg-[#1E1E1E] rounded-full overflow-hidden">
@@ -195,17 +187,17 @@ export const AIWorkoutGenerator = ({
             <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
               <Clock className="w-5 h-5 text-primary mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{workout.estimatedDuration}'</p>
-              <p className="text-xs text-gray-400">Duração</p>
+              <p className="text-xs text-gray-400">{t("aiWorkout.duration")}</p>
             </div>
             <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
               <Target className="w-5 h-5 text-amber-500 mx-auto mb-1" />
               <p className="text-sm font-bold text-white">{workout.difficulty}</p>
-              <p className="text-xs text-gray-400">Nível</p>
+              <p className="text-xs text-gray-400">{t("aiWorkout.level")}</p>
             </div>
             <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
               <Dumbbell className="w-5 h-5 text-blue-400 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{workout.exercises.length}</p>
-              <p className="text-xs text-gray-400">Exercícios</p>
+              <p className="text-xs text-gray-400">{t("home.exercises")}</p>
             </div>
           </div>
 
@@ -214,7 +206,7 @@ export const AIWorkoutGenerator = ({
             <div className="bg-[#2A2A2A]/30 rounded-xl p-4">
               <h4 className="text-sm font-semibold text-amber-500 mb-2 flex items-center gap-2">
                 <Zap className="w-4 h-4" />
-                Aquecimento
+                {t("aiWorkout.warmup")}
               </h4>
               <div className="space-y-1">
                 {workout.warmup.map((w, i) => (
@@ -265,7 +257,7 @@ export const AIWorkoutGenerator = ({
                         {exercise.name}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {exercise.sets}x{exercise.reps} • {exercise.rest}s descanso
+                        {exercise.sets}x{exercise.reps} • {exercise.rest}s {t("aiWorkout.rest")}
                       </p>
                     </div>
 
@@ -287,13 +279,13 @@ export const AIWorkoutGenerator = ({
                         {exercise.tip && (
                           <div className="bg-[#1E1E1E]/50 rounded-lg p-3 mb-2">
                             <p className="text-sm text-gray-300">
-                              <span className="text-primary font-medium">Dica:</span> {exercise.tip}
+                              <span className="text-primary font-medium">{t("aiWorkout.tip")}:</span> {exercise.tip}
                             </p>
                           </div>
                         )}
                         {exercise.equipment && (
                           <p className="text-xs text-gray-400">
-                            <span className="text-gray-300">Equipamento:</span> {exercise.equipment}
+                            <span className="text-gray-300">{t("aiWorkout.equipment")}:</span> {exercise.equipment}
                           </p>
                         )}
                         {onSelectExercise && (
@@ -301,7 +293,7 @@ export const AIWorkoutGenerator = ({
                             onClick={() => onSelectExercise(exercise.name)}
                             className="mt-2 text-xs text-primary hover:underline"
                           >
-                            Usar no registo →
+                            {t("aiWorkout.useInRecord")}
                           </button>
                         )}
                       </motion.div>
@@ -315,7 +307,7 @@ export const AIWorkoutGenerator = ({
           {/* Cooldown */}
           {workout.cooldown && (
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-blue-400 mb-1">Cooldown</h4>
+              <h4 className="text-sm font-semibold text-blue-400 mb-1">{t("aiWorkout.cooldown")}</h4>
               <p className="text-sm text-gray-300">{workout.cooldown}</p>
             </div>
           )}
@@ -337,7 +329,7 @@ export const AIWorkoutGenerator = ({
             className="w-full py-3 rounded-xl bg-[#2A2A2A]/50 text-gray-300 font-medium flex items-center justify-center gap-2 hover:bg-[#2A2A2A]/80 transition-all"
           >
             <RotateCcw className="w-4 h-4" />
-            Gerar Novo Treino
+            {t("aiWorkout.regenerate")}
           </button>
         </div>
       )}
