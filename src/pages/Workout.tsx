@@ -18,6 +18,7 @@ import { getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
 import { toast } from "sonner";
 import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
+import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -134,6 +135,12 @@ const Workout = () => {
       ? (Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups)
       : null;
   }, []);
+
+  // Get muscle groups as array for AI generator
+  const todayMuscleGroups = useMemo(() => {
+    if (!todayWorkout || todayWorkout === "Descanso") return [];
+    return todayWorkout.split(" + ");
+  }, [todayWorkout]);
 
   // Get exercises for today
   const todayExercises = useMemo(() => {
@@ -328,6 +335,13 @@ const Workout = () => {
               })}
             </div>
           </motion.div>
+
+          {/* AI Workout Generator */}
+          <AIWorkoutGenerator
+            todayMuscleGroups={todayMuscleGroups}
+            trainingType={trainingType}
+            onSelectExercise={setSelectedExercise}
+          />
 
           {/* Main Carousel Card */}
           <motion.div
