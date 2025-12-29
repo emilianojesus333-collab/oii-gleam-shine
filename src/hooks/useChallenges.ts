@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from './useAuth';
 
 export interface Challenge {
   id: string;
@@ -33,7 +34,15 @@ interface ChallengesState {
   totalChallengesCompleted: number;
 }
 
-const STORAGE_KEY = 'liftmate_challenges';
+const STORAGE_KEY_PREFIX = 'liftmate_challenges_';
+
+const defaultState: ChallengesState = {
+  activeChallenges: [],
+  completedChallenges: [],
+  badges: [],
+  weeklyStreak: 0,
+  totalChallengesCompleted: 0,
+};
 
 // Weekly challenge templates
 const weeklyTemplates: Omit<Challenge, 'id' | 'startDate' | 'endDate' | 'current' | 'completed'>[] = [
@@ -105,37 +114,44 @@ const badgeDefinitions: Omit<Badge, 'id' | 'unlockedAt'>[] = [
 ];
 
 export const useChallenges = () => {
-  const [state, setState] = useState<ChallengesState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  const { user } = useAuth();
+  const [state, setState] = useState<ChallengesState>(defaultState);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load user-specific data when user changes
+  useEffect(() => {
+    if (!user?.id) {
+      setState(defaultState);
+      setIsInitialized(false);
+      return;
+    }
+
+    const storageKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+    const saved = localStorage.getItem(storageKey);
+    
     if (saved) {
       try {
-        return JSON.parse(saved);
+        setState(JSON.parse(saved));
       } catch {
-        return {
-          activeChallenges: [],
-          completedChallenges: [],
-          badges: [],
-          weeklyStreak: 0,
-          totalChallengesCompleted: 0,
-        };
+        setState(defaultState);
       }
+    } else {
+      setState(defaultState);
     }
-    return {
-      activeChallenges: [],
-      completedChallenges: [],
-      badges: [],
-      weeklyStreak: 0,
-      totalChallengesCompleted: 0,
-    };
-  });
+    setIsInitialized(true);
+  }, [user?.id]);
 
-  // Persist state
+  // Persist state when it changes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (!user?.id || !isInitialized) return;
+    const storageKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  }, [state, user?.id, isInitialized]);
 
   // Generate weekly challenges if needed
   const generateWeeklyChallenges = useCallback(() => {
+    if (!user?.id || !isInitialized) return;
+
     const now = new Date();
     const dayOfWeek = now.getDay();
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -176,12 +192,14 @@ export const useChallenges = () => {
       activeChallenges: [...stillActive, ...newChallenges],
       completedChallenges: [...prev.completedChallenges, ...expiredChallenges],
     }));
-  }, [state.activeChallenges]);
+  }, [state.activeChallenges, user?.id, isInitialized]);
 
   // Initialize challenges on mount
   useEffect(() => {
-    generateWeeklyChallenges();
-  }, []);
+    if (isInitialized) {
+      generateWeeklyChallenges();
+    }
+  }, [isInitialized]);
 
   // Update challenge progress
   const updateChallengeProgress = useCallback((type: Challenge['type'], increment: number = 1) => {

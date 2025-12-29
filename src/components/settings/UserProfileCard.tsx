@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Ruler, Weight, Calendar, Edit2, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface UserData {
   name: string;
@@ -12,6 +14,8 @@ interface UserData {
 }
 
 export const UserProfileCard = () => {
+  const { user } = useAuth();
+  const { settings, updateSettings } = useUserSettings();
   const [userData, setUserData] = useState<UserData>({
     name: "",
     height: "",
@@ -22,41 +26,41 @@ export const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<UserData>(userData);
 
+  // Load data from user_settings (database) when settings change
   useEffect(() => {
-    const saved = localStorage.getItem("liftmate_onboarding");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        // Support both 'personal' and 'personalData' keys for backwards compatibility
-        const personalData = data.personal || data.personalData;
-        if (personalData) {
-          setUserData(personalData);
-          setEditData(personalData);
-        }
-      } catch (e) {
-        console.error("Error loading user data:", e);
+    if (settings?.onboarding_data) {
+      const onboardingData = settings.onboarding_data as any;
+      const personalData = onboardingData?.personal || onboardingData?.personalData;
+      if (personalData) {
+        setUserData(personalData);
+        setEditData(personalData);
       }
     }
-  }, []);
+  }, [settings]);
 
   const calculateAge = (birthYear: string) => {
     if (!birthYear) return null;
     return new Date().getFullYear() - parseInt(birthYear);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user?.id) return;
+
     // Validate
     if (!editData.name.trim()) {
       toast.error("Nome é obrigatório");
       return;
     }
 
-    // Save to localStorage
-    const saved = localStorage.getItem("liftmate_onboarding");
-    const data = saved ? JSON.parse(saved) : {};
-    data.personal = editData; // Use 'personal' key to match onboarding
-    data.personalData = editData; // Also set personalData for backwards compatibility
-    localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
+    // Update in database via useUserSettings
+    const currentOnboardingData = (settings?.onboarding_data as any) || {};
+    const updatedOnboardingData = {
+      ...currentOnboardingData,
+      personal: editData,
+      personalData: editData, // Keep backwards compatibility
+    };
+
+    await updateSettings({ onboarding_data: updatedOnboardingData });
 
     setUserData(editData);
     setIsEditing(false);
