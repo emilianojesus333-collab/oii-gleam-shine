@@ -12,7 +12,9 @@ import {
   Edit3,
   CreditCard,
   ExternalLink,
-  LogOut
+  LogOut,
+  FileText,
+  Shield
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -399,11 +401,49 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Logout Button */}
+        {/* Legal Links */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
+          className="bg-card rounded-[20px] p-4 border border-border/30"
+        >
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate("/terms")}
+              className="w-full flex items-center justify-between py-2"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <span className="font-medium text-foreground">Termos de Uso</span>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+            </button>
+            
+            <div className="border-t border-border/20" />
+            
+            <button
+              onClick={() => navigate("/privacy")}
+              className="w-full flex items-center justify-between py-2"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <span className="font-medium text-foreground">Política de Privacidade</span>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Logout Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           className="bg-card rounded-[20px] p-4 border border-destructive/30"
         >
           <div className="flex items-center justify-between">
