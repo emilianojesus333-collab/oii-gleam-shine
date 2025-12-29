@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface CompletedExercisesData {
   date: string;
@@ -28,6 +29,7 @@ interface CompletedExercisesData {
 
 const Chat = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -290,12 +292,12 @@ const Chat = () => {
   };
 
   const quickCommands = [
-    { label: "Sugere treino", icon: Dumbbell, command: "Sugere-me um treino para hoje" },
-    { label: "Recuperação", icon: Heart, command: "Dá-me dicas de recuperação" },
-    { label: "Substituir", icon: RefreshCw, command: "Quero substituir um exercício" },
-    { label: "Progresso", icon: Progress, command: "Mostra o meu progresso" },
-    { label: "Nutrição", icon: Utensils, command: "Dicas de nutrição" },
-    { label: "Descanso", icon: Moon, command: "Dicas de sono e descanso" },
+    { label: t("chat.suggestWorkout"), icon: Dumbbell, command: t("chat.suggestWorkout") },
+    { label: t("chat.recovery"), icon: Heart, command: t("chat.recovery") },
+    { label: t("chat.substitute"), icon: RefreshCw, command: t("chat.substitute") },
+    { label: t("chat.progressLabel"), icon: Progress, command: t("chat.progressLabel") },
+    { label: t("chat.nutritionLabel"), icon: Utensils, command: t("chat.nutritionLabel") },
+    { label: t("chat.restLabel"), icon: Moon, command: t("chat.restLabel") },
   ];
 
   return (
@@ -341,14 +343,14 @@ const Chat = () => {
               <div className="flex items-center justify-between px-2 py-2">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4 text-white/60" />
-                  <span className="text-sm text-white">Conversa contínua</span>
+                  <span className="text-sm text-white">{t("chat.continuousMode")}</span>
                 </div>
                 <Switch
                   checked={continuousMode}
                   onCheckedChange={(checked) => {
                     setContinuousMode(checked);
                     localStorage.setItem("liftmate_continuous_mode", String(checked));
-                    toast.success(checked ? "Modo contínuo ativado" : "Modo contínuo desativado");
+                    toast.success(checked ? t("chat.continuousModeOn") : t("chat.continuousModeOff"));
                   }}
                 />
               </div>
@@ -376,9 +378,9 @@ const Chat = () => {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
                 <Dumbbell className="h-8 w-8 text-white/40" />
               </div>
-              <h2 className="mb-2 text-lg font-medium text-white">Olá! Sou o {aiName}</h2>
+              <h2 className="mb-2 text-lg font-medium text-white">{t("chat.hello")} {aiName}</h2>
               <p className="max-w-xs text-sm text-white/60">
-                Pergunta-me sobre treinos, nutrição, recuperação ou o teu progresso!
+                {t("chat.askMe")}
               </p>
             </div>
           )}
@@ -454,12 +456,12 @@ const Chat = () => {
                             />
                           ))}
                         </div>
-                        <span>A reproduzir...</span>
+                        <span>{t("chat.playing")}</span>
                       </>
                     ) : (
                       <>
                         <Volume2 className="h-3.5 w-3.5" />
-                        <span>Ouvir</span>
+                        <span>{t("chat.listen")}</span>
                       </>
                     )}
                   </motion.button>
@@ -498,7 +500,7 @@ const Chat = () => {
                 />
               ))}
             </div>
-            <span className="text-sm text-red-400 font-medium">A gravar...</span>
+            <span className="text-sm text-red-400 font-medium">{t("chat.recording")}</span>
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <motion.div
@@ -578,7 +580,7 @@ const Chat = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder={isRecording ? "A ouvir..." : "Escreve ou grava..."}
+            placeholder={isRecording ? t("chat.recording") : t("chat.placeholder")}
             disabled={isLoading || isRecording}
             className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
           />

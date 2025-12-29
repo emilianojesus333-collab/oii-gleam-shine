@@ -21,6 +21,7 @@ import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -36,6 +37,7 @@ const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const Home = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
@@ -101,11 +103,11 @@ const Home = () => {
     }());
 
     // Show success toast
-    toast.success("Treino completo! 💪", {
-      description: "Parabéns, completaste todos os exercícios de hoje!",
+    toast.success(t("home.workoutComplete"), {
+      description: t("home.congratsAllExercises"),
       duration: 5000,
     });
-  }, []);
+  }, [t]);
 
   const toggleExerciseComplete = (exerciseName: string) => {
     if (!user) return;
@@ -403,12 +405,12 @@ const Home = () => {
             className="text-center"
           >
             <p className="text-2xl sm:text-4xl font-black text-white/70">
-              {todayWorkout || "Descanso"}
+              {todayWorkout || t("home.rest")}
             </p>
             <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
               {todayWorkout && todayWorkout !== "Descanso" 
-                ? "Treino de hoje" 
-                : "Dia de recuperação"}
+                ? t("home.todayWorkout") 
+                : t("home.recoveryDay")}
             </p>
           </motion.div>
 
@@ -420,7 +422,7 @@ const Home = () => {
               className="mt-4 sm:mt-6"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs sm:text-sm text-gray-400/70">Progresso</span>
+                <span className="text-xs sm:text-sm text-gray-400/70">{t("home.progress")}</span>
                 <button
                   onClick={() => setShowExercises(true)}
                   className="flex items-center gap-1 text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors touch-target"
@@ -463,9 +465,9 @@ const Home = () => {
                   {(() => {
                     const todayStats = getTodayStats();
                     return [
-                      { value: todayStats.totalSets.toString(), label: "Séries feitas" },
-                      { value: todayStats.totalReps.toString(), label: "Reps totais" },
-                      { value: todayStats.totalMinutes.toString(), label: "Min treino" },
+                      { value: todayStats.totalSets.toString(), label: t("home.seriesDone") },
+                      { value: todayStats.totalReps.toString(), label: t("home.totalReps") },
+                      { value: todayStats.totalMinutes.toString(), label: t("home.trainingMin") },
                     ];
                   })().map((stat, index) => (
                     <motion.div
@@ -516,7 +518,7 @@ const Home = () => {
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.exercise}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Treino Sugerido</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.suggestedExercise")}</p>
                     <ChevronRight className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-white/30 group-hover:text-primary transition-colors" />
                   </motion.button>
 
@@ -537,7 +539,7 @@ const Home = () => {
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.focus}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Foco</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.focusOn")}</p>
                   </motion.div>
 
                   {/* Recovery Coach */}
@@ -557,7 +559,7 @@ const Home = () => {
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.recovery}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">Recovery Coach</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.recovery")}</p>
                   </motion.div>
                 </motion.div>
               </CarouselItem>
@@ -595,7 +597,7 @@ const Home = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.55 }}
           >
-            Próximos treinos
+            {t("home.upcomingWorkouts")}
           </motion.h3>
           
           <div className="space-y-2 sm:space-y-3">
@@ -657,10 +659,10 @@ const Home = () => {
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold text-foreground flex items-center gap-2">
               <Dumbbell className="h-5 w-5 text-primary" />
-              Exercícios Sugeridos
+              {t("home.suggestedExercisesFor")}
             </SheetTitle>
             <p className="text-sm text-muted-foreground">
-              {todayWorkout || "Dia de descanso"}
+              {todayWorkout || t("home.rest")}
             </p>
           </SheetHeader>
           
@@ -668,9 +670,9 @@ const Home = () => {
             {/* Progress indicator */}
             {aiSuggestions.allExercises.length > 0 && (
               <div className="mb-4 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Progresso</span>
+                <span className="text-muted-foreground">{t("home.progress")}</span>
                 <span className="font-semibold text-primary">
-                  {completedExercises.size}/{aiSuggestions.allExercises.length} concluídos
+                  {completedExercises.size}/{aiSuggestions.allExercises.length}
                 </span>
               </div>
             )}
