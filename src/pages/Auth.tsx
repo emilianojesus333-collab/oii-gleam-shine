@@ -239,6 +239,17 @@ const Auth = () => {
               </div>
             </motion.form>
           )}
+
+          {/* Legal Links */}
+          <div className="flex justify-center gap-4 pt-4 text-xs text-gray-400">
+            <a href="/terms" className="hover:text-white transition-colors">
+              Termos de Uso
+            </a>
+            <span>•</span>
+            <a href="/privacy" className="hover:text-white transition-colors">
+              Política de Privacidade
+            </a>
+          </div>
         </motion.div>
       </div>
     </div>
