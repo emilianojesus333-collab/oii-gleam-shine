@@ -27,15 +27,15 @@ export const NotificationPermissionCard = ({
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-destructive/10 rounded-xl p-4 border border-destructive/20 mb-4"
+        className="bg-red-500/10 rounded-xl p-4 border border-red-500/20 mb-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-destructive/20 flex items-center justify-center">
-            <BellOff className="w-5 h-5 text-destructive" />
+          <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+            <BellOff className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <p className="font-medium text-destructive">Notificações não suportadas</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="font-medium text-red-400">Notificações não suportadas</p>
+            <p className="text-xs text-gray-400">
               O teu navegador não suporta notificações push.
             </p>
           </div>
@@ -53,15 +53,15 @@ export const NotificationPermissionCard = ({
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-            <BellRing className="w-5 h-5 text-green-500" />
+            <BellRing className="w-5 h-5 text-green-400" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-green-500">Notificações ativas</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="font-medium text-green-400">Notificações ativas</p>
+            <p className="text-xs text-gray-400">
               Vais receber alertas mesmo com a app fechada.
             </p>
           </div>
-          <Check className="w-5 h-5 text-green-500" />
+          <Check className="w-5 h-5 text-green-400" />
         </div>
       </motion.div>
     );
@@ -76,15 +76,15 @@ export const NotificationPermissionCard = ({
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-            <BellOff className="w-5 h-5 text-amber-500" />
+            <BellOff className="w-5 h-5 text-amber-400" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-amber-500">Notificações bloqueadas</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="font-medium text-amber-400">Notificações bloqueadas</p>
+            <p className="text-xs text-gray-400">
               Ativa nas definições do navegador para receber alertas.
             </p>
           </div>
-          <X className="w-5 h-5 text-amber-500" />
+          <X className="w-5 h-5 text-amber-400" />
         </div>
       </motion.div>
     );
@@ -105,8 +105,8 @@ export const NotificationPermissionCard = ({
           <Bell className="w-5 h-5 text-primary" />
         </motion.div>
         <div className="flex-1">
-          <p className="font-medium text-foreground">Ativar Notificações</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="font-medium text-white">Ativar Notificações</p>
+          <p className="text-xs text-gray-400">
             Recebe alertas mesmo quando a app está fechada.
           </p>
         </div>

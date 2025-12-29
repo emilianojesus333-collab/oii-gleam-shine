@@ -51,8 +51,8 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
             <Flame className={`w-6 h-6 ${getFlameColor()}`} />
           </motion.div>
           <div>
-            <h3 className="font-semibold text-foreground">Consistência</h3>
-            <p className="text-xs text-muted-foreground">{getMotivationalMessage()}</p>
+            <h3 className="font-semibold text-white">Consistência</h3>
+            <p className="text-xs text-gray-400">{getMotivationalMessage()}</p>
           </div>
         </div>
 
@@ -78,21 +78,21 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
           >
             {streak.currentStreak}
           </motion.div>
-          <p className="text-xs text-muted-foreground mt-1">DIAS</p>
+          <p className="text-xs text-gray-400 mt-1">DIAS</p>
         </div>
         
-        <div className="h-16 w-px bg-border/50" />
+        <div className="h-16 w-px bg-white/10" />
         
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <Trophy className="w-4 h-4 text-yellow-500" />
-            <span className="text-muted-foreground">Recorde:</span>
-            <span className="font-semibold">{streak.longestStreak} dias</span>
+            <span className="text-gray-400">Recorde:</span>
+            <span className="font-semibold text-white">{streak.longestStreak} dias</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Target className="w-4 h-4 text-green-500" />
-            <span className="text-muted-foreground">Total:</span>
-            <span className="font-semibold">{streak.totalWorkouts} treinos</span>
+            <span className="text-gray-400">Total:</span>
+            <span className="font-semibold text-white">{streak.totalWorkouts} treinos</span>
           </div>
         </div>
       </div>
@@ -119,14 +119,14 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
                 isToday ? 'bg-primary/10 border border-primary/30' : ''
               }`}
             >
-              <span className="text-[10px] text-muted-foreground">{dayName}</span>
+              <span className="text-[10px] text-gray-400">{dayName}</span>
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center ${
                   isActive
                     ? 'bg-gradient-to-br from-orange-500 to-red-500'
                     : isToday
-                    ? 'bg-muted/50 border-2 border-dashed border-muted-foreground/30'
-                    : 'bg-muted/30'
+                    ? 'bg-white/10 border-2 border-dashed border-gray-500'
+                    : 'bg-white/5'
                 }`}
               >
                 {isActive && <Flame className="w-3 h-3 text-white" />}

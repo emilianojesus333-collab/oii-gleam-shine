@@ -72,8 +72,8 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
             <Pill className="w-6 h-6 text-purple-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Suplementação</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="font-semibold text-white">Suplementação</h3>
+            <p className="text-xs text-gray-400">
               {supplements.filter((s) => s.enabled).length} lembretes ativos
             </p>
           </div>
@@ -128,8 +128,8 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
               transition={{ delay: index * 0.05 }}
               className={`p-3 rounded-xl border transition-all ${
                 supplement.enabled
-                  ? 'bg-card/50 border-border/50'
-                  : 'bg-muted/30 border-transparent opacity-60'
+                  ? 'bg-white/5 border-white/10'
+                  : 'bg-black/20 border-transparent opacity-60'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -141,8 +141,8 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm truncate">{supplement.name}</h4>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <h4 className="font-medium text-sm text-white truncate">{supplement.name}</h4>
+                  <div className="flex items-center gap-1 text-xs text-gray-400">
                     <Clock className="w-3 h-3" />
                     {supplement.time}
                   </div>
@@ -156,7 +156,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive/70 hover:text-destructive"
+                    className="h-8 w-8 text-red-400/70 hover:text-red-400"
                     onClick={() => onRemove(supplement.id)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -173,7 +173,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
                     className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-all ${
                       supplement.days.includes(dayIndex)
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
                     }`}
                   >
                     {label}
@@ -185,7 +185,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
         })}
 
         {supplements.length === 0 && (
-          <div className="text-center py-6 text-muted-foreground">
+          <div className="text-center py-6 text-gray-400">
             <Pill className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Nenhum suplemento configurado</p>
           </div>
