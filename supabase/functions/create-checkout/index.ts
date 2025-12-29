@@ -63,7 +63,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/home?checkout=success`,
+      success_url: `${origin}/payment-success`,
       cancel_url: `${origin}/paywall?checkout=cancelled`,
       subscription_data: {
         trial_period_days: 7,

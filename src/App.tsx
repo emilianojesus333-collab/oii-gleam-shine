@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Alerts from "./pages/Alerts";
 import Nutrition from "./pages/Nutrition";
 import Paywall from "./pages/Paywall";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -42,6 +43,14 @@ const App = () => (
             element={
               <ProtectedRoute requireOnboarding>
                 <Paywall />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-success"
+            element={
+              <ProtectedRoute>
+                <PaymentSuccess />
               </ProtectedRoute>
             }
           />
