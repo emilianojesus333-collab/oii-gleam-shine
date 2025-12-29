@@ -17,13 +17,17 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { subscribed, isLoading: subscriptionLoading, isTrialing } = useSubscription();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Only check subscription when authenticated
+  const { subscribed, isLoading: subscriptionLoading, isTrialing } = useSubscription(isAuthenticated);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
+        setIsAuthenticated(!!session);
         setLoading(false);
       }
     );
@@ -31,6 +35,7 @@ const ProtectedRoute = ({
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setIsAuthenticated(!!session);
       setLoading(false);
     });
 
