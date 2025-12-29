@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload } from 'lucide-react';
 import { useState, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { compressBase64Image } from '@/lib/imageCompression';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -84,8 +85,16 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
-      setImagePreview(base64);
-      await analyzeImage(base64);
+      try {
+        // Compress image before analysis
+        const compressedBase64 = await compressBase64Image(base64, 1024, 0.7);
+        setImagePreview(compressedBase64);
+        await analyzeImage(compressedBase64);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        setImagePreview(base64);
+        await analyzeImage(base64);
+      }
     };
     reader.readAsDataURL(file);
     // Reset input value to allow selecting the same file again

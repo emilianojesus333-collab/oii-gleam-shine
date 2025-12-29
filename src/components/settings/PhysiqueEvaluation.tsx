@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, Lock, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
 
@@ -102,14 +103,15 @@ export const PhysiqueEvaluation = () => {
       return;
     }
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target?.result as string;
-      setPreviewImage(base64);
-      await analyzePhysique(base64);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Compress image before analysis
+      const compressedBase64 = await compressImage(file, 1024, 0.7);
+      setPreviewImage(compressedBase64);
+      await analyzePhysique(compressedBase64);
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      toast.error('Erro ao processar a imagem');
+    }
   };
 
   const analyzePhysique = async (imageBase64: string) => {
