@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import Alerts from "./pages/Alerts";
 import Nutrition from "./pages/Nutrition";
+import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -28,9 +29,17 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/auth" element={<Auth />} />
           <Route
-            path="/home"
+            path="/paywall"
             element={
               <ProtectedRoute>
+                <Paywall />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute requireSubscription>
                 <Home />
               </ProtectedRoute>
             }
@@ -38,7 +47,7 @@ const App = () => (
           <Route
             path="/chat"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <Chat />
               </ProtectedRoute>
             }
@@ -46,7 +55,7 @@ const App = () => (
           <Route
             path="/workout"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <Workout />
               </ProtectedRoute>
             }
@@ -54,7 +63,7 @@ const App = () => (
           <Route
             path="/nutrition"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <Nutrition />
               </ProtectedRoute>
             }
@@ -62,7 +71,7 @@ const App = () => (
           <Route
             path="/settings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <Settings />
               </ProtectedRoute>
             }
@@ -70,7 +79,7 @@ const App = () => (
           <Route
             path="/alerts"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <Alerts />
               </ProtectedRoute>
             }
