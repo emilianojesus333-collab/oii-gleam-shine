@@ -382,17 +382,36 @@ const Chat = () => {
                     </span>
                   )}
                 </p>
-                {/* Voice button for AI messages */}
+                {/* Voice button for AI messages with animation */}
                 {!message.isUser && message.text && (
-                  <button
-                    onClick={() => speakText(message.text)}
-                    className="mt-2 flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition-colors"
+                  <motion.button
+                    onClick={() => isSpeaking ? stopSpeaking() : speakText(message.text)}
+                    className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
                     disabled={isTranscribing}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     {isSpeaking ? (
                       <>
-                        <VolumeX className="h-3.5 w-3.5" />
-                        <span>Parar</span>
+                        {/* Animated sound bars for playing state */}
+                        <div className="flex items-center gap-0.5 h-3.5 w-3.5">
+                          {[...Array(3)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="w-0.5 bg-white/60 rounded-full"
+                              animate={{
+                                height: ["4px", "12px", "4px"],
+                              }}
+                              transition={{
+                                duration: 0.4,
+                                repeat: Infinity,
+                                delay: i * 0.15,
+                                ease: "easeInOut",
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span>A reproduzir...</span>
                       </>
                     ) : (
                       <>
@@ -400,7 +419,7 @@ const Chat = () => {
                         <span>Ouvir</span>
                       </>
                     )}
-                  </button>
+                  </motion.button>
                 )}
               </div>
             </motion.div>
@@ -411,23 +430,71 @@ const Chat = () => {
 
       {/* Input */}
       <div className="border-t border-white/10 p-4 pb-8 safe-area-bottom bg-[#0d0d0d]">
-        {/* Recording indicator */}
+        {/* Recording indicator with enhanced animation */}
         {isRecording && (
-          <div className="mb-3 flex items-center justify-center gap-2 text-red-400">
-            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-sm">A gravar... Toca para parar</span>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-3 flex items-center justify-center gap-3"
+          >
+            {/* Animated sound waves */}
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-1 bg-red-500 rounded-full"
+                  animate={{
+                    height: ["8px", "20px", "8px"],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    delay: i * 0.1,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-red-400 font-medium">A gravar...</span>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-1 bg-red-500 rounded-full"
+                  animate={{
+                    height: ["8px", "20px", "8px"],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    delay: (4 - i) * 0.1,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
         )}
+        
         {isTranscribing && (
-          <div className="mb-3 flex items-center justify-center gap-2 text-white/60">
-            <Loader2 className="h-4 w-4 animate-spin" />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-3 flex items-center justify-center gap-2 text-white/60"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Loader2 className="h-4 w-4" />
+            </motion.div>
             <span className="text-sm">A transcrever...</span>
-          </div>
+          </motion.div>
         )}
         
         <div className="flex items-center gap-2">
-          {/* Voice recording button */}
-          <button
+          {/* Voice recording button with animations */}
+          <motion.button
             onClick={async () => {
               if (isRecording) {
                 const text = await stopRecording();
@@ -439,18 +506,29 @@ const Chat = () => {
               }
             }}
             disabled={isLoading || isTranscribing}
-            className={`flex h-12 w-12 items-center justify-center rounded-full transition-all ${
+            whileTap={{ scale: 0.9 }}
+            animate={isRecording ? {
+              scale: [1, 1.1, 1],
+              boxShadow: ["0 0 0 0 rgba(239,68,68,0.4)", "0 0 0 12px rgba(239,68,68,0)", "0 0 0 0 rgba(239,68,68,0.4)"],
+            } : {}}
+            transition={isRecording ? { duration: 1.5, repeat: Infinity } : {}}
+            className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
               isRecording 
-                ? "bg-red-500 text-white animate-pulse" 
+                ? "bg-red-500 text-white" 
                 : "bg-[#1a1a1a] text-white/60 hover:text-white border border-white/10"
             } disabled:opacity-50`}
           >
             {isRecording ? (
-              <MicOff className="h-5 w-5" />
+              <motion.div
+                animate={{ scale: [1, 0.8, 1] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+              >
+                <MicOff className="h-5 w-5" />
+              </motion.div>
             ) : (
               <Mic className="h-5 w-5" />
             )}
-          </button>
+          </motion.button>
           
           <input
             type="text"
@@ -462,17 +540,24 @@ const Chat = () => {
             className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
           />
           
-          <button
+          <motion.button
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading || isRecording}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] disabled:opacity-50"
           >
             {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <Loader2 className="h-5 w-5" />
+              </motion.div>
             ) : (
               <Send className="h-5 w-5" />
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
 
