@@ -20,6 +20,19 @@ serve(async (req) => {
 
     console.log('Starting AI coaching analysis...', context);
 
+    const userGoals = context.userGoals || {};
+    const goalsInfo = [];
+    if (userGoals.weightGoal) {
+      goalsInfo.push(userGoals.weightGoal > 0 ? `Quer ganhar ${userGoals.weightGoal}kg` : `Quer perder ${Math.abs(userGoals.weightGoal)}kg`);
+    }
+    if (userGoals.trainingFocus) {
+      const focusLabels: Record<string, string> = { hypertrophy: 'Hipertrofia', strength: 'Força', endurance: 'Resistência' };
+      goalsInfo.push(`Foco: ${focusLabels[userGoals.trainingFocus] || userGoals.trainingFocus}`);
+    }
+    if (userGoals.focusMuscles?.length) {
+      goalsInfo.push(`Músculos prioritários: ${userGoals.focusMuscles.join(', ')}`);
+    }
+
     const systemPrompt = `Você é um coach de fitness e nutrição experiente e motivador.
 Analise os dados do utilizador e forneça dicas personalizadas e acionáveis.
 
@@ -27,18 +40,21 @@ CONTEXTO DO UTILIZADOR:
 - Treino: ${JSON.stringify(context.workout)}
 - Nutrição: ${JSON.stringify(context.nutrition)}
 - Recuperação: ${JSON.stringify(context.recovery)}
+${goalsInfo.length > 0 ? `- OBJETIVOS DO UTILIZADOR: ${goalsInfo.join(' | ')}` : ''}
 
 REGRAS:
 1. Seja motivador mas realista
 2. Baseie as dicas nos dados fornecidos
-3. Foque em melhorias incrementais
+3. ${goalsInfo.length > 0 ? 'PRIORIZE dicas relacionadas aos objetivos definidos pelo utilizador!' : 'Foque em melhorias incrementais'}
 4. Use linguagem portuguesa de Portugal
 5. Máximo 4 dicas priorizadas
+6. ${userGoals.focusMuscles?.length ? `Inclua dicas específicas para trabalhar: ${userGoals.focusMuscles.join(', ')}` : ''}
+7. ${userGoals.weightGoal ? `Adapte dicas de nutrição ao objetivo de ${userGoals.weightGoal > 0 ? 'ganhar' : 'perder'} peso` : ''}
 
 Responda SEMPRE em JSON válido com esta estrutura:
 {
   "success": true,
-  "summary": "Resumo curto da análise (1-2 frases)",
+  "summary": "Resumo curto da análise (1-2 frases) ${goalsInfo.length > 0 ? 'mencionando os objetivos do utilizador' : ''}",
   "tips": [
     {
       "category": "treino" | "nutrição" | "recuperação" | "geral",
@@ -55,10 +71,11 @@ EXEMPLOS DE DICAS BASEADAS EM PADRÕES:
 - Se streak > 5: elogio + dica de recuperação
 - Se hidratação < 50%: dica de recuperação alta prioridade
 - Se sono < 7h: dica de recuperação
-- Se treinou muito um grupo muscular: dica de variar treino`;
+- Se treinou muito um grupo muscular: dica de variar treino
+${userGoals.focusMuscles?.length ? `- PRIORIDADE: Dicas específicas para desenvolver ${userGoals.focusMuscles.join(', ')}` : ''}`;
 
     const userPrompt = `Analisa os meus dados e dá-me dicas personalizadas para hoje.
-
+${goalsInfo.length > 0 ? `\nOS MEUS OBJETIVOS:\n${goalsInfo.map(g => `- ${g}`).join('\n')}\n` : ''}
 Dados:
 - Treinos esta semana: ${context.workout.thisWeek}
 - Streak atual: ${context.workout.streak} dias
