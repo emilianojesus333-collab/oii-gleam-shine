@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, CheckCircle2, TrendingUp, Flame, Calendar, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon } from "lucide-react";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
@@ -192,7 +192,7 @@ function generateAIResponse(
 const Chat = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
-  const [showWorkoutContext, setShowWorkoutContext] = useState(true);
+  
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
@@ -227,52 +227,6 @@ const Chat = () => {
     return null;
   }, []);
 
-  // Build initial message based on workout context and history
-  const getInitialMessage = (): ChatMessage => {
-    const hasHistory = workoutStats.totalSessions > 0;
-    const hasTodayExercises = completedExercisesData && completedExercisesData.exercises.length > 0;
-
-    if (hasTodayExercises && hasHistory) {
-      const exerciseList = completedExercisesData!.exercises.slice(0, 3).join(", ");
-      const moreCount = completedExercisesData!.exercises.length > 3 
-        ? ` e mais ${completedExercisesData!.exercises.length - 3}` 
-        : "";
-      
-      let streakMessage = "";
-      if (workoutStats.currentStreak > 1) {
-        streakMessage = `\n\nEstás numa streak de ${workoutStats.currentStreak} dias consecutivos! `;
-      }
-      
-      return {
-        id: "1",
-        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}${moreCount}. Excelente trabalho!${streakMessage}\n\nCom ${workoutStats.totalSessions} sessões no teu histórico, posso analisar o teu progresso e dar-te sugestões personalizadas. Como te posso ajudar?`,
-        isUser: false,
-        timestamp: Date.now(),
-      };
-    } else if (hasHistory) {
-      return {
-        id: "1",
-        text: `Olá! Tens ${workoutStats.totalSessions} sessões registadas. ${workoutStats.currentStreak > 0 ? `Streak atual: ${workoutStats.currentStreak} dias!` : ""}\n\nPosso analisar o teu progresso, sugerir exercícios ou ajudar-te com o treino de hoje. O que precisas?`,
-        isUser: false,
-        timestamp: Date.now(),
-      };
-    } else if (hasTodayExercises) {
-      const exerciseList = completedExercisesData!.exercises.join(", ");
-      return {
-        id: "1",
-        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}. Excelente trabalho!\n\nComo te sentes? Posso ajudar-te com dicas de recuperação ou sugerir variações.`,
-        isUser: false,
-        timestamp: Date.now(),
-      };
-    }
-    
-    return {
-      id: "1",
-      text: "Olá! Sou o teu assistente de treino. Começa a marcar exercícios como concluídos e vou acompanhar o teu progresso ao longo do tempo. Como posso ajudar-te hoje?",
-      isUser: false,
-      timestamp: Date.now(),
-    };
-  };
 
   // Load conversation or start fresh
   useEffect(() => {
@@ -283,8 +237,8 @@ const Chat = () => {
         return;
       }
     }
-    // Start with initial message for new conversation
-    setMessages([getInitialMessage()]);
+    // Start with empty messages for new conversation
+    setMessages([]);
   }, [currentConversationId]);
 
   const handleSend = (text?: string) => {
@@ -301,8 +255,7 @@ const Chat = () => {
     // If no current conversation, create one
     let convId = currentConversationId;
     if (!convId) {
-      const initialMsg = getInitialMessage();
-      convId = createConversation(initialMsg);
+      convId = createConversation(userMessage);
     }
 
     addMessage(convId, userMessage);
@@ -331,7 +284,7 @@ const Chat = () => {
 
   const handleNewConversation = () => {
     clearCurrentConversation();
-    setMessages([getInitialMessage()]);
+    setMessages([]);
   };
 
   const handleSelectConversation = (id: string) => {
@@ -351,13 +304,21 @@ const Chat = () => {
     <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
       {/* Header - ChatGPT style */}
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-[#0d0d0d]">
-        {/* Left - History menu */}
-        <button
-          onClick={() => setShowHistorySheet(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-        >
-          <Menu className="h-5 w-5 text-white" />
-        </button>
+        {/* Left - Back & History */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
+          >
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </button>
+          <button
+            onClick={() => setShowHistorySheet(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
+          >
+            <Menu className="h-5 w-5 text-white" />
+          </button>
+        </div>
 
         {/* Center - Title */}
         <div className="flex items-center gap-1">
@@ -399,76 +360,6 @@ const Chat = () => {
           </DropdownMenu>
         </div>
       </header>
-
-      {/* Stats Banner */}
-      <AnimatePresence>
-        {showWorkoutContext && workoutStats.totalSessions > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-white/10"
-          >
-            <div className="bg-white/5 px-4 py-3">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-white">O teu progresso</p>
-                <button
-                  onClick={() => setShowWorkoutContext(false)}
-                  className="text-xs text-white/50 hover:text-white"
-                >
-                  Ocultar
-                </button>
-              </div>
-              
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-xs text-white/50">Total</p>
-                    <p className="text-sm font-bold text-white">{workoutStats.totalSessions}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
-                  <Flame className="h-4 w-4 text-orange-500" />
-                  <div>
-                    <p className="text-xs text-white/50">Streak</p>
-                    <p className="text-sm font-bold text-white">{workoutStats.currentStreak}d</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg bg-white/5 p-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                  <div>
-                    <p className="text-xs text-white/50">Taxa</p>
-                    <p className="text-sm font-bold text-white">{workoutStats.averageCompletionRate}%</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Today's exercises */}
-              {completedExercisesData && completedExercisesData.exercises.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {completedExercisesData.exercises.slice(0, 4).map((exercise, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-xs text-primary"
-                    >
-                      <CheckCircle2 className="h-3 w-3" />
-                      {exercise}
-                    </span>
-                  ))}
-                  {completedExercisesData.exercises.length > 4 && (
-                    <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/50">
-                      +{completedExercisesData.exercises.length - 4}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
