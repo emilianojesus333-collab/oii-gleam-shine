@@ -61,16 +61,16 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success(t("auth.signupSuccess"));
+        toast.success(t("auth.accountCreated"));
         navigate("/home");
       }
     } catch (error: any) {
       if (error.message.includes("User already registered")) {
-        toast.error(t("auth.emailAlreadyRegistered"));
+        toast.error(t("auth.emailRegistered"));
       } else if (error.message.includes("Invalid login credentials")) {
         toast.error(t("auth.invalidCredentials"));
       } else {
-        toast.error(error.message || t("auth.error"));
+        toast.error(error.message || t("common.error"));
       }
     } finally {
       setLoading(false);
@@ -105,7 +105,7 @@ const Auth = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-5xl md:text-6xl font-bold text-white leading-tight"
           >
-            {t("auth.welcome")}
+            {t("auth.welcomeTo")}
             <br />
             <span className="text-primary">LiftMate</span>
           </motion.h1>
@@ -116,7 +116,7 @@ const Auth = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-gray-300/80 text-lg mt-4"
           >
-            {t("auth.tagline")}
+            {t("auth.journeyStarts")}
           </motion.p>
         </div>
 
@@ -245,11 +245,11 @@ const Auth = () => {
           {/* Legal Links */}
           <div className="flex justify-center gap-4 pt-4 text-xs text-gray-400">
             <a href="/terms" className="hover:text-white transition-colors">
-              {t("auth.terms")}
+              {t("auth.termsOfUse")}
             </a>
             <span>•</span>
             <a href="/privacy" className="hover:text-white transition-colors">
-              {t("auth.privacy")}
+              {t("auth.privacyPolicy")}
             </a>
           </div>
         </motion.div>
