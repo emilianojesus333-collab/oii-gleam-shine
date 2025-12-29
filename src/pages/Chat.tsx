@@ -1,15 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, Dumbbell, CheckCircle2, TrendingUp, Flame, Calendar } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle2, TrendingUp, Flame, Calendar, History } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
-import { BottomNav } from "@/components/BottomNav";
-
-interface Message {
-  id: string;
-  text: string;
-  isUser: boolean;
-}
+import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
+import { QuickCommands } from "@/components/chat/QuickCommands";
+import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
 
 interface CompletedExercisesData {
   date: string;
@@ -26,20 +22,91 @@ function generateAIResponse(
 ): string {
   const lowerInput = input.toLowerCase();
   
+  // Suggest workout
+  if (lowerInput.includes("sugere") && (lowerInput.includes("treino") || lowerInput.includes("exercício"))) {
+    const onboardingData = localStorage.getItem("liftmate_onboarding");
+    let suggestion = "Com base no teu perfil, sugiro:\n\n";
+    
+    if (onboardingData) {
+      const data = JSON.parse(onboardingData);
+      const focus = data.focusMuscles || [];
+      
+      if (focus.length > 0) {
+        suggestion += `Foco em ${focus.join(", ")}:\n`;
+        suggestion += "• 4 séries de 8-12 reps no exercício principal\n";
+        suggestion += "• 3 séries de 10-15 reps nos acessórios\n";
+        suggestion += "• Descanso de 60-90s entre séries\n\n";
+      }
+    }
+    
+    suggestion += "Aquecimento: 5-10 min cardio leve\n";
+    suggestion += "Treino: 45-60 min\n";
+    suggestion += "Alongamento: 5-10 min no final";
+    
+    return suggestion;
+  }
+  
+  // Substitute exercise
+  if (lowerInput.includes("substitui") || lowerInput.includes("alternativa") || lowerInput.includes("substituir")) {
+    return "Posso ajudar-te a encontrar alternativas! Diz-me qual exercício queres substituir e porquê (falta equipamento, dor, preferência) e sugiro opções equivalentes que trabalham os mesmos músculos.";
+  }
+  
+  // Nutrition tips
+  if (lowerInput.includes("nutrição") || lowerInput.includes("alimentação") || lowerInput.includes("comer") || lowerInput.includes("dieta")) {
+    const onboardingData = localStorage.getItem("liftmate_onboarding");
+    let tips = "";
+    
+    if (onboardingData) {
+      const data = JSON.parse(onboardingData);
+      if (data.goal === "Ganhar massa") {
+        tips = "Para ganhar massa:\n\n";
+        tips += "• Superávit calórico de 300-500 kcal\n";
+        tips += "• 1.6-2.2g proteína/kg de peso\n";
+        tips += "• Refeição pós-treino em até 2h\n";
+        tips += "• Carboidratos complexos antes do treino";
+      } else if (data.goal === "Perder peso") {
+        tips = "Para perder peso:\n\n";
+        tips += "• Déficit calórico de 300-500 kcal\n";
+        tips += "• Alta proteína para preservar músculo\n";
+        tips += "• Fibras para saciedade\n";
+        tips += "• Hidratação adequada (água antes das refeições)";
+      } else {
+        tips = "Para manter e tonificar:\n\n";
+        tips += "• Calorias de manutenção\n";
+        tips += "• Proteína adequada (1.4-1.6g/kg)\n";
+        tips += "• Alimentação balanceada\n";
+        tips += "• Consistência é a chave";
+      }
+    } else {
+      tips = "Dicas gerais de nutrição:\n\n";
+      tips += "• Proteína em cada refeição\n";
+      tips += "• Carboidratos antes do treino\n";
+      tips += "• Hidratação constante\n";
+      tips += "• Evita processados";
+    }
+    
+    return tips;
+  }
+  
+  // Sleep/rest tips
+  if (lowerInput.includes("sono") || lowerInput.includes("dormir") || lowerInput.includes("descanso") || lowerInput.includes("descansar")) {
+    return "Para otimizar recuperação e sono:\n\n• 7-9 horas de sono por noite\n• Horário consistente de deitar\n• Evita ecrãs 1h antes de dormir\n• Ambiente escuro e fresco\n• Evita cafeína após 14h\n• Alongamento leve antes de dormir\n\nO sono é quando os músculos recuperam e crescem!";
+  }
+  
   // Progress/stats questions
   if (lowerInput.includes("progresso") || lowerInput.includes("estatística") || lowerInput.includes("stats")) {
     if (stats.totalSessions === 0) {
       return "Ainda não tens sessões registadas. Começa a marcar exercícios como concluídos na Home e vou acompanhar o teu progresso!";
     }
     
-    let response = `📊 Aqui está o teu progresso:\n\n`;
+    let response = `Aqui está o teu progresso:\n\n`;
     response += `• Total de sessões: ${stats.totalSessions}\n`;
     response += `• Esta semana: ${stats.thisWeekSessions} sessões\n`;
-    response += `• Streak atual: ${stats.currentStreak} dias 🔥\n`;
+    response += `• Streak atual: ${stats.currentStreak} dias\n`;
     response += `• Taxa média de conclusão: ${stats.averageCompletionRate}%\n`;
     
     if (stats.mostTrainedMuscles.length > 0) {
-      response += `\n💪 Músculos mais treinados:\n`;
+      response += `\nMúsculos mais treinados:\n`;
       stats.mostTrainedMuscles.slice(0, 3).forEach((m, i) => {
         response += `${i + 1}. ${m.muscle} (${m.count}x)\n`;
       });
@@ -51,7 +118,7 @@ function generateAIResponse(
   // Streak questions
   if (lowerInput.includes("streak") || lowerInput.includes("consecutivo")) {
     if (stats.currentStreak > 0) {
-      return `🔥 Tens uma streak de ${stats.currentStreak} dias consecutivos! Continua assim para não quebrar o ritmo. Cada dia conta!`;
+      return `Tens uma streak de ${stats.currentStreak} dias consecutivos! Continua assim para não quebrar o ritmo. Cada dia conta!`;
     }
     return "Ainda não tens uma streak ativa. Treina hoje e amanhã para começares uma!";
   }
@@ -70,7 +137,7 @@ function generateAIResponse(
     response += "• Alongamentos de 10-15 min\n";
     response += "• Sono de qualidade (7-8h)\n";
     response += "• Proteína na próxima refeição\n\n";
-    response += "Amanhã vais estar mais forte! 💪";
+    response += "Amanhã vais estar mais forte!";
     
     return response;
   }
@@ -87,25 +154,24 @@ function generateAIResponse(
   if (lowerInput.includes("bem") || lowerInput.includes("ótimo") || lowerInput.includes("bom") || lowerInput.includes("consegui")) {
     const todayCount = todayExercises?.exercises.length || 0;
     if (todayCount > 0) {
-      return `Fantástico! Com ${todayCount} exercícios feitos hoje e ${stats.totalSessions} sessões no total, estás a evoluir muito bem! 🔥\n\nMantém essa consistência - é ela que traz resultados!`;
+      return `Fantástico! Com ${todayCount} exercícios feitos hoje e ${stats.totalSessions} sessões no total, estás a evoluir muito bem!\n\nMantém essa consistência - é ela que traz resultados!`;
     }
-    return "Fico feliz! A consistência é a chave. Continua assim e os resultados vão aparecer! 💪";
+    return "Fico feliz! A consistência é a chave. Continua assim e os resultados vão aparecer!";
   }
   
   // Muscles trained
   if (lowerInput.includes("músculo") || lowerInput.includes("treinei") || lowerInput.includes("treino mais")) {
     if (stats.mostTrainedMuscles.length > 0) {
-      let response = "📈 Análise dos teus treinos:\n\n";
+      let response = "Análise dos teus treinos:\n\n";
       stats.mostTrainedMuscles.forEach((m, i) => {
         response += `${i + 1}. ${m.muscle}: ${m.count} sessões\n`;
       });
       
-      // Check for imbalances
       if (stats.mostTrainedMuscles.length >= 2) {
         const top = stats.mostTrainedMuscles[0].count;
         const second = stats.mostTrainedMuscles[1].count;
         if (top > second * 2) {
-          response += `\n⚠️ Atenção: Estás a treinar muito mais ${stats.mostTrainedMuscles[0].muscle}. Considera equilibrar com outros grupos!`;
+          response += `\nAtenção: Estás a treinar muito mais ${stats.mostTrainedMuscles[0].muscle}. Considera equilibrar com outros grupos!`;
         }
       }
       
@@ -122,6 +188,20 @@ const Chat = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [showWorkoutContext, setShowWorkoutContext] = useState(true);
+  const [showHistorySheet, setShowHistorySheet] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  const {
+    conversations,
+    currentConversationId,
+    createConversation,
+    addMessage,
+    getCurrentConversation,
+    loadConversation,
+    deleteConversation,
+    clearCurrentConversation,
+    setCurrentConversationId,
+  } = useChatHistory();
 
   // Load workout stats
   const workoutStats = useMemo(() => getWorkoutStats(), []);
@@ -143,7 +223,7 @@ const Chat = () => {
   }, []);
 
   // Build initial message based on workout context and history
-  const getInitialMessage = (): Message => {
+  const getInitialMessage = (): ChatMessage => {
     const hasHistory = workoutStats.totalSessions > 0;
     const hasTodayExercises = completedExercisesData && completedExercisesData.exercises.length > 0;
 
@@ -155,26 +235,29 @@ const Chat = () => {
       
       let streakMessage = "";
       if (workoutStats.currentStreak > 1) {
-        streakMessage = `\n\n🔥 Estás numa streak de ${workoutStats.currentStreak} dias consecutivos! `;
+        streakMessage = `\n\nEstás numa streak de ${workoutStats.currentStreak} dias consecutivos! `;
       }
       
       return {
         id: "1",
-        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}${moreCount}. Excelente trabalho! 💪${streakMessage}\n\nCom ${workoutStats.totalSessions} sessões no teu histórico, posso analisar o teu progresso e dar-te sugestões personalizadas. Como te posso ajudar?`,
+        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}${moreCount}. Excelente trabalho!${streakMessage}\n\nCom ${workoutStats.totalSessions} sessões no teu histórico, posso analisar o teu progresso e dar-te sugestões personalizadas. Como te posso ajudar?`,
         isUser: false,
+        timestamp: Date.now(),
       };
     } else if (hasHistory) {
       return {
         id: "1",
-        text: `Olá! Tens ${workoutStats.totalSessions} sessões registadas. ${workoutStats.currentStreak > 0 ? `🔥 Streak atual: ${workoutStats.currentStreak} dias!` : ""}\n\nPosso analisar o teu progresso, sugerir exercícios ou ajudar-te com o treino de hoje. O que precisas?`,
+        text: `Olá! Tens ${workoutStats.totalSessions} sessões registadas. ${workoutStats.currentStreak > 0 ? `Streak atual: ${workoutStats.currentStreak} dias!` : ""}\n\nPosso analisar o teu progresso, sugerir exercícios ou ajudar-te com o treino de hoje. O que precisas?`,
         isUser: false,
+        timestamp: Date.now(),
       };
     } else if (hasTodayExercises) {
       const exerciseList = completedExercisesData!.exercises.join(", ");
       return {
         id: "1",
-        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}. Excelente trabalho! 💪\n\nComo te sentes? Posso ajudar-te com dicas de recuperação ou sugerir variações.`,
+        text: `Olá! Vi que já completaste ${completedExercisesData!.exercises.length} exercício(s) hoje: ${exerciseList}. Excelente trabalho!\n\nComo te sentes? Posso ajudar-te com dicas de recuperação ou sugerir variações.`,
         isUser: false,
+        timestamp: Date.now(),
       };
     }
     
@@ -182,34 +265,72 @@ const Chat = () => {
       id: "1",
       text: "Olá! Sou o teu assistente de treino. Começa a marcar exercícios como concluídos e vou acompanhar o teu progresso ao longo do tempo. Como posso ajudar-te hoje?",
       isUser: false,
+      timestamp: Date.now(),
     };
   };
 
-  const [messages, setMessages] = useState<Message[]>([getInitialMessage()]);
+  // Load conversation or start fresh
+  useEffect(() => {
+    if (currentConversationId) {
+      const conv = getCurrentConversation();
+      if (conv) {
+        setMessages(conv.messages);
+        return;
+      }
+    }
+    // Start with initial message for new conversation
+    setMessages([getInitialMessage()]);
+  }, [currentConversationId]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = (text?: string) => {
+    const messageText = text || inputValue;
+    if (!messageText.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: inputValue,
+      text: messageText,
       isUser: true,
+      timestamp: Date.now(),
     };
 
+    // If no current conversation, create one
+    let convId = currentConversationId;
+    if (!convId) {
+      const initialMsg = getInitialMessage();
+      convId = createConversation(initialMsg);
+    }
+
+    addMessage(convId, userMessage);
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
     // Simulate AI response with full context
     setTimeout(() => {
-      const responseText = generateAIResponse(inputValue, workoutStats, completedExercisesData);
+      const responseText = generateAIResponse(messageText, workoutStats, completedExercisesData);
       
-      const aiResponse: Message = {
+      const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: responseText,
         isUser: false,
+        timestamp: Date.now(),
       };
+      
+      addMessage(convId!, aiResponse);
       setMessages((prev) => [...prev, aiResponse]);
     }, 1000);
+  };
+
+  const handleQuickCommand = (command: string) => {
+    handleSend(command);
+  };
+
+  const handleNewConversation = () => {
+    clearCurrentConversation();
+    setMessages([getInitialMessage()]);
+  };
+
+  const handleSelectConversation = (id: string) => {
+    loadConversation(id);
   };
 
   return (
@@ -226,6 +347,17 @@ const Chat = () => {
           <h1 className="text-lg font-semibold text-white">LiftMate IA</h1>
           <p className="text-sm text-white/50">O teu treinador pessoal</p>
         </div>
+        <button
+          onClick={() => setShowHistorySheet(true)}
+          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5 relative"
+        >
+          <History className="h-5 w-5 text-white" />
+          {conversations.length > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
+              {conversations.length}
+            </span>
+          )}
+        </button>
       </header>
 
       {/* Stats Banner */}
@@ -297,6 +429,9 @@ const Chat = () => {
         )}
       </AnimatePresence>
 
+      {/* Quick Commands */}
+      <QuickCommands onCommand={handleQuickCommand} />
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="flex flex-col gap-4">
@@ -322,7 +457,7 @@ const Chat = () => {
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/10 p-4 safe-area-bottom bg-[#0d0d0d]">
+      <div className="border-t border-white/10 p-4 pb-8 safe-area-bottom bg-[#0d0d0d]">
         <div className="flex items-center gap-3">
           <input
             type="text"
@@ -333,7 +468,7 @@ const Chat = () => {
             className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
           />
           <button
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={!inputValue.trim()}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
           >
@@ -342,7 +477,16 @@ const Chat = () => {
         </div>
       </div>
 
-      <BottomNav />
+      {/* History Sheet */}
+      <ChatHistorySheet
+        open={showHistorySheet}
+        onOpenChange={setShowHistorySheet}
+        conversations={conversations}
+        currentConversationId={currentConversationId}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={deleteConversation}
+        onNewConversation={handleNewConversation}
+      />
     </div>
   );
 };
