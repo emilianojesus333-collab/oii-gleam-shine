@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from './useAuth';
+import { invalidateCachePattern } from './useDataCache';
 
 export interface MacroGoals {
   calories: number;
@@ -48,8 +51,8 @@ export interface DailyLog {
 }
 
 export interface UserProfile {
-  weight: number; // kg
-  height: number; // cm
+  weight: number;
+  height: number;
   age: number;
   gender: 'male' | 'female';
   activityLevel: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -81,6 +84,8 @@ interface NutritionState {
   weeklyGoals: WeeklyGoal[];
   achievements: Achievement[];
   notifiedAchievements: string[];
+  loading: boolean;
+  synced: boolean;
 }
 
 const defaultProfile: UserProfile = {
@@ -93,6 +98,34 @@ const defaultProfile: UserProfile = {
 };
 
 const STORAGE_KEY = 'nutrition_data';
+const CACHE_KEY = 'nutrition_cache';
+
+// Cache with TTL
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+  expiresAt: number;
+}
+
+const localCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const getCached = <T>(key: string): T | null => {
+  const entry = localCache.get(key);
+  if (entry && Date.now() < entry.expiresAt) {
+    return entry.data as T;
+  }
+  localCache.delete(key);
+  return null;
+};
+
+const setCache = <T>(key: string, data: T): void => {
+  localCache.set(key, {
+    data,
+    timestamp: Date.now(),
+    expiresAt: Date.now() + CACHE_TTL,
+  });
+};
 
 // Harris-Benedict BMR calculation
 const calculateBMR = (profile: UserProfile): number => {
@@ -102,7 +135,6 @@ const calculateBMR = (profile: UserProfile): number => {
   return 447.593 + (9.247 * profile.weight) + (3.098 * profile.height) - (4.330 * profile.age);
 };
 
-// Activity multipliers
 const activityMultipliers = {
   sedentary: 1.2,
   light: 1.375,
@@ -111,7 +143,6 @@ const activityMultipliers = {
   very_active: 1.9,
 };
 
-// Goal adjustments
 const goalAdjustments = {
   cut: -500,
   maintain: 0,
@@ -123,7 +154,6 @@ const calculateMacroGoals = (profile: UserProfile): MacroGoals => {
   const tdee = bmr * activityMultipliers[profile.activityLevel];
   const targetCalories = Math.round(tdee + goalAdjustments[profile.goal]);
 
-  // Macro split based on goal
   let proteinRatio: number, carbRatio: number, fatRatio: number;
 
   if (profile.goal === 'cut') {
@@ -159,6 +189,7 @@ const getWeekStart = () => {
 };
 
 export const useNutrition = () => {
+  const { user } = useAuth();
   const [state, setState] = useState<NutritionState>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -170,9 +201,11 @@ export const useNutrition = () => {
           weeklyGoals: parsed.weeklyGoals || [],
           achievements: parsed.achievements || [],
           notifiedAchievements: parsed.notifiedAchievements || [],
+          loading: false,
+          synced: false,
         };
       } catch {
-        // Fall through to default
+        // Fall through
       }
     }
     
@@ -185,17 +218,144 @@ export const useNutrition = () => {
       weeklyGoals: [],
       achievements: [],
       notifiedAchievements: [],
+      loading: false,
+      synced: false,
     };
   });
 
   const hasShownAchievementRef = useRef<Set<string>>(new Set(state.notifiedAchievements));
+  const syncInProgressRef = useRef(false);
 
-  // Persist state
+  // Sync with Supabase when user is logged in
+  useEffect(() => {
+    if (!user || syncInProgressRef.current) return;
+
+    const syncWithSupabase = async () => {
+      syncInProgressRef.current = true;
+      setState(prev => ({ ...prev, loading: true }));
+
+      try {
+        // Check cache first
+        const cacheKey = `nutrition_${user.id}`;
+        const cachedLogs = getCached<DailyLog[]>(cacheKey);
+        
+        if (cachedLogs) {
+          setState(prev => ({
+            ...prev,
+            dailyLogs: cachedLogs,
+            loading: false,
+            synced: true,
+          }));
+          return;
+        }
+
+        // Fetch from Supabase with pagination (last 90 days)
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        
+        const { data: logs, error } = await supabase
+          .from('nutrition_logs')
+          .select('*')
+          .gte('date', ninetyDaysAgo.toISOString().split('T')[0])
+          .order('date', { ascending: false })
+          .limit(90);
+
+        if (error) throw error;
+
+        const formattedLogs: DailyLog[] = (logs || []).map(log => ({
+          date: log.date,
+          meals: (log.meals as unknown as Meal[]) || [],
+          totals: (log.totals as unknown as DailyLog['totals']) || { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+        }));
+
+        // Merge with local data (prefer remote for same dates)
+        const localLogs = state.dailyLogs.filter(
+          local => !formattedLogs.some(remote => remote.date === local.date)
+        );
+        const mergedLogs = [...formattedLogs, ...localLogs].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        // Cache the result
+        setCache(cacheKey, mergedLogs);
+
+        setState(prev => ({
+          ...prev,
+          dailyLogs: mergedLogs,
+          loading: false,
+          synced: true,
+        }));
+
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from('nutrition_profiles')
+          .select('*')
+          .maybeSingle();
+
+        if (profile) {
+          const userProfile: UserProfile = {
+            weight: profile.weight || defaultProfile.weight,
+            height: profile.height || defaultProfile.height,
+            age: profile.age || defaultProfile.age,
+            gender: (profile.gender as UserProfile['gender']) || defaultProfile.gender,
+            activityLevel: (profile.activity_level as UserProfile['activityLevel']) || defaultProfile.activityLevel,
+            goal: (profile.goal as UserProfile['goal']) || defaultProfile.goal,
+          };
+
+          const goals: MacroGoals = profile.goal_calories ? {
+            calories: profile.goal_calories,
+            protein: profile.goal_protein || 0,
+            carbs: profile.goal_carbs || 0,
+            fat: profile.goal_fat || 0,
+            fiber: 30,
+          } : calculateMacroGoals(userProfile);
+
+          setState(prev => ({
+            ...prev,
+            profile: userProfile,
+            goals,
+          }));
+        }
+      } catch (error) {
+        console.error('Error syncing nutrition:', error);
+      } finally {
+        syncInProgressRef.current = false;
+        setState(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    syncWithSupabase();
+  }, [user]);
+
+  // Persist to localStorage (backup)
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
-  // Get or create today's log
+  // Save to Supabase (debounced)
+  const saveToSupabase = useCallback(async (log: DailyLog) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('nutrition_logs')
+        .upsert({
+          user_id: user.id,
+          date: log.date,
+          meals: log.meals as unknown as any,
+          totals: log.totals as unknown as any,
+        }, { onConflict: 'user_id,date' });
+
+      if (error) throw error;
+
+      // Invalidate cache
+      invalidateCachePattern(`nutrition_${user.id}`);
+      localCache.delete(`nutrition_${user.id}`);
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+    }
+  }, [user]);
+
   const todayLog = useMemo((): DailyLog => {
     const existing = state.dailyLogs.find(log => log.date === state.currentDate);
     if (existing) return existing;
@@ -207,7 +367,6 @@ export const useNutrition = () => {
     };
   }, [state.dailyLogs, state.currentDate]);
 
-  // Calculate totals from meals
   const calculateTotals = useCallback((meals: Meal[]) => {
     return meals.reduce((acc, meal) => ({
       calories: acc.calories + meal.total.calories,
@@ -218,12 +377,10 @@ export const useNutrition = () => {
     }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
   }, []);
 
-  // Check and trigger achievements
-  const checkAchievements = useCallback((updatedLogs: DailyLog[], updatedTotals: { calories: number; protein: number; carbs: number; fat: number; fiber: number }) => {
+  const checkAchievements = useCallback((updatedLogs: DailyLog[], updatedTotals: DailyLog['totals']) => {
     const newAchievements: Achievement[] = [];
     const today = getToday();
 
-    // Check daily calorie goal
     if (updatedTotals.calories >= state.goals.calories * 0.9 && updatedTotals.calories <= state.goals.calories * 1.1) {
       const achievementId = `daily_calories_${today}`;
       if (!hasShownAchievementRef.current.has(achievementId)) {
@@ -242,7 +399,6 @@ export const useNutrition = () => {
       }
     }
 
-    // Check protein goal
     if (updatedTotals.protein >= state.goals.protein) {
       const achievementId = `daily_protein_${today}`;
       if (!hasShownAchievementRef.current.has(achievementId)) {
@@ -261,7 +417,6 @@ export const useNutrition = () => {
       }
     }
 
-    // Check weekly streak (7 days with meals logged)
     const weekStart = getWeekStart();
     const daysWithMeals = updatedLogs.filter(log => {
       const logDate = new Date(log.date);
@@ -296,7 +451,6 @@ export const useNutrition = () => {
     }
   }, [state.goals]);
 
-  // Add meal
   const addMeal = useCallback((meal: Omit<Meal, 'id'>) => {
     setState(prev => {
       const newMeal: Meal = {
@@ -306,60 +460,79 @@ export const useNutrition = () => {
 
       const existingLogIndex = prev.dailyLogs.findIndex(log => log.date === prev.currentDate);
       let updatedLogs: DailyLog[];
-      let updatedTotals: { calories: number; protein: number; carbs: number; fat: number; fiber: number };
+      let updatedTotals: DailyLog['totals'];
+      let updatedLog: DailyLog;
 
       if (existingLogIndex >= 0) {
         const updatedMeals = [...prev.dailyLogs[existingLogIndex].meals, newMeal];
         updatedTotals = calculateTotals(updatedMeals);
-        updatedLogs = prev.dailyLogs.map((log, i) => 
-          i === existingLogIndex 
-            ? { ...log, meals: updatedMeals, totals: updatedTotals }
-            : log
-        );
+        updatedLog = { ...prev.dailyLogs[existingLogIndex], meals: updatedMeals, totals: updatedTotals };
+        updatedLogs = prev.dailyLogs.map((log, i) => i === existingLogIndex ? updatedLog : log);
       } else {
         updatedTotals = calculateTotals([newMeal]);
-        const newLog: DailyLog = {
+        updatedLog = {
           date: prev.currentDate,
           meals: [newMeal],
           totals: updatedTotals,
         };
-        updatedLogs = [...prev.dailyLogs, newLog];
+        updatedLogs = [...prev.dailyLogs, updatedLog];
       }
 
-      // Check achievements after adding meal
+      // Save to Supabase
+      saveToSupabase(updatedLog);
+
       setTimeout(() => checkAchievements(updatedLogs, updatedTotals), 100);
 
       return { ...prev, dailyLogs: updatedLogs };
     });
-  }, [calculateTotals, checkAchievements]);
+  }, [calculateTotals, checkAchievements, saveToSupabase]);
 
-  // Remove meal
   const removeMeal = useCallback((mealId: string) => {
     setState(prev => {
       const updatedLogs = prev.dailyLogs.map(log => {
         if (log.date !== prev.currentDate) return log;
         const updatedMeals = log.meals.filter(m => m.id !== mealId);
-        return { ...log, meals: updatedMeals, totals: calculateTotals(updatedMeals) };
+        const updatedLog = { ...log, meals: updatedMeals, totals: calculateTotals(updatedMeals) };
+        saveToSupabase(updatedLog);
+        return updatedLog;
       });
       return { ...prev, dailyLogs: updatedLogs };
     });
-  }, [calculateTotals]);
+  }, [calculateTotals, saveToSupabase]);
 
-  // Update profile and recalculate goals
-  const updateProfile = useCallback((updates: Partial<UserProfile>) => {
-    setState(prev => {
-      const newProfile = { ...prev.profile, ...updates };
-      const newGoals = calculateMacroGoals(newProfile);
-      return { ...prev, profile: newProfile, goals: newGoals };
-    });
-  }, []);
+  const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
+    const newProfile = { ...state.profile, ...updates };
+    const newGoals = calculateMacroGoals(newProfile);
+    
+    setState(prev => ({ ...prev, profile: newProfile, goals: newGoals }));
 
-  // Set custom goals
+    if (user) {
+      try {
+        await supabase
+          .from('nutrition_profiles')
+          .upsert({
+            user_id: user.id,
+            weight: newProfile.weight,
+            height: newProfile.height,
+            age: newProfile.age,
+            gender: newProfile.gender,
+            activity_level: newProfile.activityLevel,
+            goal: newProfile.goal,
+            goal_calories: newGoals.calories,
+            goal_protein: newGoals.protein,
+            goal_carbs: newGoals.carbs,
+            goal_fat: newGoals.fat,
+          }, { onConflict: 'user_id' });
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      }
+    }
+  }, [state.profile, user]);
+
   const setCustomGoals = useCallback((goals: Partial<MacroGoals>) => {
     setState(prev => ({ ...prev, goals: { ...prev.goals, ...goals } }));
   }, []);
 
-  // Get progress percentages
   const progress = useMemo(() => ({
     calories: Math.min((todayLog.totals.calories / state.goals.calories) * 100, 100),
     protein: Math.min((todayLog.totals.protein / state.goals.protein) * 100, 100),
@@ -368,7 +541,6 @@ export const useNutrition = () => {
     fiber: Math.min((todayLog.totals.fiber / state.goals.fiber) * 100, 100),
   }), [todayLog.totals, state.goals]);
 
-  // Get remaining macros
   const remaining = useMemo(() => ({
     calories: Math.max(state.goals.calories - todayLog.totals.calories, 0),
     protein: Math.max(state.goals.protein - todayLog.totals.protein, 0),
@@ -377,7 +549,6 @@ export const useNutrition = () => {
     fiber: Math.max(state.goals.fiber - todayLog.totals.fiber, 0),
   }), [todayLog.totals, state.goals]);
 
-  // Get weekly data for chart
   const weeklyData = useMemo(() => {
     const days = [];
     for (let i = 6; i >= 0; i--) {
@@ -399,7 +570,6 @@ export const useNutrition = () => {
     return days;
   }, [state.dailyLogs, state.goals.calories]);
 
-  // Get weekly stats
   const weeklyStats = useMemo(() => {
     const weekStart = getWeekStart();
     const weekLogs = state.dailyLogs.filter(log => log.date >= weekStart);
@@ -410,13 +580,11 @@ export const useNutrition = () => {
     const avgCalories = daysLogged > 0 ? Math.round(totalCalories / daysLogged) : 0;
     const avgProtein = daysLogged > 0 ? Math.round(totalProtein / daysLogged) : 0;
     
-    // Days meeting calorie goal
     const daysMetCalorieGoal = weekLogs.filter(log => 
       log.totals.calories >= state.goals.calories * 0.9 && 
       log.totals.calories <= state.goals.calories * 1.1
     ).length;
     
-    // Days meeting protein goal
     const daysMetProteinGoal = weekLogs.filter(log => 
       log.totals.protein >= state.goals.protein
     ).length;
@@ -434,14 +602,12 @@ export const useNutrition = () => {
     };
   }, [state.dailyLogs, state.goals]);
 
-  // Get all logs for history
   const allLogs = useMemo(() => {
     return [...state.dailyLogs].sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
   }, [state.dailyLogs]);
 
-  // Get monthly data
   const monthlyData = useMemo(() => {
     const today = new Date();
     const days = [];
@@ -476,6 +642,8 @@ export const useNutrition = () => {
     monthlyData,
     allLogs,
     achievements: state.achievements,
+    loading: state.loading,
+    synced: state.synced,
     addMeal,
     removeMeal,
     updateProfile,
@@ -483,7 +651,6 @@ export const useNutrition = () => {
   };
 };
 
-// Meal type labels in Portuguese
 export const mealTypeLabels: Record<Meal['type'], string> = {
   breakfast: 'Pequeno-almoço',
   lunch: 'Almoço',
@@ -493,12 +660,11 @@ export const mealTypeLabels: Record<Meal['type'], string> = {
   post_workout: 'Pós-treino',
 };
 
-// Meal type icons
 export const mealTypeIcons: Record<Meal['type'], string> = {
   breakfast: '🌅',
   lunch: '☀️',
   dinner: '🌙',
   snack: '🍎',
-  pre_workout: '💪',
+  pre_workout: '⚡',
   post_workout: '🥤',
 };
