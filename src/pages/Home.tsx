@@ -219,9 +219,27 @@ const Home = () => {
     navigate("/");
   };
 
+  // Light flicker animation state
+  const [isFlickering, setIsFlickering] = useState(false);
+
+  // Trigger flicker every 30 seconds
+  useEffect(() => {
+    const flickerInterval = setInterval(() => {
+      setIsFlickering(true);
+      // Flicker sequence: quick on/off pattern
+      setTimeout(() => setIsFlickering(false), 100);
+      setTimeout(() => setIsFlickering(true), 150);
+      setTimeout(() => setIsFlickering(false), 200);
+      setTimeout(() => setIsFlickering(true), 350);
+      setTimeout(() => setIsFlickering(false), 400);
+    }, 30000);
+
+    return () => clearInterval(flickerInterval);
+  }, []);
+
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-24">
-      {/* Hero Background Image with Parallax */}
+      {/* Hero Background Image with Parallax and Flicker Effect */}
       <div className="absolute inset-x-0 top-0 h-80 overflow-hidden">
         <motion.img 
           src={gymBackground} 
@@ -230,8 +248,13 @@ const Home = () => {
           style={{ 
             y: imageY, 
             scale: imageScale,
-            opacity: imageOpacity 
+            opacity: imageOpacity,
+            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)',
           }}
+          animate={{
+            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)',
+          }}
+          transition={{ duration: 0.05 }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black" />
       </div>

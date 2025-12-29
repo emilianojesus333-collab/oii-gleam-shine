@@ -430,9 +430,29 @@ const Chat = () => {
               >
                 <p className="text-sm leading-relaxed whitespace-pre-line">
                   {message.text || (
-                    <span className="flex items-center gap-2 text-white/40">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      A pensar...
+                    <span className="flex items-center gap-2 text-white/60">
+                      <motion.span 
+                        className="flex items-center gap-1"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            className="h-2 w-2 rounded-full bg-primary"
+                            animate={{
+                              scale: [1, 1.3, 1],
+                              opacity: [0.5, 1, 0.5],
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        ))}
+                      </motion.span>
                     </span>
                   )}
                 </p>
