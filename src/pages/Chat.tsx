@@ -1,10 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,179 +20,13 @@ interface CompletedExercisesData {
   muscleGroups?: string[];
 }
 
-// AI Response generator based on context
-function generateAIResponse(
-  input: string, 
-  stats: ReturnType<typeof getWorkoutStats>,
-  todayExercises: CompletedExercisesData | null
-): string {
-  const lowerInput = input.toLowerCase();
-  
-  // Suggest workout
-  if (lowerInput.includes("sugere") && (lowerInput.includes("treino") || lowerInput.includes("exercício"))) {
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    let suggestion = "Com base no teu perfil, sugiro:\n\n";
-    
-    if (onboardingData) {
-      const data = JSON.parse(onboardingData);
-      const focus = data.focusMuscles || [];
-      
-      if (focus.length > 0) {
-        suggestion += `Foco em ${focus.join(", ")}:\n`;
-        suggestion += "• 4 séries de 8-12 reps no exercício principal\n";
-        suggestion += "• 3 séries de 10-15 reps nos acessórios\n";
-        suggestion += "• Descanso de 60-90s entre séries\n\n";
-      }
-    }
-    
-    suggestion += "Aquecimento: 5-10 min cardio leve\n";
-    suggestion += "Treino: 45-60 min\n";
-    suggestion += "Alongamento: 5-10 min no final";
-    
-    return suggestion;
-  }
-  
-  // Substitute exercise
-  if (lowerInput.includes("substitui") || lowerInput.includes("alternativa") || lowerInput.includes("substituir")) {
-    return "Posso ajudar-te a encontrar alternativas! Diz-me qual exercício queres substituir e porquê (falta equipamento, dor, preferência) e sugiro opções equivalentes que trabalham os mesmos músculos.";
-  }
-  
-  // Nutrition tips
-  if (lowerInput.includes("nutrição") || lowerInput.includes("alimentação") || lowerInput.includes("comer") || lowerInput.includes("dieta")) {
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    let tips = "";
-    
-    if (onboardingData) {
-      const data = JSON.parse(onboardingData);
-      if (data.goal === "Ganhar massa") {
-        tips = "Para ganhar massa:\n\n";
-        tips += "• Superávit calórico de 300-500 kcal\n";
-        tips += "• 1.6-2.2g proteína/kg de peso\n";
-        tips += "• Refeição pós-treino em até 2h\n";
-        tips += "• Carboidratos complexos antes do treino";
-      } else if (data.goal === "Perder peso") {
-        tips = "Para perder peso:\n\n";
-        tips += "• Déficit calórico de 300-500 kcal\n";
-        tips += "• Alta proteína para preservar músculo\n";
-        tips += "• Fibras para saciedade\n";
-        tips += "• Hidratação adequada (água antes das refeições)";
-      } else {
-        tips = "Para manter e tonificar:\n\n";
-        tips += "• Calorias de manutenção\n";
-        tips += "• Proteína adequada (1.4-1.6g/kg)\n";
-        tips += "• Alimentação balanceada\n";
-        tips += "• Consistência é a chave";
-      }
-    } else {
-      tips = "Dicas gerais de nutrição:\n\n";
-      tips += "• Proteína em cada refeição\n";
-      tips += "• Carboidratos antes do treino\n";
-      tips += "• Hidratação constante\n";
-      tips += "• Evita processados";
-    }
-    
-    return tips;
-  }
-  
-  // Sleep/rest tips
-  if (lowerInput.includes("sono") || lowerInput.includes("dormir") || lowerInput.includes("descanso") || lowerInput.includes("descansar")) {
-    return "Para otimizar recuperação e sono:\n\n• 7-9 horas de sono por noite\n• Horário consistente de deitar\n• Evita ecrãs 1h antes de dormir\n• Ambiente escuro e fresco\n• Evita cafeína após 14h\n• Alongamento leve antes de dormir\n\nO sono é quando os músculos recuperam e crescem!";
-  }
-  
-  // Progress/stats questions
-  if (lowerInput.includes("progresso") || lowerInput.includes("estatística") || lowerInput.includes("stats")) {
-    if (stats.totalSessions === 0) {
-      return "Ainda não tens sessões registadas. Começa a marcar exercícios como concluídos na Home e vou acompanhar o teu progresso!";
-    }
-    
-    let response = `Aqui está o teu progresso:\n\n`;
-    response += `• Total de sessões: ${stats.totalSessions}\n`;
-    response += `• Esta semana: ${stats.thisWeekSessions} sessões\n`;
-    response += `• Streak atual: ${stats.currentStreak} dias\n`;
-    response += `• Taxa média de conclusão: ${stats.averageCompletionRate}%\n`;
-    
-    if (stats.mostTrainedMuscles.length > 0) {
-      response += `\nMúsculos mais treinados:\n`;
-      stats.mostTrainedMuscles.slice(0, 3).forEach((m, i) => {
-        response += `${i + 1}. ${m.muscle} (${m.count}x)\n`;
-      });
-    }
-    
-    return response;
-  }
-  
-  // Streak questions
-  if (lowerInput.includes("streak") || lowerInput.includes("consecutivo")) {
-    if (stats.currentStreak > 0) {
-      return `Tens uma streak de ${stats.currentStreak} dias consecutivos! Continua assim para não quebrar o ritmo. Cada dia conta!`;
-    }
-    return "Ainda não tens uma streak ativa. Treina hoje e amanhã para começares uma!";
-  }
-  
-  // Recovery/tired
-  if (lowerInput.includes("dor") || lowerInput.includes("cansado") || lowerInput.includes("cansaço") || lowerInput.includes("recuper")) {
-    const todayCount = todayExercises?.exercises.length || 0;
-    let response = "";
-    
-    if (todayCount > 0) {
-      response = `Depois de ${todayCount} exercícios hoje, é normal sentir alguma fadiga. `;
-    }
-    
-    response += "Recomendo:\n\n";
-    response += "• Hidratação adequada (2-3L de água)\n";
-    response += "• Alongamentos de 10-15 min\n";
-    response += "• Sono de qualidade (7-8h)\n";
-    response += "• Proteína na próxima refeição\n\n";
-    response += "Amanhã vais estar mais forte!";
-    
-    return response;
-  }
-  
-  // What to do next
-  if (lowerInput.includes("próximo") || lowerInput.includes("seguir") || lowerInput.includes("agora") || lowerInput.includes("fazer")) {
-    if (todayExercises && todayExercises.exercises.length > 0) {
-      return `Já completaste ${todayExercises.exercises.length} exercícios hoje! Continua com o próximo da lista, mantendo boa forma e respiração controlada. Se já terminaste tudo, foca na recuperação!`;
-    }
-    return "Começa pelo primeiro exercício da tua lista. Aquecimento de 5-10 min, depois foca na técnica antes de aumentar a carga!";
-  }
-  
-  // Positive feedback
-  if (lowerInput.includes("bem") || lowerInput.includes("ótimo") || lowerInput.includes("bom") || lowerInput.includes("consegui")) {
-    const todayCount = todayExercises?.exercises.length || 0;
-    if (todayCount > 0) {
-      return `Fantástico! Com ${todayCount} exercícios feitos hoje e ${stats.totalSessions} sessões no total, estás a evoluir muito bem!\n\nMantém essa consistência - é ela que traz resultados!`;
-    }
-    return "Fico feliz! A consistência é a chave. Continua assim e os resultados vão aparecer!";
-  }
-  
-  // Muscles trained
-  if (lowerInput.includes("músculo") || lowerInput.includes("treinei") || lowerInput.includes("treino mais")) {
-    if (stats.mostTrainedMuscles.length > 0) {
-      let response = "Análise dos teus treinos:\n\n";
-      stats.mostTrainedMuscles.forEach((m, i) => {
-        response += `${i + 1}. ${m.muscle}: ${m.count} sessões\n`;
-      });
-      
-      if (stats.mostTrainedMuscles.length >= 2) {
-        const top = stats.mostTrainedMuscles[0].count;
-        const second = stats.mostTrainedMuscles[1].count;
-        if (top > second * 2) {
-          response += `\nAtenção: Estás a treinar muito mais ${stats.mostTrainedMuscles[0].muscle}. Considera equilibrar com outros grupos!`;
-        }
-      }
-      
-      return response;
-    }
-    return "Ainda não tenho dados suficientes. Continua a registar os teus treinos e vou analisar os padrões!";
-  }
-  
-  // Default response - simple echo for now (AI will be connected later)
-  return "Recebi a tua mensagem. O chat com IA será implementado em breve!";
-}
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 const Chat = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -205,7 +40,6 @@ const Chat = () => {
     loadConversation,
     deleteConversation,
     clearCurrentConversation,
-    setCurrentConversationId,
   } = useChatHistory();
 
   // Load workout stats
@@ -227,6 +61,23 @@ const Chat = () => {
     return null;
   }, []);
 
+  // Load onboarding data
+  const onboardingData = useMemo(() => {
+    const saved = localStorage.getItem("liftmate_onboarding");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }, []);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // Load conversation or start fresh
   useEffect(() => {
@@ -237,13 +88,152 @@ const Chat = () => {
         return;
       }
     }
-    // Start with empty messages for new conversation
     setMessages([]);
   }, [currentConversationId]);
 
+  const streamChat = async (userMessageText: string, conversationId: string) => {
+    setIsLoading(true);
+    
+    // Prepare messages for API (convert to OpenAI format)
+    const apiMessages = messages.map(m => ({
+      role: m.isUser ? 'user' : 'assistant',
+      content: m.text,
+    }));
+    apiMessages.push({ role: 'user', content: userMessageText });
+
+    // Prepare context
+    const context = {
+      stats: workoutStats,
+      todayExercises: completedExercisesData,
+      onboarding: onboardingData,
+    };
+
+    try {
+      const response = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: apiMessages, context }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 429) {
+          toast.error("Limite de pedidos excedido. Tenta novamente em alguns segundos.");
+        } else {
+          toast.error(errorData.error || "Erro ao comunicar com a IA");
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantContent = "";
+      let streamDone = false;
+
+      // Create initial assistant message
+      const aiMessageId = (Date.now() + 1).toString();
+      const initialAiMessage: ChatMessage = {
+        id: aiMessageId,
+        text: "",
+        isUser: false,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, initialAiMessage]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        // Process line-by-line
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              // Update the last message with new content
+              setMessages(prev => 
+                prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, text: assistantContent } : m
+                )
+              );
+            }
+          } catch {
+            // Incomplete JSON, put it back
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      // Save final message to history
+      if (assistantContent) {
+        const finalAiMessage: ChatMessage = {
+          id: aiMessageId,
+          text: assistantContent,
+          isUser: false,
+          timestamp: Date.now(),
+        };
+        addMessage(conversationId, finalAiMessage);
+      }
+
+    } catch (error) {
+      console.error("Chat error:", error);
+      toast.error("Erro ao comunicar com a IA. Tenta novamente.");
+      // Remove the empty assistant message if there was an error
+      setMessages(prev => prev.filter(m => m.text !== ""));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSend = (text?: string) => {
     const messageText = text || inputValue;
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -256,26 +246,15 @@ const Chat = () => {
     let convId = currentConversationId;
     if (!convId) {
       convId = createConversation(userMessage);
+    } else {
+      addMessage(convId, userMessage);
     }
 
-    addMessage(convId, userMessage);
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue("");
 
-    // Simulate AI response with full context
-    setTimeout(() => {
-      const responseText = generateAIResponse(messageText, workoutStats, completedExercisesData);
-      
-      const aiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        text: responseText,
-        isUser: false,
-        timestamp: Date.now(),
-      };
-      
-      addMessage(convId!, aiResponse);
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
+    // Stream AI response
+    streamChat(messageText, convId);
   };
 
   const handleQuickCommand = (command: string) => {
@@ -302,9 +281,8 @@ const Chat = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
-      {/* Header - ChatGPT style */}
+      {/* Header */}
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-[#0d0d0d]">
-        {/* Left - Back & History */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => navigate(-1)}
@@ -320,17 +298,12 @@ const Chat = () => {
           </button>
         </div>
 
-        {/* Center - Title */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           <h1 className="text-base font-semibold text-white">LiftMate IA</h1>
-          {conversations.length > 0 && (
-            <span className="text-xs text-white/40">{conversations.length}</span>
-          )}
         </div>
 
-        {/* Right - Actions */}
         <div className="flex items-center gap-1">
-          {/* New chat */}
           <button
             onClick={handleNewConversation}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
@@ -338,7 +311,6 @@ const Chat = () => {
             <Plus className="h-5 w-5 text-white" />
           </button>
 
-          {/* Quick commands dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
@@ -364,6 +336,18 @@ const Chat = () => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="flex flex-col gap-4">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
+                <Dumbbell className="h-8 w-8 text-white/40" />
+              </div>
+              <h2 className="mb-2 text-lg font-medium text-white">Olá! Sou o LiftMate IA</h2>
+              <p className="max-w-xs text-sm text-white/60">
+                Pergunta-me sobre treinos, nutrição, recuperação ou o teu progresso!
+              </p>
+            </div>
+          )}
+          
           {messages.map((message) => (
             <motion.div
               key={message.id}
@@ -372,16 +356,24 @@ const Chat = () => {
               className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.isUser
                     ? "bg-white text-[#0d0d0d]"
                     : "bg-[#1a1a1a] text-white border border-white/10"
                 }`}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-line">
+                  {message.text || (
+                    <span className="flex items-center gap-2 text-white/40">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      A pensar...
+                    </span>
+                  )}
+                </p>
               </div>
             </motion.div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
@@ -392,16 +384,21 @@ const Chat = () => {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder="Escreve a tua mensagem..."
-            className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
+            disabled={isLoading}
+            className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
           />
           <button
             onClick={() => handleSend()}
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isLoading}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
           >
-            <Send className="h-5 w-5" />
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Send className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
