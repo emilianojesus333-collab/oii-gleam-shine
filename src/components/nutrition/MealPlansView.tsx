@@ -115,47 +115,53 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                   exit={{ opacity: 0 }}
                   className="space-y-3"
                 >
-                  {mealPlans.map((plan) => {
-                    const config = goalConfig[plan.goal];
-                    const Icon = config.icon;
-                    const isCurrentGoal = plan.goal === currentGoal;
-                    
-                    return (
-                      <motion.button
-                        key={plan.id}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handleSelectPlan(plan)}
-                        className={`w-full p-4 rounded-2xl text-left transition-all border ${
-                          isCurrentGoal 
-                            ? `bg-gradient-to-r ${config.gradient} ${config.border}` 
-                            : 'bg-card/50 border-border/50 hover:bg-card'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-12 h-12 rounded-xl ${config.bg} flex items-center justify-center`}>
-                            <Icon className={`w-6 h-6 ${config.color}`} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-white">{plan.name}</h3>
-                              {isCurrentGoal && (
-                                <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
-                                  Atual
-                                </span>
-                              )}
+                  {mealPlans && mealPlans.length > 0 ? (
+                    mealPlans.map((plan) => {
+                      const config = goalConfig[plan.goal];
+                      const Icon = config.icon;
+                      const isCurrentGoal = plan.goal === currentGoal;
+                      
+                      return (
+                        <motion.button
+                          key={plan.id}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleSelectPlan(plan)}
+                          className={`w-full p-4 rounded-2xl text-left transition-all border ${
+                            isCurrentGoal 
+                              ? `bg-gradient-to-r ${config.gradient} ${config.border}` 
+                              : 'bg-card/50 border-border/50 hover:bg-card'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`w-12 h-12 rounded-xl ${config.bg} flex items-center justify-center`}>
+                              <Icon className={`w-6 h-6 ${config.color}`} />
                             </div>
-                            <p className="text-sm text-gray-400 mt-0.5">{plan.description}</p>
-                            <div className="flex gap-3 mt-2 text-xs text-gray-400">
-                              <span>{plan.calorieRange.min}-{plan.calorieRange.max} kcal</span>
-                              <span>•</span>
-                              <span>{plan.proteinPerKg}g/kg proteína</span>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-white">{plan.name}</h3>
+                                {isCurrentGoal && (
+                                  <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
+                                    Atual
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-400 mt-0.5">{plan.description}</p>
+                              <div className="flex gap-3 mt-2 text-xs text-gray-400">
+                                <span>{plan.calorieRange.min}-{plan.calorieRange.max} kcal</span>
+                                <span>•</span>
+                                <span>{plan.proteinPerKg}g/kg proteína</span>
+                              </div>
                             </div>
+                            <ChevronRight className="w-5 h-5 text-muted-foreground mt-3" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-muted-foreground mt-3" />
-                        </div>
-                      </motion.button>
-                    );
-                  })}
+                        </motion.button>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">Nenhum plano disponível</p>
+                    </div>
+                  )}
 
                   {/* Info card */}
                   <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
