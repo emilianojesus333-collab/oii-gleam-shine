@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock } from 'lucide-react';
+import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload } from 'lucide-react';
 import { useState, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFoods, setSelectedFoods] = useState<FoodDatabaseItem[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
   // Workout sync
@@ -87,6 +88,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
       await analyzeImage(base64);
     };
     reader.readAsDataURL(file);
+    // Reset input value to allow selecting the same file again
+    e.target.value = '';
   };
 
   const analyzeImage = async (imageBase64: string) => {
@@ -331,21 +334,39 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                       exit={{ opacity: 0 }}
                       className="space-y-4"
                     >
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
-                        >
-                          <Camera className="w-10 h-10 text-primary" />
-                          <span className="text-sm text-gray-400">Tirar foto ou escolher imagem</span>
-                      </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            onClick={() => cameraInputRef.current?.click()}
+                            className="aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 transition-colors"
+                          >
+                            <Camera className="w-8 h-8 text-primary" />
+                            <span className="text-xs text-gray-400">Tirar Foto</span>
+                          </button>
+                          <button
+                            onClick={() => galleryInputRef.current?.click()}
+                            className="aspect-video rounded-xl border-2 border-dashed border-pink-500/30 bg-pink-500/5 flex flex-col items-center justify-center gap-2 hover:bg-pink-500/10 transition-colors"
+                          >
+                            <Upload className="w-8 h-8 text-pink-400" />
+                            <span className="text-xs text-gray-400">Galeria</span>
+                          </button>
+                        </div>
+                        {/* Camera input - forces camera on mobile */}
+                        <input
+                          ref={cameraInputRef}
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                        {/* Gallery input - opens file picker */}
+                        <input
+                          ref={galleryInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
 
                         <div className="flex items-center gap-3">
                           <div className="flex-1 h-px bg-white/10" />

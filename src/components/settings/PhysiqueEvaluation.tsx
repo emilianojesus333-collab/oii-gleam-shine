@@ -44,7 +44,8 @@ export const PhysiqueEvaluation = () => {
   const [lastEvaluationDate, setLastEvaluationDate] = useState<Date | null>(null);
   const [daysRemaining, setDaysRemaining] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Load last evaluation date from localStorage
@@ -142,12 +143,20 @@ export const PhysiqueEvaluation = () => {
     }
   };
 
-  const handleUploadClick = () => {
+  const handleCameraClick = () => {
     if (isLocked) {
       toast.error(`Avaliação bloqueada. Disponível em ${daysRemaining} dias.`);
       return;
     }
-    fileInputRef.current?.click();
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryClick = () => {
+    if (isLocked) {
+      toast.error(`Avaliação bloqueada. Disponível em ${daysRemaining} dias.`);
+      return;
+    }
+    galleryInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +164,8 @@ export const PhysiqueEvaluation = () => {
     if (file) {
       handleImageCapture(file);
     }
+    // Reset input value to allow selecting the same file again
+    e.target.value = '';
   };
 
   const viewLastResults = () => {
@@ -205,11 +216,20 @@ export const PhysiqueEvaluation = () => {
           áreas a melhorar e sugestões de treino personalizadas.
         </p>
 
+        {/* Camera input - forces camera on mobile */}
         <input
-          ref={fileInputRef}
+          ref={cameraInputRef}
           type="file"
           accept="image/*"
           capture="environment"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        {/* Gallery input - opens file picker */}
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -272,7 +292,7 @@ export const PhysiqueEvaluation = () => {
           <div className="grid grid-cols-2 gap-3">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={handleUploadClick}
+              onClick={handleCameraClick}
               className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition-all"
             >
               <Camera className="w-6 h-6" />
@@ -280,7 +300,7 @@ export const PhysiqueEvaluation = () => {
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={handleUploadClick}
+              onClick={handleGalleryClick}
               className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-300 hover:bg-pink-500/30 transition-all"
             >
               <Upload className="w-6 h-6" />
