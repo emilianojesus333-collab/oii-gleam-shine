@@ -2,13 +2,14 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, Mic, MicOff, Volume2, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
+import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ interface CompletedExercisesData {
 
 const Chat = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -61,38 +63,6 @@ const Chat = () => {
     stopSpeaking,
   } = useVoiceChat();
 
-  // Load workout stats
-  const workoutStats = useMemo(() => getWorkoutStats(), []);
-
-  // Load completed exercises from localStorage
-  const completedExercisesData = useMemo((): CompletedExercisesData | null => {
-    const saved = localStorage.getItem("liftmate_completed_exercises");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.date === new Date().toDateString() && parsed.exercises.length > 0) {
-          return parsed;
-        }
-      } catch (e) {
-        console.error("Error parsing completed exercises:", e);
-      }
-    }
-    return null;
-  }, []);
-
-  // Load onboarding data
-  const onboardingData = useMemo(() => {
-    const saved = localStorage.getItem("liftmate_onboarding");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  }, []);
-
   // Load AI name
   const aiName = useMemo(() => {
     return localStorage.getItem("liftmate_ai_name") || "LiftMate";
@@ -125,12 +95,9 @@ const Chat = () => {
     }));
     apiMessages.push({ role: 'user', content: userMessageText });
 
-    // Prepare context
-    const context = {
-      stats: workoutStats,
-      todayExercises: completedExercisesData,
-      onboarding: onboardingData,
-    };
+    // Collect full user context
+    const userContext = await collectUserContext(user?.id);
+    const formattedContext = formatContextForAI(userContext);
 
     try {
       // Obter token do utilizador para evitar 401 / Invalid JWT
@@ -151,7 +118,7 @@ const Chat = () => {
             "Content-Type": "application/json",
             ...authHeaders,
           },
-          body: JSON.stringify({ messages: apiMessages, context }),
+          body: JSON.stringify({ messages: apiMessages, context: formattedContext }),
         }
       );
 

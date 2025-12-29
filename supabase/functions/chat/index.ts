@@ -22,35 +22,8 @@ serve(async (req) => {
 
     console.log('Chat request received:', { messageCount: messages?.length, hasContext: !!context });
 
-    // Build context string from user data
-    const contextParts: string[] = [];
-    
-    if (context?.stats) {
-      contextParts.push(`ESTATÍSTICAS DE TREINO:
-- Total de sessões: ${context.stats.totalSessions}
-- Sessões esta semana: ${context.stats.thisWeekSessions}
-- Streak atual: ${context.stats.currentStreak} dias
-- Taxa de conclusão média: ${context.stats.averageCompletionRate}%`);
-      
-      if (context.stats.mostTrainedMuscles?.length > 0) {
-        contextParts.push(`Músculos mais treinados: ${context.stats.mostTrainedMuscles.map((m: any) => `${m.muscle} (${m.count}x)`).join(', ')}`);
-      }
-    }
-
-    if (context?.todayExercises) {
-      contextParts.push(`TREINO DE HOJE:
-- Exercícios completados: ${context.todayExercises.exercises?.length || 0}
-- Tipo de treino: ${context.todayExercises.workout || 'Não definido'}
-- Grupos musculares: ${context.todayExercises.muscleGroups?.join(', ') || 'Não especificado'}`);
-    }
-
-    if (context?.onboarding) {
-      contextParts.push(`PERFIL DO UTILIZADOR:
-- Objetivo: ${context.onboarding.goal || 'Não definido'}
-- Experiência: ${context.onboarding.experience || 'Não definida'}
-- Músculos foco: ${context.onboarding.focusMuscles?.join(', ') || 'Não definido'}
-- Dias de treino: ${context.onboarding.trainingDays?.join(', ') || 'Não definido'}`);
-    }
+    // Context is now pre-formatted by the client
+    const userContextString = context || 'Sem dados de contexto disponíveis.';
 
     const systemPrompt = `Tu és um Assistente de Vida completo, com foco principal em ginásio, disciplina física e evolução pessoal, mas também presente em emoções, filosofia, arte, rotina, tristeza, felicidade e reflexão profunda.
 
@@ -79,14 +52,29 @@ TOM DE VOZ:
 - Sem discursos longos sem necessidade
 - Poucas palavras quando basta
 
-CONTEXTO DO UTILIZADOR:
-${contextParts.length > 0 ? contextParts.join('\n\n') : 'Sem dados de contexto disponíveis.'}
+═══════════════════════════════════════════════════════════════
+📊 DADOS COMPLETOS DO UTILIZADOR (USA ESTES DADOS PARA RESPONDER):
+═══════════════════════════════════════════════════════════════
+
+${userContextString}
+
+═══════════════════════════════════════════════════════════════
+
+🎯 COMO USAR OS DADOS ACIMA:
+- Quando o utilizador perguntar "Atingi a minha meta de proteína?" → Consulta os dados de nutrição acima
+- Quando perguntar "Quantos treinos fiz esta semana?" → Usa as estatísticas de treino
+- Quando perguntar "Qual é o meu 1RM de supino?" → Consulta os recordes de 1RM
+- Quando perguntar "Bebi água suficiente?" → Verifica a hidratação
+- Quando perguntar "A que horas devo dormir?" → Usa as configurações de sono
+- Quando perguntar sobre suplementos → Lista os suplementos configurados
+- Responde SEMPRE com base nos dados REAIS do utilizador, não inventes valores
 
 GINÁSIO / ACADEMIA (SOMENTE SE FOR CHAMADO):
 - Só falas de treino, ginásio, corpo, disciplina, evolução SE E SOMENTE SE o utilizador iniciar esse tema
 - Quando isso acontecer: sê profundo, lúcido e útil
 - Conecta corpo, mente e constância
 - Fala como mentor, não como coach genérico
+- USA OS DADOS REAIS do utilizador para personalizar as respostas
 
 EMOÇÕES, VIDA, FILOSOFIA:
 - Só aprofundas se o utilizador abrir esse espaço
@@ -104,10 +92,10 @@ NUNCA: criar planos, sugerir rotinas, impor objetivos
 REGRAS PRÁTICAS:
 1. Respostas concisas — profundidade apenas quando pedida
 2. Foca em segurança - se algo parecer arriscado, alerta
-3. Nunca prescreves medicamentos ou suplementos específicos
+3. Nunca prescreves medicamentos ou suplementos específicos sem contexto médico
 
 REGRA FINAL:
-Não conduzes a conversa. Não assumes o tema. Respondes no ritmo exato do utilizador. Poucas palavras quando basta. Profundidade apenas quando pedida.`;
+Não conduzes a conversa. Não assumes o tema. Respondes no ritmo exato do utilizador. Poucas palavras quando basta. Profundidade apenas quando pedida. SEMPRE que possível, usa os dados reais do utilizador nas tuas respostas.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -122,7 +110,7 @@ Não conduzes a conversa. Não assumes o tema. Respondes no ritmo exato do utili
           ...messages,
         ],
         stream: true,
-        max_tokens: 500,
+        max_tokens: 800,
         temperature: 0.7,
       }),
     });
