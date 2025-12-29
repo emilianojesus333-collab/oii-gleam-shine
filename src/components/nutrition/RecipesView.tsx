@@ -54,9 +54,9 @@ export const RecipesView = () => {
         </motion.div>
       </SheetTrigger>
 
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl">
+      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10">
         <SheetHeader className="pb-4">
-          <SheetTitle className="flex items-center gap-2">
+          <SheetTitle className="flex items-center gap-2 text-white">
             <ChefHat className="w-5 h-5 text-orange-500" />
             Receitas Fitness
           </SheetTitle>
@@ -120,11 +120,11 @@ export const RecipesView = () => {
 
                   <div className="text-center">
                     <span className="text-5xl">{selectedRecipe.imageEmoji}</span>
-                    <h2 className="text-xl font-bold mt-2">{selectedRecipe.name}</h2>
-                    <p className="text-sm text-muted-foreground">{selectedRecipe.cuisine}</p>
+                    <h2 className="text-xl font-bold mt-2 text-white">{selectedRecipe.name}</h2>
+                    <p className="text-sm text-gray-400">{selectedRecipe.cuisine}</p>
                   </div>
 
-                  <div className="flex justify-center gap-4 text-sm">
+                  <div className="flex justify-center gap-4 text-sm text-gray-300">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {selectedRecipe.prepTime + selectedRecipe.cookTime}min
@@ -138,22 +138,22 @@ export const RecipesView = () => {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 p-3 bg-card rounded-xl">
+                  <div className="grid grid-cols-4 gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
                     <div className="text-center">
                       <p className="text-lg font-bold text-emerald-400">{Math.round(selectedRecipe.totalMacros.calories / selectedRecipe.servings)}</p>
-                      <p className="text-xs text-muted-foreground">kcal</p>
+                      <p className="text-xs text-gray-400">kcal</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-rose-400">{Math.round(selectedRecipe.totalMacros.protein / selectedRecipe.servings)}g</p>
-                      <p className="text-xs text-muted-foreground">Proteína</p>
+                      <p className="text-xs text-gray-400">Proteína</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-amber-400">{Math.round(selectedRecipe.totalMacros.carbs / selectedRecipe.servings)}g</p>
-                      <p className="text-xs text-muted-foreground">Carbs</p>
+                      <p className="text-xs text-gray-400">Carbs</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-sky-400">{Math.round(selectedRecipe.totalMacros.fat / selectedRecipe.servings)}g</p>
-                      <p className="text-xs text-muted-foreground">Gordura</p>
+                      <p className="text-xs text-gray-400">Gordura</p>
                     </div>
                   </div>
 
@@ -164,9 +164,9 @@ export const RecipesView = () => {
                     </TabsList>
                     <TabsContent value="ingredients" className="space-y-2 mt-3">
                       {selectedRecipe.ingredients.map((ing, i) => (
-                        <div key={i} className="flex justify-between p-2 bg-card/50 rounded-lg text-sm">
-                          <span>{ing.name}</span>
-                          <span className="text-muted-foreground">{ing.amount}</span>
+                        <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
+                          <span className="text-white">{ing.name}</span>
+                          <span className="text-gray-400">{ing.amount}</span>
                         </div>
                       ))}
                     </TabsContent>
@@ -176,7 +176,7 @@ export const RecipesView = () => {
                             <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
                               {i + 1}
                           </span>
-                          <p>{step}</p>
+                          <p className="text-gray-300">{step}</p>
                         </div>
                       ))}
                     </TabsContent>
@@ -184,8 +184,8 @@ export const RecipesView = () => {
 
                   {selectedRecipe.tips.length > 0 && (
                     <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                      <p className="font-semibold text-sm mb-2">💡 Dicas</p>
-                      <ul className="text-xs text-muted-foreground space-y-1">
+                      <p className="font-semibold text-sm mb-2 text-white">💡 Dicas</p>
+                      <ul className="text-xs text-gray-400 space-y-1">
                         {selectedRecipe.tips.map((tip, i) => (
                           <li key={i}>• {tip}</li>
                         ))}
@@ -202,13 +202,13 @@ export const RecipesView = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-center gap-3 p-3 bg-card/50 rounded-xl border border-border/50 cursor-pointer hover:bg-card transition-colors"
+                      className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
                     >
                       <span className="text-3xl" onClick={() => setSelectedRecipe(recipe)}>{recipe.imageEmoji}</span>
                       <div className="flex-1 min-w-0" onClick={() => setSelectedRecipe(recipe)}>
-                        <h4 className="font-medium truncate">{recipe.name}</h4>
-                        <p className="text-xs text-muted-foreground">{recipe.cuisine}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <h4 className="font-medium truncate text-white">{recipe.name}</h4>
+                        <p className="text-xs text-gray-400">{recipe.cuisine}</p>
+                        <div className="flex items-center gap-2 mt-1 text-gray-400">
                           <span className="text-xs flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {recipe.prepTime + recipe.cookTime}min
@@ -222,7 +222,7 @@ export const RecipesView = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className={isRecipeFavorite(recipe.id) ? 'text-rose-400' : 'text-muted-foreground hover:text-rose-400'}
+                        className={isRecipeFavorite(recipe.id) ? 'text-rose-400' : 'text-gray-400 hover:text-rose-400'}
                         onClick={() => toggleRecipeFavorite(recipe)}
                       >
                         <Heart className="w-4 h-4" fill={isRecipeFavorite(recipe.id) ? 'currentColor' : 'none'} />

@@ -98,9 +98,9 @@ export const NutritionHistory = ({
         </motion.button>
       </DrawerTrigger>
 
-      <DrawerContent className="max-h-[90vh]">
+      <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10">
         <DrawerHeader>
-          <DrawerTitle className="flex items-center gap-2">
+          <DrawerTitle className="flex items-center gap-2 text-white">
             <TrendingUp className="w-5 h-5" />
             Histórico e Estatísticas
           </DrawerTitle>
@@ -108,13 +108,13 @@ export const NutritionHistory = ({
 
         {/* Tabs */}
         <div className="px-4 mb-4">
-          <div className="flex bg-muted/50 rounded-xl p-1">
+          <div className="flex bg-white/5 rounded-xl p-1">
             <button
               onClick={() => setActiveTab('stats')}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'stats'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-gray-400'
               }`}
             >
               <Target className="w-4 h-4" />
@@ -124,8 +124,8 @@ export const NutritionHistory = ({
               onClick={() => setActiveTab('history')}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'history'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-gray-400'
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -135,8 +135,8 @@ export const NutritionHistory = ({
               onClick={() => setActiveTab('achievements')}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'achievements'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-gray-400'
               }`}
             >
               <Trophy className="w-4 h-4" />
@@ -159,34 +159,34 @@ export const NutritionHistory = ({
                 >
                   {/* Weekly Summary */}
                   <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2 text-white">
                       <Flame className="w-4 h-4 text-orange-500" />
                       Resumo Semanal
                     </h3>
                     
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl bg-background/50">
-                        <p className="text-2xl font-bold">{weeklyStats.daysLogged}/7</p>
-                        <p className="text-xs text-muted-foreground">Dias registados</p>
+                      <div className="p-3 rounded-xl bg-white/5">
+                        <p className="text-2xl font-bold text-white">{weeklyStats.daysLogged}/7</p>
+                        <p className="text-xs text-gray-400">Dias registados</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-background/50">
-                        <p className="text-2xl font-bold">{weeklyStats.avgCalories}</p>
-                        <p className="text-xs text-muted-foreground">Média kcal/dia</p>
+                      <div className="p-3 rounded-xl bg-white/5">
+                        <p className="text-2xl font-bold text-white">{weeklyStats.avgCalories}</p>
+                        <p className="text-xs text-gray-400">Média kcal/dia</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-background/50">
+                      <div className="p-3 rounded-xl bg-white/5">
                         <p className="text-2xl font-bold text-green-500">{weeklyStats.daysMetCalorieGoal}</p>
-                        <p className="text-xs text-muted-foreground">Dias meta calorias</p>
+                        <p className="text-xs text-gray-400">Dias meta calorias</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-background/50">
+                      <div className="p-3 rounded-xl bg-white/5">
                         <p className="text-2xl font-bold text-blue-500">{weeklyStats.daysMetProteinGoal}</p>
-                        <p className="text-xs text-muted-foreground">Dias meta proteína</p>
+                        <p className="text-xs text-gray-400">Dias meta proteína</p>
                       </div>
                     </div>
 
                     {/* Weekly Progress Bars */}
                     <div className="mt-4 space-y-3">
                       <div>
-                        <div className="flex justify-between text-xs mb-1">
+                        <div className="flex justify-between text-xs mb-1 text-gray-300">
                           <span>Calorias semanais</span>
                           <span>{weeklyStats.totalCalories} / {weeklyStats.weeklyCalorieGoal} kcal</span>
                         </div>
@@ -198,7 +198,7 @@ export const NutritionHistory = ({
                         </div>
                       </div>
                       <div>
-                        <div className="flex justify-between text-xs mb-1">
+                        <div className="flex justify-between text-xs mb-1 text-gray-300">
                           <span>Proteína semanal</span>
                           <span>{weeklyStats.totalProtein} / {weeklyStats.weeklyProteinGoal}g</span>
                         </div>
@@ -213,8 +213,8 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Monthly Chart */}
-                  <div className="p-4 rounded-2xl bg-card/50 border border-border/50">
-                    <h3 className="font-semibold mb-3">Últimos 30 Dias</h3>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <h3 className="font-semibold mb-3 text-white">Últimos 30 Dias</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={monthlyData}>
@@ -264,7 +264,7 @@ export const NutritionHistory = ({
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="flex justify-center gap-4 mt-2 text-xs">
+                    <div className="flex justify-center gap-4 mt-2 text-xs text-gray-400">
                       <div className="flex items-center gap-1">
                         <div className="w-3 h-3 rounded-full bg-primary" />
                         <span>Calorias</span>
@@ -277,23 +277,23 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Daily Goals */}
-                  <div className="p-4 rounded-2xl bg-card/50 border border-border/50">
-                    <h3 className="font-semibold mb-3">Metas Diárias</h3>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <h3 className="font-semibold mb-3 text-white">Metas Diárias</h3>
                     <div className="space-y-2">
-                      <div className="flex justify-between p-2 rounded-lg bg-muted/30">
-                        <span className="text-sm">Calorias</span>
-                        <span className="font-semibold">{goals.calories} kcal</span>
+                      <div className="flex justify-between p-2 rounded-lg bg-white/5">
+                        <span className="text-sm text-gray-300">Calorias</span>
+                        <span className="font-semibold text-white">{goals.calories} kcal</span>
                       </div>
-                      <div className="flex justify-between p-2 rounded-lg bg-muted/30">
-                        <span className="text-sm">Proteína</span>
+                      <div className="flex justify-between p-2 rounded-lg bg-white/5">
+                        <span className="text-sm text-gray-300">Proteína</span>
                         <span className="font-semibold text-red-500">{goals.protein}g</span>
                       </div>
-                      <div className="flex justify-between p-2 rounded-lg bg-muted/30">
-                        <span className="text-sm">Carboidratos</span>
+                      <div className="flex justify-between p-2 rounded-lg bg-white/5">
+                        <span className="text-sm text-gray-300">Carboidratos</span>
                         <span className="font-semibold text-yellow-500">{goals.carbs}g</span>
                       </div>
-                      <div className="flex justify-between p-2 rounded-lg bg-muted/30">
-                        <span className="text-sm">Gordura</span>
+                      <div className="flex justify-between p-2 rounded-lg bg-white/5">
+                        <span className="text-sm text-gray-300">Gordura</span>
                         <span className="font-semibold text-blue-500">{goals.fat}g</span>
                       </div>
                     </div>
@@ -311,24 +311,25 @@ export const NutritionHistory = ({
                   className="space-y-4"
                 >
                   {allLogs.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-gray-400">
                       <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
                       <p className="text-sm">Sem registos ainda</p>
                     </div>
                   ) : (
                     <>
                       {/* Date Navigator */}
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-card/50 border border-border/50">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => navigateLog('prev')}
                           disabled={selectedLogIndex >= allLogs.length - 1}
+                          className="text-gray-300"
                         >
                           <ChevronLeft className="w-4 h-4" />
                         </Button>
                         <div className="text-center">
-                          <p className="font-medium text-sm">
+                          <p className="font-medium text-sm text-white">
                             {selectedLog ? formatDate(selectedLog.date) : 'Sem data'}
                           </p>
                         </div>
@@ -337,6 +338,7 @@ export const NutritionHistory = ({
                           size="icon"
                           onClick={() => navigateLog('next')}
                           disabled={selectedLogIndex <= 0}
+                          className="text-gray-300"
                         >
                           <ChevronRight className="w-4 h-4" />
                         </Button>
@@ -348,40 +350,40 @@ export const NutritionHistory = ({
                           <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
                             <div className="grid grid-cols-4 gap-2 text-center">
                               <div>
-                                <p className="text-lg font-bold">{selectedLog.totals.calories}</p>
-                                <p className="text-xs text-muted-foreground">kcal</p>
+                                <p className="text-lg font-bold text-white">{selectedLog.totals.calories}</p>
+                                <p className="text-xs text-gray-400">kcal</p>
                               </div>
                               <div>
                                 <p className="text-lg font-bold text-red-500">{selectedLog.totals.protein}g</p>
-                                <p className="text-xs text-muted-foreground">Proteína</p>
+                                <p className="text-xs text-gray-400">Proteína</p>
                               </div>
                               <div>
                                 <p className="text-lg font-bold text-yellow-500">{selectedLog.totals.carbs}g</p>
-                                <p className="text-xs text-muted-foreground">Carbs</p>
+                                <p className="text-xs text-gray-400">Carbs</p>
                               </div>
                               <div>
                                 <p className="text-lg font-bold text-blue-500">{selectedLog.totals.fat}g</p>
-                                <p className="text-xs text-muted-foreground">Gordura</p>
+                                <p className="text-xs text-gray-400">Gordura</p>
                               </div>
                             </div>
                           </div>
 
                           {/* Meals List */}
                           <div className="space-y-2">
-                            <h4 className="text-sm font-medium">Refeições</h4>
+                            <h4 className="text-sm font-medium text-white">Refeições</h4>
                             {selectedLog.meals.map((meal) => (
                               <div 
                                 key={meal.id}
-                                className="p-3 rounded-xl bg-card/50 border border-border/50"
+                                className="p-3 rounded-xl bg-white/5 border border-white/10"
                               >
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2">
                                     <span>{mealTypeIcons[meal.type]}</span>
-                                    <span className="font-medium text-sm">{mealTypeLabels[meal.type]}</span>
+                                    <span className="font-medium text-sm text-white">{mealTypeLabels[meal.type]}</span>
                                   </div>
-                                  <span className="text-xs text-muted-foreground">{meal.time}</span>
+                                  <span className="text-xs text-gray-400">{meal.time}</span>
                                 </div>
-                                <div className="flex gap-3 text-xs text-muted-foreground">
+                                <div className="flex gap-3 text-xs text-gray-400">
                                   <span>{meal.total.calories} kcal</span>
                                   <span>P: {meal.total.protein}g</span>
                                   <span>C: {meal.total.carbs}g</span>
@@ -389,7 +391,7 @@ export const NutritionHistory = ({
                                 </div>
                                 <div className="mt-2 text-xs">
                                   {meal.foods.map((food, i) => (
-                                    <span key={i} className="text-muted-foreground">
+                                    <span key={i} className="text-gray-500">
                                       {food.name}{i < meal.foods.length - 1 ? ', ' : ''}
                                     </span>
                                   ))}

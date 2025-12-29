@@ -96,9 +96,9 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
         </motion.button>
       </DrawerTrigger>
 
-      <DrawerContent className="max-h-[90vh]">
+      <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10">
         <DrawerHeader>
-          <DrawerTitle className="flex items-center gap-2">
+          <DrawerTitle className="flex items-center gap-2 text-white">
             <Utensils className="w-5 h-5" />
             {selectedPlan ? selectedPlan.name : 'Planos Alimentares'}
           </DrawerTitle>
@@ -137,15 +137,15 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">{plan.name}</h3>
+                              <h3 className="font-semibold text-white">{plan.name}</h3>
                               {isCurrentGoal && (
                                 <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
                                   Atual
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mt-0.5">{plan.description}</p>
-                            <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
+                            <p className="text-sm text-gray-400 mt-0.5">{plan.description}</p>
+                            <div className="flex gap-3 mt-2 text-xs text-gray-400">
                               <span>{plan.calorieRange.min}-{plan.calorieRange.max} kcal</span>
                               <span>•</span>
                               <span>{plan.proteinPerKg}g/kg proteína</span>
