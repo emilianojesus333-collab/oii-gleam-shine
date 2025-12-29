@@ -8,6 +8,7 @@ import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +23,6 @@ interface CompletedExercisesData {
   workout: string | null;
   muscleGroups?: string[];
 }
-
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -134,19 +133,34 @@ const Chat = () => {
     };
 
     try {
-      const response = await fetch(CHAT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ messages: apiMessages, context }),
-      });
+      // Obter token do utilizador para evitar 401 / Invalid JWT
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const authHeaders: Record<string, string> = {};
+      if (session?.access_token) {
+        authHeaders["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+          body: JSON.stringify({ messages: apiMessages, context }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         if (response.status === 429) {
           toast.error("Limite de pedidos excedido. Tenta novamente em alguns segundos.");
+        } else if (response.status === 402) {
+          toast.error("Créditos esgotados. Adiciona mais créditos na área de definições.");
         } else {
           toast.error(errorData.error || "Erro ao comunicar com a IA");
         }
