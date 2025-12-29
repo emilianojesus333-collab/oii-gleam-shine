@@ -7,7 +7,9 @@ import {
   Check,
   Dumbbell,
   Sun,
-  Moon
+  Moon,
+  Bot,
+  Edit3
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -17,6 +19,7 @@ import { ExportData } from "@/components/settings/ExportData";
 import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { useNutrition } from "@/hooks/useNutrition";
+import { Input } from "@/components/ui/input";
 
 const weekDays = [
   "Segunda-feira",
@@ -47,11 +50,14 @@ const Settings = () => {
   const [schedule, setSchedule] = useState<Schedule>({});
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [tempSelection, setTempSelection] = useState<string[]>([]);
+  const [aiName, setAiName] = useState("Liftmate");
+  const [isEditingAiName, setIsEditingAiName] = useState(false);
+  const [tempAiName, setTempAiName] = useState("");
   
   // Get nutrition data for export
   const { allLogs, goals } = useNutrition();
 
-  // Load schedule from localStorage
+  // Load schedule and AI name from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("liftmate_onboarding");
     if (saved) {
@@ -62,7 +68,27 @@ const Settings = () => {
         console.error("Error loading schedule:", e);
       }
     }
+    
+    // Load AI name
+    const savedAiName = localStorage.getItem("liftmate_ai_name");
+    if (savedAiName) {
+      setAiName(savedAiName);
+    }
   }, []);
+
+  const openAiNameEditor = () => {
+    setTempAiName(aiName);
+    setIsEditingAiName(true);
+  };
+
+  const saveAiName = () => {
+    if (tempAiName.trim()) {
+      setAiName(tempAiName.trim());
+      localStorage.setItem("liftmate_ai_name", tempAiName.trim());
+      setIsEditingAiName(false);
+      toast.success("Nome da IA atualizado!");
+    }
+  };
 
   const openDayEditor = (day: string) => {
     const current = schedule[day];
@@ -180,6 +206,34 @@ const Settings = () => {
           transition={{ delay: 0.1 }}
         >
           <UserProfileCard />
+        </motion.div>
+
+        {/* AI Name Editor */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="bg-card rounded-[20px] p-4 border border-border/30"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Nome da IA</h3>
+                <p className="text-xs text-muted-foreground">{aiName}</p>
+              </div>
+            </div>
+            
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={openAiNameEditor}
+              className="p-2.5 rounded-xl bg-muted/30 border border-border/50"
+            >
+              <Edit3 className="w-4 h-4 text-muted-foreground" />
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Compact Calendar Editor */}
@@ -356,6 +410,54 @@ const Settings = () => {
                 Guardar
               </motion.button>
             </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* AI Name Editor Sheet */}
+      <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-xl font-bold">Nome da IA</SheetTitle>
+          </SheetHeader>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
+            
+            <Input
+              value={tempAiName}
+              onChange={(e) => setTempAiName(e.target.value)}
+              placeholder="Ex: Coach, Buddy, Trainer..."
+              className="bg-muted/30 border-border/50"
+              maxLength={20}
+            />
+
+            <div className="flex flex-wrap gap-2">
+              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
+                <motion.button
+                  key={suggestion}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setTempAiName(suggestion)}
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+                    tempAiName === suggestion
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/30 text-muted-foreground border border-border/50"
+                  }`}
+                >
+                  {suggestion}
+                </motion.button>
+              ))}
+            </div>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={saveAiName}
+              disabled={!tempAiName.trim()}
+              className="w-full py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Save className="w-5 h-5" />
+              Guardar
+            </motion.button>
           </div>
         </SheetContent>
       </Sheet>
