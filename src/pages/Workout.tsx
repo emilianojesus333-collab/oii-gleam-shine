@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useTimerNotification } from "@/hooks/useTimerNotification";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Play, 
@@ -89,6 +90,7 @@ interface RestBreakdown {
 }
 
 const Workout = () => {
+  const { settings, isLoading } = useUserSettings();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
@@ -121,20 +123,19 @@ const Workout = () => {
     }
   }, []);
 
-  // Get today's workout from the same source as Home.tsx
+  // Get today's workout from user settings (Supabase)
   const todayWorkout = useMemo(() => {
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    const data = onboardingData ? JSON.parse(onboardingData) : { schedule: {} };
+    const schedule = settings?.onboarding_data?.schedule || {};
     
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
-    const muscleGroups = data.schedule?.[todayName] || null;
+    const muscleGroups = schedule[todayName] || null;
     
     // Format workout display (join muscle groups)
     return muscleGroups 
       ? (Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups)
       : null;
-  }, []);
+  }, [settings]);
 
   // Get muscle groups as array for AI generator
   const todayMuscleGroups = useMemo(() => {
