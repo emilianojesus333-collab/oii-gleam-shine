@@ -7,9 +7,14 @@ import { useSubscription } from "@/hooks/useSubscription";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireSubscription?: boolean;
+  requireOnboarding?: boolean;
 }
 
-const ProtectedRoute = ({ children, requireSubscription = false }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ 
+  children, 
+  requireSubscription = false,
+  requireOnboarding = false 
+}: ProtectedRouteProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { subscribed, isLoading: subscriptionLoading, isTrialing } = useSubscription();
@@ -46,6 +51,14 @@ const ProtectedRoute = ({ children, requireSubscription = false }: ProtectedRout
     return <Navigate to="/auth" replace />;
   }
 
+  // Check if onboarding is required and not completed
+  if (requireOnboarding) {
+    const isOnboarded = localStorage.getItem("liftmate_onboarded");
+    if (!isOnboarded) {
+      return <Navigate to="/onboarding" replace />;
+    }
+  }
+
   // If subscription is required, check subscription status
   if (requireSubscription) {
     // Show loading while checking subscription
@@ -55,6 +68,12 @@ const ProtectedRoute = ({ children, requireSubscription = false }: ProtectedRout
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       );
+    }
+
+    // Also check onboarding for subscription routes
+    const isOnboarded = localStorage.getItem("liftmate_onboarded");
+    if (!isOnboarded) {
+      return <Navigate to="/onboarding" replace />;
     }
 
     // Redirect to paywall if not subscribed and not trialing

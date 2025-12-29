@@ -1,16 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { SplashStep } from "@/components/onboarding/steps/SplashStep";
-import { WelcomeStep } from "@/components/onboarding/steps/WelcomeStep";
+import { supabase } from "@/integrations/supabase/client";
 import { PersonalDataStep } from "@/components/onboarding/steps/PersonalDataStep";
 import { GoalStep } from "@/components/onboarding/steps/GoalStep";
 import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
 import { FocusStep } from "@/components/onboarding/steps/FocusStep";
 import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
-import { AINameStep } from "@/components/onboarding/steps/AINameStep";
 
-type Step = "splash" | "welcome" | "personal" | "goal" | "experience" | "focus" | "calendar" | "ainame";
+type Step = "personal" | "goal" | "experience" | "focus" | "calendar";
 
 interface PersonalData {
   name: string;
@@ -30,7 +28,8 @@ interface OnboardingData {
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<Step>("splash");
+  const [loading, setLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState<Step>("personal");
   const [data, setData] = useState<OnboardingData>({
     personal: {
       name: "",
@@ -45,14 +44,36 @@ const Onboarding = () => {
     schedule: {},
   });
 
+  // Check auth on mount - redirect to /auth if not logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth", { replace: true });
+      } else {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth", { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   const handleComplete = () => {
     // Save onboarding data to localStorage
     localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
     localStorage.setItem("liftmate_onboarded", "true");
-    navigate("/home");
+    // Navigate to processing page instead of home
+    navigate("/processing", { replace: true });
   };
 
-  const stepFlow: Step[] = ["splash", "welcome", "personal", "goal", "experience", "focus", "calendar", "ainame"];
+  const stepFlow: Step[] = ["personal", "goal", "experience", "focus", "calendar"];
 
   const goToNextStep = () => {
     const currentIndex = stepFlow.indexOf(currentStep);
@@ -84,21 +105,17 @@ const Onboarding = () => {
     }));
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <AnimatePresence mode="wait">
-        {currentStep === "splash" && (
-          <SplashStep key="splash" onContinue={goToNextStep} />
-        )}
-
-        {currentStep === "welcome" && (
-          <WelcomeStep 
-            key="welcome" 
-            onContinue={goToNextStep} 
-            onBack={goToPreviousStep}
-          />
-        )}
-
         {currentStep === "personal" && (
           <PersonalDataStep
             key="personal"
@@ -144,14 +161,6 @@ const Onboarding = () => {
             key="calendar"
             schedule={data.schedule}
             onSelectGroups={handleSelectGroups}
-            onContinue={goToNextStep}
-            onBack={goToPreviousStep}
-          />
-        )}
-
-        {currentStep === "ainame" && (
-          <AINameStep
-            key="ainame"
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
