@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useSubscription } from "@/hooks/useSubscription";
 
 interface ProtectedRouteProps {
@@ -15,35 +13,13 @@ const ProtectedRoute = ({
   requireSubscription = false,
   requireOnboarding = false 
 }: ProtectedRouteProps) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, hasCompletedOnboarding, isLoading } = useOnboardingStatus();
   
   // Only check subscription when authenticated
   const { subscribed, isLoading: subscriptionLoading, isTrialing } = useSubscription(isAuthenticated);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setIsAuthenticated(!!session);
-        setLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsAuthenticated(!!session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Show loading while checking auth
-  if (loading) {
+  // Show loading while checking auth or onboarding status
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -52,16 +28,13 @@ const ProtectedRoute = ({
   }
 
   // Redirect to auth if not logged in
-  if (!session) {
+  if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 
   // Check if onboarding is required and not completed
-  if (requireOnboarding) {
-    const isOnboarded = localStorage.getItem("liftmate_onboarded");
-    if (!isOnboarded) {
-      return <Navigate to="/onboarding" replace />;
-    }
+  if (requireOnboarding && !hasCompletedOnboarding) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   // If subscription is required, check subscription status
@@ -80,9 +53,8 @@ const ProtectedRoute = ({
       );
     }
 
-    // Also check onboarding for subscription routes
-    const isOnboarded = localStorage.getItem("liftmate_onboarded");
-    if (!isOnboarded) {
+    // Check onboarding for subscription routes (from database)
+    if (!hasCompletedOnboarding) {
       return <Navigate to="/onboarding" replace />;
     }
 

@@ -7,6 +7,7 @@ import { GoalStep } from "@/components/onboarding/steps/GoalStep";
 import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
 import { FocusStep } from "@/components/onboarding/steps/FocusStep";
 import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
+import { toast } from "sonner";
 
 type Step = "personal" | "goal" | "experience" | "focus" | "calendar";
 
@@ -29,6 +30,8 @@ interface OnboardingData {
 const Onboarding = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<Step>("personal");
   const [data, setData] = useState<OnboardingData>({
     personal: {
@@ -51,6 +54,21 @@ const Onboarding = () => {
       if (!session) {
         navigate("/auth", { replace: true });
       } else {
+        setUserId(session.user.id);
+        
+        // Check if user already completed onboarding
+        const { data: settings } = await supabase
+          .from("user_settings")
+          .select("has_completed_onboarding")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        
+        if (settings?.has_completed_onboarding) {
+          // Already completed onboarding, redirect to home
+          navigate("/home", { replace: true });
+          return;
+        }
+        
         setLoading(false);
       }
     };
@@ -59,18 +77,68 @@ const Onboarding = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth", { replace: true });
+      } else {
+        setUserId(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleComplete = () => {
-    // Save onboarding data to localStorage
-    localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
-    localStorage.setItem("liftmate_onboarded", "true");
-    // Navigate to processing page instead of home
-    navigate("/processing", { replace: true });
+  const handleComplete = async () => {
+    if (!userId || saving) return;
+    
+    setSaving(true);
+    
+    try {
+      // Save onboarding data to localStorage for compatibility
+      localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
+      
+      // Check if user_settings record exists
+      const { data: existingSettings } = await supabase
+        .from("user_settings")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      let updateError;
+
+      if (existingSettings) {
+        // Update existing record
+        const { error } = await supabase
+          .from("user_settings")
+          .update({
+            has_completed_onboarding: true,
+            onboarding_data: JSON.parse(JSON.stringify(data)),
+          })
+          .eq("user_id", userId);
+        updateError = error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from("user_settings")
+          .insert([{
+            user_id: userId,
+            has_completed_onboarding: true,
+            onboarding_data: JSON.parse(JSON.stringify(data)),
+          }]);
+        updateError = error;
+      }
+
+      if (updateError) {
+        console.error("Error updating onboarding status:", updateError);
+        toast.error("Erro ao salvar dados. Tente novamente.");
+        setSaving(false);
+        return;
+      }
+
+      // Navigate to processing page
+      navigate("/processing", { replace: true });
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+      toast.error("Erro ao salvar dados. Tente novamente.");
+      setSaving(false);
+    }
   };
 
   const stepFlow: Step[] = ["personal", "goal", "experience", "focus", "calendar"];

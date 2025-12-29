@@ -231,6 +231,7 @@ export type Database = {
           ai_name: string | null
           alerts_config: Json | null
           created_at: string
+          has_completed_onboarding: boolean
           id: string
           onboarding_data: Json | null
           updated_at: string
@@ -240,6 +241,7 @@ export type Database = {
           ai_name?: string | null
           alerts_config?: Json | null
           created_at?: string
+          has_completed_onboarding?: boolean
           id?: string
           onboarding_data?: Json | null
           updated_at?: string
@@ -249,6 +251,7 @@ export type Database = {
           ai_name?: string | null
           alerts_config?: Json | null
           created_at?: string
+          has_completed_onboarding?: boolean
           id?: string
           onboarding_data?: Json | null
           updated_at?: string

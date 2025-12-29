@@ -1,45 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
+  const { isAuthenticated, hasCompletedOnboarding, isLoading } = useOnboardingStatus();
 
   useEffect(() => {
-    const checkFlow = async () => {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Not logged in -> go to auth
-        navigate("/auth", { replace: true });
-        return;
-      }
+    // Wait until loading is complete
+    if (isLoading) return;
 
-      // Logged in, check if onboarded
-      const isOnboarded = localStorage.getItem("liftmate_onboarded");
-      if (!isOnboarded) {
-        navigate("/onboarding", { replace: true });
-        return;
-      }
+    // Not authenticated -> go to auth
+    if (!isAuthenticated) {
+      navigate("/auth", { replace: true });
+      return;
+    }
 
-      // Onboarded, go to home (ProtectedRoute will handle subscription check)
-      navigate("/home", { replace: true });
-    };
+    // Authenticated but hasn't completed onboarding -> go to onboarding
+    if (!hasCompletedOnboarding) {
+      navigate("/onboarding", { replace: true });
+      return;
+    }
 
-    checkFlow();
-  }, [navigate]);
+    // Authenticated and completed onboarding -> go to home
+    navigate("/home", { replace: true });
+  }, [isLoading, isAuthenticated, hasCompletedOnboarding, navigate]);
 
-  if (checking) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  return null;
+  // Show loading spinner while checking status
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 };
 
 export default Index;
