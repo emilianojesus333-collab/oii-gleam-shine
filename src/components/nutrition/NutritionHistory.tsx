@@ -91,10 +91,9 @@ export const NutritionHistory = ({
       <DrawerTrigger asChild>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card/50 border border-border/50 text-sm font-medium"
+          className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
         >
           <History className="w-4 h-4" />
-          Histórico
         </motion.button>
       </DrawerTrigger>
 
