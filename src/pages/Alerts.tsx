@@ -81,8 +81,9 @@ const Alerts = () => {
   return (
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
-      <div className="absolute inset-x-0 top-0 h-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-black/50 to-black" />
+      <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/25 via-blue-600/10 to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400/15 via-transparent to-transparent" />
       </div>
 
       {/* Header */}
@@ -93,22 +94,22 @@ const Alerts = () => {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1E1E1E]/50 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-600/20 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+              <Bell className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white/70">Alertas</h1>
-              <p className="text-xs text-gray-400/70">O teu assistente de treino</p>
+              <h1 className="text-2xl font-black text-white/80">Alertas</h1>
+              <p className="text-xs text-cyan-400/70">O teu assistente de treino</p>
             </div>
           </div>
           
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#1E1E1E]/50"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30"
           >
-            <Sparkles className="w-3 h-3 text-primary" />
-            <span className="text-xs font-medium text-primary">Pro</span>
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            <span className="text-xs font-medium text-cyan-300">Pro</span>
           </motion.div>
         </div>
       </motion.div>

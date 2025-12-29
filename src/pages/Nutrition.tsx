@@ -10,6 +10,7 @@ import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 import { MealPlansView } from '@/components/nutrition/MealPlansView';
 import { RecipesView } from '@/components/nutrition/RecipesView';
+import { FavoritesView } from '@/components/nutrition/FavoritesView';
 import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
@@ -40,8 +41,9 @@ const Nutrition = () => {
   return (
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
-      <div className="absolute inset-x-0 top-0 h-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-green-500/20 via-black/50 to-black" />
+      <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/25 via-emerald-600/10 to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-400/15 via-transparent to-transparent" />
       </div>
 
       {/* Header */}
@@ -52,12 +54,12 @@ const Nutrition = () => {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1E1E1E]/50 flex items-center justify-center">
-              <Apple className="w-5 h-5 text-green-500" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/20 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white/70">Nutrição</h1>
-              <p className="text-xs text-gray-400/70">
+              <h1 className="text-2xl font-black text-white/80">Nutrição</h1>
+              <p className="text-xs text-emerald-400/70">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -103,6 +105,9 @@ const Nutrition = () => {
         {/* Recipes */}
         <RecipesView />
 
+        {/* Favorites */}
+        <FavoritesView />
+
         {/* AI Scanner button */}
         <FoodScanner onMealAdded={addMeal} />
 
@@ -112,28 +117,28 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+            className="rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/20 p-4 text-center"
           >
-            <p className="text-2xl font-black text-red-400">{remaining.protein}g</p>
-            <p className="text-xs text-gray-400/70 mt-1">Proteína</p>
+            <p className="text-2xl font-black text-rose-400">{remaining.protein}g</p>
+            <p className="text-xs text-rose-300/70 mt-1">Proteína</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+            className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 p-4 text-center"
           >
-            <p className="text-2xl font-black text-yellow-400">{remaining.carbs}g</p>
-            <p className="text-xs text-gray-400/70 mt-1">Carbs</p>
+            <p className="text-2xl font-black text-amber-400">{remaining.carbs}g</p>
+            <p className="text-xs text-amber-300/70 mt-1">Carbs</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+            className="rounded-2xl bg-gradient-to-br from-sky-500/10 to-sky-600/5 border border-sky-500/20 p-4 text-center"
           >
-            <p className="text-2xl font-black text-blue-400">{remaining.fat}g</p>
-            <p className="text-xs text-gray-400/70 mt-1">Gordura</p>
+            <p className="text-2xl font-black text-sky-400">{remaining.fat}g</p>
+            <p className="text-xs text-sky-300/70 mt-1">Gordura</p>
           </motion.div>
         </div>
 
