@@ -185,8 +185,8 @@ function generateAIResponse(
     return "Ainda não tenho dados suficientes. Continua a registar os teus treinos e vou analisar os padrões!";
   }
   
-  // Default response
-  return `Entendi! Com base no teu histórico de ${stats.totalSessions} sessões${stats.currentStreak > 0 ? ` e streak de ${stats.currentStreak} dias` : ""}, estou aqui para te ajudar. Pergunta-me sobre o teu progresso, dicas de recuperação, ou sugestões de treino!`;
+  // Default response - simple echo for now (AI will be connected later)
+  return "Recebi a tua mensagem. O chat com IA será implementado em breve!";
 }
 
 const Chat = () => {

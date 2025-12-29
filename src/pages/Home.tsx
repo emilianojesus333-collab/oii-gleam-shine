@@ -324,17 +324,31 @@ const Home = () => {
           </motion.div>
 
           {todayWorkout && todayWorkout !== "Descanso" && (
-            <motion.button
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              whileTap={{ scale: 0.98 }}
-              whileHover={{ scale: 1.02 }}
-              onClick={() => navigate("/chat")}
-              className="mt-6 w-full rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-all hover:opacity-90"
+              className="mt-6"
             >
-              Iniciar Treino
-            </motion.button>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400/70">Progresso</span>
+                <span className="text-sm font-semibold text-white/70">
+                  {completedExercises.size}/{aiSuggestions.allExercises.length}
+                </span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-[#2A2A2A]/50 overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ 
+                    width: aiSuggestions.allExercises.length > 0 
+                      ? `${(completedExercises.size / aiSuggestions.allExercises.length) * 100}%` 
+                      : "0%" 
+                  }}
+                  transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
+                  className="h-full rounded-full bg-primary"
+                />
+              </div>
+            </motion.div>
           )}
         </motion.div>
 
