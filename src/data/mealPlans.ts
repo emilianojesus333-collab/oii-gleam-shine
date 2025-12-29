@@ -374,6 +374,204 @@ export const bulkPlan: MealPlan = {
   ],
 };
 
+// VEGETARIAN Plan - Plant-based protein sources
+export const vegetarianPlan: MealPlan = {
+  id: 'vegetarian-standard',
+  name: 'Plano Vegetariano',
+  description: 'Alimentação 100% baseada em plantas com proteína completa',
+  goal: 'maintain',
+  calorieRange: { min: 2000, max: 2400 },
+  proteinPerKg: 1.8,
+  tips: [
+    'Combina leguminosas com cereais para proteína completa',
+    'Tofu e tempeh são ótimas fontes de proteína',
+    'Suplementa B12 se necessário',
+    'Varia as fontes de proteína vegetal',
+    'Inclui sementes e frutos secos diariamente',
+  ],
+  days: [
+    {
+      day: 'Dia de Treino',
+      isTrainingDay: true,
+      meals: [
+        {
+          type: 'breakfast',
+          name: 'Pequeno-almoço proteico vegetal',
+          time: '07:30',
+          foods: [getFood('aveia')!, getFood('banana')!, getFood('manteiga-amendoim')!, getFood('leite-meio-gordo')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_morning',
+          name: 'Snack manhã',
+          time: '10:30',
+          foods: [getFood('iogurte-grego')!, getFood('nozes')!, getFood('mirtilos')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'lunch',
+          name: 'Almoço',
+          time: '13:00',
+          foods: [getFood('tofu')!, getFood('tofu')!, getFood('quinoa')!, getFood('broculos')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'pre_workout',
+          name: 'Pré-treino',
+          time: '16:30',
+          foods: [getFood('banana')!, getFood('bolachas-arroz')!, getFood('amendoas')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'post_workout',
+          name: 'Pós-treino',
+          time: '18:30',
+          foods: [getFood('whey-protein')!, getFood('banana')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'dinner',
+          name: 'Jantar',
+          time: '20:00',
+          foods: [getFood('lentilhas')!, getFood('lentilhas')!, getFood('arroz-integral')!, getFood('espinafres')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+      ],
+      totals: { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+    },
+    {
+      day: 'Dia de Descanso',
+      isTrainingDay: false,
+      meals: [
+        {
+          type: 'breakfast',
+          name: 'Pequeno-almoço',
+          time: '08:00',
+          foods: [getFood('ovos')!, getFood('ovos')!, getFood('pao-integral')!, getFood('abacate')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_morning',
+          name: 'Snack manhã',
+          time: '11:00',
+          foods: [getFood('queijo-cottage')!, getFood('maca')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'lunch',
+          name: 'Almoço',
+          time: '13:00',
+          foods: [getFood('grao-bico')!, getFood('grao-bico')!, getFood('quinoa')!, getFood('tomate')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_afternoon',
+          name: 'Snack tarde',
+          time: '16:00',
+          foods: [getFood('iogurte-grego')!, getFood('amendoas')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'dinner',
+          name: 'Jantar',
+          time: '19:30',
+          foods: [getFood('feijao-preto')!, getFood('arroz-branco')!, getFood('couve-flor')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+      ],
+      totals: { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+    },
+  ],
+};
+
+// LOW-CARB Plan - High protein, low carbohydrates for definition
+export const lowCarbPlan: MealPlan = {
+  id: 'lowcarb-standard',
+  name: 'Plano Low-Carb',
+  description: 'Baixo em hidratos para acelerar a queima de gordura',
+  goal: 'cut',
+  calorieRange: { min: 1500, max: 1900 },
+  proteinPerKg: 2.4,
+  tips: [
+    'Mantém carbs abaixo de 100g por dia',
+    'Aumenta gorduras saudáveis para saciedade',
+    'Proteína alta para preservar músculo',
+    'Vegetais verdes à vontade',
+    'Evita açúcares e amidos refinados',
+  ],
+  days: [
+    {
+      day: 'Dia de Treino',
+      isTrainingDay: true,
+      meals: [
+        {
+          type: 'breakfast',
+          name: 'Pequeno-almoço proteico',
+          time: '07:30',
+          foods: [getFood('ovos')!, getFood('ovos')!, getFood('ovos')!, getFood('abacate')!, getFood('espinafres')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_morning',
+          name: 'Snack manhã',
+          time: '10:30',
+          foods: [getFood('queijo-cottage')!, getFood('amendoas')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'lunch',
+          name: 'Almoço',
+          time: '13:00',
+          foods: [getFood('salmao-grelhado')!, getFood('broculos')!, getFood('broculos')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'pre_workout',
+          name: 'Pré-treino',
+          time: '16:30',
+          foods: [getFood('iogurte-grego')!, getFood('nozes')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'post_workout',
+          name: 'Pós-treino',
+          time: '18:30',
+          foods: [getFood('whey-protein')!, getFood('amendoas')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'dinner',
+          name: 'Jantar',
+          time: '20:00',
+          foods: [getFood('frango-grelhado')!, getFood('frango-grelhado')!, getFood('espinafres')!, getFood('couve-flor')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+      ],
+      totals: { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+    },
+    {
+      day: 'Dia de Descanso',
+      isTrainingDay: false,
+      meals: [
+        {
+          type: 'breakfast',
+          name: 'Pequeno-almoço',
+          time: '08:00',
+          foods: [getFood('claras-ovo')!, getFood('ovos')!, getFood('espinafres')!, getFood('queijo-fresco')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_morning',
+          name: 'Snack manhã',
+          time: '11:00',
+          foods: [getFood('iogurte-grego')!, getFood('nozes')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'lunch',
+          name: 'Almoço',
+          time: '13:00',
+          foods: [getFood('bife-vaca')!, getFood('alface')!, getFood('tomate')!, getFood('abacate')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'snack_afternoon',
+          name: 'Snack tarde',
+          time: '16:00',
+          foods: [getFood('queijo-cottage')!, getFood('amendoas')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+        {
+          type: 'dinner',
+          name: 'Jantar',
+          time: '19:30',
+          foods: [getFood('bacalhau-cozido')!, getFood('broculos')!, getFood('feijao-verde')!, getFood('azeite')!].filter(Boolean) as FoodDatabaseItem[],
+        },
+      ],
+      totals: { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+    },
+  ],
+};
+
 // Calculate totals for all plans
 const calculatePlanTotals = (plan: MealPlan): MealPlan => {
   return {
@@ -387,7 +585,9 @@ const calculatePlanTotals = (plan: MealPlan): MealPlan => {
 
 export const mealPlans: MealPlan[] = [
   calculatePlanTotals(cutPlan),
+  calculatePlanTotals(lowCarbPlan),
   calculatePlanTotals(maintainPlan),
+  calculatePlanTotals(vegetarianPlan),
   calculatePlanTotals(bulkPlan),
 ];
 
