@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNotificationSounds } from './useNotificationSounds';
 
 type NotificationPermission = 'default' | 'granted' | 'denied';
+type NotificationSoundType = 'workout' | 'meal' | 'water' | 'supplement' | 'sleep' | 'streak' | 'default';
 
 interface ScheduledNotification {
   id: string;
@@ -8,6 +10,7 @@ interface ScheduledNotification {
   body: string;
   scheduledTime: number;
   tag: string;
+  soundType?: NotificationSoundType;
   timeoutId?: NodeJS.Timeout;
 }
 
@@ -16,6 +19,8 @@ export const usePushNotifications = () => {
   const [isSupported, setIsSupported] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [scheduledNotifications, setScheduledNotifications] = useState<ScheduledNotification[]>([]);
+  
+  const { playSound } = useNotificationSounds();
 
   // Check if notifications are supported
   useEffect(() => {
@@ -58,14 +63,21 @@ export const usePushNotifications = () => {
     }
   }, [isSupported]);
 
-  // Show immediate notification
+  // Show immediate notification with optional sound
   const showNotification = useCallback(async (
     title: string,
-    options?: NotificationOptions & { data?: Record<string, unknown> }
+    options?: NotificationOptions & { data?: Record<string, unknown>; soundType?: NotificationSoundType }
   ) => {
     if (permission !== 'granted') {
       console.warn('Notification permission not granted');
       return;
+    }
+
+    // Play sound based on type
+    if (options?.soundType) {
+      playSound(options.soundType);
+    } else {
+      playSound('default');
     }
 
     try {
@@ -82,15 +94,16 @@ export const usePushNotifications = () => {
     } catch (error) {
       console.error('Error showing notification:', error);
     }
-  }, [permission, swRegistration]);
+  }, [permission, swRegistration, playSound]);
 
-  // Schedule notification for a specific time
+  // Schedule notification for a specific time with sound
   const scheduleNotification = useCallback((
     id: string,
     title: string,
     body: string,
     scheduledTime: Date,
-    tag: string = 'scheduled'
+    tag: string = 'scheduled',
+    soundType?: NotificationSoundType
   ) => {
     if (permission !== 'granted') {
       console.warn('Notification permission not granted');
@@ -109,7 +122,7 @@ export const usePushNotifications = () => {
     cancelNotification(id);
 
     const timeoutId = setTimeout(() => {
-      showNotification(title, { body, tag, data: { id } });
+      showNotification(title, { body, tag, data: { id }, soundType });
       
       // Remove from scheduled list
       setScheduledNotifications(prev => prev.filter(n => n.id !== id));
@@ -121,6 +134,7 @@ export const usePushNotifications = () => {
       body,
       scheduledTime: scheduledTime.getTime(),
       tag,
+      soundType,
       timeoutId,
     };
 
@@ -159,7 +173,8 @@ export const usePushNotifications = () => {
         '💧 Hora de beber água!',
         'Mantém-te hidratado para um melhor desempenho no treino.',
         nextTime,
-        'hydration'
+        'hydration',
+        'water'
       );
     };
 
@@ -197,6 +212,7 @@ export const usePushNotifications = () => {
             `💊 ${name}`,
             `Não te esqueças de tomar ${name}!`,
             scheduledDate,
+            'supplement',
             'supplement'
           );
           break;
@@ -233,6 +249,7 @@ export const usePushNotifications = () => {
       '🏋️ Hora de Treinar!',
       body,
       reminderTime,
+      'workout',
       'workout'
     );
   }, [permission, scheduleNotification]);
@@ -263,6 +280,7 @@ export const usePushNotifications = () => {
       '😴 Hora de Descansar',
       'Dormir bem = mais ganhos! Prepara-te para ir para a cama.',
       reminderTime,
+      'sleep',
       'sleep'
     );
   }, [permission, scheduleNotification]);
@@ -301,6 +319,7 @@ export const usePushNotifications = () => {
         message.title,
         message.body,
         scheduledDate,
+        'meal',
         'meal'
       );
     });
@@ -341,6 +360,7 @@ export const usePushNotifications = () => {
         '💧 Bebe Água!',
         randomMessage,
         scheduledDate,
+        'water',
         'water'
       );
     }

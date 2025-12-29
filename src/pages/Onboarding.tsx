@@ -8,8 +8,9 @@ import { GoalStep } from "@/components/onboarding/steps/GoalStep";
 import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
 import { FocusStep } from "@/components/onboarding/steps/FocusStep";
 import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
+import { AINameStep } from "@/components/onboarding/steps/AINameStep";
 
-type Step = "splash" | "welcome" | "personal" | "goal" | "experience" | "focus" | "calendar";
+type Step = "splash" | "welcome" | "personal" | "goal" | "experience" | "focus" | "calendar" | "ainame";
 
 interface PersonalData {
   name: string;
@@ -51,7 +52,7 @@ const Onboarding = () => {
     navigate("/home");
   };
 
-  const stepFlow: Step[] = ["splash", "welcome", "personal", "goal", "experience", "focus", "calendar"];
+  const stepFlow: Step[] = ["splash", "welcome", "personal", "goal", "experience", "focus", "calendar", "ainame"];
 
   const goToNextStep = () => {
     const currentIndex = stepFlow.indexOf(currentStep);
@@ -143,6 +144,14 @@ const Onboarding = () => {
             key="calendar"
             schedule={data.schedule}
             onSelectGroups={handleSelectGroups}
+            onContinue={goToNextStep}
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "ainame" && (
+          <AINameStep
+            key="ainame"
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />

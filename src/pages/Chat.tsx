@@ -94,6 +94,11 @@ const Chat = () => {
     return null;
   }, []);
 
+  // Load AI name
+  const aiName = useMemo(() => {
+    return localStorage.getItem("liftmate_ai_name") || "LiftMate";
+  }, []);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -331,7 +336,7 @@ const Chat = () => {
 
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          <h1 className="text-base font-semibold text-white">LiftMate IA</h1>
+          <h1 className="text-base font-semibold text-white">{aiName} IA</h1>
         </div>
 
         <div className="flex items-center gap-1">
@@ -388,7 +393,7 @@ const Chat = () => {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
                 <Dumbbell className="h-8 w-8 text-white/40" />
               </div>
-              <h2 className="mb-2 text-lg font-medium text-white">Olá! Sou o LiftMate IA</h2>
+              <h2 className="mb-2 text-lg font-medium text-white">Olá! Sou o {aiName}</h2>
               <p className="max-w-xs text-sm text-white/60">
                 Pergunta-me sobre treinos, nutrição, recuperação ou o teu progresso!
               </p>
