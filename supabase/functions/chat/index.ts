@@ -1,9 +1,16 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CHAT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -13,6 +20,89 @@ serve(async (req) => {
   }
 
   try {
+    logStep("Function started");
+
+    // ============= AUTHENTICATION CHECK =============
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      logStep("No authorization header provided");
+      return new Response(JSON.stringify({ error: 'Não autorizado. Por favor, faz login para usar o chat.' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { persistSession: false } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError || !userData.user) {
+      logStep("Authentication failed", { error: userError?.message });
+      return new Response(JSON.stringify({ error: 'Sessão inválida. Por favor, faz login novamente.' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const user = userData.user;
+    logStep("User authenticated", { userId: user.id, email: user.email });
+
+    // ============= SUBSCRIPTION CHECK =============
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      logStep("STRIPE_SECRET_KEY not configured");
+      return new Response(JSON.stringify({ error: 'Erro de configuração do servidor.' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    
+    // Find Stripe customer by email
+    const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
+    
+    if (customers.data.length === 0) {
+      logStep("No Stripe customer found - no subscription");
+      return new Response(JSON.stringify({ 
+        error: 'Subscrição necessária. Por favor, subscreve para usar o chat com IA.',
+        code: 'SUBSCRIPTION_REQUIRED'
+      }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const customerId = customers.data[0].id;
+    logStep("Stripe customer found", { customerId });
+
+    // Check for active or trialing subscriptions
+    const [activeSubscriptions, trialingSubscriptions] = await Promise.all([
+      stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 }),
+      stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 })
+    ]);
+
+    const hasActiveSubscription = activeSubscriptions.data.length > 0 || trialingSubscriptions.data.length > 0;
+
+    if (!hasActiveSubscription) {
+      logStep("No active subscription found");
+      return new Response(JSON.stringify({ 
+        error: 'A tua subscrição expirou. Por favor, renova para continuar a usar o chat com IA.',
+        code: 'SUBSCRIPTION_EXPIRED'
+      }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    logStep("Active subscription verified");
+
+    // ============= PROCESS CHAT REQUEST =============
     const { messages, context } = await req.json();
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
@@ -20,7 +110,7 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    console.log('Chat request received:', { messageCount: messages?.length, hasContext: !!context });
+    logStep('Chat request received', { messageCount: messages?.length, hasContext: !!context });
 
     // Context is now pre-formatted by the client
     const userContextString = context || 'Sem dados de contexto disponíveis.';
