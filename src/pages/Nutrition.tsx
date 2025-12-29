@@ -38,48 +38,51 @@ const Nutrition = () => {
   }, {} as Record<string, typeof todayLog.meals>);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
+      {/* Hero Background Gradient */}
+      <div className="absolute inset-x-0 top-0 h-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-green-500/20 via-black/50 to-black" />
+      </div>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50"
+        className="relative z-10 px-6 pt-12 pb-4"
       >
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                <Apple className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Nutrição</h1>
-                <p className="text-xs text-muted-foreground">
-                  {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
-                </p>
-              </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#1E1E1E]/50 flex items-center justify-center">
+              <Apple className="w-5 h-5 text-green-500" />
             </div>
-            
-            <div className="flex items-center gap-2">
-              <NutritionHistory
-                allLogs={allLogs}
-                monthlyData={monthlyData}
-                weeklyStats={weeklyStats}
-                goals={goals}
-                achievements={achievements}
-              />
-              <ProfileSetup
-                profile={profile}
-                goals={goals}
-                onUpdateProfile={updateProfile}
-                onSetGoals={setCustomGoals}
-              />
+            <div>
+              <h1 className="text-2xl font-black text-white/70">Nutrição</h1>
+              <p className="text-xs text-gray-400/70">
+                {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
+              </p>
             </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <NutritionHistory
+              allLogs={allLogs}
+              monthlyData={monthlyData}
+              weeklyStats={weeklyStats}
+              goals={goals}
+              achievements={achievements}
+            />
+            <ProfileSetup
+              profile={profile}
+              goals={goals}
+              onUpdateProfile={updateProfile}
+              onSetGoals={setCustomGoals}
+            />
           </div>
         </div>
       </motion.div>
 
       {/* Content */}
-      <div className="px-4 py-6 space-y-6">
+      <div className="relative z-10 px-6 py-4 space-y-5">
         {/* Macro rings */}
         <MacroRings
           goals={goals}
@@ -104,19 +107,34 @@ const Nutrition = () => {
         <FoodScanner onMealAdded={addMeal} />
 
         {/* Quick stats */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
-            <p className="text-lg font-bold text-red-500">{remaining.protein}g</p>
-            <p className="text-xs text-muted-foreground">Proteína restante</p>
-          </div>
-          <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
-            <p className="text-lg font-bold text-yellow-500">{remaining.carbs}g</p>
-            <p className="text-xs text-muted-foreground">Carbs restantes</p>
-          </div>
-          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
-            <p className="text-lg font-bold text-blue-500">{remaining.fat}g</p>
-            <p className="text-xs text-muted-foreground">Gordura restante</p>
-          </div>
+        <div className="grid grid-cols-3 gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+          >
+            <p className="text-2xl font-black text-red-400">{remaining.protein}g</p>
+            <p className="text-xs text-gray-400/70 mt-1">Proteína</p>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+          >
+            <p className="text-2xl font-black text-yellow-400">{remaining.carbs}g</p>
+            <p className="text-xs text-gray-400/70 mt-1">Carbs</p>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-2xl bg-[#1E1E1E]/50 p-4 text-center"
+          >
+            <p className="text-2xl font-black text-blue-400">{remaining.fat}g</p>
+            <p className="text-xs text-gray-400/70 mt-1">Gordura</p>
+          </motion.div>
         </div>
 
         {/* Today's meals */}
@@ -131,11 +149,11 @@ const Nutrition = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-8 text-muted-foreground"
+                className="text-center py-8"
               >
-                <Apple className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Ainda não registaste nenhuma refeição</p>
-                <p className="text-xs">Usa o scanner IA acima para começar!</p>
+                <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                <p className="text-sm text-gray-400/70">Ainda não registaste nenhuma refeição</p>
+                <p className="text-xs text-gray-500/50">Usa o scanner IA acima para começar!</p>
               </motion.div>
             ) : (
               <div className="space-y-3">
@@ -151,25 +169,34 @@ const Nutrition = () => {
         <WeeklyChart data={weeklyData} />
 
         {/* Tips section */}
-        <div className="space-y-2">
-          <h3 className="font-semibold">Dicas para Atletas</h3>
-          <div className="grid gap-2">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/50">
+        <div className="space-y-3">
+          <h3 className="font-semibold text-white/70">Dicas para Atletas</h3>
+          <div className="grid gap-3">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 p-4 rounded-2xl bg-[#1E1E1E]/50"
+            >
               <span className="text-xl">💪</span>
               <div className="flex-1">
-                <p className="text-sm font-medium">Pós-treino</p>
-                <p className="text-xs text-muted-foreground">Proteína + carbs até 2h após treino</p>
+                <p className="text-sm font-medium text-white/70">Pós-treino</p>
+                <p className="text-xs text-gray-400/70">Proteína + carbs até 2h após treino</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/50">
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-3 p-4 rounded-2xl bg-[#1E1E1E]/50"
+            >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium">Proteína distribuída</p>
-                <p className="text-xs text-muted-foreground">20-40g por refeição é ideal</p>
+                <p className="text-sm font-medium text-white/70">Proteína distribuída</p>
+                <p className="text-xs text-gray-400/70">20-40g por refeição é ideal</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </div>
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            </motion.div>
           </div>
         </div>
       </div>

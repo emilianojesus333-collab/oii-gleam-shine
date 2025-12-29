@@ -11,6 +11,7 @@ import { StreakCard } from '@/components/alerts/StreakCard';
 import { QuickTimerCard } from '@/components/alerts/QuickTimerCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
+import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
 
 const Alerts = () => {
   const {
@@ -78,52 +79,55 @@ const Alerts = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
+      {/* Hero Background Gradient */}
+      <div className="absolute inset-x-0 top-0 h-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-black/50 to-black" />
+      </div>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50"
+        className="relative z-10 px-6 pt-12 pb-4"
       >
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Alertas</h1>
-                <p className="text-xs text-muted-foreground">O teu assistente de treino</p>
-              </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#1E1E1E]/50 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-primary" />
             </div>
-            
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-purple-500/20 border border-primary/30"
-            >
-              <Sparkles className="w-3 h-3 text-primary" />
-              <span className="text-xs font-medium text-primary">Pro</span>
-            </motion.div>
+            <div>
+              <h1 className="text-2xl font-black text-white/70">Alertas</h1>
+              <p className="text-xs text-gray-400/70">O teu assistente de treino</p>
+            </div>
           </div>
+          
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#1E1E1E]/50"
+          >
+            <Sparkles className="w-3 h-3 text-primary" />
+            <span className="text-xs font-medium text-primary">Pro</span>
+          </motion.div>
         </div>
       </motion.div>
 
       {/* Content */}
-      <div className="px-4 py-6 space-y-4">
+      <div className="relative z-10 px-6 py-4 space-y-4">
         {/* Notification Permission */}
         <NotificationPermissionCard
           permission={permission}
           isSupported={isSupported}
           onRequestPermission={requestPermission}
         />
-        {/* Streak - Most important, always visible */}
+        {/* Streak */}
         <StreakCard 
           streak={state.streak} 
           onRecordWorkout={recordWorkout} 
         />
 
-        {/* Quick Timer - Easy access */}
+        {/* Quick Timer */}
         <QuickTimerCard
           timers={state.quickTimers}
           activeTimer={activeQuickTimer}
@@ -131,6 +135,9 @@ const Alerts = () => {
           onStart={startQuickTimer}
           onStop={stopQuickTimer}
         />
+
+        {/* Meal & Water Notifications - NEW */}
+        <MealNotificationCard />
 
         {/* Hydration */}
         <HydrationCard
