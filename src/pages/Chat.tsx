@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2 } from "lucide-react";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { motion } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
+import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -41,6 +42,17 @@ const Chat = () => {
     deleteConversation,
     clearCurrentConversation,
   } = useChatHistory();
+
+  const {
+    isRecording,
+    isTranscribing,
+    isSpeaking,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+    speakText,
+    stopSpeaking,
+  } = useVoiceChat();
 
   // Load workout stats
   const workoutStats = useMemo(() => getWorkoutStats(), []);
@@ -370,6 +382,26 @@ const Chat = () => {
                     </span>
                   )}
                 </p>
+                {/* Voice button for AI messages */}
+                {!message.isUser && message.text && (
+                  <button
+                    onClick={() => speakText(message.text)}
+                    className="mt-2 flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition-colors"
+                    disabled={isTranscribing}
+                  >
+                    {isSpeaking ? (
+                      <>
+                        <VolumeX className="h-3.5 w-3.5" />
+                        <span>Parar</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="h-3.5 w-3.5" />
+                        <span>Ouvir</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -379,19 +411,60 @@ const Chat = () => {
 
       {/* Input */}
       <div className="border-t border-white/10 p-4 pb-8 safe-area-bottom bg-[#0d0d0d]">
-        <div className="flex items-center gap-3">
+        {/* Recording indicator */}
+        {isRecording && (
+          <div className="mb-3 flex items-center justify-center gap-2 text-red-400">
+            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-sm">A gravar... Toca para parar</span>
+          </div>
+        )}
+        {isTranscribing && (
+          <div className="mb-3 flex items-center justify-center gap-2 text-white/60">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">A transcrever...</span>
+          </div>
+        )}
+        
+        <div className="flex items-center gap-2">
+          {/* Voice recording button */}
+          <button
+            onClick={async () => {
+              if (isRecording) {
+                const text = await stopRecording();
+                if (text) {
+                  setInputValue(text);
+                }
+              } else {
+                startRecording();
+              }
+            }}
+            disabled={isLoading || isTranscribing}
+            className={`flex h-12 w-12 items-center justify-center rounded-full transition-all ${
+              isRecording 
+                ? "bg-red-500 text-white animate-pulse" 
+                : "bg-[#1a1a1a] text-white/60 hover:text-white border border-white/10"
+            } disabled:opacity-50`}
+          >
+            {isRecording ? (
+              <MicOff className="h-5 w-5" />
+            ) : (
+              <Mic className="h-5 w-5" />
+            )}
+          </button>
+          
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder="Escreve a tua mensagem..."
-            disabled={isLoading}
+            placeholder={isRecording ? "A ouvir..." : "Escreve ou grava..."}
+            disabled={isLoading || isRecording}
             className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
           />
+          
           <button
             onClick={() => handleSend()}
-            disabled={!inputValue.trim() || isLoading}
+            disabled={!inputValue.trim() || isLoading || isRecording}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {isLoading ? (
