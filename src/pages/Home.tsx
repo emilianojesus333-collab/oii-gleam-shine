@@ -332,9 +332,13 @@ const Home = () => {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-400/70">Progresso</span>
-                <span className="text-sm font-semibold text-white/70">
-                  {completedExercises.size}/{aiSuggestions.allExercises.length}
-                </span>
+                <button
+                  onClick={() => setShowExercises(true)}
+                  className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
+                >
+                  <span className="font-semibold">{completedExercises.size}/{aiSuggestions.allExercises.length}</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
               <div className="h-2 w-full rounded-full bg-[#2A2A2A]/50 overflow-hidden">
                 <motion.div 
