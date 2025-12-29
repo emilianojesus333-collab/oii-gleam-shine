@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ExportData } from "@/components/settings/ExportData";
-import { PhysiqueEvaluation } from "@/components/settings/PhysiqueEvaluation";
+import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { useNutrition } from "@/hooks/useNutrition";
 
 const weekDays = [
@@ -232,13 +232,13 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Physique Evaluation */}
+        {/* AI Features Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <PhysiqueEvaluation />
+          <AIFeaturesCarousel />
         </motion.div>
 
         {/* Export Data */}
