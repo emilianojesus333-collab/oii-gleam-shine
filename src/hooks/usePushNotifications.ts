@@ -267,6 +267,85 @@ export const usePushNotifications = () => {
     );
   }, [permission, scheduleNotification]);
 
+  // Schedule meal reminder (repeating based on meal times)
+  const scheduleMealReminders = useCallback((mealTimes: { type: string; time: string }[]) => {
+    if (permission !== 'granted') return;
+
+    const mealMessages: Record<string, { title: string; body: string }> = {
+      breakfast: { title: '🍳 Hora do Pequeno-Almoço!', body: 'Começa o dia com energia. Registra o teu pequeno-almoço!' },
+      morning_snack: { title: '🍎 Lanche da Manhã', body: 'Um snack saudável mantém o metabolismo ativo.' },
+      lunch: { title: '🍽️ Hora do Almoço!', body: 'Refeição principal do dia. Não te esqueças de registar!' },
+      afternoon_snack: { title: '🥜 Lanche da Tarde', body: 'Mantém a energia até ao jantar. Regista o teu lanche!' },
+      dinner: { title: '🌙 Hora do Jantar!', body: 'Última refeição do dia. Regista para completar os teus macros!' },
+      pre_workout: { title: '⚡ Refeição Pré-Treino', body: 'Abastece-te de energia para o treino!' },
+      post_workout: { title: '💪 Refeição Pós-Treino', body: 'Recupera os músculos! Proteína + carbs agora.' },
+    };
+
+    mealTimes.forEach(({ type, time }) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      const now = new Date();
+      const scheduledDate = new Date(now);
+      scheduledDate.setHours(hours, minutes, 0, 0);
+      
+      if (scheduledDate <= now) {
+        scheduledDate.setDate(scheduledDate.getDate() + 1);
+      }
+
+      const message = mealMessages[type] || { 
+        title: '🍽️ Hora de Comer!', 
+        body: 'Não te esqueças de registar a tua refeição.' 
+      };
+
+      scheduleNotification(
+        `meal-${type}-${scheduledDate.getTime()}`,
+        message.title,
+        message.body,
+        scheduledDate,
+        'meal'
+      );
+    });
+  }, [permission, scheduleNotification]);
+
+  // Schedule water/hydration reminders throughout the day
+  const scheduleWaterReminders = useCallback((
+    startTime: string = '08:00',
+    endTime: string = '22:00',
+    intervalHours: number = 2
+  ) => {
+    if (permission !== 'granted') return;
+
+    const waterMessages = [
+      '💧 Hora de hidratar! Bebe um copo de água.',
+      '💦 Mantém-te hidratado! Bebe água agora.',
+      '🚰 Já bebeste água? O corpo precisa de hidratação!',
+      '💧 Beber água = mais energia e melhor recuperação!',
+      '💦 Pausa para água! Os músculos agradecem.',
+    ];
+
+    const [startHour] = startTime.split(':').map(Number);
+    const [endHour] = endTime.split(':').map(Number);
+    const now = new Date();
+
+    for (let hour = startHour; hour <= endHour; hour += intervalHours) {
+      const scheduledDate = new Date(now);
+      scheduledDate.setHours(hour, 0, 0, 0);
+      
+      if (scheduledDate <= now) {
+        scheduledDate.setDate(scheduledDate.getDate() + 1);
+      }
+
+      const randomMessage = waterMessages[Math.floor(Math.random() * waterMessages.length)];
+
+      scheduleNotification(
+        `water-${hour}-${scheduledDate.toDateString()}`,
+        '💧 Bebe Água!',
+        randomMessage,
+        scheduledDate,
+        'water'
+      );
+    }
+  }, [permission, scheduleNotification]);
+
   return {
     permission,
     isSupported,
@@ -279,6 +358,8 @@ export const usePushNotifications = () => {
     scheduleSupplementReminder,
     scheduleWorkoutReminder,
     scheduleSleepReminder,
+    scheduleMealReminders,
+    scheduleWaterReminders,
     scheduledNotifications,
   };
 };
