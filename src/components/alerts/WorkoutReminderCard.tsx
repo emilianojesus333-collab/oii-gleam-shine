@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { Dumbbell, Settings2, MessageSquare, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { Dumbbell, Settings2, MessageSquare, Clock, CalendarClock } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { WorkoutReminder } from '@/hooks/useAlerts';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,9 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface WorkoutReminderCardProps {
   settings: WorkoutReminder;
@@ -27,7 +30,43 @@ const motivationalQuotes = [
 
 export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [workoutTime, setWorkoutTime] = useState(() => {
+    const saved = localStorage.getItem('liftmate_workout_time');
+    return saved || '18:00';
+  });
   const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+  
+  const { permission, scheduleWorkoutReminder, cancelNotification } = usePushNotifications();
+
+  // Schedule workout notification when settings change
+  useEffect(() => {
+    if (permission !== 'granted' || !settings.enabled) {
+      return;
+    }
+
+    // Parse workout time and create Date for today/tomorrow
+    const [hours, minutes] = workoutTime.split(':').map(Number);
+    const now = new Date();
+    const workoutDate = new Date(now);
+    workoutDate.setHours(hours, minutes, 0, 0);
+    
+    // If workout time passed today, schedule for tomorrow
+    if (workoutDate <= now) {
+      workoutDate.setDate(workoutDate.getDate() + 1);
+    }
+
+    // Schedule the notification
+    scheduleWorkoutReminder(workoutDate, settings.minutesBefore, settings.motivationalMessage);
+
+    // Save workout time
+    localStorage.setItem('liftmate_workout_time', workoutTime);
+  }, [settings.enabled, settings.minutesBefore, settings.motivationalMessage, workoutTime, permission, scheduleWorkoutReminder]);
+
+  const handleTimeChange = (time: string) => {
+    setWorkoutTime(time);
+  };
+
+  const isDisabled = permission !== 'granted';
 
   return (
     <motion.div
@@ -70,6 +109,20 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                 </div>
                 
                 <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CalendarClock className="w-4 h-4 text-muted-foreground" />
+                    <Label className="text-sm font-medium">Hora do treino</Label>
+                  </div>
+                  <Input
+                    type="time"
+                    value={workoutTime}
+                    onChange={(e) => handleTimeChange(e.target.value)}
+                    className="w-full bg-background/50"
+                    disabled={isDisabled}
+                  />
+                </div>
+
+                <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Avisar antes</span>
                     <span className="text-sm font-medium">{settings.minutesBefore} min</span>
@@ -80,6 +133,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                     min={15}
                     max={120}
                     step={15}
+                    disabled={isDisabled}
                   />
                 </div>
 
@@ -91,8 +145,15 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                   <Switch
                     checked={settings.motivationalMessage}
                     onCheckedChange={(motivationalMessage) => onUpdate({ motivationalMessage })}
+                    disabled={isDisabled}
                   />
                 </div>
+
+                {isDisabled && (
+                  <p className="text-xs text-amber-400/80 text-center pt-2">
+                    Ativa as notificações primeiro para usar lembretes
+                  </p>
+                )}
               </div>
             </DrawerContent>
           </Drawer>
@@ -100,6 +161,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
           <Switch
             checked={settings.enabled}
             onCheckedChange={(enabled) => onUpdate({ enabled })}
+            disabled={isDisabled}
           />
         </div>
       </div>
