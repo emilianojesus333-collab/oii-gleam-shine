@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Check, Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,7 +17,8 @@ const benefits = [
 ];
 
 const Paywall = () => {
-  const { createCheckout, isLoading } = useSubscription();
+  const navigate = useNavigate();
+  const { createCheckout } = useSubscription();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
@@ -35,6 +37,11 @@ const Paywall = () => {
     }
   };
 
+  const handleSkip = () => {
+    localStorage.setItem("liftmate_dev_skip_subscription", "true");
+    navigate("/home", { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background effects */}
@@ -44,7 +51,10 @@ const Paywall = () => {
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col min-h-screen">
         {/* Skip Button */}
         <button
-          onClick={() => window.location.href = "/home"}
+          type="button"
+          onClick={handleSkip}
+          aria-label="Pular subscrição"
+          title="Pular subscrição"
           className="absolute top-4 right-4 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors z-20"
         >
           <X className="w-5 h-5 text-muted-foreground" />
@@ -191,10 +201,11 @@ const Paywall = () => {
           
           {/* Skip Button - Dev mode */}
           <button
-            onClick={() => window.location.href = "/home"}
+            type="button"
+            onClick={handleSkip}
             className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-2"
           >
-            Pular por agora (dev)
+            Continuar sem subscrição (dev)
           </button>
         </motion.div>
       </div>
