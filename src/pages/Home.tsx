@@ -15,6 +15,7 @@ import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, typ
 import { saveWorkoutSession } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
+import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -465,6 +466,9 @@ const Home = () => {
             />
           </div>
         </motion.div>
+
+        {/* AI Insights Widget */}
+        <AIInsightsWidget />
 
         {/* Favorites Widget */}
         <FavoritesWidget />
