@@ -20,6 +20,7 @@ import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
 import { toast } from "sonner";
 import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -90,6 +91,7 @@ interface RestBreakdown {
 }
 
 const Workout = () => {
+  const { t } = useLanguage();
   const { settings, isLoading } = useUserSettings();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
   const [selectedExercise, setSelectedExercise] = useState("");
@@ -280,8 +282,8 @@ const Workout = () => {
             <Dumbbell className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white/70">
-              {isRestDay ? "Dia de Descanso" : todayWorkout}
+          <h1 className="text-xl font-bold text-white/70">
+              {isRestDay ? t("workout.restDay") : todayWorkout}
             </h1>
             <p className="text-sm text-gray-400/70">
               {weekDaysMap[new Date().getDay()]}
@@ -299,9 +301,9 @@ const Workout = () => {
           <div className="w-20 h-20 rounded-full bg-[#1E1E1E]/50 flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-gray-400/70" />
           </div>
-          <h3 className="text-xl font-semibold text-white/70 mb-2">Recuperação Ativa</h3>
+          <h3 className="text-xl font-semibold text-white/70 mb-2">{t("workout.activeRecovery")}</h3>
           <p className="text-gray-400/70 max-w-xs mx-auto">
-            O descanso é tão importante quanto o treino. Aproveita para recuperar!
+            {t("workout.restImportant")}
           </p>
         </motion.div>
       ) : (
@@ -314,7 +316,7 @@ const Workout = () => {
             className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
           >
             <span className="text-sm font-medium text-gray-400/70 mb-4 block">
-              Tipo de Treino
+              {t("workout.trainingType")}
             </span>
             <div className="flex gap-2">
               {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
@@ -377,7 +379,7 @@ const Workout = () => {
               className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-400/70">Exercícios Guardados Hoje</span>
+                <span className="text-sm font-medium text-gray-400/70">{t("workout.savedExercisesToday")}</span>
                 <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
                   {savedExercises.length}
                 </span>
@@ -416,7 +418,7 @@ const Workout = () => {
             className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-gray-400/70">Cálculo do Descanso</span>
+              <span className="text-sm font-medium text-gray-400/70">{t("workout.restCalculation")}</span>
               <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
                 {restBreakdown.repsCategory}
               </span>
@@ -427,7 +429,7 @@ const Workout = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-gray-500" />
-                  <span className="text-sm text-gray-400/70">Tempo base</span>
+                  <span className="text-sm text-gray-400/70">{t("workout.baseTime")}</span>
                 </div>
                 <span className="text-sm font-medium text-white/70">{restBreakdown.base}s</span>
               </div>
@@ -436,7 +438,7 @@ const Workout = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="text-sm text-gray-400/70">Peso ({weight}kg)</span>
+                  <span className="text-sm text-gray-400/70">{t("workout.weight")} ({weight}kg)</span>
                 </div>
                 <span className={`text-sm font-medium ${restBreakdown.weightBonus > 0 ? "text-primary" : "text-gray-400/70"}`}>
                   +{restBreakdown.weightBonus}s
@@ -447,7 +449,7 @@ const Workout = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${restBreakdown.repsAdjustment >= 0 ? "bg-amber-500" : "bg-green-500"}`} />
-                  <span className="text-sm text-gray-400/70">Repetições ({reps})</span>
+                  <span className="text-sm text-gray-400/70">{t("workout.reps")} ({reps})</span>
                 </div>
                 <span className={`text-sm font-medium ${restBreakdown.repsAdjustment > 0 ? "text-amber-500" : restBreakdown.repsAdjustment < 0 ? "text-green-500" : "text-gray-400/70"}`}>
                   {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
@@ -459,7 +461,7 @@ const Workout = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-400" />
-                    <span className="text-sm text-gray-400/70">Séries altas ({sets})</span>
+                    <span className="text-sm text-gray-400/70">{t("workout.highSets")} ({sets})</span>
                   </div>
                   <span className="text-sm font-medium text-blue-400">+{restBreakdown.setsBonus}s</span>
                 </div>
@@ -470,7 +472,7 @@ const Workout = () => {
               
               {/* Total */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-white/70">Total recomendado</span>
+                <span className="text-sm font-semibold text-white/70">{t("workout.totalRecommended")}</span>
                 <span className="text-lg font-bold text-primary">{restTime}s</span>
               </div>
             </div>
@@ -484,7 +486,7 @@ const Workout = () => {
             className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20"
           >
             <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
-              Timer de Descanso
+              {t("workout.restTimer")}
             </span>
             
             {/* Timer Display */}
