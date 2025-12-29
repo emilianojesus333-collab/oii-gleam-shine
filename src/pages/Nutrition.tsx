@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, Apple, ChevronRight } from 'lucide-react';
+import { Utensils, Apple, ChevronRight, BookOpen, History } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { useNutrition, mealTypeLabels, mealTypeIcons } from '@/hooks/useNutrition';
 import { MacroRings } from '@/components/nutrition/MacroRings';
@@ -11,6 +11,7 @@ import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 import { MealPlansView } from '@/components/nutrition/MealPlansView';
 import { RecipesView } from '@/components/nutrition/RecipesView';
 import { FavoritesView } from '@/components/nutrition/FavoritesView';
+import { NutritionCarousel } from '@/components/nutrition/NutritionCarousel';
 import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
@@ -65,7 +66,8 @@ const Nutrition = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          {/* Minimalist action buttons */}
+          <div className="flex items-center gap-1">
             <NutritionHistory
               allLogs={allLogs}
               monthlyData={monthlyData}
@@ -92,21 +94,19 @@ const Nutrition = () => {
           progress={progress}
         />
 
-        {/* Meal Plans */}
-        <MealPlansView 
-          currentGoal={profile.goal} 
-          onApplyPlan={(plan: MealPlan) => {
-            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
-            updateProfile({ goal: plan.goal });
-            setCustomGoals({ calories: avgCalories });
-          }}
-        />
-
-        {/* Recipes */}
-        <RecipesView />
-
-        {/* Favorites */}
-        <FavoritesView />
+        {/* Carousel: Planos & Receitas */}
+        <NutritionCarousel title="Planos & Receitas">
+          <MealPlansView 
+            currentGoal={profile.goal} 
+            onApplyPlan={(plan: MealPlan) => {
+              const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
+              updateProfile({ goal: plan.goal });
+              setCustomGoals({ calories: avgCalories });
+            }}
+          />
+          <RecipesView />
+          <FavoritesView />
+        </NutritionCarousel>
 
         {/* AI Scanner button */}
         <FoodScanner onMealAdded={addMeal} />
