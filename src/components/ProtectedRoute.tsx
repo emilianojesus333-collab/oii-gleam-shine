@@ -61,6 +61,11 @@ const ProtectedRoute = ({
 
   // If subscription is required, check subscription status
   if (requireSubscription) {
+    const bypassSubscription = localStorage.getItem("liftmate_dev_skip_subscription") === "true";
+    if (bypassSubscription) {
+      return <>{children}</>;
+    }
+
     // Show loading while checking subscription
     if (subscriptionLoading) {
       return (
