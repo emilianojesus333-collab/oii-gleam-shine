@@ -13,6 +13,11 @@ export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Hide BottomNav on Chat page to not block keyboard
+  if (location.pathname === '/chat') {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md">
       <motion.div
