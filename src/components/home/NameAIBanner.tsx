@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, X, ChevronRight } from "lucide-react";
+import { Sparkles, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const NameAIBanner = () => {
@@ -50,15 +50,15 @@ export const NameAIBanner = () => {
 
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 shrink-0">
-              <Bot className="h-6 w-6 text-primary" />
+              <Sparkles className="h-6 w-6 text-primary" />
             </div>
             
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-foreground mb-1">
-                Dá um nome ao teu Chat! 🤖
+                Dá um nome ao teu Chat!
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Personaliza a tua experiência dando um nome ao assistente de IA.
+                Personaliza a tua experiência dando um nome ao assistente.
               </p>
               
               <Button

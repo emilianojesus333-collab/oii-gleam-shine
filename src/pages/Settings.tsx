@@ -8,10 +8,11 @@ import {
   Dumbbell,
   Sun,
   Moon,
-  Bot,
+  Sparkles,
   Edit3,
   CreditCard,
-  ExternalLink
+  ExternalLink,
+  LogOut
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import { useNutrition } from "@/hooks/useNutrition";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Input } from "@/components/ui/input";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { supabase } from "@/integrations/supabase/client";
 
 const weekDays = [
   "Segunda-feira",
@@ -226,10 +228,10 @@ const Settings = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Nome da IA</h3>
+                <h3 className="font-semibold text-foreground">Nome do assistente</h3>
                 <p className="text-xs text-muted-foreground">{aiName}</p>
               </div>
             </div>
@@ -416,6 +418,43 @@ const Settings = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Logout Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-card rounded-[20px] p-4 border border-destructive/30"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+                <LogOut className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Terminar sessão</h3>
+                <p className="text-xs text-muted-foreground">Sair da conta</p>
+              </div>
+            </div>
+            
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={async () => {
+                try {
+                  await supabase.auth.signOut();
+                  localStorage.removeItem("liftmate_dev_skip_subscription");
+                  toast.success("Sessão terminada");
+                  navigate("/auth");
+                } catch (error) {
+                  toast.error("Erro ao terminar sessão");
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm"
+            >
+              Sair
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
 
       {/* Day Editor Sheet */}
@@ -474,7 +513,7 @@ const Settings = () => {
       <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">Nome da IA</SheetTitle>
+            <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
           </SheetHeader>
           
           <div className="space-y-4">

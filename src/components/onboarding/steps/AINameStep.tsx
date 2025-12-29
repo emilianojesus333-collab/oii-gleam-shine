@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { OnboardingLayout } from "../OnboardingLayout";
 import { Input } from "@/components/ui/input";
-import { Bot, Sparkles, Wand2 } from "lucide-react";
+import { Sparkles, Wand2, MessageCircle } from "lucide-react";
 
 interface AINameStepProps {
   onContinue: () => void;
@@ -51,7 +51,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-2xl font-bold text-white">Dá um nome à tua IA</h1>
+          <h1 className="text-2xl font-bold text-white">Dá um nome ao teu assistente</h1>
           <p className="text-white/60 text-sm">Personaliza o teu assistente de treino</p>
         </motion.div>
 
@@ -63,7 +63,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           className="relative"
         >
           <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/30">
-            <Bot className="w-14 h-14 text-primary" />
+            <MessageCircle className="w-14 h-14 text-primary" />
           </div>
           <motion.div
             initial={{ scale: 0 }}
@@ -135,7 +135,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-primary" />
+                <MessageCircle className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="font-medium text-white">
