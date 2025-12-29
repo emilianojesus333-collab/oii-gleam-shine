@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Dumbbell, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Dumbbell, Mail, Lock, User, ArrowRight, Chrome } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,7 +11,27 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/home");
+      }
+    };
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        navigate("/home");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +54,7 @@ const Auth = () => {
             data: {
               name,
             },
+            emailRedirectTo: `${window.location.origin}/home`,
           },
         });
         if (error) throw error;
@@ -41,9 +62,31 @@ const Auth = () => {
         navigate("/home");
       }
     } catch (error: any) {
-      toast.error(error.message || "Ocorreu um erro");
+      if (error.message.includes("User already registered")) {
+        toast.error("Este email já está registado. Tenta fazer login.");
+      } else if (error.message.includes("Invalid login credentials")) {
+        toast.error("Email ou password incorretos.");
+      } else {
+        toast.error(error.message || "Ocorreu um erro");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao conectar com Google");
+      setGoogleLoading(false);
     }
   };
 
@@ -85,6 +128,31 @@ const Auth = () => {
         className="flex-1 px-6 py-8"
       >
         <div className="space-y-4 max-w-md mx-auto">
+          {/* Google Login Button */}
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading}
+            className="w-full bg-white text-gray-800 py-4 rounded-xl font-semibold flex items-center justify-center gap-3 shadow-lg disabled:opacity-50"
+          >
+            {googleLoading ? (
+              <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
+            ) : (
+              <>
+                <Chrome className="w-5 h-5" />
+                Continuar com Google
+              </>
+            )}
+          </motion.button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 py-2">
+            <div className="flex-1 h-px bg-gray-700"></div>
+            <span className="text-gray-500 text-sm">ou</span>
+            <div className="flex-1 h-px bg-gray-700"></div>
+          </div>
+
           {!isLogin && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
