@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ExportData } from "@/components/settings/ExportData";
+import { useNutrition } from "@/hooks/useNutrition";
 
 const weekDays = [
   "Segunda-feira",
@@ -42,6 +44,9 @@ const Settings = () => {
   const [schedule, setSchedule] = useState<Schedule>({});
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [tempSelection, setTempSelection] = useState<string[]>([]);
+  
+  // Get nutrition data for export
+  const { allLogs, goals } = useNutrition();
 
   // Load schedule from localStorage
   useEffect(() => {
@@ -224,6 +229,15 @@ const Settings = () => {
               );
             })}
           </div>
+        </motion.div>
+
+        {/* Export Data */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
         {/* Reset Button */}

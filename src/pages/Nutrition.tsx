@@ -8,6 +8,8 @@ import { MealCard } from '@/components/nutrition/MealCard';
 import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
 import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
+import { MealPlansView } from '@/components/nutrition/MealPlansView';
+import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
   const {
@@ -82,6 +84,17 @@ const Nutrition = () => {
           goals={goals}
           consumed={todayLog.totals}
           progress={progress}
+        />
+
+        {/* Meal Plans */}
+        <MealPlansView 
+          currentGoal={profile.goal} 
+          onApplyPlan={(plan: MealPlan) => {
+            // Update goals based on the selected plan
+            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
+            updateProfile({ goal: plan.goal });
+            setCustomGoals({ calories: avgCalories });
+          }}
         />
 
         {/* AI Scanner button */}
