@@ -26,6 +26,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Input } from "@/components/ui/input";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 const weekDays = [
   "Segunda-feira",
@@ -60,6 +61,9 @@ const Settings = () => {
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
   
+  // Get user settings from database (per-user data)
+  const { settings, updateSettings, updateSchedule: saveScheduleToDb, isLoading: settingsLoading } = useUserSettings();
+  
   // Get nutrition data for export
   const { allLogs, goals } = useNutrition();
   
@@ -67,36 +71,32 @@ const Settings = () => {
   const { openCustomerPortal } = useSubscription();
   const [portalLoading, setPortalLoading] = useState(false);
 
-  // Load schedule and AI name from localStorage
+  // Load schedule and AI name from database settings
   useEffect(() => {
-    const saved = localStorage.getItem("liftmate_onboarding");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        setSchedule(data.schedule || {});
-      } catch (e) {
-        console.error("Error loading schedule:", e);
-      }
+    if (settings) {
+      setSchedule(settings.onboarding_data?.schedule || {});
+      setAiName(settings.ai_name || "Liftmate");
     }
-    
-    // Load AI name
-    const savedAiName = localStorage.getItem("liftmate_ai_name");
-    if (savedAiName) {
-      setAiName(savedAiName);
-    }
-  }, []);
+  }, [settings]);
 
   const openAiNameEditor = () => {
     setTempAiName(aiName);
     setIsEditingAiName(true);
   };
 
-  const saveAiName = () => {
+  const saveAiName = async () => {
     if (tempAiName.trim()) {
-      setAiName(tempAiName.trim());
-      localStorage.setItem("liftmate_ai_name", tempAiName.trim());
+      const newName = tempAiName.trim();
+      setAiName(newName);
       setIsEditingAiName(false);
-      toast.success("Nome da IA atualizado!");
+      
+      // Save to database (per-user)
+      try {
+        await updateSettings({ ai_name: newName });
+        toast.success("Nome da IA atualizado!");
+      } catch (error) {
+        console.error("Error saving AI name:", error);
+      }
     }
   };
 
@@ -115,7 +115,7 @@ const Settings = () => {
     });
   };
 
-  const saveDay = () => {
+  const saveDay = async () => {
     if (!selectedDay) return;
     
     const newSchedule = {
@@ -124,30 +124,18 @@ const Settings = () => {
     };
     setSchedule(newSchedule);
     
-    // Save to localStorage
-    const saved = localStorage.getItem("liftmate_onboarding");
-    const data = saved ? JSON.parse(saved) : {};
-    data.schedule = newSchedule;
-    localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
-    
-    // Also update liftmate_user_data for workout page compatibility
-    const userData = localStorage.getItem("liftmate_user_data");
-    if (userData) {
-      const userDataObj = JSON.parse(userData);
-      userDataObj.calendar = {};
-      for (const [dayName, groups] of Object.entries(newSchedule)) {
-        userDataObj.calendar[dayName] = groups 
-          ? (Array.isArray(groups) ? groups.join(" + ") : groups)
-          : "Descanso";
-      }
-      localStorage.setItem("liftmate_user_data", JSON.stringify(userDataObj));
+    // Save to database (per-user)
+    try {
+      await saveScheduleToDb(newSchedule);
+      toast.success(`${selectedDay} atualizado!`);
+    } catch (error) {
+      console.error("Error saving schedule:", error);
     }
     
     setSelectedDay(null);
-    toast.success(`${selectedDay} atualizado!`);
   };
 
-  const setRestDay = () => {
+  const setRestDay = async () => {
     if (!selectedDay) return;
     setTempSelection([]);
     
@@ -157,23 +145,15 @@ const Settings = () => {
     };
     setSchedule(newSchedule);
     
-    // Save to localStorage
-    const saved = localStorage.getItem("liftmate_onboarding");
-    const data = saved ? JSON.parse(saved) : {};
-    data.schedule = newSchedule;
-    localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
-    
-    // Also update liftmate_user_data
-    const userData = localStorage.getItem("liftmate_user_data");
-    if (userData) {
-      const userDataObj = JSON.parse(userData);
-      userDataObj.calendar = userDataObj.calendar || {};
-      userDataObj.calendar[selectedDay] = "Descanso";
-      localStorage.setItem("liftmate_user_data", JSON.stringify(userDataObj));
+    // Save to database (per-user)
+    try {
+      await saveScheduleToDb(newSchedule);
+      toast.success(`${selectedDay} definido como descanso!`);
+    } catch (error) {
+      console.error("Error saving rest day:", error);
     }
     
     setSelectedDay(null);
-    toast.success(`${selectedDay} definido como descanso!`);
   };
 
 
