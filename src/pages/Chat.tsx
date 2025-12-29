@@ -6,6 +6,7 @@ import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,10 +64,11 @@ const Chat = () => {
     stopSpeaking,
   } = useVoiceChat();
 
-  // Load AI name
+  // Load AI name from useUserSettings (per-user from database)
+  const { settings: userSettings } = useUserSettings();
   const aiName = useMemo(() => {
-    return localStorage.getItem("liftmate_ai_name") || "LiftMate";
-  }, []);
+    return userSettings?.ai_name || "LiftMate";
+  }, [userSettings]);
 
   // Scroll to bottom when messages change
   useEffect(() => {

@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTimerNotification } from './useTimerNotification';
+import { useAuth } from './useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface HydrationSettings {
   enabled: boolean;
@@ -61,35 +63,7 @@ const defaultState: AlertsState = {
     currentIntake: 0,
     lastReminder: null,
   },
-  supplements: [
-    {
-      id: 'creatine',
-      name: 'Creatina',
-      time: '08:00',
-      enabled: true,
-      days: [0, 1, 2, 3, 4, 5, 6],
-      icon: 'powder',
-      color: 'hsl(142, 76%, 36%)',
-    },
-    {
-      id: 'preworkout',
-      name: 'Pré-Treino',
-      time: '17:30',
-      enabled: true,
-      days: [1, 2, 3, 4, 5],
-      icon: 'shake',
-      color: 'hsl(346, 77%, 49%)',
-    },
-    {
-      id: 'whey',
-      name: 'Whey Protein',
-      time: '19:30',
-      enabled: true,
-      days: [1, 2, 3, 4, 5],
-      icon: 'shake',
-      color: 'hsl(217, 91%, 60%)',
-    },
-  ],
+  supplements: [],
   workout: {
     enabled: true,
     minutesBefore: 60,
@@ -115,29 +89,83 @@ const defaultState: AlertsState = {
   ],
 };
 
-const STORAGE_KEY = 'gymAlerts';
+const STORAGE_KEY_PREFIX = 'gymAlerts_';
 
 export const useAlerts = () => {
-  const [state, setState] = useState<AlertsState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        return { ...defaultState, ...JSON.parse(saved) };
-      } catch {
-        return defaultState;
-      }
-    }
-    return defaultState;
-  });
-
+  const { user } = useAuth();
+  const [state, setState] = useState<AlertsState>(defaultState);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [activeQuickTimer, setActiveQuickTimer] = useState<number | null>(null);
   const [quickTimerRemaining, setQuickTimerRemaining] = useState<number>(0);
   const { notifyTimerEnd } = useTimerNotification();
 
-  // Persist state
+  // Load alerts from database (user_settings.alerts_config) or user-specific localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    const loadAlerts = async () => {
+      if (!user) {
+        setState(defaultState);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Try to load from database first
+        const { data: settings } = await supabase
+          .from('user_settings')
+          .select('alerts_config')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (settings?.alerts_config) {
+          const alertsConfig = settings.alerts_config as unknown as AlertsState;
+          setState({ ...defaultState, ...alertsConfig });
+        } else {
+          // Fallback to user-specific localStorage
+          const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+          const saved = localStorage.getItem(userKey);
+          if (saved) {
+            setState({ ...defaultState, ...JSON.parse(saved) });
+          } else {
+            setState(defaultState);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading alerts:', error);
+        setState(defaultState);
+      }
+      setIsLoading(false);
+    };
+
+    loadAlerts();
+  }, [user]);
+
+  // Persist state to database and localStorage
+  useEffect(() => {
+    if (!user || isLoading) return;
+
+    const saveAlerts = async () => {
+      try {
+        // Save to user-specific localStorage as backup
+        const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+        localStorage.setItem(userKey, JSON.stringify(state));
+
+        // Save to database
+        await supabase
+          .from('user_settings')
+          .update({
+            alerts_config: JSON.parse(JSON.stringify(state)),
+          })
+          .eq('user_id', user.id);
+      } catch (error) {
+        console.error('Error saving alerts:', error);
+      }
+    };
+
+    // Debounce save
+    const timeoutId = setTimeout(saveAlerts, 500);
+    return () => clearTimeout(timeoutId);
+  }, [state, user, isLoading]);
 
   // Quick timer logic
   useEffect(() => {
@@ -288,6 +316,7 @@ export const useAlerts = () => {
 
   return {
     state,
+    isLoading,
     // Hydration
     updateHydration,
     addWaterIntake,

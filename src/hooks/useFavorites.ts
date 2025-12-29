@@ -1,31 +1,50 @@
 import { useState, useCallback, useEffect } from 'react';
 import { FoodDatabaseItem } from '@/data/foodDatabase';
 import { FitnessRecipe } from '@/data/fitnessRecipes';
+import { useAuth } from './useAuth';
 
 export interface FavoritesState {
   foods: FoodDatabaseItem[];
   recipes: FitnessRecipe[];
 }
 
-const STORAGE_KEY = 'liftmate_favorites';
+const STORAGE_KEY_PREFIX = 'liftmate_favorites_';
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<FavoritesState>(() => {
+  const { user } = useAuth();
+  const [favorites, setFavorites] = useState<FavoritesState>({ foods: [], recipes: [] });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load favorites from user-specific localStorage key
+  useEffect(() => {
+    if (!user) {
+      setFavorites({ foods: [], recipes: [] });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+      const saved = localStorage.getItem(userKey);
       if (saved) {
-        return JSON.parse(saved);
+        setFavorites(JSON.parse(saved));
+      } else {
+        setFavorites({ foods: [], recipes: [] });
       }
     } catch (e) {
       console.error('Error loading favorites:', e);
+      setFavorites({ foods: [], recipes: [] });
     }
-    return { foods: [], recipes: [] };
-  });
+    setIsLoading(false);
+  }, [user]);
 
-  // Save to localStorage whenever favorites change
+  // Save to user-specific localStorage key whenever favorites change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
-  }, [favorites]);
+    if (!user || isLoading) return;
+    
+    const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
+    localStorage.setItem(userKey, JSON.stringify(favorites));
+  }, [favorites, user, isLoading]);
 
   const addFoodFavorite = useCallback((food: FoodDatabaseItem) => {
     setFavorites(prev => {
@@ -83,6 +102,7 @@ export const useFavorites = () => {
 
   return {
     favorites,
+    isLoading,
     addFoodFavorite,
     removeFoodFavorite,
     addRecipeFavorite,

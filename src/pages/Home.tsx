@@ -20,6 +20,7 @@ import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useAuth } from "@/hooks/useAuth";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -38,28 +39,38 @@ const Home = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
-  const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
-    // Load from localStorage on init (daily reset - this is OK as localStorage for session-only data)
-    const saved = localStorage.getItem("liftmate_completed_exercises");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Check if it's from today
-        if (parsed.date === new Date().toDateString()) {
-          return new Set(parsed.exercises);
-        }
-      } catch (e) {
-        console.error("Error parsing completed exercises:", e);
-      }
-    }
-    return new Set();
-  });
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
   
   // Load user settings from database (per-user data)
   const { settings, isLoading: settingsLoading } = useUserSettings();
+  const { user } = useAuth();
 
+  // Load completed exercises from user-specific localStorage key
+  useEffect(() => {
+    if (!user) {
+      setCompletedExercises(new Set());
+      return;
+    }
+    
+    const userKey = `liftmate_completed_exercises_${user.id}`;
+    const saved = localStorage.getItem(userKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Check if it's from today
+        if (parsed.date === new Date().toDateString()) {
+          setCompletedExercises(new Set(parsed.exercises));
+        } else {
+          setCompletedExercises(new Set());
+        }
+      } catch (e) {
+        console.error("Error parsing completed exercises:", e);
+        setCompletedExercises(new Set());
+      }
+    }
+  }, [user]);
   // Celebration function
   const triggerCelebration = useCallback(() => {
     // Fire confetti from both sides
@@ -97,6 +108,8 @@ const Home = () => {
   }, []);
 
   const toggleExerciseComplete = (exerciseName: string) => {
+    if (!user) return;
+    
     setCompletedExercises(prev => {
       const newSet = new Set(prev);
       if (newSet.has(exerciseName)) {
@@ -105,14 +118,15 @@ const Home = () => {
         newSet.add(exerciseName);
       }
       
-      // Save to localStorage with today's date
+      // Save to user-specific localStorage key with today's date
+      const userKey = `liftmate_completed_exercises_${user.id}`;
       const toSave = {
         date: new Date().toDateString(),
         exercises: Array.from(newSet),
         workout: todayWorkout,
         muscleGroups: todayMuscleGroups,
       };
-      localStorage.setItem("liftmate_completed_exercises", JSON.stringify(toSave));
+      localStorage.setItem(userKey, JSON.stringify(toSave));
       
       // Also save to workout history for long-term tracking
       const today = new Date();
