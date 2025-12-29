@@ -56,7 +56,7 @@ const Auth = () => {
             data: {
               name,
             },
-            emailRedirectTo: `${window.location.origin}/home`,
+            emailRedirectTo: `${window.location.origin}/auth`,
           },
         });
         if (error) throw error;
@@ -82,7 +82,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/home`,
+          redirectTo: `${window.location.origin}/auth`,
         },
       });
       if (error) throw error;
