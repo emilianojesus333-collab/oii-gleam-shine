@@ -42,8 +42,10 @@ export const useSubscription = () => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session) {
         setState({
           isLoading: false,
@@ -56,7 +58,12 @@ export const useSubscription = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("check-subscription");
+      // Pass the access token explicitly to avoid "Invalid JWT" issues.
+      const authHeaders = { Authorization: `Bearer ${session.access_token}` };
+
+      const { data, error } = await supabase.functions.invoke("check-subscription", {
+        headers: authHeaders,
+      });
 
       if (error) {
         console.error("Error checking subscription:", error);
@@ -88,7 +95,18 @@ export const useSubscription = () => {
 
   const createCheckout = useCallback(async (priceId: string) => {
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error("Precisa estar logado para assinar.");
+      }
+
+      const authHeaders = { Authorization: `Bearer ${session.access_token}` };
+
       const { data, error } = await supabase.functions.invoke("create-checkout", {
+        headers: authHeaders,
         body: { priceId },
       });
 
@@ -105,7 +123,19 @@ export const useSubscription = () => {
 
   const openCustomerPortal = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error("Precisa estar logado para gerir a subscrição.");
+      }
+
+      const authHeaders = { Authorization: `Bearer ${session.access_token}` };
+
+      const { data, error } = await supabase.functions.invoke("customer-portal", {
+        headers: authHeaders,
+      });
 
       if (error) throw error;
 
