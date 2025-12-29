@@ -559,6 +559,11 @@ export const formatContextForAI = (ctx: UserContext): string => {
     parts.push(`\n👤 NOME DO UTILIZADOR: ${ctx.profile.userName}`);
   }
 
+  // AI Name
+  if (ctx.profile.aiName) {
+    parts.push(`\n🤖 O TEU NOME (nome que o utilizador te deu): ${ctx.profile.aiName}`);
+  }
+
   // Profile
   if (ctx.profile.goal || ctx.profile.experience || ctx.profile.userName) {
     parts.push(`\n🎯 PERFIL DO UTILIZADOR:
