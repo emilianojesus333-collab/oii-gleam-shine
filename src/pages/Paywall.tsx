@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSubscription, SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+// Email autorizado para bypass de dev
+const DEV_AUTHORIZED_EMAIL = "emilianojesus333@gmail.com";
 
 const benefits = [
   { icon: Brain, text: "AI Coach Pessoal 24/7" },
@@ -22,10 +26,25 @@ const Paywall = () => {
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [devTapCount, setDevTapCount] = useState(0);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const devTapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Secret dev mode: tap logo 5 times to bypass
+  // Get current user email
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserEmail(user?.email || null);
+    };
+    getUser();
+  }, []);
+
+  // Secret dev mode: tap logo 5 times to bypass (only for authorized email)
   const handleDevTap = () => {
+    // Only allow if user email matches authorized email
+    if (userEmail?.toLowerCase() !== DEV_AUTHORIZED_EMAIL.toLowerCase()) {
+      return; // Silently ignore taps from non-authorized users
+    }
+
     setDevTapCount(prev => prev + 1);
     
     if (devTapTimeoutRef.current) {
@@ -40,7 +59,7 @@ const Paywall = () => {
       localStorage.setItem("liftmate_dev_bypass", "true");
       toast({
         title: "🔓 Modo Dev Ativado",
-        description: "Podes agora aceder ao app sem subscrição.",
+        description: "Bypass exclusivo ativado para ti.",
       });
       setTimeout(() => {
         navigate("/home", { replace: true });
