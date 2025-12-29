@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ExportData } from "@/components/settings/ExportData";
 import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
+import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { useNutrition } from "@/hooks/useNutrition";
 
 const weekDays = [
@@ -179,56 +180,64 @@ const Settings = () => {
       </div>
 
       <div className="px-5 space-y-5">
-        {/* Calendar Editor */}
+        {/* User Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-card rounded-[20px] p-5 border border-border/30"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-primary" />
+          <UserProfileCard />
+        </motion.div>
+
+        {/* Compact Calendar Editor */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-card rounded-[20px] p-4 border border-border/30"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-semibold text-foreground">Calendário</h2>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Calendário de Treino</h2>
-              <p className="text-xs text-muted-foreground">Toca num dia para editar</p>
-            </div>
+            <p className="text-xs text-muted-foreground">Toca para editar</p>
           </div>
 
-          <div className="space-y-2">
-            {weekDays.map((day, index) => {
-              const workout = getWorkoutDisplay(day);
+          <div className="grid grid-cols-7 gap-1">
+            {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((shortDay, index) => {
+              const fullDay = weekDays[index];
+              const workout = getWorkoutDisplay(fullDay);
               const isRest = workout === "Descanso";
               
               return (
                 <motion.button
-                  key={day}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.15 + index * 0.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => openDayEditor(day)}
-                  className={`w-full p-4 rounded-xl flex items-center justify-between transition-all ${
+                  key={fullDay}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => openDayEditor(fullDay)}
+                  className={`flex flex-col items-center p-2 rounded-lg transition-all ${
                     isRest
-                      ? "bg-muted/20 border border-border/30"
-                      : "bg-primary/10 border border-primary/20"
+                      ? "bg-muted/20"
+                      : "bg-primary/20 border border-primary/30"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isRest ? "bg-muted/30" : "bg-primary/20"
-                    }`}>
-                      <Dumbbell className={`w-4 h-4 ${isRest ? "text-muted-foreground" : "text-primary"}`} />
-                    </div>
-                    <span className="font-medium text-foreground">{day}</span>
-                  </div>
-                  <span className={`text-sm ${isRest ? "text-muted-foreground" : "text-primary font-medium"}`}>
-                    {workout}
-                  </span>
+                  <span className="text-[10px] text-muted-foreground mb-1">{shortDay}</span>
+                  <Dumbbell className={`w-3.5 h-3.5 ${isRest ? "text-muted-foreground/50" : "text-primary"}`} />
                 </motion.button>
               );
             })}
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-4 mt-3 pt-2 border-t border-border/20">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="w-2 h-2 rounded-full bg-primary/50"></div>
+              <span>Treino</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="w-2 h-2 rounded-full bg-muted/50"></div>
+              <span>Descanso</span>
+            </div>
           </div>
         </motion.div>
 
