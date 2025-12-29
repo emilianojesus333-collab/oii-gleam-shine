@@ -2,6 +2,17 @@ import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Haptic feedback utility
+const triggerHaptic = (pattern: number | number[] = 50) => {
+  if ('vibrate' in navigator) {
+    try {
+      navigator.vibrate(pattern);
+    } catch (e) {
+      // Vibration not supported or failed silently
+    }
+  }
+};
+
 export function useVoiceChat() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -12,6 +23,9 @@ export function useVoiceChat() {
 
   const startRecording = useCallback(async (): Promise<void> => {
     try {
+      // Haptic feedback - short vibration to indicate recording started
+      triggerHaptic(50);
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -38,6 +52,8 @@ export function useVoiceChat() {
       
     } catch (error) {
       console.error('Error starting recording:', error);
+      // Haptic feedback - error pattern
+      triggerHaptic([100, 50, 100]);
       toast.error('Não foi possível aceder ao microfone');
     }
   }, []);
@@ -48,6 +64,9 @@ export function useVoiceChat() {
         resolve(null);
         return;
       }
+
+      // Haptic feedback - double vibration to indicate recording stopped
+      triggerHaptic([30, 50, 30]);
 
       mediaRecorderRef.current.onstop = async () => {
         setIsRecording(false);
@@ -101,6 +120,9 @@ export function useVoiceChat() {
   }, []);
 
   const cancelRecording = useCallback(() => {
+    // Haptic feedback - cancel pattern
+    triggerHaptic([50, 30, 50]);
+    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       mediaRecorderRef.current.stop();
@@ -110,6 +132,9 @@ export function useVoiceChat() {
   }, []);
 
   const speakText = useCallback(async (text: string): Promise<void> => {
+    // Haptic feedback when starting/stopping speech
+    triggerHaptic(30);
+    
     if (isSpeaking) {
       // Stop current audio
       if (audioRef.current) {
