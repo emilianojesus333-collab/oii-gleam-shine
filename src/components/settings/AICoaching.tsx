@@ -28,7 +28,7 @@ const GOALS_STORAGE_KEY = 'liftmate_coaching_goals';
 const COOLDOWN_HOURS = 4;
 
 const MUSCLE_OPTIONS = [
-  'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 
+  'Full Body', 'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 
   'Core', 'Quadríceps', 'Posteriores', 'Glúteos', 'Gémeos'
 ];
 
@@ -104,11 +104,21 @@ export const AICoaching = () => {
   };
 
   const toggleMuscle = (muscle: string) => {
-    setTempFocusMuscles(prev => 
-      prev.includes(muscle) 
-        ? prev.filter(m => m !== muscle)
-        : [...prev, muscle].slice(0, 3)
-    );
+    if (muscle === 'Full Body') {
+      // Full Body is mutually exclusive - select only it or deselect it
+      setTempFocusMuscles(prev => 
+        prev.includes('Full Body') ? [] : ['Full Body']
+      );
+    } else {
+      // Other muscles - can't select if Full Body is selected
+      if (tempFocusMuscles.includes('Full Body')) return;
+      
+      setTempFocusMuscles(prev => 
+        prev.includes(muscle) 
+          ? prev.filter(m => m !== muscle)
+          : [...prev, muscle].slice(0, 3)
+      );
+    }
   };
 
   const loadStoredTips = () => {
@@ -366,19 +376,30 @@ export const AICoaching = () => {
               Músculos a melhorar: (max. 3)
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {MUSCLE_OPTIONS.map(muscle => (
-                <button
-                  key={muscle}
-                  onClick={() => toggleMuscle(muscle)}
-                  className={`px-2.5 py-1 rounded-full text-xs transition-all ${
-                    tempFocusMuscles.includes(muscle)
-                      ? 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-400'
-                      : 'bg-background/30 border border-border/50 text-foreground/70 hover:border-border'
-                  }`}
-                >
-                  {muscle}
-                </button>
-              ))}
+              {MUSCLE_OPTIONS.map(muscle => {
+                const isFullBody = muscle === 'Full Body';
+                const isSelected = tempFocusMuscles.includes(muscle);
+                const isDisabled = !isFullBody && tempFocusMuscles.includes('Full Body');
+                
+                return (
+                  <button
+                    key={muscle}
+                    onClick={() => toggleMuscle(muscle)}
+                    disabled={isDisabled}
+                    className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                      isSelected
+                        ? isFullBody 
+                          ? 'bg-purple-500/20 border border-purple-500/50 text-purple-400'
+                          : 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-400'
+                        : isDisabled
+                          ? 'bg-background/10 border border-border/30 text-foreground/30 cursor-not-allowed'
+                          : 'bg-background/30 border border-border/50 text-foreground/70 hover:border-border'
+                    }`}
+                  >
+                    {muscle}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
