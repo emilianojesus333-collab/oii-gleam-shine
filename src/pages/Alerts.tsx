@@ -98,8 +98,8 @@ const Alerts = () => {
               <Bell className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white/80">Alertas</h1>
-              <p className="text-xs text-cyan-400/70">O teu assistente de treino</p>
+              <h1 className="text-2xl font-black text-white">Alertas</h1>
+              <p className="text-xs text-cyan-400">O teu assistente de treino</p>
             </div>
           </div>
           

@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
 import { saveWorkoutSession } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
+import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -464,6 +465,9 @@ const Home = () => {
             />
           </div>
         </motion.div>
+
+        {/* Favorites Widget */}
+        <FavoritesWidget />
 
         {/* Recent Workouts Section */}
         <motion.div
