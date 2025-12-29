@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Bell, Sparkles } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -12,6 +12,7 @@ import { QuickTimerCard } from '@/components/alerts/QuickTimerCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
+import { toast } from 'sonner';
 
 const Alerts = () => {
   const {
@@ -35,14 +36,17 @@ const Alerts = () => {
     permission,
     isSupported,
     requestPermission,
+    showNotification,
     scheduleHydrationReminder,
     scheduleSupplementReminder,
     scheduleSleepReminder,
+    scheduleWaterReminders,
+    scheduleMealReminders,
     cancelAllNotifications,
   } = usePushNotifications();
 
-  // Schedule notifications when settings change
-  useEffect(() => {
+  // Enhanced notification scheduling
+  const scheduleAllNotifications = useCallback(() => {
     if (permission !== 'granted') return;
 
     // Clear existing and reschedule
@@ -64,6 +68,18 @@ const Alerts = () => {
     if (state.sleep.enabled) {
       scheduleSleepReminder(state.sleep.bedtime, state.sleep.reminderMinutesBefore);
     }
+
+    // Schedule water reminders throughout the day
+    scheduleWaterReminders('08:00', '22:00', 2);
+
+    // Schedule meal reminders
+    scheduleMealReminders([
+      { type: 'breakfast', time: '08:00' },
+      { type: 'morning_snack', time: '10:30' },
+      { type: 'lunch', time: '13:00' },
+      { type: 'afternoon_snack', time: '16:00' },
+      { type: 'dinner', time: '20:00' },
+    ]);
   }, [
     permission,
     state.hydration.enabled,
@@ -75,8 +91,32 @@ const Alerts = () => {
     scheduleHydrationReminder,
     scheduleSupplementReminder,
     scheduleSleepReminder,
+    scheduleWaterReminders,
+    scheduleMealReminders,
     cancelAllNotifications,
   ]);
+
+  // Schedule notifications when settings change
+  useEffect(() => {
+    scheduleAllNotifications();
+  }, [scheduleAllNotifications]);
+
+  // Show streak milestone notifications
+  const handleRecordWorkout = useCallback(async () => {
+    const previousStreak = state.streak.currentStreak;
+    recordWorkout();
+    
+    // Check for streak milestones
+    const newStreak = previousStreak + 1;
+    if (permission === 'granted' && (newStreak === 7 || newStreak === 30 || newStreak === 100 || newStreak % 50 === 0)) {
+      await showNotification('🔥 Streak Milestone!', {
+        body: `Incrível! ${newStreak} dias consecutivos de treino!`,
+        tag: 'streak-milestone',
+      });
+    }
+    
+    toast.success('Treino registado! 💪');
+  }, [recordWorkout, state.streak.currentStreak, permission, showNotification]);
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -126,7 +166,7 @@ const Alerts = () => {
         {/* All Cards */}
         <StreakCard 
           streak={state.streak} 
-          onRecordWorkout={recordWorkout} 
+          onRecordWorkout={handleRecordWorkout} 
         />
         
         <QuickTimerCard

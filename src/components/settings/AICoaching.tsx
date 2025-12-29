@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw } from "lucide-react";
+import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useNutrition } from "@/hooks/useNutrition";
 import { useAlerts } from "@/hooks/useAlerts";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface CoachingTip {
   category: 'treino' | 'nutrição' | 'recuperação' | 'geral';
@@ -22,8 +23,26 @@ interface CoachingAnalysis {
   summary?: string;
 }
 
+interface UserGoals {
+  weightGoal?: number; // kg to gain/lose
+  focusMuscles?: string[];
+  trainingFocus?: string;
+}
+
 const STORAGE_KEY = 'liftmate_ai_coaching';
-const COOLDOWN_HOURS = 4; // Allow refresh every 4 hours
+const GOALS_STORAGE_KEY = 'liftmate_coaching_goals';
+const COOLDOWN_HOURS = 4;
+
+const MUSCLE_OPTIONS = [
+  'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 
+  'Core', 'Quadríceps', 'Posteriores', 'Glúteos', 'Gémeos'
+];
+
+const TRAINING_FOCUS_OPTIONS = [
+  { value: 'hypertrophy', label: 'Hipertrofia', icon: Dumbbell },
+  { value: 'strength', label: 'Força', icon: Zap },
+  { value: 'endurance', label: 'Resistência', icon: Target },
+];
 
 export const AICoaching = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -31,13 +50,55 @@ export const AICoaching = () => {
   const [summary, setSummary] = useState<string>("");
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [canRefresh, setCanRefresh] = useState(true);
+  const [showGoalsForm, setShowGoalsForm] = useState(false);
+  const [userGoals, setUserGoals] = useState<UserGoals>({});
+  const [tempWeightGoal, setTempWeightGoal] = useState<string>('');
+  const [tempFocusMuscles, setTempFocusMuscles] = useState<string[]>([]);
+  const [tempTrainingFocus, setTempTrainingFocus] = useState<string>('');
 
   const { progress, goals, weeklyStats } = useNutrition();
   const { state: alertsState, getSleepHours } = useAlerts();
+  const { permission, showNotification } = usePushNotifications();
 
   useEffect(() => {
     loadStoredTips();
+    loadUserGoals();
   }, []);
+
+  const loadUserGoals = () => {
+    const stored = localStorage.getItem(GOALS_STORAGE_KEY);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setUserGoals(data);
+        setTempWeightGoal(data.weightGoal?.toString() || '');
+        setTempFocusMuscles(data.focusMuscles || []);
+        setTempTrainingFocus(data.trainingFocus || '');
+      } catch (e) {
+        console.error('Error loading goals:', e);
+      }
+    }
+  };
+
+  const saveUserGoals = () => {
+    const goals: UserGoals = {
+      weightGoal: tempWeightGoal ? parseFloat(tempWeightGoal) : undefined,
+      focusMuscles: tempFocusMuscles.length > 0 ? tempFocusMuscles : undefined,
+      trainingFocus: tempTrainingFocus || undefined,
+    };
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+    setUserGoals(goals);
+    setShowGoalsForm(false);
+    toast.success('Objetivos guardados!');
+  };
+
+  const toggleMuscle = (muscle: string) => {
+    setTempFocusMuscles(prev => 
+      prev.includes(muscle) 
+        ? prev.filter(m => m !== muscle)
+        : [...prev, muscle].slice(0, 3)
+    );
+  };
 
   const loadStoredTips = () => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -94,8 +155,23 @@ export const AICoaching = () => {
         sleepHours,
         hydration: alertsState.hydration.currentIntake,
         hydrationGoal: alertsState.hydration.dailyGoalLiters * 1000
-      }
+      },
+      userGoals: userGoals
     };
+  };
+
+  const sendHighPriorityNotifications = async (newTips: CoachingTip[]) => {
+    if (permission !== 'granted') return;
+    
+    const highPriorityTips = newTips.filter(t => t.priority === 'high');
+    
+    for (const tip of highPriorityTips) {
+      await showNotification(`🔥 ${tip.title}`, {
+        body: tip.actionable,
+        tag: 'coaching-high-priority',
+        data: { category: tip.category }
+      });
+    }
   };
 
   const analyzePatterns = async () => {
@@ -123,6 +199,10 @@ export const AICoaching = () => {
       setTips(data.tips || []);
       setSummary(data.summary || '');
       saveCoachingData(data.tips || [], data.summary || '');
+      
+      // Send push notifications for high priority tips
+      await sendHighPriorityNotifications(data.tips || []);
+      
       toast.success('Análise concluída!');
     } catch (error) {
       console.error('Error in AI coaching:', error);
@@ -199,12 +279,136 @@ export const AICoaching = () => {
           <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
           <p className="text-sm text-foreground/70">A analisar os teus padrões...</p>
         </div>
+      ) : showGoalsForm ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Os Teus Objetivos</h3>
+            <button 
+              onClick={() => setShowGoalsForm(false)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          {/* Weight Goal */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-xs text-foreground/80">
+              <Scale className="w-4 h-4" />
+              Quanto peso queres ganhar/perder? (kg)
+            </label>
+            <input
+              type="number"
+              value={tempWeightGoal}
+              onChange={(e) => setTempWeightGoal(e.target.value)}
+              placeholder="Ex: 5 para ganhar, -3 para perder"
+              className="w-full px-3 py-2 rounded-lg bg-background/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            />
+          </div>
+
+          {/* Training Focus */}
+          <div className="space-y-2">
+            <label className="text-xs text-foreground/80">Foco de treino:</label>
+            <div className="grid grid-cols-3 gap-2">
+              {TRAINING_FOCUS_OPTIONS.map(opt => {
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setTempTrainingFocus(opt.value)}
+                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-1 transition-all ${
+                      tempTrainingFocus === opt.value
+                        ? 'bg-blue-500/20 border-blue-500/50 text-blue-400'
+                        : 'bg-background/30 border-border/50 text-foreground/70 hover:border-border'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Muscle Focus */}
+          <div className="space-y-2">
+            <label className="text-xs text-foreground/80">
+              Músculos a melhorar: (max. 3)
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {MUSCLE_OPTIONS.map(muscle => (
+                <button
+                  key={muscle}
+                  onClick={() => toggleMuscle(muscle)}
+                  className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                    tempFocusMuscles.includes(muscle)
+                      ? 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-400'
+                      : 'bg-background/30 border border-border/50 text-foreground/70 hover:border-border'
+                  }`}
+                >
+                  {muscle}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={saveUserGoals}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm"
+          >
+            Guardar Objetivos
+          </motion.button>
+        </div>
       ) : tips.length === 0 ? (
         <div className="space-y-4">
+          {/* Goals Summary */}
+          {(userGoals.weightGoal || userGoals.focusMuscles?.length || userGoals.trainingFocus) && (
+            <div className="p-3 rounded-xl bg-background/30 border border-border/50 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-foreground/80">Os teus objetivos:</span>
+                <button 
+                  onClick={() => setShowGoalsForm(true)}
+                  className="text-xs text-blue-400 hover:underline"
+                >
+                  Editar
+                </button>
+              </div>
+              {userGoals.weightGoal && (
+                <p className="text-xs text-foreground/60">
+                  {userGoals.weightGoal > 0 ? `Ganhar ${userGoals.weightGoal}kg` : `Perder ${Math.abs(userGoals.weightGoal)}kg`}
+                </p>
+              )}
+              {userGoals.trainingFocus && (
+                <p className="text-xs text-foreground/60">
+                  Foco: {TRAINING_FOCUS_OPTIONS.find(o => o.value === userGoals.trainingFocus)?.label}
+                </p>
+              )}
+              {userGoals.focusMuscles?.length && (
+                <p className="text-xs text-foreground/60">
+                  Músculos: {userGoals.focusMuscles.join(', ')}
+                </p>
+              )}
+            </div>
+          )}
+
           <p className="text-sm text-foreground/80">
-            O teu coach pessoal de IA analisa os teus padrões de treino, nutrição e recuperação 
-            para te dar dicas personalizadas.
+            {userGoals.weightGoal || userGoals.focusMuscles?.length 
+              ? 'Pronto para analisar com base nos teus objetivos!'
+              : 'Define os teus objetivos para dicas mais personalizadas.'}
           </p>
+          
+          {!userGoals.weightGoal && !userGoals.focusMuscles?.length && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowGoalsForm(true)}
+              className="w-full py-3 rounded-xl bg-background/30 border border-border/50 text-foreground font-medium text-sm flex items-center justify-center gap-2 hover:bg-background/50 transition-colors"
+            >
+              <Target className="w-4 h-4" />
+              Definir Objetivos
+              <ChevronRight className="w-4 h-4" />
+            </motion.button>
+          )}
           
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -217,6 +421,17 @@ export const AICoaching = () => {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Goals Edit Button */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowGoalsForm(true)}
+              className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+            >
+              <Target className="w-3 h-3" />
+              {userGoals.weightGoal || userGoals.focusMuscles?.length ? 'Editar objetivos' : 'Definir objetivos'}
+            </button>
+          </div>
+
           {/* Summary */}
           {summary && (
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
