@@ -10,13 +10,9 @@ interface SubscriptionBadgeProps {
 export const SubscriptionBadge = ({ variant = "default", className = "" }: SubscriptionBadgeProps) => {
   const { isLoading, subscribed, isTrialing, productId } = useSubscription();
 
+  // Return nothing while loading for a cleaner experience
   if (isLoading) {
-    return (
-      <Badge variant="outline" className={`gap-1.5 ${className}`}>
-        <Loader2 className="h-3 w-3 animate-spin" />
-        {variant === "default" && <span>A verificar...</span>}
-      </Badge>
-    );
+    return null;
   }
 
   if (!subscribed && !isTrialing) {
