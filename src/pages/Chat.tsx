@@ -1,17 +1,19 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, Mic, MicOff, Volume2, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface CompletedExercisesData {
@@ -31,6 +33,12 @@ const Chat = () => {
   
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  
+  // Continuous conversation mode
+  const [continuousMode, setContinuousMode] = useState(() => {
+    const saved = localStorage.getItem("liftmate_continuous_mode");
+    return saved === "true";
+  });
 
   const {
     conversations,
@@ -240,6 +248,13 @@ const Chat = () => {
       setMessages(prev => prev.filter(m => m.text !== ""));
     } finally {
       setIsLoading(false);
+      
+      // Auto-start recording in continuous mode
+      if (continuousMode && !isRecording) {
+        setTimeout(() => {
+          startRecording();
+        }, 500);
+      }
     }
   };
 
@@ -333,7 +348,23 @@ const Chat = () => {
                 <MoreHorizontal className="h-5 w-5 text-white" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-[#1a1a1a] border-white/10">
+            <DropdownMenuContent align="end" className="w-56 bg-[#1a1a1a] border-white/10">
+              {/* Continuous mode toggle */}
+              <div className="flex items-center justify-between px-2 py-2">
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4 text-white/60" />
+                  <span className="text-sm text-white">Conversa contínua</span>
+                </div>
+                <Switch
+                  checked={continuousMode}
+                  onCheckedChange={(checked) => {
+                    setContinuousMode(checked);
+                    localStorage.setItem("liftmate_continuous_mode", String(checked));
+                    toast.success(checked ? "Modo contínuo ativado" : "Modo contínuo desativado");
+                  }}
+                />
+              </div>
+              <DropdownMenuSeparator className="bg-white/10" />
               {quickCommands.map((cmd) => (
                 <DropdownMenuItem
                   key={cmd.label}
