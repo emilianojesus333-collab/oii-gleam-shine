@@ -14,7 +14,8 @@ import {
   ExternalLink,
   LogOut,
   FileText,
-  Shield
+  Shield,
+  Headphones
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -433,6 +434,21 @@ const Settings = () => {
                   <Shield className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <span className="font-medium text-foreground">Política de Privacidade</span>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+            </button>
+            
+            <div className="border-t border-border/20" />
+            
+            <button
+              onClick={() => navigate("/support")}
+              className="w-full flex items-center justify-between py-2"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Headphones className="w-5 h-5 text-primary" />
+                </div>
+                <span className="font-medium text-foreground">Suporte</span>
               </div>
               <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
             </button>
