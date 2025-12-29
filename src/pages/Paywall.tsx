@@ -91,10 +91,10 @@ const Paywall = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="relative p-6 border-2 border-[#39FF14] bg-gradient-to-br from-[#39FF14]/10 to-background shadow-[0_0_30px_rgba(57,255,20,0.15)]">
+          <Card className="relative p-6 border-2 border-primary bg-gradient-to-br from-primary/10 to-background shadow-lg">
               {/* Recommended Badge */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-[#39FF14] text-black text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
                   ⭐ RECOMENDADO
                 </span>
               </div>
@@ -109,17 +109,17 @@ const Paywall = () => {
                     <span className="text-3xl font-bold">{SUBSCRIPTION_PRODUCTS.annual.price}€</span>
                     <span className="text-muted-foreground">/mês</span>
                   </div>
-                  <p className="text-xs text-[#39FF14] font-medium">Poupas 40%</p>
+                  <p className="text-xs text-primary font-medium">Poupas 40%</p>
                 </div>
               </div>
 
               <Button
                 onClick={() => handleSubscribe(SUBSCRIPTION_PRODUCTS.annual.price_id, "annual")}
                 disabled={loadingPlan !== null}
-                className="w-full h-14 text-lg font-semibold bg-[#39FF14] hover:bg-[#32E512] text-black shadow-lg"
+                className="w-full h-14 text-lg font-semibold"
               >
                 {loadingPlan === "annual" ? (
-                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     <Check className="w-5 h-5 mr-2" />
