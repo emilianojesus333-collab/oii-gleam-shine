@@ -31,9 +31,13 @@ export interface MealPlan {
   tips: string[];
 }
 
-// Helper to get food by ID
+// Helper to get food by ID with safe fallback
 const getFood = (id: string): FoodDatabaseItem | undefined => {
-  return foodDatabase.find(f => f.id === id);
+  const food = foodDatabase.find(f => f.id === id);
+  if (!food) {
+    console.warn(`Food with id "${id}" not found in database`);
+  }
+  return food;
 };
 
 // Helper to calculate meal totals
