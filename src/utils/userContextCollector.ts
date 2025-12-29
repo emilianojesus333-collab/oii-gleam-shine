@@ -5,9 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 export interface UserContext {
   // Profile & Goals
   profile: {
+    userName?: string;
     weight?: number;
     height?: number;
     age?: number;
+    birthYear?: number;
     gender?: string;
     activityLevel?: string;
     goal?: string;
@@ -223,7 +225,11 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
         } | null;
 
         if (onboardingData) {
+          const birthYear = onboardingData.personal?.birthYear ? parseInt(onboardingData.personal.birthYear) : undefined;
+          const currentYear = new Date().getFullYear();
+          
           context.profile = {
+            userName: onboardingData.personal?.name || undefined,
             goal: onboardingData.goal || undefined,
             experience: onboardingData.experience || undefined,
             focusMuscles: onboardingData.focus ? [onboardingData.focus] : undefined,
@@ -233,6 +239,8 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
             weight: onboardingData.personal?.weight ? parseFloat(onboardingData.personal.weight) : undefined,
             height: onboardingData.personal?.height ? parseFloat(onboardingData.personal.height) : undefined,
             gender: onboardingData.personal?.gender,
+            birthYear: birthYear,
+            age: birthYear ? currentYear - birthYear : undefined,
           };
           context.schedule.nextTrainingDays = context.profile.trainingDays || [];
         }
@@ -546,12 +554,21 @@ export const formatContextForAI = (ctx: UserContext): string => {
 
   parts.push(`📅 DATA ATUAL: ${today}`);
 
+  // User Name
+  if (ctx.profile.userName) {
+    parts.push(`\n👤 NOME DO UTILIZADOR: ${ctx.profile.userName}`);
+  }
+
   // Profile
-  if (ctx.profile.goal || ctx.profile.experience) {
+  if (ctx.profile.goal || ctx.profile.experience || ctx.profile.userName) {
     parts.push(`\n🎯 PERFIL DO UTILIZADOR:
+- Nome: ${ctx.profile.userName || "Não definido"}
 - Objetivo: ${ctx.profile.goal || "Não definido"}
 - Experiência: ${ctx.profile.experience || "Não definida"}
 - Peso: ${ctx.profile.weight ? `${ctx.profile.weight}kg` : "Não definido"}
+- Altura: ${ctx.profile.height ? `${ctx.profile.height}cm` : "Não definido"}
+- Idade: ${ctx.profile.age ? `${ctx.profile.age} anos` : "Não definido"}
+- Género: ${ctx.profile.gender === 'male' ? 'Masculino' : ctx.profile.gender === 'female' ? 'Feminino' : 'Não definido'}
 - Músculos foco: ${ctx.profile.focusMuscles?.join(", ") || "Não definido"}
 - Dias de treino: ${ctx.profile.trainingDays?.join(", ") || "Não definido"}`);
   }
