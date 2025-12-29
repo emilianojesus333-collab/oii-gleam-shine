@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, X, AlertCircle } from "lucide-react";
+import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, Lock, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -33,12 +33,67 @@ interface PhysiqueAnalysis {
   };
 }
 
+const EVALUATION_COOLDOWN_DAYS = 15;
+const STORAGE_KEY = 'liftmate_physique_evaluation';
+
 export const PhysiqueEvaluation = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<PhysiqueAnalysis | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [lastEvaluationDate, setLastEvaluationDate] = useState<Date | null>(null);
+  const [daysRemaining, setDaysRemaining] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Load last evaluation date from localStorage
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.lastEvaluationDate) {
+          const lastDate = new Date(data.lastEvaluationDate);
+          setLastEvaluationDate(lastDate);
+          
+          // Calculate days remaining - lock starts the day AFTER evaluation
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const evalDay = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
+          const daysSinceEval = Math.floor((today.getTime() - evalDay.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // Lock only if more than 0 days have passed (i.e., not on the same day)
+          if (daysSinceEval > 0 && daysSinceEval < EVALUATION_COOLDOWN_DAYS) {
+            setIsLocked(true);
+            setDaysRemaining(EVALUATION_COOLDOWN_DAYS - daysSinceEval);
+          } else if (daysSinceEval === 0) {
+            // Same day - not locked
+            setIsLocked(false);
+            setDaysRemaining(0);
+          } else {
+            setIsLocked(false);
+            setDaysRemaining(0);
+          }
+          
+          // Load last results
+          if (data.lastResults) {
+            setResults(data.lastResults);
+          }
+        }
+      } catch (e) {
+        console.error('Error loading physique evaluation data:', e);
+      }
+    }
+  }, []);
+
+  const saveEvaluation = (analysisResults: PhysiqueAnalysis) => {
+    const data = {
+      lastEvaluationDate: new Date().toISOString(),
+      lastResults: analysisResults
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setLastEvaluationDate(new Date());
+  };
 
   const handleImageCapture = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -75,6 +130,7 @@ export const PhysiqueEvaluation = () => {
       }
 
       setResults(data);
+      saveEvaluation(data);
       setShowResults(true);
       toast.success('Análise concluída!');
     } catch (error) {
@@ -87,6 +143,10 @@ export const PhysiqueEvaluation = () => {
   };
 
   const handleUploadClick = () => {
+    if (isLocked) {
+      toast.error(`Avaliação bloqueada. Disponível em ${daysRemaining} dias.`);
+      return;
+    }
     fileInputRef.current?.click();
   };
 
@@ -97,10 +157,10 @@ export const PhysiqueEvaluation = () => {
     }
   };
 
-  const resetAnalysis = () => {
-    setShowResults(false);
-    setResults(null);
-    setPreviewImage(null);
+  const viewLastResults = () => {
+    if (results) {
+      setShowResults(true);
+    }
   };
 
   const getScoreColor = (score: number) => {
@@ -113,6 +173,14 @@ export const PhysiqueEvaluation = () => {
     if (score >= 8) return 'from-green-500/20 to-green-500/5';
     if (score >= 6) return 'from-yellow-500/20 to-yellow-500/5';
     return 'from-orange-500/20 to-orange-500/5';
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('pt-PT', { 
+      day: 'numeric', 
+      month: 'short',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -132,7 +200,7 @@ export const PhysiqueEvaluation = () => {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-sm text-foreground/80 mb-4">
           Envia uma foto do teu físico e recebe uma análise detalhada com pontos fortes, 
           áreas a melhorar e sugestões de treino personalizadas.
         </p>
@@ -154,7 +222,51 @@ export const PhysiqueEvaluation = () => {
               </div>
             )}
             <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-            <p className="text-sm text-muted-foreground">A analisar o teu físico...</p>
+            <p className="text-sm text-foreground/70">A analisar o teu físico...</p>
+          </div>
+        ) : isLocked ? (
+          <div className="space-y-4">
+            {/* Locked State */}
+            <div className="flex flex-col items-center justify-center py-6 gap-3 bg-muted/20 rounded-xl border border-border/30">
+              <div className="w-14 h-14 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <Lock className="w-7 h-7 text-orange-400" />
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-foreground">Avaliação Bloqueada</p>
+                <p className="text-sm text-foreground/70 mt-1">
+                  Disponível em <span className="font-bold text-orange-400">{daysRemaining} dias</span>
+                </p>
+              </div>
+              {lastEvaluationDate && (
+                <div className="flex items-center gap-2 text-xs text-foreground/60">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Última avaliação: {formatDate(lastEvaluationDate)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* View Last Results Button */}
+            {results && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={viewLastResults}
+                className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 font-medium hover:bg-purple-500/30 transition-all"
+              >
+                Ver Última Avaliação
+              </motion.button>
+            )}
+
+            {/* Progress to next evaluation */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-foreground/60">
+                <span>Progresso</span>
+                <span>{EVALUATION_COOLDOWN_DAYS - daysRemaining} de {EVALUATION_COOLDOWN_DAYS} dias</span>
+              </div>
+              <Progress 
+                value={((EVALUATION_COOLDOWN_DAYS - daysRemaining) / EVALUATION_COOLDOWN_DAYS) * 100} 
+                className="h-2 bg-muted/30" 
+              />
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -178,9 +290,9 @@ export const PhysiqueEvaluation = () => {
         )}
 
         <div className="mt-4 flex items-start gap-2 p-3 rounded-xl bg-muted/20 border border-border/30">
-          <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            A foto não é guardada. A análise é apenas uma estimativa e não substitui avaliação profissional.
+          <Calendar className="w-4 h-4 text-foreground/60 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-foreground/60">
+            Avaliações disponíveis a cada 15 dias para tracking de progresso consistente. A foto não é guardada.
           </p>
         </div>
       </motion.div>
@@ -189,7 +301,7 @@ export const PhysiqueEvaluation = () => {
       <Sheet open={showResults} onOpenChange={setShowResults}>
         <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl overflow-y-auto">
           <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold flex items-center gap-2">
+            <SheetTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
               <Sparkles className="w-5 h-5 text-purple-400" />
               Resultado da Avaliação
             </SheetTitle>
@@ -203,13 +315,13 @@ export const PhysiqueEvaluation = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className={`bg-gradient-to-br ${getScoreGradient(results.analysis.overallScore)} rounded-2xl p-5 text-center`}
               >
-                <p className="text-sm text-muted-foreground mb-2">Pontuação Geral</p>
+                <p className="text-sm text-foreground/70 mb-2">Pontuação Geral</p>
                 <div className={`text-5xl font-bold ${getScoreColor(results.analysis.overallScore)}`}>
                   {results.analysis.overallScore.toFixed(1)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">de 10</p>
+                <p className="text-xs text-foreground/60 mt-1">de 10</p>
                 <div className="mt-3 flex items-center justify-center gap-2">
-                  <span className="text-sm text-muted-foreground">Gordura corporal estimada:</span>
+                  <span className="text-sm text-foreground/70">Gordura corporal estimada:</span>
                   <span className="text-sm font-medium text-foreground">{results.analysis.bodyFatEstimate}</span>
                 </div>
               </motion.div>
@@ -230,10 +342,10 @@ export const PhysiqueEvaluation = () => {
                       className="bg-green-500/10 border border-green-500/20 rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-green-300">{strength.muscleGroup}</span>
+                        <span className="font-medium text-green-400">{strength.muscleGroup}</span>
                         <span className="text-sm text-green-400">{strength.score}/10</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">{strength.description}</p>
+                      <p className="text-sm text-foreground/70">{strength.description}</p>
                       <Progress value={strength.score * 10} className="mt-2 h-1.5 bg-green-500/20" />
                     </motion.div>
                   ))}
@@ -256,15 +368,15 @@ export const PhysiqueEvaluation = () => {
                       className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-orange-300">{weakness.muscleGroup}</span>
+                        <span className="font-medium text-orange-400">{weakness.muscleGroup}</span>
                         <div className="flex items-center gap-2">
                           {weakness.priority === 'alta' && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">Prioritário</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">Prioritário</span>
                           )}
                           <span className="text-sm text-orange-400">{weakness.score}/10</span>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{weakness.description}</p>
+                      <p className="text-sm text-foreground/70">{weakness.description}</p>
                       <Progress value={weakness.score * 10} className="mt-2 h-1.5 bg-orange-500/20" />
                     </motion.div>
                   ))}
@@ -287,7 +399,7 @@ export const PhysiqueEvaluation = () => {
                       className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-purple-300">{rec.focus}</span>
+                        <span className="font-medium text-purple-400">{rec.focus}</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
                           {rec.frequency}
                         </span>
@@ -299,7 +411,7 @@ export const PhysiqueEvaluation = () => {
                           </span>
                         ))}
                       </div>
-                      <p className="text-sm text-muted-foreground">{rec.tip}</p>
+                      <p className="text-sm text-foreground/70">{rec.tip}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -315,16 +427,16 @@ export const PhysiqueEvaluation = () => {
                 <p className="text-sm text-foreground italic">"{results.analysis.motivationalMessage}"</p>
               </motion.div>
 
-              {/* New Analysis Button */}
+              {/* Close Button */}
               <motion.button
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={resetAnalysis}
+                onClick={() => setShowResults(false)}
                 className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold"
               >
-                Nova Avaliação
+                Fechar
               </motion.button>
             </div>
           )}
