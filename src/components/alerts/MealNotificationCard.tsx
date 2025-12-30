@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UtensilsCrossed, Droplets, Clock, ChevronDown, ChevronUp, Plus, X, Bell } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useAuth } from '@/hooks/useAuth';
 
 interface MealTime {
   type: string;
@@ -33,32 +34,52 @@ const defaultMeals: MealTime[] = [
   { type: 'post_workout', label: 'Pós-Treino', time: '19:00', enabled: false },
 ];
 
+const defaultSettings: MealNotificationSettings = {
+  enabled: false,
+  meals: defaultMeals,
+  waterEnabled: false,
+  waterStartTime: '08:00',
+  waterEndTime: '22:00',
+  waterIntervalHours: 2,
+};
+
+// Get user-specific storage key
+const getStorageKey = (userId?: string) => userId ? `liftmate_meal_notifications_${userId}` : null;
+
 export const MealNotificationCard = () => {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const { permission, scheduleMealReminders, scheduleWaterReminders, cancelNotification } = usePushNotifications();
   
-  const [settings, setSettings] = useState<MealNotificationSettings>(() => {
-    const saved = localStorage.getItem('liftmate_meal_notifications');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // ignore
+  const [settings, setSettings] = useState<MealNotificationSettings>(defaultSettings);
+
+  // Load user-specific settings
+  useEffect(() => {
+    const key = getStorageKey(user?.id);
+    if (key) {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          setSettings(JSON.parse(saved));
+        } catch {
+          // ignore
+        }
+      } else {
+        setSettings(defaultSettings);
       }
+    } else {
+      setSettings(defaultSettings);
     }
-    return {
-      enabled: false,
-      meals: defaultMeals,
-      waterEnabled: false,
-      waterStartTime: '08:00',
-      waterEndTime: '22:00',
-      waterIntervalHours: 2,
-    };
-  });
+  }, [user?.id]);
 
   const saveSettings = (newSettings: MealNotificationSettings) => {
     setSettings(newSettings);
-    localStorage.setItem('liftmate_meal_notifications', JSON.stringify(newSettings));
+    
+    // Save to user-specific key
+    const key = getStorageKey(user?.id);
+    if (key) {
+      localStorage.setItem(key, JSON.stringify(newSettings));
+    }
     
     // Schedule notifications if enabled
     if (permission === 'granted') {

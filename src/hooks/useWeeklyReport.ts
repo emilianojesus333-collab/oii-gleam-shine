@@ -57,8 +57,11 @@ const getWeekDates = () => {
   };
 };
 
-export const useWeeklyReport = (): WeeklyReport | null => {
+// Hook that requires userId to load user-specific data
+export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
   const report = useMemo(() => {
+    if (!userId) return null;
+    
     const { start, end } = getWeekDates();
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -98,9 +101,9 @@ export const useWeeklyReport = (): WeeklyReport | null => {
       overallScore: 0,
     };
 
-    // Load nutrition data
+    // Load nutrition data - USER SPECIFIC
     try {
-      const nutritionData = localStorage.getItem('nutrition_data');
+      const nutritionData = localStorage.getItem(`nutrition_data_${userId}`);
       if (nutritionData) {
         const parsed = JSON.parse(nutritionData);
         const goals = parsed.goals || { calories: 2000, protein: 150 };
@@ -134,9 +137,9 @@ export const useWeeklyReport = (): WeeklyReport | null => {
       console.error('Error loading nutrition data for report:', e);
     }
 
-    // Load workout data
+    // Load workout data - USER SPECIFIC
     try {
-      const workoutHistory = localStorage.getItem('liftmate_workout_history');
+      const workoutHistory = localStorage.getItem(`liftmate_workout_history_${userId}`);
       if (workoutHistory) {
         const parsed = JSON.parse(workoutHistory);
         const weekSessions = (parsed.sessions || []).filter((session: any) => {
@@ -163,8 +166,8 @@ export const useWeeklyReport = (): WeeklyReport | null => {
         };
       }
 
-      // Load streak from alerts
-      const alertsData = localStorage.getItem('gymAlerts');
+      // Load streak from alerts - USER SPECIFIC
+      const alertsData = localStorage.getItem(`gymAlerts_${userId}`);
       if (alertsData) {
         const parsed = JSON.parse(alertsData);
         report.workout.currentStreak = parsed.streak?.currentStreak || 0;
@@ -174,9 +177,9 @@ export const useWeeklyReport = (): WeeklyReport | null => {
       console.error('Error loading workout data for report:', e);
     }
 
-    // Load measurements
+    // Load measurements - USER SPECIFIC
     try {
-      const measurementsData = localStorage.getItem('liftmate_body_measurements');
+      const measurementsData = localStorage.getItem(`liftmate_body_measurements_${userId}`);
       if (measurementsData) {
         const parsed = JSON.parse(measurementsData);
         const weekMeasurements = (parsed.measurements || []).filter((m: any) => {
@@ -234,7 +237,7 @@ export const useWeeklyReport = (): WeeklyReport | null => {
     report.overallScore = Math.round(score);
 
     return report;
-  }, []);
+  }, [userId]);
 
   return report;
 };

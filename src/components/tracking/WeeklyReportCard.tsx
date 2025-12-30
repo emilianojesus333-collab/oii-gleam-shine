@@ -5,9 +5,11 @@ import {
 } from 'lucide-react';
 import { useWeeklyReport, WeeklyReport } from '@/hooks/useWeeklyReport';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/useAuth';
 
 export const WeeklyReportCard = () => {
-  const report = useWeeklyReport();
+  const { user } = useAuth();
+  const report = useWeeklyReport(user?.id);
 
   if (!report) return null;
 
@@ -107,7 +109,8 @@ export const WeeklyReportCard = () => {
 
 // Full weekly report view
 export const WeeklyReportView = () => {
-  const report = useWeeklyReport();
+  const { user } = useAuth();
+  const report = useWeeklyReport(user?.id);
 
   if (!report) {
     return (
