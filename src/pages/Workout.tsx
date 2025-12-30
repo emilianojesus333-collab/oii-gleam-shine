@@ -16,11 +16,12 @@ import {
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
-import { getWorkoutHistory, type ExerciseLog } from "@/data/workoutHistory";
+import { getWorkoutHistory, saveWorkoutSession, type ExerciseLog, type WorkoutSession } from "@/data/workoutHistory";
 import { toast } from "sonner";
 import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useAuth } from "@/hooks/useAuth";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -114,16 +115,18 @@ const Workout = () => {
   // Saved exercises state
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
+  const { user } = useAuth();
   
   // Load today's saved exercises on mount
   useEffect(() => {
-    const history = getWorkoutHistory();
+    if (!user) return;
+    const history = getWorkoutHistory(user.id);
     const today = new Date().toISOString().split("T")[0];
     const todaySession = history.sessions.find(s => s.date === today);
     if (todaySession?.exerciseLogs) {
       setSavedExercises(todaySession.exerciseLogs);
     }
-  }, []);
+  }, [user]);
 
   // Get today's workout from user settings (Supabase)
   const todayWorkout = useMemo(() => {
@@ -217,6 +220,11 @@ const Workout = () => {
       return;
     }
     
+    if (!user) {
+      toast.error("Faz login para guardar exercícios");
+      return;
+    }
+    
     const newLog: ExerciseLog = {
       name: selectedExercise,
       weight: parseInt(weight) || 0,
@@ -230,33 +238,22 @@ const Workout = () => {
     const updatedExercises = [...savedExercises, newLog];
     setSavedExercises(updatedExercises);
     
-    // Save to localStorage
-    const history = getWorkoutHistory();
+    // Save to user-specific localStorage
     const today = new Date();
     const dateStr = today.toISOString().split("T")[0];
+    const muscleGroups = todayWorkout?.split(" + ") || [];
     
-    const existingIndex = history.sessions.findIndex(s => s.date === dateStr);
+    const session: Omit<WorkoutSession, "timestamp"> = {
+      date: dateStr,
+      dayOfWeek: weekDaysMap[today.getDay()],
+      muscleGroups,
+      exercisesCompleted: updatedExercises.map(e => e.name),
+      exerciseLogs: updatedExercises,
+      totalExercises: todayExercises.length,
+      completionRate: Math.round((updatedExercises.length / Math.max(todayExercises.length, 1)) * 100),
+    };
     
-    if (existingIndex >= 0) {
-      history.sessions[existingIndex].exerciseLogs = updatedExercises;
-      history.sessions[existingIndex].exercisesCompleted = updatedExercises.map(e => e.name);
-      history.sessions[existingIndex].timestamp = Date.now();
-    } else {
-      const muscleGroups = todayWorkout?.split(" + ") || [];
-      history.sessions.push({
-        date: dateStr,
-        dayOfWeek: weekDaysMap[today.getDay()],
-        muscleGroups,
-        exercisesCompleted: [selectedExercise],
-        exerciseLogs: updatedExercises,
-        totalExercises: todayExercises.length,
-        completionRate: Math.round((updatedExercises.length / todayExercises.length) * 100),
-        timestamp: Date.now(),
-      });
-    }
-    
-    history.lastUpdated = Date.now();
-    localStorage.setItem("liftmate_workout_history", JSON.stringify(history));
+    saveWorkoutSession(session, user.id);
     
     // Show feedback
     setJustSaved(true);

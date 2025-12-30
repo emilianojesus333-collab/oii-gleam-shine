@@ -1,4 +1,5 @@
 // Workout history management
+// NOTE: This module now requires a userId for all operations to ensure data isolation
 
 export interface ExerciseLog {
   name: string;
@@ -25,13 +26,20 @@ export interface WorkoutHistory {
   lastUpdated: number;
 }
 
-const HISTORY_KEY = "liftmate_workout_history";
+const HISTORY_KEY_PREFIX = "liftmate_workout_history_";
 const MAX_HISTORY_DAYS = 90; // Keep 90 days of history
 
-// Get workout history from localStorage
-export const getWorkoutHistory = (): WorkoutHistory => {
+// Get storage key for a specific user
+const getStorageKey = (userId: string) => `${HISTORY_KEY_PREFIX}${userId}`;
+
+// Get workout history from localStorage for a specific user
+export const getWorkoutHistory = (userId?: string): WorkoutHistory => {
+  if (!userId) {
+    return { sessions: [], lastUpdated: Date.now() };
+  }
+
   try {
-    const saved = localStorage.getItem(HISTORY_KEY);
+    const saved = localStorage.getItem(getStorageKey(userId));
     if (saved) {
       const parsed = JSON.parse(saved);
       return parsed;
@@ -42,10 +50,15 @@ export const getWorkoutHistory = (): WorkoutHistory => {
   return { sessions: [], lastUpdated: Date.now() };
 };
 
-// Save a workout session to history
-export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">): void => {
+// Save a workout session to history for a specific user
+export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">, userId?: string): void => {
+  if (!userId) {
+    console.warn("Cannot save workout session: no userId provided");
+    return;
+  }
+
   try {
-    const history = getWorkoutHistory();
+    const history = getWorkoutHistory(userId);
     
     // Check if session for this date already exists
     const existingIndex = history.sessions.findIndex(s => s.date === session.date);
@@ -75,14 +88,14 @@ export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">): 
     
     history.lastUpdated = Date.now();
     
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(history));
   } catch (e) {
     console.error("Error saving workout session:", e);
   }
 };
 
 // Get stats for AI context
-export const getWorkoutStats = (): {
+export const getWorkoutStats = (userId?: string): {
   totalSessions: number;
   thisWeekSessions: number;
   currentStreak: number;
@@ -90,7 +103,7 @@ export const getWorkoutStats = (): {
   averageCompletionRate: number;
   recentSessions: WorkoutSession[];
 } => {
-  const history = getWorkoutHistory();
+  const history = getWorkoutHistory(userId);
   const sessions = history.sessions;
   
   if (sessions.length === 0) {
@@ -170,12 +183,12 @@ export const getWorkoutStats = (): {
 };
 
 // Get today's workout stats
-export const getTodayStats = (): {
+export const getTodayStats = (userId?: string): {
   totalSets: number;
   totalReps: number;
   totalMinutes: number;
 } => {
-  const history = getWorkoutHistory();
+  const history = getWorkoutHistory(userId);
   const today = new Date().toISOString().split("T")[0];
   const todaySession = history.sessions.find(s => s.date === today);
   
@@ -199,8 +212,9 @@ export const getTodayStats = (): {
   
   return { totalSets, totalReps, totalMinutes };
 };
-export const generateAIContext = (): string => {
-  const stats = getWorkoutStats();
+
+export const generateAIContext = (userId?: string): string => {
+  const stats = getWorkoutStats(userId);
   
   if (stats.totalSessions === 0) {
     return "O utilizador ainda não tem histórico de treinos registado.";

@@ -33,8 +33,11 @@ interface MeasurementsState {
   synced: boolean;
 }
 
-const STORAGE_KEY = 'liftmate_body_measurements';
+const STORAGE_KEY_PREFIX = 'liftmate_body_measurements_';
 const CACHE_TTL = 5 * 60 * 1000;
+
+// Get user-specific storage key
+const getStorageKey = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`;
 
 interface CacheEntry {
   data: any;
@@ -61,19 +64,22 @@ const setCache = <T>(key: string, data: T): void => {
   });
 };
 
+// Clear cache for a specific user
+export const clearMeasurementsCache = (userId?: string) => {
+  if (userId) {
+    localCache.delete(`measurements_${userId}`);
+  } else {
+    localCache.clear();
+  }
+};
+
 export const useBodyMeasurements = () => {
   const { user } = useAuth();
-  const [state, setState] = useState<MeasurementsState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return { ...parsed, loading: false, synced: false };
-      } catch {
-        return { measurements: [], goals: {}, loading: false, synced: false };
-      }
-    }
-    return { measurements: [], goals: {}, loading: false, synced: false };
+  const [state, setState] = useState<MeasurementsState>({
+    measurements: [],
+    goals: {},
+    loading: false,
+    synced: false,
   });
 
   const syncInProgressRef = useRef(false);
@@ -140,10 +146,11 @@ export const useBodyMeasurements = () => {
     syncWithSupabase();
   }, [user]);
 
-  // Persist to localStorage
+  // Persist to user-specific localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (!user) return;
+    localStorage.setItem(getStorageKey(user.id), JSON.stringify(state));
+  }, [state, user]);
 
   const addMeasurement = useCallback(async (measurement: Omit<BodyMeasurement, 'id'>) => {
     const newMeasurement: BodyMeasurement = {

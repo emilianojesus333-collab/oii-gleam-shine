@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 interface PaginatedQueryOptions<T> {
   table: 'nutrition_logs' | 'workout_sessions' | 'body_measurements' | 'one_rm_records' | 'conversations' | 'messages';
@@ -22,8 +23,13 @@ interface PaginatedQueryResult<T> {
   currentPage: number;
 }
 
-// Simple in-memory cache
+// Simple in-memory cache - keyed by user_id for isolation
 const cache = new Map<string, { data: any[]; timestamp: number; totalCount: number }>();
+
+// Clear all cache (called on logout)
+export const clearPaginatedQueryCache = () => {
+  cache.clear();
+};
 
 export function usePaginatedQuery<T>({
   table,
@@ -34,6 +40,7 @@ export function usePaginatedQuery<T>({
   cacheKey,
   cacheTTL = 5 * 60 * 1000, // 5 minutes default
 }: PaginatedQueryOptions<T>): PaginatedQueryResult<T> {
+  const { user } = useAuth();
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +49,13 @@ export function usePaginatedQuery<T>({
   const [currentPage, setCurrentPage] = useState(0);
   const isFetchingRef = useRef(false);
 
+  // Include user_id in cache key for isolation
   const getCacheKey = useCallback(() => {
-    return cacheKey || `${table}_${JSON.stringify(filters)}_${orderBy}_${orderAscending}`;
-  }, [table, filters, orderBy, orderAscending, cacheKey]);
+    const userId = user?.id || 'anonymous';
+    return cacheKey 
+      ? `${userId}_${cacheKey}` 
+      : `${userId}_${table}_${JSON.stringify(filters)}_${orderBy}_${orderAscending}`;
+  }, [table, filters, orderBy, orderAscending, cacheKey, user?.id]);
 
   const fetchPage = useCallback(async (page: number, append: boolean = false) => {
     if (isFetchingRef.current) return;

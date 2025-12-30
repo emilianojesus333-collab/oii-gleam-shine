@@ -122,6 +122,15 @@ export function clearAllCache() {
   globalCache.clear();
 }
 
+// Clear cache for a specific user (used on logout)
+export function clearUserCache(userId: string) {
+  for (const key of globalCache.keys()) {
+    if (key.includes(userId)) {
+      globalCache.delete(key);
+    }
+  }
+}
+
 export function getCacheStats() {
   const entries = Array.from(globalCache.entries());
   const now = Date.now();

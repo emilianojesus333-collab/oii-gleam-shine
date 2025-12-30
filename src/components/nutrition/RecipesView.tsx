@@ -54,7 +54,7 @@ export const RecipesView = () => {
         </motion.div>
       </SheetTrigger>
 
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10">
+      <SheetContent side="bottom" className="h-[90vh] max-h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10 flex flex-col overflow-hidden">
         <SheetHeader className="pb-4">
           <SheetTitle className="flex items-center gap-2 text-white">
             <ChefHat className="w-5 h-5 text-orange-500" />
@@ -62,7 +62,7 @@ export const RecipesView = () => {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 flex flex-col min-h-0 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -95,7 +95,7 @@ export const RecipesView = () => {
             </div>
           </ScrollArea>
 
-          <ScrollArea className="h-[calc(90vh-200px)]">
+          <ScrollArea className="flex-1 min-h-0">
             <AnimatePresence mode="popLayout">
               {selectedRecipe ? (
                 <motion.div

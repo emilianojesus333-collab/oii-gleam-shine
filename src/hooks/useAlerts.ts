@@ -150,13 +150,14 @@ export const useAlerts = () => {
         const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
         localStorage.setItem(userKey, JSON.stringify(state));
 
-        // Save to database
+        // Save to database using upsert to ensure record exists
         await supabase
           .from('user_settings')
-          .update({
+          .upsert({
+            user_id: user.id,
             alerts_config: JSON.parse(JSON.stringify(state)),
-          })
-          .eq('user_id', user.id);
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' });
       } catch (error) {
         console.error('Error saving alerts:', error);
       }
