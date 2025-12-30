@@ -5,7 +5,7 @@ import { getWorkoutHistory } from "@/data/workoutHistory";
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useNavigate } from "react-router-dom";
 import { OneRMProgressChart } from "./OneRMProgressChart";
-
+import { useAuth } from "@/hooks/useAuth";
 interface MainWorkoutCarouselProps {
   selectedExercise: string;
   setSelectedExercise: (value: string) => void;
@@ -83,6 +83,7 @@ export const MainWorkoutCarousel = ({
   const containerRef = useRef<HTMLDivElement>(null);
   
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { saveRecord, getProgressData, isAuthenticated, fetchRecords, records } = useOneRMRecords();
   
   // 1RM Calculator state (independent from registration)
@@ -102,9 +103,11 @@ export const MainWorkoutCarousel = ({
 
   // Get last workout data for this exercise
   const lastWorkout = useMemo(() => {
-    if (!selectedExercise) return null;
+    if (!selectedExercise || !user?.id) return null;
 
-    const history = getWorkoutHistory();
+    const history = getWorkoutHistory(user.id);
+    console.log('[MainWorkoutCarousel] Getting history for user:', user.id, 'sessions:', history.sessions.length);
+    
     for (const session of history.sessions) {
       const exerciseLog = session.exerciseLogs?.find(
         (log) => log.name.toLowerCase() === selectedExercise.toLowerCase()
@@ -117,7 +120,7 @@ export const MainWorkoutCarousel = ({
       }
     }
     return null;
-  }, [selectedExercise]);
+  }, [selectedExercise, user?.id]);
 
   // Calculate 1RM for the calculator slide
   const calculatedRM = useMemo(() => {

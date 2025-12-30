@@ -225,6 +225,8 @@ const Workout = () => {
       return;
     }
     
+    console.log("[Workout] Saving exercise for user:", user.id);
+    
     const newLog: ExerciseLog = {
       name: selectedExercise,
       weight: parseInt(weight) || 0,
@@ -254,6 +256,7 @@ const Workout = () => {
     };
     
     saveWorkoutSession(session, user.id);
+    console.log("[Workout] Exercise saved successfully:", selectedExercise);
     
     // Show feedback
     setJustSaved(true);
