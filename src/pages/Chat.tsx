@@ -38,11 +38,16 @@ const Chat = () => {
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   
-  // Continuous conversation mode
-  const [continuousMode, setContinuousMode] = useState(() => {
-    const saved = localStorage.getItem("liftmate_continuous_mode");
-    return saved === "true";
-  });
+  // Continuous conversation mode - user specific
+  const [continuousMode, setContinuousMode] = useState(false);
+  
+  // Load user-specific continuous mode setting
+  useEffect(() => {
+    if (user?.id) {
+      const saved = localStorage.getItem(`liftmate_continuous_mode_${user.id}`);
+      setContinuousMode(saved === "true");
+    }
+  }, [user?.id]);
 
   const {
     conversations,
@@ -349,7 +354,9 @@ const Chat = () => {
                   checked={continuousMode}
                   onCheckedChange={(checked) => {
                     setContinuousMode(checked);
-                    localStorage.setItem("liftmate_continuous_mode", String(checked));
+                    if (user?.id) {
+                      localStorage.setItem(`liftmate_continuous_mode_${user.id}`, String(checked));
+                    }
                     toast.success(checked ? t("chat.continuousModeOn") : t("chat.continuousModeOff"));
                   }}
                 />

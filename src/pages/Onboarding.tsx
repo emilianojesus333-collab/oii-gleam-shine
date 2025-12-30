@@ -91,8 +91,8 @@ const Onboarding = () => {
     setSaving(true);
     
     try {
-      // Save onboarding data to localStorage for compatibility
-      localStorage.setItem("liftmate_onboarding", JSON.stringify(data));
+      // Save onboarding data to user-specific localStorage for compatibility
+      localStorage.setItem(`liftmate_onboarding_${userId}`, JSON.stringify(data));
       
       // Check if user_settings record exists
       const { data: existingSettings } = await supabase

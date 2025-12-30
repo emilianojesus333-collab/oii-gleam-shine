@@ -4,19 +4,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useAuth } from "@/hooks/useAuth";
+
+// Get user-specific storage key
+const getStorageKey = (userId?: string) => userId ? `liftmate_name_banner_dismissed_${userId}` : null;
 
 export const NameAIBanner = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const { settings, isLoading } = useUserSettings();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !user?.id) return;
     
     // Check if AI name is already set in database
     const hasAiName = settings?.ai_name && settings.ai_name !== "LiftMate" && settings.ai_name !== "Liftmate";
-    const bannerDismissed = localStorage.getItem("liftmate_name_banner_dismissed");
+    const key = getStorageKey(user.id);
+    const bannerDismissed = key ? localStorage.getItem(key) : null;
     
     // Show banner if no AI name and not dismissed
     if (!hasAiName && !bannerDismissed) {
@@ -24,12 +30,15 @@ export const NameAIBanner = () => {
     } else {
       setVisible(false);
     }
-  }, [settings, isLoading]);
+  }, [settings, isLoading, user?.id]);
 
   const handleDismiss = () => {
     setDismissed(true);
     setVisible(false);
-    localStorage.setItem("liftmate_name_banner_dismissed", "true");
+    const key = getStorageKey(user?.id);
+    if (key) {
+      localStorage.setItem(key, "true");
+    }
   };
 
   const handleNameAI = () => {

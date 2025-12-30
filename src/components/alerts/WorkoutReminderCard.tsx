@@ -15,6 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useAuth } from '@/hooks/useAuth';
 
 interface WorkoutReminderCardProps {
   settings: WorkoutReminder;
@@ -28,12 +29,24 @@ const motivationalQuotes = [
   "Levanta, treina, repete. 🔥",
 ];
 
+// Get user-specific storage key
+const getStorageKey = (userId?: string) => userId ? `liftmate_workout_time_${userId}` : null;
+
 export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardProps) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [workoutTime, setWorkoutTime] = useState(() => {
-    const saved = localStorage.getItem('liftmate_workout_time');
-    return saved || '18:00';
-  });
+  const [workoutTime, setWorkoutTime] = useState('18:00');
+  
+  // Load user-specific workout time
+  useEffect(() => {
+    const key = getStorageKey(user?.id);
+    if (key) {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        setWorkoutTime(saved);
+      }
+    }
+  }, [user?.id]);
   
   // Fix: Use useState with initializer to prevent re-renders causing text flickering
   const [randomQuote] = useState(() => 
@@ -44,7 +57,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
 
   // Schedule workout notification when settings change
   useEffect(() => {
-    if (permission !== 'granted' || !settings.enabled) {
+    if (permission !== 'granted' || !settings.enabled || !user?.id) {
       return;
     }
 
@@ -62,9 +75,12 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
     // Schedule the notification
     scheduleWorkoutReminder(workoutDate, settings.minutesBefore, settings.motivationalMessage);
 
-    // Save workout time
-    localStorage.setItem('liftmate_workout_time', workoutTime);
-  }, [settings.enabled, settings.minutesBefore, settings.motivationalMessage, workoutTime, permission, scheduleWorkoutReminder]);
+    // Save workout time - USER SPECIFIC
+    const key = getStorageKey(user.id);
+    if (key) {
+      localStorage.setItem(key, workoutTime);
+    }
+  }, [settings.enabled, settings.minutesBefore, settings.motivationalMessage, workoutTime, permission, scheduleWorkoutReminder, user?.id]);
 
   const handleTimeChange = (time: string) => {
     setWorkoutTime(time);

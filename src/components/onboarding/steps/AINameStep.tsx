@@ -25,8 +25,9 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
   const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
   const handleContinue = () => {
-    const finalName = aiName.trim() || selectedSuggestion || "LiftMate";
-    localStorage.setItem("liftmate_ai_name", finalName);
+    // Note: AI name is saved to database via user_settings, not localStorage
+    // This localStorage is only for temporary storage during onboarding flow
+    // The actual save happens in the Onboarding page when completing the flow
     onContinue();
   };
 
