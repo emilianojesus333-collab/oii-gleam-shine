@@ -14,6 +14,16 @@ import {
   Save,
   Check
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getWorkoutHistory, saveWorkoutSession, type ExerciseLog, type WorkoutSession } from "@/data/workoutHistory";
@@ -115,6 +125,7 @@ const Workout = () => {
   // Saved exercises state
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const { user } = useAuth();
   
   // Load today's saved exercises on mount
@@ -214,7 +225,7 @@ const Workout = () => {
     setRestRemaining(parseInt(restTime));
   };
 
-  const saveExercise = () => {
+  const handleSaveClick = () => {
     if (!selectedExercise.trim()) {
       toast.error("Seleciona um exercício primeiro");
       return;
@@ -224,6 +235,12 @@ const Workout = () => {
       toast.error("Faz login para guardar exercícios");
       return;
     }
+    
+    setShowSaveConfirm(true);
+  };
+
+  const confirmSaveExercise = () => {
+    if (!user) return;
     
     console.log("[Workout] Saving exercise for user:", user.id);
     
@@ -265,6 +282,7 @@ const Workout = () => {
     
     // Clear form for next exercise
     setSelectedExercise("");
+    setShowSaveConfirm(false);
   };
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
@@ -365,7 +383,7 @@ const Workout = () => {
               restTime={restTime}
               setRestTime={setRestTime}
               todayExercises={todayExercises}
-              saveExercise={saveExercise}
+              saveExercise={handleSaveClick}
               justSaved={justSaved}
             />
           </motion.div>
@@ -541,6 +559,31 @@ const Workout = () => {
       )}
 
       <BottomNav />
+
+      {/* Save Confirmation Dialog */}
+      <AlertDialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>
+        <AlertDialogContent className="bg-[#1E1E1E] border-gray-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Guardar exercício?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              <span className="font-semibold text-primary">{selectedExercise}</span>
+              <br />
+              {weight}kg · {sets}x{reps} reps
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border-none hover:bg-gray-600">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmSaveExercise}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
