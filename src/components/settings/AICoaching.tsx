@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
 import { useNutrition } from "@/hooks/useNutrition";
 import { useAlerts } from "@/hooks/useAlerts";
@@ -206,7 +206,7 @@ export const AICoaching = () => {
     try {
       const context = gatherContext();
       
-      const { data, error } = await supabase.functions.invoke('ai-coaching', {
+      const { data, error } = await invokeWithAuth<{ success: boolean; error?: string; tips?: CoachingTip[]; summary?: string }>('ai-coaching', {
         body: { context }
       });
 

@@ -8,7 +8,7 @@ import { useProgressPhotos, ProgressPhoto } from '@/hooks/useProgressPhotos';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { invokeWithAuth } from '@/lib/supabaseHelpers';
 import { compressImage } from '@/lib/imageCompression';
 
 export const ProgressPhotosCard = () => {
@@ -148,7 +148,7 @@ const AddPhotoSheet = ({ open, onOpenChange }: AddPhotoSheetProps) => {
     // Optionally analyze with AI
     setIsAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-physique', {
+      const { data, error } = await invokeWithAuth<{ analysis?: { observations?: string[]; improvements?: string[] } }>('analyze-physique', {
         body: { image: imageBase64, pose: selectedPose },
       });
 

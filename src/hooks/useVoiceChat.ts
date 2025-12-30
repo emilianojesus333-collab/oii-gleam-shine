@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { invokeWithAuth } from '@/lib/supabaseHelpers';
 
 // Haptic feedback utility
 const triggerHaptic = (pattern: number | number[] = 50) => {
@@ -83,7 +83,7 @@ export function useVoiceChat() {
             const base64Audio = (reader.result as string).split(',')[1];
             
             try {
-              const { data, error } = await supabase.functions.invoke('speech-to-text', {
+              const { data, error } = await invokeWithAuth<{ text?: string }>('speech-to-text', {
                 body: { audio: base64Audio },
               });
               
@@ -148,7 +148,7 @@ export function useVoiceChat() {
     try {
       setIsSpeaking(true);
       
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      const { data, error } = await invokeWithAuth<{ audioContent?: string }>('text-to-speech', {
         body: { text },
       });
       

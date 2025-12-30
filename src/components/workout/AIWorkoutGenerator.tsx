@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Check
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -75,7 +75,7 @@ export const AIWorkoutGenerator = ({
     setCompletedExercises(new Set());
 
     try {
-      const { data, error } = await supabase.functions.invoke("generate-workout", {
+      const { data, error } = await invokeWithAuth<{ workout?: GeneratedWorkout; error?: string }>("generate-workout", {
         body: {
           muscleGroups: todayMuscleGroups,
           trainingType,
