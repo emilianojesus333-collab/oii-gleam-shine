@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { invalidateCachePattern } from './useDataCache';
+import { registerCacheCleaner, unregisterCacheCleaner } from './cacheUtils';
 
 export interface MacroGoals {
   calories: number;
@@ -137,6 +138,9 @@ export const clearNutritionCache = (userId?: string) => {
     localCache.clear();
   }
 };
+
+// Register cache cleaner globally
+registerCacheCleaner(() => localCache.clear());
 
 // Harris-Benedict BMR calculation
 const calculateBMR = (profile: UserProfile): number => {

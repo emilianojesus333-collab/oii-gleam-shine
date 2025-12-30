@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { registerCacheCleaner } from './cacheUtils';
 
 interface PaginatedQueryOptions<T> {
   table: 'nutrition_logs' | 'workout_sessions' | 'body_measurements' | 'one_rm_records' | 'conversations' | 'messages';
@@ -28,8 +29,12 @@ const cache = new Map<string, { data: any[]; timestamp: number; totalCount: numb
 
 // Clear all cache (called on logout)
 export const clearPaginatedQueryCache = () => {
+  console.log('[usePaginatedQuery] Clearing cache, entries:', cache.size);
   cache.clear();
 };
+
+// Register cache cleaner globally
+registerCacheCleaner(() => cache.clear());
 
 export function usePaginatedQuery<T>({
   table,
