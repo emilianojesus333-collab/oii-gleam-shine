@@ -115,6 +115,7 @@ const Workout = () => {
   // Saved exercises state
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0); // Trigger carousel history refresh
   const { user } = useAuth();
   
   // Load today's saved exercises on mount
@@ -258,6 +259,9 @@ const Workout = () => {
     saveWorkoutSession(session, user.id);
     console.log("[Workout] Exercise saved successfully:", selectedExercise);
     
+    // Trigger history refresh in carousel
+    setHistoryRefreshKey(prev => prev + 1);
+    
     // Show feedback
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
@@ -367,6 +371,7 @@ const Workout = () => {
               todayExercises={todayExercises}
               saveExercise={saveExercise}
               justSaved={justSaved}
+              historyRefreshKey={historyRefreshKey}
             />
           </motion.div>
 
