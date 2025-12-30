@@ -34,7 +34,11 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
     const saved = localStorage.getItem('liftmate_workout_time');
     return saved || '18:00';
   });
-  const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+  
+  // Fix: Use useState with initializer to prevent re-renders causing text flickering
+  const [randomQuote] = useState(() => 
+    motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]
+  );
   
   const { permission, scheduleWorkoutReminder, cancelNotification } = usePushNotifications();
 

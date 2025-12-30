@@ -97,8 +97,10 @@ const defaultProfile: UserProfile = {
   goal: 'maintain',
 };
 
-const STORAGE_KEY = 'nutrition_data';
-const CACHE_KEY = 'nutrition_cache';
+const STORAGE_KEY_PREFIX = 'nutrition_data_';
+
+// Get user-specific storage key
+const getStorageKey = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`;
 
 // Cache with TTL
 interface CacheEntry {
@@ -125,6 +127,15 @@ const setCache = <T>(key: string, data: T): void => {
     timestamp: Date.now(),
     expiresAt: Date.now() + CACHE_TTL,
   });
+};
+
+// Clear cache for a specific user
+export const clearNutritionCache = (userId?: string) => {
+  if (userId) {
+    localCache.delete(`nutrition_${userId}`);
+  } else {
+    localCache.clear();
+  }
 };
 
 // Harris-Benedict BMR calculation
@@ -191,24 +202,6 @@ const getWeekStart = () => {
 export const useNutrition = () => {
   const { user } = useAuth();
   const [state, setState] = useState<NutritionState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return {
-          ...parsed,
-          currentDate: getToday(),
-          weeklyGoals: parsed.weeklyGoals || [],
-          achievements: parsed.achievements || [],
-          notifiedAchievements: parsed.notifiedAchievements || [],
-          loading: false,
-          synced: false,
-        };
-      } catch {
-        // Fall through
-      }
-    }
-    
     const goals = calculateMacroGoals(defaultProfile);
     return {
       profile: defaultProfile,
@@ -222,6 +215,46 @@ export const useNutrition = () => {
       synced: false,
     };
   });
+
+  // Load user-specific data when user changes
+  useEffect(() => {
+    if (!user) {
+      // Reset to default state when no user
+      const goals = calculateMacroGoals(defaultProfile);
+      setState({
+        profile: defaultProfile,
+        goals,
+        dailyLogs: [],
+        currentDate: getToday(),
+        weeklyGoals: [],
+        achievements: [],
+        notifiedAchievements: [],
+        loading: false,
+        synced: false,
+      });
+      return;
+    }
+
+    // Load from user-specific localStorage
+    const saved = localStorage.getItem(getStorageKey(user.id));
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setState(prev => ({
+          ...prev,
+          ...parsed,
+          currentDate: getToday(),
+          weeklyGoals: parsed.weeklyGoals || [],
+          achievements: parsed.achievements || [],
+          notifiedAchievements: parsed.notifiedAchievements || [],
+          loading: false,
+          synced: false,
+        }));
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }, [user?.id]);
 
   const hasShownAchievementRef = useRef<Set<string>>(new Set(state.notifiedAchievements));
   const syncInProgressRef = useRef(false);
@@ -327,10 +360,11 @@ export const useNutrition = () => {
     syncWithSupabase();
   }, [user]);
 
-  // Persist to localStorage (backup)
+  // Persist to user-specific localStorage (backup)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (!user) return;
+    localStorage.setItem(getStorageKey(user.id), JSON.stringify(state));
+  }, [state, user]);
 
   // Save to Supabase (debounced)
   const saveToSupabase = useCallback(async (log: DailyLog) => {
