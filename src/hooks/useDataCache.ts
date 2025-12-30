@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { registerCacheCleaner } from './cacheUtils';
 
 interface CacheEntry<T> {
   data: T;
@@ -119,8 +120,12 @@ export function invalidateCachePattern(pattern: string) {
 }
 
 export function clearAllCache() {
+  console.log('[useDataCache] Clearing all cache, entries:', globalCache.size);
   globalCache.clear();
 }
+
+// Register the cache cleaner globally
+registerCacheCleaner(() => globalCache.clear());
 
 // Clear cache for a specific user (used on logout)
 export function clearUserCache(userId: string) {

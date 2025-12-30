@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { invalidateCachePattern } from './useDataCache';
+import { registerCacheCleaner, unregisterCacheCleaner } from './cacheUtils';
 
 export interface BodyMeasurement {
   id: string;
@@ -72,6 +73,9 @@ export const clearMeasurementsCache = (userId?: string) => {
     localCache.clear();
   }
 };
+
+// Register cache cleaner globally
+registerCacheCleaner(() => localCache.clear());
 
 export const useBodyMeasurements = () => {
   const { user } = useAuth();
