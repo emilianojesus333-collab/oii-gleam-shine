@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload } from 'lucide-react';
 import { useState, useRef, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { compressBase64Image } from '@/lib/imageCompression';
+import { invokeWithAuth } from '@/lib/supabaseHelpers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -104,7 +104,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const analyzeImage = async (imageBase64: string) => {
     setIsAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-food', {
+      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
         body: { imageBase64 },
       });
 
@@ -136,7 +136,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
     setIsAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-food', {
+      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
         body: { mealDescription: manualInput },
       });
 

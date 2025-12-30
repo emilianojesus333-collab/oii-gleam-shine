@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, Lock, Calendar } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { compressImage } from "@/lib/imageCompression";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
@@ -118,7 +118,7 @@ export const PhysiqueEvaluation = () => {
     setIsAnalyzing(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-physique', {
+      const { data, error } = await invokeWithAuth<PhysiqueAnalysis>('analyze-physique', {
         body: { imageBase64 }
       });
 
