@@ -1,11 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, TrendingUp, History, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity, BookmarkPlus, TrendingDown, User } from "lucide-react";
-import { getWorkoutHistory } from "@/data/workoutHistory";
+import { Dumbbell, TrendingUp, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity, BookmarkPlus, TrendingDown, User } from "lucide-react";
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useNavigate } from "react-router-dom";
 import { OneRMProgressChart } from "./OneRMProgressChart";
-import { useAuth } from "@/hooks/useAuth";
 interface MainWorkoutCarouselProps {
   selectedExercise: string;
   setSelectedExercise: (value: string) => void;
@@ -20,7 +18,6 @@ interface MainWorkoutCarouselProps {
   todayExercises: { name: string; focus?: string }[];
   saveExercise: () => void;
   justSaved: boolean;
-  historyRefreshKey?: number; // Trigger to refresh history after saving
 }
 
 // 1RM Calculation Formulas
@@ -77,7 +74,6 @@ export const MainWorkoutCarousel = ({
   todayExercises,
   saveExercise,
   justSaved,
-  historyRefreshKey = 0,
 }: MainWorkoutCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -85,7 +81,6 @@ export const MainWorkoutCarousel = ({
   const containerRef = useRef<HTMLDivElement>(null);
   
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { saveRecord, getProgressData, isAuthenticated, fetchRecords, records } = useOneRMRecords();
   
   // 1RM Calculator state (independent from registration)
@@ -102,27 +97,6 @@ export const MainWorkoutCarousel = ({
       fetchRecords(calcExercise);
     }
   }, [calcExercise]);
-
-  // Get last workout data for this exercise - refreshes when historyRefreshKey changes
-  const lastWorkout = useMemo(() => {
-    if (!selectedExercise || !user?.id) return null;
-
-    const history = getWorkoutHistory(user.id);
-    console.log('[MainWorkoutCarousel] Getting history for user:', user.id, 'sessions:', history.sessions.length, 'refreshKey:', historyRefreshKey);
-    
-    for (const session of history.sessions) {
-      const exerciseLog = session.exerciseLogs?.find(
-        (log) => log.name.toLowerCase() === selectedExercise.toLowerCase()
-      );
-      if (exerciseLog) {
-        return {
-          ...exerciseLog,
-          date: session.date,
-        };
-      }
-    }
-    return null;
-  }, [selectedExercise, user?.id, historyRefreshKey]);
 
   // Calculate 1RM for the calculator slide
   const calculatedRM = useMemo(() => {
@@ -192,7 +166,6 @@ export const MainWorkoutCarousel = ({
   const slides = [
     { id: "register", icon: Dumbbell, title: "Registar Exercício" },
     { id: "1rm", icon: Calculator, title: "Calculadora 1RM" },
-    { id: "history", icon: History, title: "Histórico" },
   ];
 
   const swipeConfidenceThreshold = 10000;
@@ -600,47 +573,6 @@ export const MainWorkoutCarousel = ({
                 </div>
               )}
 
-              {activeSlide === 2 && (
-                <div className="min-h-[280px] flex flex-col items-center justify-center text-center py-6">
-                  {lastWorkout ? (
-                    <>
-                      <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-6">
-                        <History className="w-12 h-12 text-primary" />
-                      </div>
-                      <p className="text-gray-400 text-sm mb-2">Última vez: {selectedExercise}</p>
-                      <p className="text-5xl font-bold text-white mb-1">{lastWorkout.weight}<span className="text-xl text-gray-400 ml-1">kg</span></p>
-                      <p className="text-2xl font-semibold text-gray-300">{lastWorkout.reps} reps × {lastWorkout.sets} séries</p>
-                      <p className="text-gray-500 text-sm mt-6">
-                        {new Date(lastWorkout.date).toLocaleDateString("pt-PT", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                        })}
-                      </p>
-                    </>
-                  ) : selectedExercise ? (
-                    <>
-                      <div className="w-20 h-20 rounded-full bg-gray-700/30 flex items-center justify-center mb-4">
-                        <History className="w-10 h-10 text-gray-500" />
-                      </div>
-                      <p className="text-gray-400 text-lg mb-2">Primeiro registo!</p>
-                      <p className="text-gray-500 text-sm max-w-xs">
-                        Ainda não tens histórico para "{selectedExercise}"
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-20 h-20 rounded-full bg-gray-700/30 flex items-center justify-center mb-4">
-                        <History className="w-10 h-10 text-gray-500" />
-                      </div>
-                      <p className="text-gray-400 text-lg mb-2">Seleciona um exercício</p>
-                      <p className="text-gray-500 text-sm max-w-xs">
-                        Escolhe um exercício no slide de registo para ver o histórico
-                      </p>
-                    </>
-                  )}
-                </div>
-              )}
           </motion.div>
         </AnimatePresence>
       </div>
