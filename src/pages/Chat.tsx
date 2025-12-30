@@ -533,7 +533,7 @@ const Chat = () => {
             >
               <Loader2 className="h-4 w-4" />
             </motion.div>
-            <span className="text-sm">A transcrever...</span>
+            <span className="text-sm">{t("chat.transcribing")}</span>
           </motion.div>
         )}
         
