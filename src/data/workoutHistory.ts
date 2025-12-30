@@ -35,17 +35,21 @@ const getStorageKey = (userId: string) => `${HISTORY_KEY_PREFIX}${userId}`;
 // Get workout history from localStorage for a specific user
 export const getWorkoutHistory = (userId?: string): WorkoutHistory => {
   if (!userId) {
+    console.log("[WorkoutHistory] getWorkoutHistory called without userId - returning empty");
     return { sessions: [], lastUpdated: Date.now() };
   }
 
   try {
-    const saved = localStorage.getItem(getStorageKey(userId));
+    const storageKey = getStorageKey(userId);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       const parsed = JSON.parse(saved);
+      console.log("[WorkoutHistory] Loaded history for user:", userId, "sessions:", parsed.sessions?.length || 0);
       return parsed;
     }
+    console.log("[WorkoutHistory] No history found for user:", userId);
   } catch (e) {
-    console.error("Error loading workout history:", e);
+    console.error("[WorkoutHistory] Error loading workout history:", e);
   }
   return { sessions: [], lastUpdated: Date.now() };
 };
@@ -53,11 +57,14 @@ export const getWorkoutHistory = (userId?: string): WorkoutHistory => {
 // Save a workout session to history for a specific user
 export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">, userId?: string): void => {
   if (!userId) {
-    console.warn("Cannot save workout session: no userId provided");
+    console.warn("[WorkoutHistory] Cannot save workout session: no userId provided");
     return;
   }
 
   try {
+    const storageKey = getStorageKey(userId);
+    console.log("[WorkoutHistory] Saving session for user:", userId, "key:", storageKey);
+    
     const history = getWorkoutHistory(userId);
     
     // Check if session for this date already exists
@@ -71,9 +78,11 @@ export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">, u
     if (existingIndex >= 0) {
       // Update existing session
       history.sessions[existingIndex] = newSession;
+      console.log("[WorkoutHistory] Updated existing session for date:", session.date);
     } else {
       // Add new session
       history.sessions.push(newSession);
+      console.log("[WorkoutHistory] Added new session for date:", session.date);
     }
     
     // Sort by date descending
@@ -88,9 +97,10 @@ export const saveWorkoutSession = (session: Omit<WorkoutSession, "timestamp">, u
     
     history.lastUpdated = Date.now();
     
-    localStorage.setItem(getStorageKey(userId), JSON.stringify(history));
+    localStorage.setItem(storageKey, JSON.stringify(history));
+    console.log("[WorkoutHistory] Saved successfully. Total sessions:", history.sessions.length);
   } catch (e) {
-    console.error("Error saving workout session:", e);
+    console.error("[WorkoutHistory] Error saving workout session:", e);
   }
 };
 
