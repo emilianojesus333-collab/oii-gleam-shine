@@ -7,12 +7,9 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { HydrationCard } from '@/components/alerts/HydrationCard';
 import { SupplementsCard } from '@/components/alerts/SupplementsCard';
 import { SleepCard } from '@/components/alerts/SleepCard';
-import { StreakCard } from '@/components/alerts/StreakCard';
-import { QuickTimerCard } from '@/components/alerts/QuickTimerCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
-import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
 const Alerts = () => {
@@ -27,18 +24,12 @@ const Alerts = () => {
     updateWorkoutReminder,
     updateSleep,
     getSleepHours,
-    recordWorkout,
-    startQuickTimer,
-    stopQuickTimer,
-    activeQuickTimer,
-    quickTimerRemaining,
   } = useAlerts();
 
   const {
     permission,
     isSupported,
     requestPermission,
-    showNotification,
     scheduleHydrationReminder,
     scheduleSupplementReminder,
     scheduleSleepReminder,
@@ -103,23 +94,6 @@ const Alerts = () => {
     scheduleAllNotifications();
   }, [scheduleAllNotifications]);
 
-  // Show streak milestone notifications
-  const handleRecordWorkout = useCallback(async () => {
-    const previousStreak = state.streak.currentStreak;
-    recordWorkout();
-    
-    // Check for streak milestones
-    const newStreak = previousStreak + 1;
-    if (permission === 'granted' && (newStreak === 7 || newStreak === 30 || newStreak === 100 || newStreak % 50 === 0)) {
-      await showNotification('🔥 Streak Milestone!', {
-        body: `${t("alerts.streakMilestone")} ${newStreak} ${t("alerts.consecutiveDays")}`,
-        tag: 'streak-milestone',
-      });
-    }
-    
-    toast.success(t("alerts.workoutRecorded"));
-  }, [recordWorkout, state.streak.currentStreak, permission, showNotification, t]);
-
   return (
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
@@ -163,20 +137,6 @@ const Alerts = () => {
           permission={permission}
           isSupported={isSupported}
           onRequestPermission={requestPermission}
-        />
-
-        {/* All Cards */}
-        <StreakCard 
-          streak={state.streak} 
-          onRecordWorkout={handleRecordWorkout} 
-        />
-        
-        <QuickTimerCard
-          timers={state.quickTimers}
-          activeTimer={activeQuickTimer}
-          remaining={quickTimerRemaining}
-          onStart={startQuickTimer}
-          onStop={stopQuickTimer}
         />
         
         <WorkoutReminderCard
