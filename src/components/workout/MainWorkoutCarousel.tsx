@@ -20,6 +20,7 @@ interface MainWorkoutCarouselProps {
   todayExercises: { name: string; focus?: string }[];
   saveExercise: () => void;
   justSaved: boolean;
+  historyRefreshKey?: number; // Trigger to refresh history after saving
 }
 
 // 1RM Calculation Formulas
@@ -76,6 +77,7 @@ export const MainWorkoutCarousel = ({
   todayExercises,
   saveExercise,
   justSaved,
+  historyRefreshKey = 0,
 }: MainWorkoutCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -101,12 +103,12 @@ export const MainWorkoutCarousel = ({
     }
   }, [calcExercise]);
 
-  // Get last workout data for this exercise
+  // Get last workout data for this exercise - refreshes when historyRefreshKey changes
   const lastWorkout = useMemo(() => {
     if (!selectedExercise || !user?.id) return null;
 
     const history = getWorkoutHistory(user.id);
-    console.log('[MainWorkoutCarousel] Getting history for user:', user.id, 'sessions:', history.sessions.length);
+    console.log('[MainWorkoutCarousel] Getting history for user:', user.id, 'sessions:', history.sessions.length, 'refreshKey:', historyRefreshKey);
     
     for (const session of history.sessions) {
       const exerciseLog = session.exerciseLogs?.find(
@@ -120,7 +122,7 @@ export const MainWorkoutCarousel = ({
       }
     }
     return null;
-  }, [selectedExercise, user?.id]);
+  }, [selectedExercise, user?.id, historyRefreshKey]);
 
   // Calculate 1RM for the calculator slide
   const calculatedRM = useMemo(() => {
