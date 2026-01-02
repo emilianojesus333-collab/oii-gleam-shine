@@ -209,7 +209,10 @@ export const useSubscription = (enabled: boolean = true) => {
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, "_blank");
+        // Use location.href for reliable redirect (window.open may be blocked)
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
       console.error("Error creating checkout:", error);
