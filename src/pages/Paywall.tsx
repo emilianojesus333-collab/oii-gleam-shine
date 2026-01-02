@@ -22,7 +22,7 @@ const benefits = [
 
 const Paywall = () => {
   const navigate = useNavigate();
-  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading } = useSubscription();
+  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing, status } = useSubscription();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [devTapCount, setDevTapCount] = useState(0);
@@ -70,12 +70,20 @@ const Paywall = () => {
   // CRITICAL: Check if user already has valid subscription and redirect
   useEffect(() => {
     if (!isLoading) {
-      // If user has valid subscription, redirect to home immediately
-      if (!shouldShowPaywall() || isSubscriptionValid()) {
+      console.log("[Paywall] Checking subscription:", { 
+        shouldShowPaywall: shouldShowPaywall(), 
+        isSubscriptionValid: isSubscriptionValid(),
+        isTrialing,
+        status
+      });
+      
+      // If user has valid subscription OR is trialing, redirect to home immediately
+      if (!shouldShowPaywall() || isSubscriptionValid() || isTrialing) {
+        console.log("[Paywall] User has access, redirecting to home");
         navigate("/home", { replace: true });
       }
     }
-  }, [isLoading, shouldShowPaywall, isSubscriptionValid, navigate]);
+  }, [isLoading, shouldShowPaywall, isSubscriptionValid, isTrialing, status, navigate]);
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     try {

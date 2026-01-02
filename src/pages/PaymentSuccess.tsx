@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
@@ -9,27 +9,58 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
   const [subscriptionSynced, setSubscriptionSynced] = useState(false);
-  const { checkSubscription } = useSubscription();
+  const [syncAttempts, setSyncAttempts] = useState(0);
+  const { checkSubscription, isSubscriptionValid, isTrialing, status } = useSubscription();
+  const syncingRef = useRef(false);
 
-  // Sync subscription status with Stripe immediately
+  // Sync subscription status with Stripe with retry logic
   useEffect(() => {
+    if (syncingRef.current) return;
+    syncingRef.current = true;
+
     const syncSubscription = async () => {
+      console.log("[PaymentSuccess] Starting subscription sync, attempt:", syncAttempts + 1);
+      
       try {
-        // Wait a moment for Stripe to process the payment
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for Stripe webhook to process - increase wait time for more reliability
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Force refresh subscription status from Stripe
         await checkSubscription();
-        setSubscriptionSynced(true);
+        
+        // Check if subscription is now valid
+        const valid = isSubscriptionValid();
+        const trialing = isTrialing;
+        
+        console.log("[PaymentSuccess] Sync result:", { valid, trialing, status });
+        
+        if (valid || trialing || status === "active") {
+          console.log("[PaymentSuccess] Subscription confirmed as active/trialing");
+          setSubscriptionSynced(true);
+        } else if (syncAttempts < 3) {
+          // Retry if not yet active (webhook might still be processing)
+          console.log("[PaymentSuccess] Subscription not yet active, retrying...");
+          setSyncAttempts(prev => prev + 1);
+          syncingRef.current = false;
+        } else {
+          // After 3 attempts, proceed anyway - user paid and will be synced eventually
+          console.log("[PaymentSuccess] Max retries reached, proceeding anyway");
+          setSubscriptionSynced(true);
+        }
       } catch (error) {
-        console.error("Error syncing subscription:", error);
-        // Even if sync fails, allow navigation
-        setSubscriptionSynced(true);
+        console.error("[PaymentSuccess] Error syncing subscription:", error);
+        // Even if sync fails, allow navigation after max attempts
+        if (syncAttempts >= 2) {
+          setSubscriptionSynced(true);
+        } else {
+          setSyncAttempts(prev => prev + 1);
+          syncingRef.current = false;
+        }
       }
     };
 
     syncSubscription();
-  }, [checkSubscription]);
+  }, [checkSubscription, isSubscriptionValid, isTrialing, status, syncAttempts]);
 
   useEffect(() => {
     // Trigger confetti celebration
