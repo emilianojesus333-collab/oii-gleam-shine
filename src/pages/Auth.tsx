@@ -17,19 +17,41 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if user is already logged in
+  // Check if user is already logged in and redirect based on onboarding status
   useEffect(() => {
+    const checkSessionAndOnboarding = async (session: any) => {
+      if (!session) return;
+      
+      // Check onboarding status from database
+      const { data: settings } = await supabase
+        .from("user_settings")
+        .select("has_completed_onboarding")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      
+      if (settings?.has_completed_onboarding) {
+        // User completed onboarding, go to home
+        navigate("/home", { replace: true });
+      } else {
+        // New user or hasn't completed onboarding, go to onboarding
+        navigate("/onboarding", { replace: true });
+      }
+    };
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/home");
+        checkSessionAndOnboarding(session);
       }
     };
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/home");
+        // Use setTimeout to avoid Supabase deadlock
+        setTimeout(() => {
+          checkSessionAndOnboarding(session);
+        }, 0);
       }
     });
 
@@ -42,14 +64,30 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        // LOGIN: User already has account, check onboarding status
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        
+        // Check if user completed onboarding
+        const { data: settings } = await supabase
+          .from("user_settings")
+          .select("has_completed_onboarding")
+          .eq("user_id", authData.user.id)
+          .maybeSingle();
+        
         toast.success(t("auth.loginSuccess"));
-        navigate("/home");
+        
+        if (settings?.has_completed_onboarding) {
+          navigate("/home", { replace: true });
+        } else {
+          // Existing user without onboarding (edge case)
+          navigate("/onboarding", { replace: true });
+        }
       } else {
+        // SIGNUP: New user, always go to onboarding
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -62,7 +100,8 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success(t("auth.accountCreated"));
-        navigate("/home");
+        // New users MUST go through onboarding
+        navigate("/onboarding", { replace: true });
       }
     } catch (error: any) {
       if (error.message.includes("User already registered")) {
