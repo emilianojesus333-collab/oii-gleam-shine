@@ -32,6 +32,11 @@ export const SUBSCRIPTION_PRODUCTS = {
   },
 };
 
+// Helper to check if subscription grants premium access
+const isPremiumStatus = (status: SubscriptionStatus, isTrialing: boolean): boolean => {
+  return status === "active" || status === "canceled_but_active" || isTrialing;
+};
+
 export const useSubscription = (enabled: boolean = true) => {
   const [state, setState] = useState<SubscriptionState>({
     isLoading: enabled,
@@ -63,6 +68,7 @@ export const useSubscription = (enabled: boolean = true) => {
         const endDate = data.subscription_end_date ? new Date(data.subscription_end_date) : null;
         
         // If we have local data and subscription is active (end date in future)
+        // CRITICAL: "active" status from Stripe includes both active AND trialing
         if (data.status === "active" || data.status === "canceled_but_active") {
           if (endDate && endDate > now) {
             return {
@@ -248,20 +254,49 @@ export const useSubscription = (enabled: boolean = true) => {
   }, []);
 
   // Check if user should see paywall
+  // CRITICAL: Never show paywall to users with active, canceled_but_active, OR trialing status
   const shouldShowPaywall = useCallback(() => {
-    // Only show paywall if status is "never_subscribed" or "expired"
-    return state.status === "never_subscribed" || state.status === "expired";
-  }, [state.status]);
+    // If user is trialing, they have premium access
+    if (state.isTrialing) {
+      console.log("[Subscription] User is trialing, no paywall needed");
+      return false;
+    }
+    
+    // If user has active or canceled_but_active status, no paywall
+    if (state.status === "active" || state.status === "canceled_but_active") {
+      console.log("[Subscription] User has active subscription, no paywall needed");
+      return false;
+    }
+    
+    // Only show paywall for never_subscribed or expired
+    const showPaywall = state.status === "never_subscribed" || state.status === "expired";
+    console.log("[Subscription] shouldShowPaywall:", showPaywall, "status:", state.status);
+    return showPaywall;
+  }, [state.status, state.isTrialing]);
 
-  // Check if subscription is currently valid
+  // Check if subscription is currently valid (including trial)
   const isSubscriptionValid = useCallback(() => {
+    // CRITICAL: Trialing users have valid subscription
+    if (state.isTrialing) {
+      console.log("[Subscription] isSubscriptionValid: true (trialing)");
+      return true;
+    }
+    
+    // Active or canceled_but_active with valid end date
     if (state.status === "active" || state.status === "canceled_but_active") {
       if (state.subscriptionEnd) {
-        return new Date(state.subscriptionEnd) > new Date();
+        const isValid = new Date(state.subscriptionEnd) > new Date();
+        console.log("[Subscription] isSubscriptionValid:", isValid, "end:", state.subscriptionEnd);
+        return isValid;
       }
+      // If no end date but status is active, consider valid
+      console.log("[Subscription] isSubscriptionValid: true (active status, no end date)");
+      return true;
     }
+    
+    console.log("[Subscription] isSubscriptionValid: false, status:", state.status);
     return false;
-  }, [state.status, state.subscriptionEnd]);
+  }, [state.status, state.subscriptionEnd, state.isTrialing]);
 
   useEffect(() => {
     if (!enabled) {

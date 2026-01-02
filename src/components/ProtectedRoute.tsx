@@ -20,7 +20,8 @@ const ProtectedRoute = ({
     isLoading: subscriptionLoading, 
     shouldShowPaywall, 
     isSubscriptionValid,
-    status: subscriptionStatus 
+    status: subscriptionStatus,
+    isTrialing
   } = useSubscription(isAuthenticated);
 
   // Show loading while checking auth or onboarding status
@@ -47,6 +48,7 @@ const ProtectedRoute = ({
     // Check for dev bypass
     const devBypass = localStorage.getItem("liftmate_dev_bypass") === "true";
     if (devBypass) {
+      console.log("[ProtectedRoute] Dev bypass active, allowing access");
       return <>{children}</>;
     }
 
@@ -64,14 +66,27 @@ const ProtectedRoute = ({
       return <Navigate to="/onboarding" replace />;
     }
 
-    // CRITICAL: Only show paywall if subscription status is "never_subscribed" or "expired"
-    // Users with "active" or "canceled_but_active" status should NEVER see the paywall
-    if (shouldShowPaywall()) {
-      // Double-check: verify subscription is not valid by date
-      if (!isSubscriptionValid()) {
-        return <Navigate to="/paywall" replace />;
-      }
+    // CRITICAL: Use the updated shouldShowPaywall which handles trialing correctly
+    // The function now checks: status, isTrialing, and only returns true for never_subscribed/expired
+    const needsPaywall = shouldShowPaywall();
+    const hasValidSubscription = isSubscriptionValid();
+    
+    console.log("[ProtectedRoute] Subscription check:", {
+      status: subscriptionStatus,
+      isTrialing,
+      needsPaywall,
+      hasValidSubscription
+    });
+
+    // Only redirect to paywall if:
+    // 1. shouldShowPaywall returns true (status is never_subscribed or expired AND not trialing)
+    // 2. AND subscription is not valid
+    if (needsPaywall && !hasValidSubscription) {
+      console.log("[ProtectedRoute] Redirecting to paywall");
+      return <Navigate to="/paywall" replace />;
     }
+    
+    console.log("[ProtectedRoute] Access granted - subscription valid or trialing");
   }
 
   return <>{children}</>;
