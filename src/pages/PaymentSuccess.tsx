@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
@@ -10,47 +10,64 @@ const PaymentSuccess = () => {
   const [countdown, setCountdown] = useState(5);
   const [subscriptionSynced, setSubscriptionSynced] = useState(false);
   const [syncAttempts, setSyncAttempts] = useState(0);
-  const { checkSubscription, isSubscriptionValid, isTrialing, status } = useSubscription();
+  const { checkSubscription, isSubscriptionValid, isTrialing, status, subscribed, isLoading } = useSubscription();
   const syncingRef = useRef(false);
+  const maxAttempts = 5;
+
+  // Check if subscription is now valid
+  const isNowPremium = useCallback(() => {
+    const valid = isSubscriptionValid();
+    const trialing = isTrialing;
+    const activeStatus = status === "active" || status === "canceled_but_active";
+    const isSubscribed = subscribed;
+    
+    console.log("[PaymentSuccess] Premium check:", { valid, trialing, activeStatus, isSubscribed, status });
+    
+    return valid || trialing || activeStatus || isSubscribed;
+  }, [isSubscriptionValid, isTrialing, status, subscribed]);
 
   // Sync subscription status with Stripe with retry logic
   useEffect(() => {
-    if (syncingRef.current) return;
-    syncingRef.current = true;
-
+    if (syncingRef.current || subscriptionSynced) return;
+    
     const syncSubscription = async () => {
+      if (syncingRef.current) return;
+      syncingRef.current = true;
+      
       console.log("[PaymentSuccess] Starting subscription sync, attempt:", syncAttempts + 1);
       
       try {
-        // Wait for Stripe webhook to process - increase wait time for more reliability
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Wait progressively longer for Stripe webhook to process
+        const waitTime = Math.min(2000 + (syncAttempts * 1000), 5000);
+        console.log("[PaymentSuccess] Waiting", waitTime, "ms for webhook processing...");
+        await new Promise(resolve => setTimeout(resolve, waitTime));
         
         // Force refresh subscription status from Stripe
         await checkSubscription();
         
+        // Small delay to allow state to update
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Check if subscription is now valid
-        const valid = isSubscriptionValid();
-        const trialing = isTrialing;
-        
-        console.log("[PaymentSuccess] Sync result:", { valid, trialing, status });
-        
-        if (valid || trialing || status === "active") {
-          console.log("[PaymentSuccess] Subscription confirmed as active/trialing");
+        if (isNowPremium()) {
+          console.log("[PaymentSuccess] ✅ Subscription confirmed as premium");
           setSubscriptionSynced(true);
-        } else if (syncAttempts < 3) {
-          // Retry if not yet active (webhook might still be processing)
-          console.log("[PaymentSuccess] Subscription not yet active, retrying...");
+          return;
+        }
+        
+        if (syncAttempts < maxAttempts - 1) {
+          console.log("[PaymentSuccess] Subscription not yet active, will retry...");
           setSyncAttempts(prev => prev + 1);
           syncingRef.current = false;
         } else {
-          // After 3 attempts, proceed anyway - user paid and will be synced eventually
+          // After max attempts, proceed anyway - user paid and will be synced eventually
           console.log("[PaymentSuccess] Max retries reached, proceeding anyway");
           setSubscriptionSynced(true);
         }
       } catch (error) {
         console.error("[PaymentSuccess] Error syncing subscription:", error);
         // Even if sync fails, allow navigation after max attempts
-        if (syncAttempts >= 2) {
+        if (syncAttempts >= maxAttempts - 2) {
           setSubscriptionSynced(true);
         } else {
           setSyncAttempts(prev => prev + 1);
@@ -60,13 +77,12 @@ const PaymentSuccess = () => {
     };
 
     syncSubscription();
-  }, [checkSubscription, isSubscriptionValid, isTrialing, status, syncAttempts]);
+  }, [checkSubscription, isNowPremium, syncAttempts, subscriptionSynced]);
 
+  // Confetti effect
   useEffect(() => {
-    // Trigger confetti celebration
     const duration = 3000;
     const end = Date.now() + duration;
-
     const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
     const frame = () => {
@@ -103,11 +119,10 @@ const PaymentSuccess = () => {
     }, 500);
   }, []);
 
+  // Countdown and redirect after sync
   useEffect(() => {
-    // Only start countdown after subscription is synced
     if (!subscriptionSynced) return;
 
-    // Countdown timer
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -118,7 +133,6 @@ const PaymentSuccess = () => {
       });
     }, 1000);
 
-    // Navigate to home after countdown
     const timeout = setTimeout(() => {
       navigate("/home", { replace: true });
     }, 5000);
@@ -181,7 +195,7 @@ const PaymentSuccess = () => {
         </p>
       </motion.div>
 
-      {/* Countdown */}
+      {/* Countdown or Loading */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -206,7 +220,7 @@ const PaymentSuccess = () => {
           <div className="flex flex-col items-center gap-2">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground">
-              A ativar a tua subscrição...
+              A ativar a tua subscrição... ({syncAttempts + 1}/{maxAttempts})
             </p>
           </div>
         )}
