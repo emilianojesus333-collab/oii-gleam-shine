@@ -12,6 +12,24 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// Safe date conversion to prevent "Invalid time value" errors
+const safeTimestampToISO = (timestamp: number | null | undefined): string | null => {
+  if (!timestamp || typeof timestamp !== 'number') {
+    return null;
+  }
+  try {
+    const date = new Date(timestamp * 1000);
+    if (isNaN(date.getTime())) {
+      logStep("Invalid timestamp", { timestamp });
+      return null;
+    }
+    return date.toISOString();
+  } catch (e) {
+    logStep("Error converting timestamp", { timestamp, error: String(e) });
+    return null;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -90,28 +108,21 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    // Check for active subscriptions
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
+    // Fetch all subscription types in parallel
+    const [activeSubsResult, trialingSubsResult] = await Promise.all([
+      stripe.subscriptions.list({
+        customer: customerId,
+        status: "active",
+        limit: 1,
+      }),
+      stripe.subscriptions.list({
+        customer: customerId,
+        status: "trialing",
+        limit: 1,
+      }),
+    ]);
     
-    // Check for trialing subscriptions
-    const trialingSubscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "trialing",
-      limit: 1,
-    });
-    
-    // Check for canceled but still active subscriptions
-    const canceledSubscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "canceled",
-      limit: 1,
-    });
-    
-    const allActiveSubscriptions = [...subscriptions.data, ...trialingSubscriptions.data];
+    const allActiveSubscriptions = [...activeSubsResult.data, ...trialingSubsResult.data];
     const hasActiveSub = allActiveSubscriptions.length > 0;
     
     let status: "never_subscribed" | "active" | "expired" | "canceled_but_active" = "never_subscribed";
@@ -123,10 +134,20 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = allActiveSubscriptions[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      subscriptionStart = new Date(subscription.current_period_start * 1000).toISOString();
-      isTrialing = subscription.status === "trialing";
       stripeSubscriptionId = subscription.id;
+      isTrialing = subscription.status === "trialing";
+      
+      // Use safe timestamp conversion
+      subscriptionEnd = safeTimestampToISO(subscription.current_period_end);
+      subscriptionStart = safeTimestampToISO(subscription.current_period_start);
+      
+      // For trialing subscriptions, use trial_end if available
+      if (isTrialing && subscription.trial_end) {
+        const trialEnd = safeTimestampToISO(subscription.trial_end);
+        if (trialEnd) {
+          subscriptionEnd = trialEnd;
+        }
+      }
       
       // Check if subscription is canceled but still within paid period
       if (subscription.cancel_at_period_end) {
@@ -135,43 +156,69 @@ serve(async (req) => {
         status = "active";
       }
       
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd, isTrialing, status });
-      productId = subscription.items.data[0].price.product;
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        endDate: subscriptionEnd, 
+        isTrialing, 
+        status,
+        rawStatus: subscription.status
+      });
+      
+      // Get product ID safely
+      try {
+        if (subscription.items?.data?.[0]?.price?.product) {
+          productId = subscription.items.data[0].price.product as string;
+        }
+      } catch (e) {
+        logStep("Error getting product ID", { error: String(e) });
+      }
+      
       logStep("Determined subscription tier", { productId });
     } else {
       // Check if there was a past subscription (now expired)
-      const pastSubscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        limit: 1,
-      });
-      
-      if (pastSubscriptions.data.length > 0) {
-        const lastSub = pastSubscriptions.data[0];
-        const endDate = new Date(lastSub.current_period_end * 1000);
+      try {
+        const pastSubscriptions = await stripe.subscriptions.list({
+          customer: customerId,
+          limit: 1,
+        });
         
-        if (endDate < new Date()) {
-          status = "expired";
-          subscriptionEnd = endDate.toISOString();
-          logStep("Subscription expired", { endDate: subscriptionEnd });
+        if (pastSubscriptions.data.length > 0) {
+          const lastSub = pastSubscriptions.data[0];
+          const endTimestamp = lastSub.current_period_end;
+          
+          if (endTimestamp) {
+            const endDate = new Date(endTimestamp * 1000);
+            if (!isNaN(endDate.getTime()) && endDate < new Date()) {
+              status = "expired";
+              subscriptionEnd = endDate.toISOString();
+              logStep("Subscription expired", { endDate: subscriptionEnd });
+            }
+          }
         }
+      } catch (e) {
+        logStep("Error checking past subscriptions", { error: String(e) });
       }
       
       logStep("No active subscription found", { status });
     }
 
     // Update database with current subscription status
-    await supabaseClient
-      .from("user_subscriptions")
-      .upsert({
-        user_id: user.id,
-        status: status,
-        subscription_start_date: subscriptionStart,
-        subscription_end_date: subscriptionEnd,
-        stripe_customer_id: customerId,
-        stripe_subscription_id: stripeSubscriptionId,
-      }, { onConflict: "user_id" });
-    
-    logStep("Database updated", { status, subscriptionEnd });
+    try {
+      await supabaseClient
+        .from("user_subscriptions")
+        .upsert({
+          user_id: user.id,
+          status: status,
+          subscription_start_date: subscriptionStart,
+          subscription_end_date: subscriptionEnd,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: stripeSubscriptionId,
+        }, { onConflict: "user_id" });
+      
+      logStep("Database updated", { status, subscriptionEnd, isTrialing });
+    } catch (e) {
+      logStep("Error updating database", { error: String(e) });
+    }
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,

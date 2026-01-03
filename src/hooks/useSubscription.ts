@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 type SubscriptionStatus = "never_subscribed" | "active" | "expired" | "canceled_but_active";
@@ -33,7 +33,7 @@ export const SUBSCRIPTION_PRODUCTS = {
 };
 
 // Helper to check if subscription grants premium access
-const isPremiumStatus = (status: SubscriptionStatus, isTrialing: boolean): boolean => {
+export const isPremiumStatus = (status: SubscriptionStatus, isTrialing: boolean): boolean => {
   return status === "active" || status === "canceled_but_active" || isTrialing;
 };
 
@@ -48,6 +48,9 @@ export const useSubscription = (enabled: boolean = true) => {
     isTrialing: false,
     error: null,
   });
+  
+  const checkingRef = useRef(false);
+  const lastCheckRef = useRef<number>(0);
 
   // Check local database first for faster initial load
   const checkLocalSubscription = useCallback(async (userId: string) => {
@@ -59,7 +62,7 @@ export const useSubscription = (enabled: boolean = true) => {
         .maybeSingle();
 
       if (error) {
-        console.error("Error checking local subscription:", error);
+        console.error("[Subscription] Error checking local subscription:", error);
         return null;
       }
 
@@ -67,23 +70,39 @@ export const useSubscription = (enabled: boolean = true) => {
         const now = new Date();
         const endDate = data.subscription_end_date ? new Date(data.subscription_end_date) : null;
         
-        // If we have local data and subscription is active (end date in future)
-        // CRITICAL: "active" status from Stripe includes both active AND trialing
+        // CRITICAL: "active" status includes both active AND trialing from Stripe
+        // Also consider any active/canceled_but_active status as premium
         if (data.status === "active" || data.status === "canceled_but_active") {
-          if (endDate && endDate > now) {
+          // If we have an end date, check if it's still valid
+          if (endDate) {
+            if (endDate > now) {
+              console.log("[Subscription] Local: active subscription found, valid until:", endDate);
+              return {
+                subscribed: true,
+                status: data.status as SubscriptionStatus,
+                subscriptionEnd: data.subscription_end_date,
+                subscriptionStart: data.subscription_start_date,
+                isTrialing: false, // Will be updated by Stripe sync
+              };
+            } else {
+              console.log("[Subscription] Local: subscription expired on:", endDate);
+              return {
+                subscribed: false,
+                status: "expired" as SubscriptionStatus,
+                subscriptionEnd: data.subscription_end_date,
+                subscriptionStart: data.subscription_start_date,
+                isTrialing: false,
+              };
+            }
+          } else {
+            // No end date but status is active - consider valid
+            console.log("[Subscription] Local: active status without end date");
             return {
               subscribed: true,
               status: data.status as SubscriptionStatus,
-              subscriptionEnd: data.subscription_end_date,
+              subscriptionEnd: null,
               subscriptionStart: data.subscription_start_date,
-            };
-          } else if (endDate && endDate <= now) {
-            // Subscription has expired, update local state
-            return {
-              subscribed: false,
-              status: "expired" as SubscriptionStatus,
-              subscriptionEnd: data.subscription_end_date,
-              subscriptionStart: data.subscription_start_date,
+              isTrialing: false,
             };
           }
         }
@@ -93,25 +112,74 @@ export const useSubscription = (enabled: boolean = true) => {
           status: data.status as SubscriptionStatus,
           subscriptionEnd: data.subscription_end_date,
           subscriptionStart: data.subscription_start_date,
+          isTrialing: false,
         };
       }
       
       return null;
     } catch (error) {
-      console.error("Error in checkLocalSubscription:", error);
+      console.error("[Subscription] Error in checkLocalSubscription:", error);
+      return null;
+    }
+  }, []);
+
+  const syncWithStripe = useCallback(async (accessToken: string): Promise<SubscriptionState | null> => {
+    try {
+      console.log("[Subscription] Syncing with Stripe...");
+      const authHeaders = { Authorization: `Bearer ${accessToken}` };
+
+      const { data, error } = await supabase.functions.invoke("check-subscription", {
+        headers: authHeaders,
+      });
+
+      if (error) {
+        console.error("[Subscription] Error checking subscription with Stripe:", error);
+        return null;
+      }
+
+      console.log("[Subscription] Stripe response:", data);
+      
+      const newState: SubscriptionState = {
+        isLoading: false,
+        subscribed: data.subscribed || false,
+        status: data.status || "never_subscribed",
+        productId: data.product_id || null,
+        subscriptionEnd: data.subscription_end || null,
+        subscriptionStart: data.subscription_start || null,
+        isTrialing: data.is_trialing || false,
+        error: null,
+      };
+      
+      return newState;
+    } catch (error) {
+      console.error("[Subscription] Error syncing with Stripe:", error);
       return null;
     }
   }, []);
 
   const checkSubscription = useCallback(async () => {
+    // Debounce: prevent multiple rapid checks
+    const now = Date.now();
+    if (now - lastCheckRef.current < 2000) {
+      console.log("[Subscription] Skipping check - too soon since last check");
+      return;
+    }
+    
+    if (checkingRef.current) {
+      console.log("[Subscription] Skipping check - already checking");
+      return;
+    }
+    
+    checkingRef.current = true;
+    lastCheckRef.current = now;
+    
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
+        console.log("[Subscription] No session, user not authenticated");
         setState({
           isLoading: false,
           subscribed: false,
@@ -127,8 +195,9 @@ export const useSubscription = (enabled: boolean = true) => {
 
       // First, check local database for fast response
       const localData = await checkLocalSubscription(session.user.id);
+      
       if (localData && localData.subscribed) {
-        // User has active subscription in local DB, show immediately
+        console.log("[Subscription] Using local data - user has active subscription");
         setState({
           isLoading: false,
           subscribed: localData.subscribed,
@@ -136,70 +205,47 @@ export const useSubscription = (enabled: boolean = true) => {
           productId: null,
           subscriptionEnd: localData.subscriptionEnd,
           subscriptionStart: localData.subscriptionStart,
-          isTrialing: false,
+          isTrialing: localData.isTrialing || false,
           error: null,
         });
         
-        // Still sync with Stripe in background
-        syncWithStripe(session.access_token);
+        // Still sync with Stripe in background (don't await)
+        syncWithStripe(session.access_token).then((stripeData) => {
+          if (stripeData) {
+            setState(stripeData);
+          }
+        });
         return;
       }
 
-      // If no local active subscription, check Stripe
-      await syncWithStripe(session.access_token);
-    } catch (error) {
-      console.error("Error in checkSubscription:", error);
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      }));
-    }
-  }, [checkLocalSubscription]);
-
-  const syncWithStripe = async (accessToken: string) => {
-    try {
-      const authHeaders = { Authorization: `Bearer ${accessToken}` };
-
-      const { data, error } = await supabase.functions.invoke("check-subscription", {
-        headers: authHeaders,
-      });
-
-      if (error) {
-        console.error("Error checking subscription with Stripe:", error);
+      // If no local active subscription, check Stripe directly
+      const stripeData = await syncWithStripe(session.access_token);
+      if (stripeData) {
+        setState(stripeData);
+      } else {
+        // Fallback to local data if Stripe fails
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: error.message,
+          subscribed: localData?.subscribed || false,
+          status: localData?.status || "never_subscribed",
         }));
-        return;
       }
-
-      setState({
-        isLoading: false,
-        subscribed: data.subscribed || false,
-        status: data.status || "never_subscribed",
-        productId: data.product_id || null,
-        subscriptionEnd: data.subscription_end || null,
-        subscriptionStart: data.subscription_start || null,
-        isTrialing: data.is_trialing || false,
-        error: null,
-      });
     } catch (error) {
-      console.error("Error syncing with Stripe:", error);
+      console.error("[Subscription] Error in checkSubscription:", error);
       setState((prev) => ({
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : "Unknown error",
       }));
+    } finally {
+      checkingRef.current = false;
     }
-  };
+  }, [checkLocalSubscription, syncWithStripe]);
 
   const createCheckout = useCallback(async (priceId: string) => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
         throw new Error("Precisa estar logado para assinar.");
@@ -221,16 +267,14 @@ export const useSubscription = (enabled: boolean = true) => {
         throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error("Error creating checkout:", error);
+      console.error("[Subscription] Error creating checkout:", error);
       throw error;
     }
   }, []);
 
   const openCustomerPortal = useCallback(async () => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
         throw new Error("Precisa estar logado para gerir a subscrição.");
@@ -248,7 +292,7 @@ export const useSubscription = (enabled: boolean = true) => {
         window.open(data.url, "_blank");
       }
     } catch (error) {
-      console.error("Error opening customer portal:", error);
+      console.error("[Subscription] Error opening customer portal:", error);
       throw error;
     }
   }, []);
@@ -256,15 +300,26 @@ export const useSubscription = (enabled: boolean = true) => {
   // Check if user should see paywall
   // CRITICAL: Never show paywall to users with active, canceled_but_active, OR trialing status
   const shouldShowPaywall = useCallback(() => {
+    // Still loading - don't make a decision yet
+    if (state.isLoading) {
+      return false;
+    }
+    
     // If user is trialing, they have premium access
     if (state.isTrialing) {
-      console.log("[Subscription] User is trialing, no paywall needed");
+      console.log("[Subscription] shouldShowPaywall: false (trialing)");
+      return false;
+    }
+    
+    // If user is subscribed, no paywall
+    if (state.subscribed) {
+      console.log("[Subscription] shouldShowPaywall: false (subscribed)");
       return false;
     }
     
     // If user has active or canceled_but_active status, no paywall
     if (state.status === "active" || state.status === "canceled_but_active") {
-      console.log("[Subscription] User has active subscription, no paywall needed");
+      console.log("[Subscription] shouldShowPaywall: false (active status)");
       return false;
     }
     
@@ -272,13 +327,19 @@ export const useSubscription = (enabled: boolean = true) => {
     const showPaywall = state.status === "never_subscribed" || state.status === "expired";
     console.log("[Subscription] shouldShowPaywall:", showPaywall, "status:", state.status);
     return showPaywall;
-  }, [state.status, state.isTrialing]);
+  }, [state.status, state.isTrialing, state.subscribed, state.isLoading]);
 
   // Check if subscription is currently valid (including trial)
   const isSubscriptionValid = useCallback(() => {
     // CRITICAL: Trialing users have valid subscription
     if (state.isTrialing) {
       console.log("[Subscription] isSubscriptionValid: true (trialing)");
+      return true;
+    }
+    
+    // If subscribed flag is true, consider valid
+    if (state.subscribed) {
+      console.log("[Subscription] isSubscriptionValid: true (subscribed)");
       return true;
     }
     
@@ -296,7 +357,7 @@ export const useSubscription = (enabled: boolean = true) => {
     
     console.log("[Subscription] isSubscriptionValid: false, status:", state.status);
     return false;
-  }, [state.status, state.subscriptionEnd, state.isTrialing]);
+  }, [state.status, state.subscriptionEnd, state.isTrialing, state.subscribed]);
 
   useEffect(() => {
     if (!enabled) {
@@ -316,12 +377,20 @@ export const useSubscription = (enabled: boolean = true) => {
     checkSubscription();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      checkSubscription();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      console.log("[Subscription] Auth state changed:", event);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Reset ref to allow immediate check
+        lastCheckRef.current = 0;
+        checkSubscription();
+      }
     });
 
-    // Auto-refresh every minute
-    const interval = setInterval(checkSubscription, 60000);
+    // Auto-refresh every 2 minutes (reduced frequency)
+    const interval = setInterval(() => {
+      lastCheckRef.current = 0; // Allow the check
+      checkSubscription();
+    }, 120000);
 
     return () => {
       subscription.unsubscribe();
