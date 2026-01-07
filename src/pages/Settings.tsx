@@ -37,24 +37,24 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const weekDays = [
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-  "Domingo",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
 ];
 
 const muscleGroups = [
-  "Peito",
-  "Costas",
-  "Ombros",
-  "Bíceps",
-  "Tríceps",
-  "Pernas",
+  "Chest",
+  "Back",
+  "Shoulders",
+  "Biceps",
+  "Triceps",
+  "Legs",
   "Core",
-  "Glúteos",
+  "Glutes",
   "Cardio",
 ];
 
@@ -374,8 +374,8 @@ const Settings = () => {
                 <LogOut className="w-5 h-5 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Terminar sessão</h3>
-                <p className="text-xs text-muted-foreground">Sair da conta</p>
+                <h3 className="font-semibold text-foreground">Log out</h3>
+                <p className="text-xs text-muted-foreground">Sign out of your account</p>
               </div>
             </div>
             
@@ -385,15 +385,15 @@ const Settings = () => {
                 try {
                   await supabase.auth.signOut();
                   localStorage.removeItem("liftmate_dev_skip_subscription");
-                  toast.success("Sessão terminada");
+                  toast.success("Session ended");
                   navigate("/auth");
                 } catch (error) {
-                  toast.error("Erro ao terminar sessão");
+                  toast.error("Error logging out");
                 }
               }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 text-foreground font-medium text-sm border border-border/50"
             >
-              Sair
+              Log out
             </motion.button>
           </div>
           
@@ -406,8 +406,8 @@ const Settings = () => {
                 <Trash2 className="w-5 h-5 text-destructive" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Apagar conta</h3>
-                <p className="text-xs text-muted-foreground">Elimina todos os dados</p>
+                <h3 className="font-semibold text-foreground">Delete account</h3>
+                <p className="text-xs text-muted-foreground">Delete all your data</p>
               </div>
             </div>
             
@@ -416,7 +416,7 @@ const Settings = () => {
               onClick={() => setShowDeleteDialog(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm"
             >
-              Apagar
+              Delete
             </motion.button>
           </div>
         </motion.div>

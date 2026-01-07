@@ -561,21 +561,21 @@ export const formatContextForAI = (ctx: UserContext): string => {
 
   // AI Name
   if (ctx.profile.aiName) {
-    parts.push(`\n🤖 O TEU NOME (nome que o utilizador te deu): ${ctx.profile.aiName}`);
+    parts.push(`\n🤖 YOUR NAME (name the user gave you): ${ctx.profile.aiName}`);
   }
 
   // Profile
   if (ctx.profile.goal || ctx.profile.experience || ctx.profile.userName) {
-    parts.push(`\n🎯 PERFIL DO UTILIZADOR:
-- Nome: ${ctx.profile.userName || "Não definido"}
-- Objetivo: ${ctx.profile.goal || "Não definido"}
-- Experiência: ${ctx.profile.experience || "Não definida"}
-- Peso: ${ctx.profile.weight ? `${ctx.profile.weight}kg` : "Não definido"}
-- Altura: ${ctx.profile.height ? `${ctx.profile.height}cm` : "Não definido"}
-- Idade: ${ctx.profile.age ? `${ctx.profile.age} anos` : "Não definido"}
-- Género: ${ctx.profile.gender === 'male' ? 'Masculino' : ctx.profile.gender === 'female' ? 'Feminino' : 'Não definido'}
-- Músculos foco: ${ctx.profile.focusMuscles?.join(", ") || "Não definido"}
-- Dias de treino: ${ctx.profile.trainingDays?.join(", ") || "Não definido"}`);
+    parts.push(`\n🎯 USER PROFILE:
+- Name: ${ctx.profile.userName || "Not set"}
+- Goal: ${ctx.profile.goal || "Not set"}
+- Experience: ${ctx.profile.experience || "Not set"}
+- Weight: ${ctx.profile.weight ? `${ctx.profile.weight}kg` : "Not set"}
+- Height: ${ctx.profile.height ? `${ctx.profile.height}cm` : "Not set"}
+- Age: ${ctx.profile.age ? `${ctx.profile.age} years` : "Not set"}
+- Gender: ${ctx.profile.gender === 'male' ? 'Male' : ctx.profile.gender === 'female' ? 'Female' : 'Not set'}
+- Focus muscles: ${ctx.profile.focusMuscles?.join(", ") || "Not set"}
+- Training days: ${ctx.profile.trainingDays?.join(", ") || "Not set"}`);
   }
 
   // Today's Nutrition
@@ -587,52 +587,52 @@ export const formatContextForAI = (ctx: UserContext): string => {
       ? Math.round((ctx.nutrition.todayProtein / ctx.nutrition.goalProtein) * 100) 
       : 0;
 
-    parts.push(`\n🍽️ NUTRIÇÃO DE HOJE:
-- Calorias: ${ctx.nutrition.todayCalories} / ${ctx.nutrition.goalCalories} kcal (${calPercent}%)
-- Proteína: ${ctx.nutrition.todayProtein}g / ${ctx.nutrition.goalProtein}g (${protPercent}%)
+    parts.push(`\n🍽️ TODAY'S NUTRITION:
+- Calories: ${ctx.nutrition.todayCalories} / ${ctx.nutrition.goalCalories} kcal (${calPercent}%)
+- Protein: ${ctx.nutrition.todayProtein}g / ${ctx.nutrition.goalProtein}g (${protPercent}%)
 - Carbs: ${ctx.nutrition.todayCarbs}g / ${ctx.nutrition.goalCarbs}g
-- Gordura: ${ctx.nutrition.todayFat}g / ${ctx.nutrition.goalFat}g
-- Fibra: ${ctx.nutrition.todayFiber}g
-- Refeições registadas: ${ctx.nutrition.mealsToday}
-${calPercent >= 90 && calPercent <= 110 ? "✅ Meta de calorias atingida!" : ""}
-${protPercent >= 100 ? "✅ Meta de proteína atingida!" : ""}`);
+- Fat: ${ctx.nutrition.todayFat}g / ${ctx.nutrition.goalFat}g
+- Fiber: ${ctx.nutrition.todayFiber}g
+- Meals logged: ${ctx.nutrition.mealsToday}
+${calPercent >= 90 && calPercent <= 110 ? "✅ Calorie goal reached!" : ""}
+${protPercent >= 100 ? "✅ Protein goal reached!" : ""}`);
 
     if (ctx.nutrition.weeklyAvgCalories > 0) {
-      parts.push(`\n📊 MÉDIA SEMANAL:
-- Média calorias: ${ctx.nutrition.weeklyAvgCalories} kcal/dia
-- Média proteína: ${ctx.nutrition.weeklyAvgProtein}g/dia
-- Dias que atingiu meta: ${ctx.nutrition.daysMetGoal}/7`);
+      parts.push(`\n📊 WEEKLY AVERAGE:
+- Avg calories: ${ctx.nutrition.weeklyAvgCalories} kcal/day
+- Avg protein: ${ctx.nutrition.weeklyAvgProtein}g/day
+- Days met goal: ${ctx.nutrition.daysMetGoal}/7`);
     }
   }
 
   // Today's Workout
   if (ctx.workout.todayExercises.length > 0) {
-    parts.push(`\n💪 TREINO DE HOJE:
-- Tipo: ${ctx.workout.todayWorkoutType || "Treino personalizado"}
-- Grupos musculares: ${ctx.workout.todayMuscleGroups.join(", ") || "Vários"}
-- Exercícios feitos: ${ctx.workout.todayExercises.slice(0, 5).join(", ")}${ctx.workout.todayExercises.length > 5 ? ` e mais ${ctx.workout.todayExercises.length - 5}` : ""}`);
+    parts.push(`\n💪 TODAY'S WORKOUT:
+- Type: ${ctx.workout.todayWorkoutType || "Custom workout"}
+- Muscle groups: ${ctx.workout.todayMuscleGroups.join(", ") || "Various"}
+- Exercises done: ${ctx.workout.todayExercises.slice(0, 5).join(", ")}${ctx.workout.todayExercises.length > 5 ? ` and ${ctx.workout.todayExercises.length - 5} more` : ""}`);
   }
 
   // Workout Stats
   if (ctx.workout.totalSessions > 0 || ctx.workout.currentStreak > 0) {
-    parts.push(`\n📈 ESTATÍSTICAS DE TREINO:
-- Total de sessões: ${ctx.workout.totalSessions}
-- Sessões esta semana: ${ctx.workout.weekSessions}
-- Streak atual: ${ctx.workout.currentStreak} dias 🔥
-- Maior streak: ${ctx.workout.longestStreak} dias`);
+    parts.push(`\n📈 WORKOUT STATS:
+- Total sessions: ${ctx.workout.totalSessions}
+- Sessions this week: ${ctx.workout.weekSessions}
+- Current streak: ${ctx.workout.currentStreak} days 🔥
+- Longest streak: ${ctx.workout.longestStreak} days`);
     
     if (ctx.workout.mostTrainedMuscles.length > 0) {
-      parts.push(`- Músculos mais treinados: ${ctx.workout.mostTrainedMuscles.map(m => `${m.muscle} (${m.count}x)`).join(", ")}`);
+      parts.push(`- Most trained muscles: ${ctx.workout.mostTrainedMuscles.map(m => `${m.muscle} (${m.count}x)`).join(", ")}`);
     }
   }
 
   // 1RM Records
   if (ctx.oneRM.records.length > 0) {
-    parts.push(`\n🏋️ RECORDES DE 1RM:
+    parts.push(`\n🏋️ 1RM RECORDS:
 ${ctx.oneRM.records.slice(0, 5).map(r => `- ${r.exercise}: ${r.weight}kg`).join("\n")}`);
     
     if (ctx.oneRM.recentPRs.length > 0) {
-      parts.push(`\n🎉 PRs RECENTES (últimos 30 dias):
+      parts.push(`\n🎉 RECENT PRs (last 30 days):
 ${ctx.oneRM.recentPRs.map(r => `- ${r.exercise}: ${r.weight}kg (+${r.improvement}%)`).join("\n")}`);
     }
   }
@@ -641,13 +641,13 @@ ${ctx.oneRM.recentPRs.map(r => `- ${r.exercise}: ${r.weight}kg (+${r.improvement
   const hydrationPercent = ctx.alerts.hydrationGoal > 0 
     ? Math.round((ctx.alerts.hydrationCurrent / ctx.alerts.hydrationGoal) * 100) 
     : 0;
-  parts.push(`\n💧 HIDRATAÇÃO HOJE:
-- Consumido: ${ctx.alerts.hydrationCurrent.toFixed(1)}L / ${ctx.alerts.hydrationGoal}L (${hydrationPercent}%)`);
+  parts.push(`\n💧 TODAY'S HYDRATION:
+- Consumed: ${ctx.alerts.hydrationCurrent.toFixed(1)}L / ${ctx.alerts.hydrationGoal}L (${hydrationPercent}%)`);
 
   // Sleep
-  parts.push(`\n😴 SONO:
-- Hora de dormir: ${ctx.alerts.sleepBedtime}
-- Hora de acordar: ${ctx.alerts.sleepWakeTime}`);
+  parts.push(`\n😴 SLEEP:
+- Bedtime: ${ctx.alerts.sleepBedtime}
+- Wake time: ${ctx.alerts.sleepWakeTime}`);
 
   // Supplements
   if (ctx.alerts.supplements.length > 0) {

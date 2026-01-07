@@ -106,15 +106,15 @@ Formato de resposta:
         content: [
           {
             type: "text",
-            text: `Analise esta imagem de comida com MÁXIMA PRECISÃO:
+            text: `Analyze this food image with MAXIMUM PRECISION:
 
-1. IDENTIFIQUE cada alimento visível individualmente
-2. ESTIME as porções baseando-se no tamanho do prato/recipiente
-3. CALCULE os macros usando tabelas nutricionais padrão
-4. CONSIDERE o método de preparação (afeta calorias: grelhado vs frito)
-5. NÃO OMITA nenhum item visível, incluindo molhos e temperos
+1. IDENTIFY each visible food item individually
+2. ESTIMATE portions based on plate/container size
+3. CALCULATE macros using standard nutritional tables
+4. CONSIDER the preparation method (affects calories: grilled vs fried)
+5. DO NOT OMIT any visible item, including sauces and seasonings
 
-Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
+Be specific with names (e.g., "Cooked white rice" not just "rice").`
           },
           {
             type: "image_url",
@@ -127,7 +127,7 @@ Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
     } else if (mealDescription) {
       messages.push({
         role: "user",
-        content: `Analise esta refeição descrita e forneça informações nutricionais: "${mealDescription}"`
+        content: `Analyze this described meal and provide nutritional information: "${mealDescription}"`
       });
     } else {
       throw new Error('Provide imageBase64 or mealDescription');

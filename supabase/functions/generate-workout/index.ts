@@ -52,46 +52,46 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `És um personal trainer especialista em criar treinos personalizados.
+    const systemPrompt = `You are an expert personal trainer specialized in creating personalized workouts.
     
-REGRAS:
-- Cria treinos eficazes e seguros
-- Adapta ao nível de experiência do utilizador
-- Considera o objetivo (ganho de massa, perda de peso, força, etc.)
-- Inclui aquecimento e exercícios principais
-- Fornece séries, repetições e tempo de descanso para cada exercício
-- Explica brevemente a execução de cada exercício
+RULES:
+- Create effective and safe workouts
+- Adapt to the user's experience level
+- Consider the goal (muscle gain, weight loss, strength, etc.)
+- Include warm-up and main exercises
+- Provide sets, reps, and rest time for each exercise
+- Briefly explain the execution of each exercise
 
-FORMATO DE RESPOSTA (JSON válido):
+RESPONSE FORMAT (valid JSON):
 {
   "warmup": [
-    { "name": "Nome do exercício", "duration": "2 min" ou "10 reps" }
+    { "name": "Exercise name", "duration": "2 min" or "10 reps" }
   ],
   "exercises": [
     {
-      "name": "Nome do exercício",
+      "name": "Exercise name",
       "sets": 3,
       "reps": "8-12",
       "rest": 90,
-      "tip": "Dica breve de execução",
-      "equipment": "Equipamento necessário"
+      "tip": "Brief execution tip",
+      "equipment": "Required equipment"
     }
   ],
-  "cooldown": "Sugestão de alongamento/cooldown",
+  "cooldown": "Stretching/cooldown suggestion",
   "estimatedDuration": 45,
-  "difficulty": "Iniciante" | "Intermédio" | "Avançado",
-  "notes": "Notas adicionais sobre o treino"
+  "difficulty": "Beginner" | "Intermediate" | "Advanced",
+  "notes": "Additional notes about the workout"
 }`;
 
-    const userPrompt = `Cria um treino personalizado com os seguintes parâmetros:
+    const userPrompt = `Create a personalized workout with the following parameters:
 
-GRUPOS MUSCULARES: ${Array.isArray(muscleGroups) ? muscleGroups.join(", ") : muscleGroups}
-TIPO DE TREINO: ${trainingType || "Hipertrofia"}
-NÍVEL DE EXPERIÊNCIA: ${experience || "Intermédio"}
-OBJETIVO: ${goal || "Ganho de massa muscular"}
-EQUIPAMENTO DISPONÍVEL: ${equipment || "Ginásio completo"}
+MUSCLE GROUPS: ${Array.isArray(muscleGroups) ? muscleGroups.join(", ") : muscleGroups}
+TRAINING TYPE: ${trainingType || "Hypertrophy"}
+EXPERIENCE LEVEL: ${experience || "Intermediate"}
+GOAL: ${goal || "Muscle gain"}
+AVAILABLE EQUIPMENT: ${equipment || "Full gym"}
 
-Cria um treino completo e eficaz. Responde APENAS com o JSON, sem texto adicional.`;
+Create a complete and effective workout. Respond ONLY with the JSON, no additional text.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
