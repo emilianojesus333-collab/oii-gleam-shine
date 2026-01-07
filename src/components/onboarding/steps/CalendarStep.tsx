@@ -12,13 +12,13 @@ interface CalendarStepProps {
 }
 
 const weekDays = [
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-  "Domingo",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
 ];
 
 export const CalendarStep = ({
@@ -40,7 +40,7 @@ export const CalendarStep = ({
   };
 
   const formatGroups = (groups: string[] | undefined) => {
-    if (!groups || groups.length === 0) return "Selecionar";
+    if (!groups || groups.length === 0) return "Select";
     if (groups.length === 1) return groups[0];
     if (groups.length === 2) return groups.join(" + ");
     return `${groups.slice(0, 2).join(" + ")} +${groups.length - 2}`;
@@ -55,10 +55,10 @@ export const CalendarStep = ({
           className="text-center"
         >
           <h1 className="text-xl font-bold text-foreground">
-            Define o teu calendário
+            Set your schedule
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Diz-nos o que vais treinar em cada dia
+            Tell us what you'll train each day
           </p>
         </motion.div>
 

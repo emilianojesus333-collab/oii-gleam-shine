@@ -729,12 +729,12 @@ export const useNutrition = () => {
 };
 
 export const mealTypeLabels: Record<Meal['type'], string> = {
-  breakfast: 'Pequeno-almoço',
-  lunch: 'Almoço',
-  dinner: 'Jantar',
-  snack: 'Lanche',
-  pre_workout: 'Pré-treino',
-  post_workout: 'Pós-treino',
+  breakfast: 'Breakfast',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+  snack: 'Snack',
+  pre_workout: 'Pre-Workout',
+  post_workout: 'Post-Workout',
 };
 
 export const mealTypeIcons: Record<Meal['type'], string> = {

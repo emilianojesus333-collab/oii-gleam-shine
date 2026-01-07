@@ -22,16 +22,16 @@ interface ProfileSetupProps {
 }
 
 const activityLabels = {
-  sedentary: 'Sedentário',
-  light: 'Leve',
-  moderate: 'Moderado',
-  active: 'Ativo',
-  very_active: 'Muito Ativo',
+  sedentary: 'Sedentary',
+  light: 'Light',
+  moderate: 'Moderate',
+  active: 'Active',
+  very_active: 'Very Active',
 };
 
 const goalLabels = {
   cut: 'Cutting',
-  maintain: 'Manter',
+  maintain: 'Maintain',
   bulk: 'Bulking',
 };
 
@@ -70,7 +70,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2 text-white">
             <Target className="w-5 h-5" />
-            Configurar Perfil & Metas
+            Configure Profile & Goals
           </DrawerTitle>
         </DrawerHeader>
 
@@ -79,12 +79,12 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
           <div className="space-y-4">
             <h4 className="font-medium flex items-center gap-2 text-white">
               <Scale className="w-4 h-4" />
-              Dados Físicos
+              Physical Data
             </h4>
             
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Peso (kg)</label>
+                <label className="text-sm text-gray-400">Weight (kg)</label>
                 <Input
                   type="number"
                   value={localProfile.weight}
@@ -92,7 +92,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Altura (cm)</label>
+                <label className="text-sm text-gray-400">Height (cm)</label>
                 <Input
                   type="number"
                   value={localProfile.height}
@@ -103,7 +103,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Idade</label>
+                <label className="text-sm text-gray-400">Age</label>
                 <Input
                   type="number"
                   value={localProfile.age}
@@ -111,7 +111,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Género</label>
+                <label className="text-sm text-gray-400">Gender</label>
                 <div className="flex gap-2">
                   {(['male', 'female'] as const).map((g) => (
                     <button
@@ -123,7 +123,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                           : 'bg-white/5 text-gray-400'
                       }`}
                     >
-                      {g === 'male' ? '♂ Masc' : '♀ Fem'}
+                      {g === 'male' ? '♂ Male' : '♀ Female'}
                     </button>
                   ))}
                 </div>
@@ -135,7 +135,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
           <div className="space-y-3">
             <h4 className="font-medium flex items-center gap-2 text-white">
               <Activity className="w-4 h-4" />
-              Nível de Atividade
+              Activity Level
             </h4>
             <div className="flex flex-wrap gap-2">
               {activityLevels.map((level) => (
@@ -158,7 +158,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
           <div className="space-y-3">
             <h4 className="font-medium flex items-center gap-2 text-white">
               <Target className="w-4 h-4" />
-              Objetivo
+              Goal
             </h4>
             <div className="grid grid-cols-3 gap-2">
               {goalTypes.map((goal) => {
@@ -183,14 +183,14 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
 
           {/* Calculated goals preview */}
           <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
-            <h4 className="font-medium mb-3 text-white">Metas Calculadas</h4>
+            <h4 className="font-medium mb-3 text-white">Calculated Goals</h4>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-gray-400">Calorias:</span>
+                <span className="text-gray-400">Calories:</span>
                 <span className="ml-2 font-semibold text-white">{goals.calories} kcal</span>
               </div>
               <div>
-                <span className="text-gray-400">Proteína:</span>
+                <span className="text-gray-400">Protein:</span>
                 <span className="ml-2 font-semibold text-white">{goals.protein}g</span>
               </div>
               <div>
@@ -198,7 +198,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                 <span className="ml-2 font-semibold text-white">{goals.carbs}g</span>
               </div>
               <div>
-                <span className="text-gray-400">Gordura:</span>
+                <span className="text-gray-400">Fat:</span>
                 <span className="ml-2 font-semibold text-white">{goals.fat}g</span>
               </div>
             </div>
@@ -207,7 +207,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
           {/* Custom goals toggle */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-white">Metas Personalizadas</h4>
+              <h4 className="font-medium text-white">Custom Goals</h4>
               <button
                 onClick={() => setUseCustomGoals(!useCustomGoals)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
@@ -216,7 +216,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                     : 'bg-white/5 text-gray-400'
                 }`}
               >
-                {useCustomGoals ? 'Ativo' : 'Usar calculado'}
+                {useCustomGoals ? 'Active' : 'Use calculated'}
               </button>
             </div>
 
@@ -228,7 +228,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
               >
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-gray-300">
-                    <span>Calorias</span>
+                    <span>Calories</span>
                     <span className="font-medium text-white">{customGoals.calories} kcal</span>
                   </div>
                   <Slider
@@ -241,7 +241,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-gray-300">
-                    <span>Proteína</span>
+                    <span>Protein</span>
                     <span className="font-medium text-white">{customGoals.protein}g</span>
                   </div>
                   <Slider
@@ -259,7 +259,7 @@ export const ProfileSetup = ({ profile, goals, onUpdateProfile, onSetGoals }: Pr
 
         <DrawerFooter>
           <Button onClick={handleSave} className="w-full">
-            Guardar Alterações
+            Save Changes
           </Button>
         </DrawerFooter>
       </DrawerContent>

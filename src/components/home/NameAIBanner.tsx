@@ -70,10 +70,10 @@ export const NameAIBanner = () => {
             
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-foreground mb-1">
-                Dá um nome ao teu Chat!
+                Name your Chat!
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Personaliza a tua experiência dando um nome ao assistente.
+                Personalize your experience by naming your assistant.
               </p>
               
               <Button
@@ -81,7 +81,7 @@ export const NameAIBanner = () => {
                 size="sm"
                 className="gap-2"
               >
-                Escolher nome
+                Choose name
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -10,10 +10,10 @@ interface GoalStepProps {
 }
 
 const goals = [
-  "Hipertrofia",
+  "Hypertrophy",
   "Cutting",
   "Performance",
-  "Manter o shape",
+  "Maintain Shape",
 ];
 
 export const GoalStep = ({ selectedGoal, onSelect, onContinue, onBack }: GoalStepProps) => {
@@ -26,10 +26,10 @@ export const GoalStep = ({ selectedGoal, onSelect, onContinue, onBack }: GoalSte
           className="text-center"
         >
           <h1 className="text-xl font-bold text-foreground">
-            Qual é o teu objetivo?
+            What's your goal?
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            isto vai ajudar a personalizar o seu treino
+            This will help personalize your training
           </p>
         </motion.div>
 
