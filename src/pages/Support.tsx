@@ -4,46 +4,133 @@ import { ArrowLeft, Mail, MessageCircle, ChevronDown, HelpCircle, CreditCard, Du
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const contactSchema = z.object({
-  subject: z.string().trim().min(1, "Assunto é obrigatório").max(100, "Máximo 100 caracteres"),
-  message: z.string().trim().min(10, "Mensagem deve ter pelo menos 10 caracteres").max(1000, "Máximo 1000 caracteres"),
-});
-
-const faqs = [
-  {
-    icon: CreditCard,
-    question: "Como cancelo a minha subscrição?",
-    answer: "Vai a Definições > Subscrição > Gerir. Serás redirecionado para o portal de pagamento onde podes cancelar a qualquer momento."
-  },
-  {
-    icon: Dumbbell,
-    question: "Posso alterar o meu plano de treino?",
-    answer: "Sim! Vai a Definições e edita o teu calendário semanal. Também podes pedir ao assistente IA para gerar novos treinos personalizados."
-  },
-  {
-    icon: Utensils,
-    question: "Como funciona o tracking nutricional?",
-    answer: "Na página de Nutrição, podes adicionar refeições manualmente, usar o scanner de alimentos com IA, ou explorar planos de refeições sugeridos."
-  },
-  {
-    icon: MessageCircle,
-    question: "O assistente IA lembra-se das conversas?",
-    answer: "Sim! O assistente tem memória das tuas conversas anteriores e conhece os teus dados do onboarding para dar respostas personalizadas."
-  },
-  {
-    icon: HelpCircle,
-    question: "Os meus dados estão seguros?",
-    answer: "Absolutamente. Usamos encriptação de ponta e seguimos as normas RGPD. Podes ver mais detalhes na nossa Política de Privacidade."
-  },
-];
+import { useLanguage } from "@/hooks/useLanguage";
 
 const Support = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+
+  const content = {
+    en: {
+      title: "Support",
+      heroTitle: "How can we help?",
+      heroSubtitle: "Find quick answers or get in touch with us",
+      faqTitle: "Frequently Asked Questions",
+      viewAll: "View all →",
+      viewAllQuestions: "View all questions",
+      sendMessage: "Send Message",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "E.g.: Payment issue",
+      messageLabel: "Message",
+      messagePlaceholder: "Describe your issue or question...",
+      sendButton: "Send Message",
+      usefulLinks: "Useful Links",
+      termsOfUse: "Terms of Use",
+      privacyPolicy: "Privacy Policy",
+      settings: "Settings",
+      followUs: "Follow us",
+      socialTip: "Follow us for fitness tips and news!",
+      messageSent: "Message sent! We'll respond soon.",
+      validation: {
+        subjectRequired: "Subject is required",
+        subjectMax: "Maximum 100 characters",
+        messageMin: "Message must be at least 10 characters",
+        messageMax: "Maximum 1000 characters"
+      },
+      faqs: [
+        {
+          icon: CreditCard,
+          question: "How do I cancel my subscription?",
+          answer: "Go to Settings > Subscription > Manage. You'll be redirected to the payment portal where you can cancel anytime."
+        },
+        {
+          icon: Dumbbell,
+          question: "Can I change my workout plan?",
+          answer: "Yes! Go to Settings and edit your weekly calendar. You can also ask the AI assistant to generate new personalized workouts."
+        },
+        {
+          icon: Utensils,
+          question: "How does nutritional tracking work?",
+          answer: "On the Nutrition page, you can add meals manually, use the AI food scanner, or explore suggested meal plans."
+        },
+        {
+          icon: MessageCircle,
+          question: "Does the AI assistant remember conversations?",
+          answer: "Yes! The assistant has memory of your previous conversations and knows your onboarding data to give personalized responses."
+        },
+        {
+          icon: HelpCircle,
+          question: "Is my data secure?",
+          answer: "Absolutely. We use end-to-end encryption and follow GDPR standards. You can see more details in our Privacy Policy."
+        },
+      ]
+    },
+    pt: {
+      title: "Suporte",
+      heroTitle: "Como podemos ajudar?",
+      heroSubtitle: "Encontra respostas rápidas ou entra em contacto connosco",
+      faqTitle: "Perguntas Frequentes",
+      viewAll: "Ver todas →",
+      viewAllQuestions: "Ver todas as perguntas",
+      sendMessage: "Enviar Mensagem",
+      subjectLabel: "Assunto",
+      subjectPlaceholder: "Ex: Problema com pagamento",
+      messageLabel: "Mensagem",
+      messagePlaceholder: "Descreve o teu problema ou questão...",
+      sendButton: "Enviar Mensagem",
+      usefulLinks: "Links Úteis",
+      termsOfUse: "Termos de Uso",
+      privacyPolicy: "Política de Privacidade",
+      settings: "Definições",
+      followUs: "Siga-nos",
+      socialTip: "Acompanha-nos para dicas de fitness e novidades!",
+      messageSent: "Mensagem enviada! Responderemos em breve.",
+      validation: {
+        subjectRequired: "Assunto é obrigatório",
+        subjectMax: "Máximo 100 caracteres",
+        messageMin: "Mensagem deve ter pelo menos 10 caracteres",
+        messageMax: "Máximo 1000 caracteres"
+      },
+      faqs: [
+        {
+          icon: CreditCard,
+          question: "Como cancelo a minha subscrição?",
+          answer: "Vai a Definições > Subscrição > Gerir. Serás redirecionado para o portal de pagamento onde podes cancelar a qualquer momento."
+        },
+        {
+          icon: Dumbbell,
+          question: "Posso alterar o meu plano de treino?",
+          answer: "Sim! Vai a Definições e edita o teu calendário semanal. Também podes pedir ao assistente IA para gerar novos treinos personalizados."
+        },
+        {
+          icon: Utensils,
+          question: "Como funciona o tracking nutricional?",
+          answer: "Na página de Nutrição, podes adicionar refeições manualmente, usar o scanner de alimentos com IA, ou explorar planos de refeições sugeridos."
+        },
+        {
+          icon: MessageCircle,
+          question: "O assistente IA lembra-se das conversas?",
+          answer: "Sim! O assistente tem memória das tuas conversas anteriores e conhece os teus dados do onboarding para dar respostas personalizadas."
+        },
+        {
+          icon: HelpCircle,
+          question: "Os meus dados estão seguros?",
+          answer: "Absolutamente. Usamos encriptação de ponta e seguimos as normas RGPD. Podes ver mais detalhes na nossa Política de Privacidade."
+        },
+      ]
+    }
+  };
+
+  const t = content[language];
+
+  const contactSchema = z.object({
+    subject: z.string().trim().min(1, t.validation.subjectRequired).max(100, t.validation.subjectMax),
+    message: z.string().trim().min(10, t.validation.messageMin).max(1000, t.validation.messageMax),
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +146,7 @@ const Support = () => {
     // Simulate sending (in production, this would call an edge function)
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    toast.success("Mensagem enviada! Responderemos em breve.");
+    toast.success(t.messageSent);
     setSubject("");
     setMessage("");
     setSending(false);
@@ -76,7 +163,7 @@ const Support = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-semibold">Suporte</h1>
+          <h1 className="text-lg font-semibold">{t.title}</h1>
         </div>
       </div>
 
@@ -90,9 +177,9 @@ const Support = () => {
           <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <HelpCircle className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-bold">Como podemos ajudar?</h2>
+          <h2 className="text-2xl font-bold">{t.heroTitle}</h2>
           <p className="text-muted-foreground">
-            Encontra respostas rápidas ou entra em contacto connosco
+            {t.heroSubtitle}
           </p>
         </div>
 
@@ -101,18 +188,18 @@ const Support = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-primary" />
-              Perguntas Frequentes
+              {t.faqTitle}
             </h3>
             <button
               onClick={() => navigate("/faq")}
               className="text-sm text-primary font-medium hover:underline"
             >
-              Ver todas →
+              {t.viewAll}
             </button>
           </div>
           
           <div className="space-y-2">
-            {faqs.slice(0, 3).map((faq, index) => {
+            {t.faqs.slice(0, 3).map((faq, index) => {
               const Icon = faq.icon;
               const isOpen = openFaq === index;
               
@@ -157,7 +244,7 @@ const Support = () => {
             onClick={() => navigate("/faq")}
             className="w-full bg-muted/30 text-foreground py-3 rounded-xl font-medium text-sm hover:bg-muted/50 transition-colors"
           >
-            Ver todas as perguntas
+            {t.viewAllQuestions}
           </motion.button>
         </div>
 
@@ -165,19 +252,19 @@ const Support = () => {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Mail className="w-5 h-5 text-primary" />
-            Enviar Mensagem
+            {t.sendMessage}
           </h3>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm text-muted-foreground mb-1.5 block">
-                Assunto
+                {t.subjectLabel}
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Ex: Problema com pagamento"
+                placeholder={t.subjectPlaceholder}
                 maxLength={100}
                 className="w-full bg-card border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
@@ -185,12 +272,12 @@ const Support = () => {
             
             <div>
               <label className="text-sm text-muted-foreground mb-1.5 block">
-                Mensagem
+                {t.messageLabel}
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Descreve o teu problema ou questão..."
+                placeholder={t.messagePlaceholder}
                 rows={5}
                 maxLength={1000}
                 className="w-full bg-card border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
@@ -211,7 +298,7 @@ const Support = () => {
               ) : (
                 <>
                   <Mail className="w-5 h-5" />
-                  Enviar Mensagem
+                  {t.sendButton}
                 </>
               )}
             </motion.button>
@@ -220,32 +307,32 @@ const Support = () => {
 
         {/* Quick Links */}
         <div className="bg-card rounded-xl border border-border/30 p-4 space-y-3">
-          <h4 className="font-medium text-foreground">Links Úteis</h4>
+          <h4 className="font-medium text-foreground">{t.usefulLinks}</h4>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => navigate("/terms")}
               className="px-3 py-1.5 bg-muted/30 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Termos de Uso
+              {t.termsOfUse}
             </button>
             <button
               onClick={() => navigate("/privacy")}
               className="px-3 py-1.5 bg-muted/30 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Política de Privacidade
+              {t.privacyPolicy}
             </button>
             <button
               onClick={() => navigate("/settings")}
               className="px-3 py-1.5 bg-muted/30 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Definições
+              {t.settings}
             </button>
           </div>
         </div>
 
         {/* Social Media */}
         <div className="bg-card rounded-xl border border-border/30 p-4 space-y-4">
-          <h4 className="font-medium text-foreground text-center">Siga-nos</h4>
+          <h4 className="font-medium text-foreground text-center">{t.followUs}</h4>
           <div className="flex justify-center gap-4">
             <motion.a
               href="https://tiktok.com/@liftmate"
@@ -287,7 +374,7 @@ const Support = () => {
             </motion.a>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            Acompanha-nos para dicas de fitness e novidades!
+            {t.socialTip}
           </p>
         </div>
 

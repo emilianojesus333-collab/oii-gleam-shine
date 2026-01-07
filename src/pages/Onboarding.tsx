@@ -8,6 +8,7 @@ import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
 import { FocusStep } from "@/components/onboarding/steps/FocusStep";
 import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Step = "personal" | "goal" | "experience" | "focus" | "calendar";
 
@@ -29,10 +30,16 @@ interface OnboardingData {
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<Step>("personal");
+
+  const errorMessages = {
+    en: "Error saving data. Please try again.",
+    pt: "Erro ao salvar dados. Tente novamente."
+  };
   const [data, setData] = useState<OnboardingData>({
     personal: {
       name: "",
@@ -127,7 +134,7 @@ const Onboarding = () => {
 
       if (updateError) {
         console.error("Error updating onboarding status:", updateError);
-        toast.error("Erro ao salvar dados. Tente novamente.");
+        toast.error(errorMessages[language]);
         setSaving(false);
         return;
       }
@@ -136,7 +143,7 @@ const Onboarding = () => {
       navigate("/processing", { replace: true });
     } catch (error) {
       console.error("Error completing onboarding:", error);
-      toast.error("Erro ao salvar dados. Tente novamente.");
+      toast.error(errorMessages[language]);
       setSaving(false);
     }
   };

@@ -33,23 +33,23 @@ import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 
-const weekDaysMap: Record<number, string> = {
-  0: "Domingo",
-  1: "Segunda-feira",
-  2: "Terça-feira",
-  3: "Quarta-feira",
-  4: "Quinta-feira",
-  5: "Sexta-feira",
-  6: "Sábado",
-};
+const getWeekDaysMap = (language: 'en' | 'pt'): Record<number, string> => ({
+  0: language === 'en' ? "Sunday" : "Domingo",
+  1: language === 'en' ? "Monday" : "Segunda-feira",
+  2: language === 'en' ? "Tuesday" : "Terça-feira",
+  3: language === 'en' ? "Wednesday" : "Quarta-feira",
+  4: language === 'en' ? "Thursday" : "Quinta-feira",
+  5: language === 'en' ? "Friday" : "Sexta-feira",
+  6: language === 'en' ? "Saturday" : "Sábado",
+});
 
 type TrainingType = "Força" | "Hipertrofia" | "Resistência";
 
-const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string }> = {
-  "Força": { icon: Zap, description: "Cargas altas, poucas reps" },
-  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado" },
-  "Resistência": { icon: Clock, description: "Mais reps, menos descanso" },
-};
+const getTrainingTypeConfig = (language: 'en' | 'pt'): Record<TrainingType, { icon: typeof Zap; description: string }> => ({
+  "Força": { icon: Zap, description: language === 'en' ? "Heavy loads, few reps" : "Cargas altas, poucas reps" },
+  "Hipertrofia": { icon: TrendingUp, description: language === 'en' ? "Moderate volume" : "Volume moderado" },
+  "Resistência": { icon: Clock, description: language === 'en' ? "More reps, less rest" : "Mais reps, menos descanso" },
+});
 
 // Calculate rest time based on exercise parameters with breakdown
 const calculateRestTime = (weight: number, reps: number, sets: number): { total: number; breakdown: RestBreakdown } => {
@@ -102,7 +102,9 @@ interface RestBreakdown {
 }
 
 const Workout = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const weekDaysMap = getWeekDaysMap(language);
+  const trainingTypeConfig = getTrainingTypeConfig(language);
   const { settings, isLoading } = useUserSettings();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
   const [selectedExercise, setSelectedExercise] = useState("");

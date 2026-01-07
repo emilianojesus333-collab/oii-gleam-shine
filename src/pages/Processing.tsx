@@ -2,17 +2,35 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Dumbbell, Brain, Target, Check } from "lucide-react";
-
-const steps = [
-  { icon: Dumbbell, text: "A analisar o teu perfil..." },
-  { icon: Target, text: "A personalizar o teu plano..." },
-  { icon: Brain, text: "A preparar a tua IA..." },
-];
+import { useLanguage } from "@/hooks/useLanguage";
 
 const Processing = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [completed, setCompleted] = useState(false);
+
+  const content = {
+    en: {
+      steps: [
+        { icon: Dumbbell, text: "Analyzing your profile..." },
+        { icon: Target, text: "Personalizing your plan..." },
+        { icon: Brain, text: "Preparing your AI..." },
+      ],
+      ready: "All set! ✨"
+    },
+    pt: {
+      steps: [
+        { icon: Dumbbell, text: "A analisar o teu perfil..." },
+        { icon: Target, text: "A personalizar o teu plano..." },
+        { icon: Brain, text: "A preparar a tua IA..." },
+      ],
+      ready: "Tudo pronto! ✨"
+    }
+  };
+
+  const t = content[language];
+  const steps = t.steps;
 
   useEffect(() => {
     // Progress through steps
@@ -40,7 +58,7 @@ const Processing = () => {
       clearTimeout(completeTimeout);
       clearTimeout(navigateTimeout);
     };
-  }, [navigate]);
+  }, [navigate, steps.length]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
@@ -118,7 +136,7 @@ const Processing = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-primary font-semibold"
           >
-            Tudo pronto! ✨
+            {t.ready}
           </motion.p>
         )}
       </motion.div>

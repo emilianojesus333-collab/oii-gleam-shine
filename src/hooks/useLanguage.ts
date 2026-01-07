@@ -687,14 +687,16 @@ const translations: Record<string, TranslationKeys> = {
 };
 
 // Detect browser/system language
-const detectLanguage = (): string => {
+export type Language = 'en' | 'pt';
+
+const detectLanguage = (): Language => {
   if (typeof navigator === 'undefined') return 'en';
   
   const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
   const langCode = browserLang.split('-')[0].toLowerCase();
   
   // Return the language if supported, otherwise fallback to English
-  return translations[langCode] ? langCode : 'en';
+  return translations[langCode] ? (langCode as Language) : 'en';
 };
 
 // Get current language (detected from system)
@@ -718,4 +720,4 @@ export const getTranslation = (key: string): string => {
   return currentTranslations[key] || translations.en[key] || key;
 };
 
-export const getCurrentLanguage = (): string => currentLanguage;
+export const getCurrentLanguage = (): Language => currentLanguage;
