@@ -10,11 +10,11 @@ interface FocusStepProps {
 }
 
 const focusOptions = [
-  "Strength",
-  "Hypertrophy",
-  "Endurance",
-  "Mobility",
-  "Overall Balance",
+  "Força",
+  "Hipertrofia",
+  "Resistencia",
+  "Mobilidade",
+  "Equilíbrio Geral",
 ];
 
 export const FocusStep = ({
@@ -32,10 +32,10 @@ export const FocusStep = ({
           className="text-center"
         >
           <h1 className="text-xl font-bold text-foreground">
-            What's your main focus?
+            Qual é o teu principal foco?
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            This will help personalize your training
+            isto vai ajudar a personalizar o seu treino
           </p>
         </motion.div>
 

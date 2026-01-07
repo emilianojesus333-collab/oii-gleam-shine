@@ -4,38 +4,15 @@ import { motion } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useLanguage } from "@/hooks/useLanguage";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
   const [countdown, setCountdown] = useState(5);
   const [subscriptionSynced, setSubscriptionSynced] = useState(false);
   const [syncAttempts, setSyncAttempts] = useState(0);
   const { checkSubscription, isSubscriptionValid, isTrialing, status, subscribed, isLoading } = useSubscription();
   const syncingRef = useRef(false);
   const maxAttempts = 5;
-
-  const content = {
-    en: {
-      title: "Payment Confirmed! 🎉",
-      welcome: "Welcome to LiftMate Premium! You now have access to all features.",
-      redirecting: "Redirecting to Home in",
-      activating: "Activating your subscription...",
-      goHome: "Go to Home now",
-      processing: "Processing..."
-    },
-    pt: {
-      title: "Pagamento Confirmado! 🎉",
-      welcome: "Bem-vindo ao LiftMate Premium! Agora tens acesso a todas as funcionalidades.",
-      redirecting: "A redirecionar para a Home em",
-      activating: "A ativar a tua subscrição...",
-      goHome: "Ir para a Home agora",
-      processing: "A processar..."
-    }
-  };
-
-  const t = content[language];
 
   // Check if subscription is now valid
   const isNowPremium = useCallback(() => {
@@ -211,10 +188,10 @@ const PaymentSuccess = () => {
         className="text-center space-y-4"
       >
         <h1 className="text-3xl font-black text-foreground">
-          {t.title}
+          Pagamento Confirmado! 🎉
         </h1>
         <p className="text-muted-foreground max-w-sm">
-          {t.welcome}
+          Bem-vindo ao LiftMate Premium! Agora tens acesso a todas as funcionalidades.
         </p>
       </motion.div>
 
@@ -228,7 +205,7 @@ const PaymentSuccess = () => {
         {subscriptionSynced ? (
           <>
             <p className="text-sm text-muted-foreground mb-2">
-              {t.redirecting}
+              A redirecionar para a Home em
             </p>
             <motion.div
               key={countdown}
@@ -243,7 +220,7 @@ const PaymentSuccess = () => {
           <div className="flex flex-col items-center gap-2">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground">
-              {t.activating} ({syncAttempts + 1}/{maxAttempts})
+              A ativar a tua subscrição... ({syncAttempts + 1}/{maxAttempts})
             </p>
           </div>
         )}
@@ -259,7 +236,7 @@ const PaymentSuccess = () => {
         disabled={!subscriptionSynced}
         className="mt-8 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold disabled:opacity-50"
       >
-        {subscriptionSynced ? t.goHome : t.processing}
+        {subscriptionSynced ? "Ir para a Home agora" : "A processar..."}
       </motion.button>
     </div>
   );

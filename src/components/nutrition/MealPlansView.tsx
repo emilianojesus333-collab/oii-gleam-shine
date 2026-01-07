@@ -22,47 +22,45 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { mealPlans, MealPlan, mealTypeLabelsExtended, mealTypeIconsExtended, getLocalizedText } from '@/data/mealPlans';
+import { mealPlans, MealPlan, mealTypeLabelsExtended, mealTypeIconsExtended } from '@/data/mealPlans';
 import { toast } from 'sonner';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface MealPlansViewProps {
   currentGoal: 'cut' | 'maintain' | 'bulk';
   onApplyPlan?: (plan: MealPlan) => void;
 }
 
+const goalConfig = {
+  cut: {
+    icon: TrendingDown,
+    label: 'Definição',
+    color: 'text-blue-500',
+    bg: 'bg-blue-500/10',
+    border: 'border-blue-500/20',
+    gradient: 'from-blue-500/10 to-cyan-500/10',
+  },
+  maintain: {
+    icon: Scale,
+    label: 'Manutenção',
+    color: 'text-green-500',
+    bg: 'bg-green-500/10',
+    border: 'border-green-500/20',
+    gradient: 'from-green-500/10 to-emerald-500/10',
+  },
+  bulk: {
+    icon: TrendingUp,
+    label: 'Volume',
+    color: 'text-orange-500',
+    bg: 'bg-orange-500/10',
+    border: 'border-orange-500/20',
+    gradient: 'from-orange-500/10 to-red-500/10',
+  },
+};
+
 export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
-  const { language } = useLanguage();
-
-  const goalConfig = {
-    cut: {
-      icon: TrendingDown,
-      label: language === 'pt' ? 'Definição' : 'Cut',
-      color: 'text-blue-500',
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/20',
-      gradient: 'from-blue-500/10 to-cyan-500/10',
-    },
-    maintain: {
-      icon: Scale,
-      label: language === 'pt' ? 'Manutenção' : 'Maintain',
-      color: 'text-green-500',
-      bg: 'bg-green-500/10',
-      border: 'border-green-500/20',
-      gradient: 'from-green-500/10 to-emerald-500/10',
-    },
-    bulk: {
-      icon: TrendingUp,
-      label: language === 'pt' ? 'Volume' : 'Bulk',
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10',
-      border: 'border-orange-500/20',
-      gradient: 'from-orange-500/10 to-red-500/10',
-    },
-  };
 
   const handleSelectPlan = (plan: MealPlan) => {
     setSelectedPlan(plan);
@@ -72,14 +70,9 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
   const handleApplyPlan = () => {
     if (selectedPlan && onApplyPlan) {
       onApplyPlan(selectedPlan);
-      toast.success(
-        language === 'pt' 
-          ? `Plano "${getLocalizedText(selectedPlan.name)}" aplicado!`
-          : `Plan "${getLocalizedText(selectedPlan.name)}" applied!`, 
-        {
-          description: language === 'pt' ? 'As tuas metas foram atualizadas.' : 'Your goals have been updated.',
-        }
-      );
+      toast.success(`Plano "${selectedPlan.name}" aplicado!`, {
+        description: 'As tuas metas foram atualizadas.',
+      });
       setIsOpen(false);
       setSelectedPlan(null);
     }
@@ -96,10 +89,8 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
             <Target className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 text-left">
-            <p className="font-medium">{language === 'pt' ? 'Planos Alimentares' : 'Meal Plans'}</p>
-            <p className="text-xs text-muted-foreground">
-              {language === 'pt' ? 'Cut, Manutenção ou Bulk' : 'Cut, Maintain or Bulk'}
-            </p>
+            <p className="font-medium">Planos Alimentares</p>
+            <p className="text-xs text-muted-foreground">Cut, Manutenção ou Bulk</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </motion.button>
@@ -109,7 +100,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2 text-white">
             <Utensils className="w-5 h-5" />
-            {selectedPlan ? getLocalizedText(selectedPlan.name) : (language === 'pt' ? 'Planos Alimentares' : 'Meal Plans')}
+            {selectedPlan ? selectedPlan.name : 'Planos Alimentares'}
           </DrawerTitle>
         </DrawerHeader>
 
@@ -147,18 +138,18 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-white">{getLocalizedText(plan.name)}</h3>
+                                <h3 className="font-semibold text-white">{plan.name}</h3>
                                 {isCurrentGoal && (
                                   <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
-                                    {language === 'pt' ? 'Atual' : 'Current'}
+                                    Atual
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-400 mt-0.5">{getLocalizedText(plan.description)}</p>
+                              <p className="text-sm text-gray-400 mt-0.5">{plan.description}</p>
                               <div className="flex gap-3 mt-2 text-xs text-gray-400">
                                 <span>{plan.calorieRange.min}-{plan.calorieRange.max} kcal</span>
                                 <span>•</span>
-                                <span>{plan.proteinPerKg}g/kg {language === 'pt' ? 'proteína' : 'protein'}</span>
+                                <span>{plan.proteinPerKg}g/kg proteína</span>
                               </div>
                             </div>
                             <ChevronRight className="w-5 h-5 text-muted-foreground mt-3" />
@@ -168,7 +159,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                     })
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      <p className="text-sm">{language === 'pt' ? 'Nenhum plano disponível' : 'No plans available'}</p>
+                      <p className="text-sm">Nenhum plano disponível</p>
                     </div>
                   )}
 
@@ -177,11 +168,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                     <div className="flex items-start gap-2">
                       <Info className="w-4 h-4 text-muted-foreground mt-0.5" />
                       <div className="text-xs text-muted-foreground">
-                        <p>
-                          {language === 'pt' 
-                            ? 'Os planos são sugestões baseadas nos teus objetivos. Adapta as porções ao teu peso e nível de atividade.'
-                            : 'Plans are suggestions based on your goals. Adjust portions to your weight and activity level.'}
-                        </p>
+                        <p>Os planos são sugestões baseadas nos teus objetivos. Adapta as porções ao teu peso e nível de atividade.</p>
                       </div>
                     </div>
                   </div>
@@ -201,7 +188,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                     onClick={() => setSelectedPlan(null)}
                     className="mb-2"
                   >
-                    ← {language === 'pt' ? 'Voltar aos planos' : 'Back to plans'}
+                    ← Voltar aos planos
                   </Button>
 
                   {/* Plan summary */}
@@ -209,15 +196,15 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
                         <p className="text-xl font-bold">{selectedPlan.calorieRange.min}-{selectedPlan.calorieRange.max}</p>
-                        <p className="text-xs text-muted-foreground">kcal/{language === 'pt' ? 'dia' : 'day'}</p>
+                        <p className="text-xs text-muted-foreground">kcal/dia</p>
                       </div>
                       <div>
                         <p className="text-xl font-bold">{selectedPlan.proteinPerKg}g</p>
-                        <p className="text-xs text-muted-foreground">{language === 'pt' ? 'proteína/kg' : 'protein/kg'}</p>
+                        <p className="text-xs text-muted-foreground">proteína/kg</p>
                       </div>
                       <div>
                         <p className="text-xl font-bold">{selectedPlan.days[0].meals.length}</p>
-                        <p className="text-xs text-muted-foreground">{language === 'pt' ? 'refeições' : 'meals'}</p>
+                        <p className="text-xs text-muted-foreground">refeições</p>
                       </div>
                     </div>
                   </div>
@@ -234,9 +221,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                             : 'bg-muted/30 text-muted-foreground'
                         }`}
                       >
-                        {day.isTrainingDay 
-                          ? (language === 'pt' ? '🏋️ Treino' : '🏋️ Training') 
-                          : (language === 'pt' ? '😴 Descanso' : '😴 Rest')}
+                        {day.isTrainingDay ? '🏋️ Treino' : '😴 Descanso'}
                       </button>
                     ))}
                   </div>
@@ -258,14 +243,14 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-blue-500 truncate">{Math.round(selectedPlan.days[selectedDay].totals.fat)}g</p>
-                        <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Gord' : 'Fat'}</p>
+                        <p className="text-xs text-muted-foreground">Gord</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Meals list */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-medium">{language === 'pt' ? 'Refeições' : 'Meals'}</h4>
+                    <h4 className="text-sm font-medium">Refeições</h4>
                     {selectedPlan.days[selectedDay].meals.map((meal, index) => {
                       const mealTotals = meal.foods.reduce((acc, f) => ({
                         calories: acc.calories + f.calories,
@@ -277,7 +262,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <span>{mealTypeIconsExtended[meal.type] || '🍽️'}</span>
-                              <span className="font-medium text-sm">{getLocalizedText(meal.name)}</span>
+                              <span className="font-medium text-sm">{meal.name}</span>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Clock className="w-3 h-3" />
@@ -304,13 +289,13 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                   <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
                     <h4 className="font-medium text-sm flex items-center gap-2 mb-2">
                       <Sparkles className="w-4 h-4 text-amber-500" />
-                      {language === 'pt' ? 'Dicas para' : 'Tips for'} {goalConfig[selectedPlan.goal].label}
+                      Dicas para {goalConfig[selectedPlan.goal].label}
                     </h4>
                     <ul className="space-y-1">
                       {selectedPlan.tips.map((tip, index) => (
                         <li key={index} className="text-xs text-muted-foreground flex items-start gap-2">
                           <Check className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
-                          {getLocalizedText(tip)}
+                          {tip}
                         </li>
                       ))}
                     </ul>
@@ -325,7 +310,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
           <DrawerFooter>
             <Button onClick={handleApplyPlan} className="w-full">
               <Check className="w-4 h-4 mr-2" />
-              {language === 'pt' ? 'Aplicar este plano' : 'Apply this plan'}
+              Aplicar este plano
             </Button>
           </DrawerFooter>
         )}

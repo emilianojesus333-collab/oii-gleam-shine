@@ -33,23 +33,23 @@ import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 
-const getWeekDaysMap = (language: 'en' | 'pt'): Record<number, string> => ({
-  0: language === 'en' ? "Sunday" : "Domingo",
-  1: language === 'en' ? "Monday" : "Segunda-feira",
-  2: language === 'en' ? "Tuesday" : "Terça-feira",
-  3: language === 'en' ? "Wednesday" : "Quarta-feira",
-  4: language === 'en' ? "Thursday" : "Quinta-feira",
-  5: language === 'en' ? "Friday" : "Sexta-feira",
-  6: language === 'en' ? "Saturday" : "Sábado",
-});
+const weekDaysMap: Record<number, string> = {
+  0: "Domingo",
+  1: "Segunda-feira",
+  2: "Terça-feira",
+  3: "Quarta-feira",
+  4: "Quinta-feira",
+  5: "Sexta-feira",
+  6: "Sábado",
+};
 
-type TrainingType = "Strength" | "Hypertrophy" | "Endurance";
+type TrainingType = "Força" | "Hipertrofia" | "Resistência";
 
-const getTrainingTypeConfig = (language: 'en' | 'pt'): Record<TrainingType, { icon: typeof Zap; description: string }> => ({
-  "Strength": { icon: Zap, description: language === 'en' ? "Heavy loads, few reps" : "Cargas altas, poucas reps" },
-  "Hypertrophy": { icon: TrendingUp, description: language === 'en' ? "Moderate volume" : "Volume moderado" },
-  "Endurance": { icon: Clock, description: language === 'en' ? "More reps, less rest" : "Mais reps, menos descanso" },
-});
+const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string }> = {
+  "Força": { icon: Zap, description: "Cargas altas, poucas reps" },
+  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado" },
+  "Resistência": { icon: Clock, description: "Mais reps, menos descanso" },
+};
 
 // Calculate rest time based on exercise parameters with breakdown
 const calculateRestTime = (weight: number, reps: number, sets: number): { total: number; breakdown: RestBreakdown } => {
@@ -67,16 +67,16 @@ const calculateRestTime = (weight: number, reps: number, sets: number): { total:
   // Lower reps = more rest (strength training needs more recovery)
   if (reps <= 5) {
     breakdown.repsAdjustment = 60;
-    breakdown.repsCategory = "Max Strength";
+    breakdown.repsCategory = "Força máxima";
   } else if (reps <= 8) {
     breakdown.repsAdjustment = 30;
-    breakdown.repsCategory = "Strength/Hypertrophy";
+    breakdown.repsCategory = "Força/Hipertrofia";
   } else if (reps <= 12) {
     breakdown.repsAdjustment = 0;
-    breakdown.repsCategory = "Hypertrophy";
+    breakdown.repsCategory = "Hipertrofia";
   } else {
     breakdown.repsAdjustment = -15;
-    breakdown.repsCategory = "Endurance";
+    breakdown.repsCategory = "Resistência";
   }
   
   // More sets = slightly more rest
@@ -102,11 +102,9 @@ interface RestBreakdown {
 }
 
 const Workout = () => {
-  const { t, language } = useLanguage();
-  const weekDaysMap = getWeekDaysMap(language);
-  const trainingTypeConfig = getTrainingTypeConfig(language);
+  const { t } = useLanguage();
   const { settings, isLoading } = useUserSettings();
-  const [trainingType, setTrainingType] = useState<TrainingType>("Hypertrophy");
+  const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
   const [reps, setReps] = useState("7");
@@ -117,7 +115,7 @@ const Workout = () => {
     weightBonus: 30,
     repsAdjustment: 30,
     setsBonus: 0,
-    repsCategory: "Strength/Hypertrophy",
+    repsCategory: "Força/Hipertrofia",
   });
   
   // Rest timer state
@@ -157,13 +155,13 @@ const Workout = () => {
 
   // Get muscle groups as array for AI generator
   const todayMuscleGroups = useMemo(() => {
-    if (!todayWorkout || todayWorkout === "Rest") return [];
+    if (!todayWorkout || todayWorkout === "Descanso") return [];
     return todayWorkout.split(" + ");
   }, [todayWorkout]);
 
   // Get exercises for today
   const todayExercises = useMemo(() => {
-    if (!todayWorkout || todayWorkout === "Rest") return [];
+    if (!todayWorkout || todayWorkout === "Descanso") return [];
     const muscleGroups = todayWorkout.split(" + ");
     return getExercisesForGroups(muscleGroups);
   }, [todayWorkout]);
@@ -200,7 +198,7 @@ const Workout = () => {
             if (!hasNotifiedRef.current) {
               hasNotifiedRef.current = true;
               notifyTimerEnd();
-              toast.success("Rest time ended! 💪");
+              toast.success("Tempo de descanso terminado! 💪");
             }
             return parseInt(restTime);
           }
@@ -229,12 +227,12 @@ const Workout = () => {
 
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) {
-      toast.error("Select an exercise first");
+      toast.error("Seleciona um exercício primeiro");
       return;
     }
     
     if (!user) {
-      toast.error("Log in to save exercises");
+      toast.error("Faz login para guardar exercícios");
       return;
     }
     
@@ -280,14 +278,14 @@ const Workout = () => {
     // Show feedback
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
-    toast.success(`${selectedExercise} saved!`);
+    toast.success(`${selectedExercise} guardado!`);
     
     // Clear form for next exercise
     setSelectedExercise("");
     setShowSaveConfirm(false);
   };
 
-  const isRestDay = !todayWorkout || todayWorkout === "Rest";
+  const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -417,7 +415,7 @@ const Workout = () => {
                     <div>
                       <p className="text-sm font-medium text-white/70">{exercise.name}</p>
                       <p className="text-xs text-gray-400/70">
-                        {new Date(exercise.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                     <div className="text-right">

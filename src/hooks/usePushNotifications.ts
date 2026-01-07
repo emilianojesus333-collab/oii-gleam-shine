@@ -290,13 +290,13 @@ export const usePushNotifications = () => {
     if (permission !== 'granted') return;
 
     const mealMessages: Record<string, { title: string; body: string }> = {
-      breakfast: { title: '🍳 Breakfast Time!', body: 'Start your day with energy. Log your breakfast!' },
-      morning_snack: { title: '🍎 Morning Snack', body: 'A healthy snack keeps your metabolism active.' },
-      lunch: { title: '🍽️ Lunch Time!', body: 'Main meal of the day. Don\'t forget to log it!' },
-      afternoon_snack: { title: '🥜 Afternoon Snack', body: 'Keep your energy up until dinner. Log your snack!' },
-      dinner: { title: '🌙 Dinner Time!', body: 'Last meal of the day. Log it to complete your macros!' },
-      pre_workout: { title: '⚡ Pre-Workout Meal', body: 'Fuel up for your workout!' },
-      post_workout: { title: '💪 Post-Workout Meal', body: 'Recover your muscles! Protein + carbs now.' },
+      breakfast: { title: '🍳 Hora do Pequeno-Almoço!', body: 'Começa o dia com energia. Registra o teu pequeno-almoço!' },
+      morning_snack: { title: '🍎 Lanche da Manhã', body: 'Um snack saudável mantém o metabolismo ativo.' },
+      lunch: { title: '🍽️ Hora do Almoço!', body: 'Refeição principal do dia. Não te esqueças de registar!' },
+      afternoon_snack: { title: '🥜 Lanche da Tarde', body: 'Mantém a energia até ao jantar. Regista o teu lanche!' },
+      dinner: { title: '🌙 Hora do Jantar!', body: 'Última refeição do dia. Regista para completar os teus macros!' },
+      pre_workout: { title: '⚡ Refeição Pré-Treino', body: 'Abastece-te de energia para o treino!' },
+      post_workout: { title: '💪 Refeição Pós-Treino', body: 'Recupera os músculos! Proteína + carbs agora.' },
     };
 
     mealTimes.forEach(({ type, time }) => {
@@ -310,8 +310,8 @@ export const usePushNotifications = () => {
       }
 
       const message = mealMessages[type] || { 
-        title: '🍽️ Time to Eat!', 
-        body: 'Don\'t forget to log your meal.' 
+        title: '🍽️ Hora de Comer!', 
+        body: 'Não te esqueças de registar a tua refeição.' 
       };
 
       scheduleNotification(

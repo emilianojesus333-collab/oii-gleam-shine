@@ -7,16 +7,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { fitnessRecipes, FitnessRecipe, categoryLabels, searchRecipes, getRecipesByCategory, getLocalizedText } from '@/data/fitnessRecipes';
+import { fitnessRecipes, FitnessRecipe, categoryLabels, searchRecipes, getRecipesByCategory } from '@/data/fitnessRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useLanguage } from '@/hooks/useLanguage';
 
 export const RecipesView = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const { isRecipeFavorite, toggleRecipeFavorite } = useFavorites();
-  const { language } = useLanguage();
 
   const filteredRecipes = searchQuery 
     ? searchRecipes(searchQuery)
@@ -30,11 +28,7 @@ export const RecipesView = () => {
     hard: 'bg-rose-500/20 text-rose-400',
   };
 
-  const difficultyLabels = { 
-    easy: language === 'pt' ? 'Fácil' : 'Easy', 
-    medium: language === 'pt' ? 'Médio' : 'Medium', 
-    hard: language === 'pt' ? 'Difícil' : 'Hard' 
-  };
+  const difficultyLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
 
   return (
     <Sheet>
@@ -51,8 +45,8 @@ export const RecipesView = () => {
                 <ChefHat className="w-6 h-6 text-orange-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">{language === 'pt' ? 'Receitas Fitness' : 'Fitness Recipes'}</h3>
-                <p className="text-xs text-orange-300/70">{fitnessRecipes.length} {language === 'pt' ? 'receitas internacionais' : 'international recipes'}</p>
+                <h3 className="font-semibold text-white">Receitas Fitness</h3>
+                <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas internacionais</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-orange-400/70" />
@@ -64,7 +58,7 @@ export const RecipesView = () => {
         <SheetHeader className="pb-4">
           <SheetTitle className="flex items-center gap-2 text-white">
             <ChefHat className="w-5 h-5 text-orange-500" />
-            {language === 'pt' ? 'Receitas Fitness' : 'Fitness Recipes'}
+            Receitas Fitness
           </SheetTitle>
         </SheetHeader>
 
@@ -72,7 +66,7 @@ export const RecipesView = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder={language === 'pt' ? 'Pesquisar receitas...' : 'Search recipes...'}
+              placeholder="Pesquisar receitas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -86,7 +80,7 @@ export const RecipesView = () => {
                 className="cursor-pointer whitespace-nowrap shrink-0"
                 onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
               >
-                {language === 'pt' ? 'Todas' : 'All'}
+                Todas
               </Badge>
               {Object.entries(categoryLabels).map(([key, label]) => (
                 <Badge
@@ -95,7 +89,7 @@ export const RecipesView = () => {
                   className="cursor-pointer whitespace-nowrap shrink-0"
                   onClick={() => { setActiveCategory(key); setSearchQuery(''); }}
                 >
-                  {getLocalizedText(label)}
+                  {label}
                 </Badge>
               ))}
             </div>
@@ -113,7 +107,7 @@ export const RecipesView = () => {
                 >
                   <div className="flex justify-between items-center">
                     <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)}>
-                      <X className="w-4 h-4 mr-2" /> {language === 'pt' ? 'Voltar' : 'Back'}
+                      <X className="w-4 h-4 mr-2" /> Voltar
                     </Button>
                     <Button
                       variant="ghost"
@@ -127,8 +121,8 @@ export const RecipesView = () => {
 
                   <div className="text-center">
                     <span className="text-5xl">{selectedRecipe.imageEmoji}</span>
-                    <h2 className="text-xl font-bold mt-2 text-white">{getLocalizedText(selectedRecipe.name)}</h2>
-                    <p className="text-sm text-gray-400">{getLocalizedText(selectedRecipe.cuisine)}</p>
+                    <h2 className="text-xl font-bold mt-2 text-white">{selectedRecipe.name}</h2>
+                    <p className="text-sm text-gray-400">{selectedRecipe.cuisine}</p>
                   </div>
 
                   <div className="flex justify-center gap-4 text-sm text-gray-300">
@@ -138,7 +132,7 @@ export const RecipesView = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      {selectedRecipe.servings} {language === 'pt' ? 'porções' : 'servings'}
+                      {selectedRecipe.servings} porções
                     </div>
                     <Badge className={difficultyColors[selectedRecipe.difficulty]}>
                       {difficultyLabels[selectedRecipe.difficulty]}
@@ -152,7 +146,7 @@ export const RecipesView = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-rose-400">{Math.round(selectedRecipe.totalMacros.protein / selectedRecipe.servings)}g</p>
-                      <p className="text-xs text-gray-400">{language === 'pt' ? 'Proteína' : 'Protein'}</p>
+                      <p className="text-xs text-gray-400">Proteína</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-amber-400">{Math.round(selectedRecipe.totalMacros.carbs / selectedRecipe.servings)}g</p>
@@ -160,19 +154,19 @@ export const RecipesView = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-sky-400">{Math.round(selectedRecipe.totalMacros.fat / selectedRecipe.servings)}g</p>
-                      <p className="text-xs text-gray-400">{language === 'pt' ? 'Gordura' : 'Fat'}</p>
+                      <p className="text-xs text-gray-400">Gordura</p>
                     </div>
                   </div>
 
                   <Tabs defaultValue="ingredients">
                     <TabsList className="w-full">
-                      <TabsTrigger value="ingredients" className="flex-1">{language === 'pt' ? 'Ingredientes' : 'Ingredients'}</TabsTrigger>
-                      <TabsTrigger value="steps" className="flex-1">{language === 'pt' ? 'Passos' : 'Steps'}</TabsTrigger>
+                      <TabsTrigger value="ingredients" className="flex-1">Ingredientes</TabsTrigger>
+                      <TabsTrigger value="steps" className="flex-1">Passos</TabsTrigger>
                     </TabsList>
                     <TabsContent value="ingredients" className="space-y-2 mt-3">
                       {selectedRecipe.ingredients.map((ing, i) => (
                         <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
-                          <span className="text-white">{getLocalizedText(ing.name)}</span>
+                          <span className="text-white">{ing.name}</span>
                           <span className="text-gray-400">{ing.amount}</span>
                         </div>
                       ))}
@@ -183,7 +177,7 @@ export const RecipesView = () => {
                             <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
                               {i + 1}
                           </span>
-                          <p className="text-gray-300">{getLocalizedText(step)}</p>
+                          <p className="text-gray-300">{step}</p>
                         </div>
                       ))}
                     </TabsContent>
@@ -191,10 +185,10 @@ export const RecipesView = () => {
 
                   {selectedRecipe.tips.length > 0 && (
                     <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                      <p className="font-semibold text-sm mb-2 text-white">💡 {language === 'pt' ? 'Dicas' : 'Tips'}</p>
+                      <p className="font-semibold text-sm mb-2 text-white">💡 Dicas</p>
                       <ul className="text-xs text-gray-400 space-y-1">
                         {selectedRecipe.tips.map((tip, i) => (
-                          <li key={i}>• {getLocalizedText(tip)}</li>
+                          <li key={i}>• {tip}</li>
                         ))}
                       </ul>
                     </div>
@@ -213,8 +207,8 @@ export const RecipesView = () => {
                     >
                       <span className="text-3xl" onClick={() => setSelectedRecipe(recipe)}>{recipe.imageEmoji}</span>
                       <div className="flex-1 min-w-0" onClick={() => setSelectedRecipe(recipe)}>
-                        <h4 className="font-medium truncate text-white">{getLocalizedText(recipe.name)}</h4>
-                        <p className="text-xs text-gray-400">{getLocalizedText(recipe.cuisine)}</p>
+                        <h4 className="font-medium truncate text-white">{recipe.name}</h4>
+                        <p className="text-xs text-gray-400">{recipe.cuisine}</p>
                         <div className="flex items-center gap-2 mt-1 text-gray-400">
                           <span className="text-xs flex items-center gap-1">
                             <Clock className="w-3 h-3" />

@@ -117,14 +117,14 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
       }
 
       toast({
-        title: 'Analysis complete!',
-        description: `${data.foods.length} food(s) identified`,
+        title: 'Análise completa!',
+        description: `${data.foods.length} alimento(s) identificado(s)`,
       });
     } catch (error) {
       console.error('Error analyzing image:', error);
       toast({
-        title: 'Analysis error',
-        description: 'Could not analyze the image. Please try again.',
+        title: 'Erro na análise',
+        description: 'Não foi possível analisar a imagem. Tenta novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -150,8 +150,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     } catch (error) {
       console.error('Error analyzing text:', error);
       toast({
-        title: 'Analysis error',
-        description: 'Could not analyze the description.',
+        title: 'Erro na análise',
+        description: 'Não foi possível analisar a descrição.',
         variant: 'destructive',
       });
     } finally {
@@ -162,7 +162,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const addFoodFromDatabase = (food: FoodDatabaseItem) => {
     setSelectedFoods(prev => [...prev, food]);
     toast({
-      title: `${food.name} added`,
+      title: `${food.name} adicionado`,
       description: `${food.calories} kcal`,
     });
   };
@@ -194,7 +194,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
     const meal: Omit<Meal, 'id'> = {
       type: selectedMealType,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
       foods,
       total,
     };
@@ -204,8 +204,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     resetState();
 
     toast({
-      title: 'Meal added!',
-      description: `${total.calories} kcal logged`,
+      title: 'Refeição adicionada!',
+      description: `${total.calories} kcal registadas`,
     });
   };
 
@@ -214,7 +214,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
     const meal: Omit<Meal, 'id'> = {
       type: selectedMealType,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
       foods: analysisResult.foods,
       total: analysisResult.total,
       tips: analysisResult.tips,
@@ -226,8 +226,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     resetState();
 
     toast({
-      title: 'Meal added!',
-      description: `${analysisResult.total.calories} kcal logged`,
+      title: 'Refeição adicionada!',
+      description: `${analysisResult.total.calories} kcal registadas`,
     });
   };
 
@@ -275,9 +275,9 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-white">
-              {workoutContext.phase === 'post_workout' && 'Post-Workout Window'}
-              {workoutContext.phase === 'pre_workout' && 'Pre-Workout Preparation'}
-              {workoutContext.phase === 'recovery' && 'Active Recovery'}
+              {workoutContext.phase === 'post_workout' && 'Janela Pós-Treino'}
+              {workoutContext.phase === 'pre_workout' && 'Preparação Pré-Treino'}
+              {workoutContext.phase === 'recovery' && 'Recuperação Ativa'}
             </p>
             <p className="text-xs text-gray-400">{workoutContext.nutritionTip}</p>
           </div>
@@ -291,7 +291,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium shadow-lg shadow-primary/25"
           >
             <Camera className="w-5 h-5" />
-            <span>Add Meal</span>
+            <span>Adicionar Refeição</span>
             <Sparkles className="w-4 h-4" />
           </motion.button>
         </DrawerTrigger>
@@ -300,7 +300,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           <DrawerHeader className="shrink-0">
             <DrawerTitle className="flex items-center gap-2 text-white">
               <Utensils className="w-5 h-5" />
-              Add Meal
+              Adicionar Refeição
             </DrawerTitle>
           </DrawerHeader>
 
@@ -327,7 +327,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                 }`}
               >
                 <Search className="w-4 h-4" />
-                Search
+                Pesquisar
               </button>
             </div>
           </div>
@@ -350,14 +350,14 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                             className="aspect-video rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 transition-colors"
                           >
                             <Camera className="w-8 h-8 text-primary" />
-                            <span className="text-xs text-gray-400">Take Photo</span>
+                            <span className="text-xs text-gray-400">Tirar Foto</span>
                           </button>
                           <button
                             onClick={() => galleryInputRef.current?.click()}
                             className="aspect-video rounded-xl border-2 border-dashed border-pink-500/30 bg-pink-500/5 flex flex-col items-center justify-center gap-2 hover:bg-pink-500/10 transition-colors"
                           >
                             <Upload className="w-8 h-8 text-pink-400" />
-                            <span className="text-xs text-gray-400">Gallery</span>
+                            <span className="text-xs text-gray-400">Galeria</span>
                           </button>
                         </div>
                         {/* Camera input - forces camera on mobile */}
@@ -380,7 +380,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
                         <div className="flex items-center gap-3">
                           <div className="flex-1 h-px bg-white/10" />
-                          <span className="text-xs text-gray-400">or describe</span>
+                          <span className="text-xs text-gray-400">ou descreve</span>
                           <div className="flex-1 h-px bg-white/10" />
                       </div>
 
@@ -388,7 +388,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         <Input
                           value={manualInput}
                           onChange={(e) => setManualInput(e.target.value)}
-                          placeholder="E.g: 200g grilled chicken, brown rice..."
+                          placeholder="Ex: 200g frango grelhado, arroz integral..."
                           onKeyDown={(e) => e.key === 'Enter' && analyzeText()}
                         />
                         <Button onClick={analyzeText} disabled={!manualInput.trim() || isAnalyzing}>
@@ -413,7 +413,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                       {isAnalyzing && (
                         <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center gap-3">
                           <Loader2 className="w-8 h-8 text-white animate-spin" />
-                          <span className="text-white text-sm">Analyzing with AI...</span>
+                          <span className="text-white text-sm">A analisar com IA...</span>
                         </div>
                       )}
                       <button

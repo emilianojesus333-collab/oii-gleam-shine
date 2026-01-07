@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, Play, Square, RotateCcw } from 'lucide-react';
 import { QuickTimer } from '@/hooks/useAlerts';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface QuickTimerCardProps {
   timers: QuickTimer[];
@@ -12,8 +11,6 @@ interface QuickTimerCardProps {
 }
 
 export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop }: QuickTimerCardProps) => {
-  const { t } = useLanguage();
-  
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -34,8 +31,8 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
           <Timer className="w-6 h-6 text-emerald-400" />
         </div>
         <div>
-          <h3 className="font-semibold text-white">{t("timer.title")}</h3>
-          <p className="text-xs text-gray-400">{t("timer.restBetweenSets")}</p>
+          <h3 className="font-semibold text-white">Timer Rápido</h3>
+          <p className="text-xs text-gray-400">Descanso entre séries</p>
         </div>
       </div>
 
@@ -82,7 +79,7 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
                 >
                   {formatTime(remaining)}
                 </motion.span>
-                <span className="text-xs text-gray-400">{t("timer.remaining")}</span>
+                <span className="text-xs text-gray-400">restantes</span>
               </div>
             </div>
 
@@ -94,7 +91,7 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
                 className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500/20 text-red-400 font-medium"
               >
                 <Square className="w-4 h-4" />
-                {t("timer.stop")}
+                Parar
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -102,7 +99,7 @@ export const QuickTimerCard = ({ timers, activeTimer, remaining, onStart, onStop
                 className="flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-medium"
               >
                 <RotateCcw className="w-4 h-4" />
-                {t("timer.restart")}
+                Reiniciar
               </motion.button>
             </div>
           </motion.div>

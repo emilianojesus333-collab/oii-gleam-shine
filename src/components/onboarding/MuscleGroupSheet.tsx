@@ -20,15 +20,15 @@ interface MuscleGroupSheetProps {
 }
 
 const muscleGroups = [
-  { id: "chest", label: "Chest" },
-  { id: "back", label: "Back" },
-  { id: "shoulders", label: "Shoulders" },
-  { id: "biceps", label: "Biceps" },
-  { id: "triceps", label: "Triceps" },
-  { id: "legs", label: "Legs" },
-  { id: "core", label: "Core" },
-  { id: "glutes", label: "Glutes" },
-  { id: "rest", label: "Rest" },
+  { id: "peito", label: "Peito" },
+  { id: "costas", label: "Costas" },
+  { id: "ombros", label: "Ombros" },
+  { id: "biceps", label: "Bíceps" },
+  { id: "triceps", label: "Tríceps" },
+  { id: "pernas", label: "Pernas" },
+  { id: "abdomen", label: "Abdómen" },
+  { id: "gluteos", label: "Glúteos" },
+  { id: "descanso", label: "Descanso" },
 ];
 
 export const MuscleGroupSheet = ({

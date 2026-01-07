@@ -63,7 +63,7 @@ const Nutrition = () => {
             <div>
               <h1 className="text-2xl font-black text-white">{t("nutrition.title")}</h1>
               <p className="text-xs text-emerald-400">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
+                {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>
           </div>
@@ -177,7 +177,7 @@ const Nutrition = () => {
 
         {/* Tips section */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-white">Nutrition Tips</h3>
+          <h3 className="font-semibold text-white">Dicas de Nutrição</h3>
           <div className="grid gap-3">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -186,8 +186,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">💪</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Post-workout</p>
-                <p className="text-xs text-gray-400">Protein + carbs within 2h after training</p>
+                <p className="text-sm font-medium text-white">Pós-treino</p>
+                <p className="text-xs text-gray-400">Proteína + carbs até 2h após treino</p>
               </div>
             </motion.div>
             <motion.div 
@@ -198,8 +198,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Distributed protein</p>
-                <p className="text-xs text-gray-400">20-40g per meal is ideal</p>
+                <p className="text-sm font-medium text-white">Proteína distribuída</p>
+                <p className="text-xs text-gray-400">20-40g por refeição é ideal</p>
               </div>
             </motion.div>
           </div>

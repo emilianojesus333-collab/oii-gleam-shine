@@ -451,14 +451,14 @@ export const useNutrition = () => {
       if (!hasShownAchievementRef.current.has(achievementId)) {
         hasShownAchievementRef.current.add(achievementId);
         shouldTriggerConfetti = true;
-        toast.success('🎯 Calorie Goal Reached!', {
-          description: `You consumed ${updatedTotals.calories} kcal today. Excellent!`,
+        toast.success('🎯 Meta de Calorias Atingida!', {
+          description: `Consumiste ${updatedTotals.calories} kcal hoje. Excelente!`,
         });
         newAchievements.push({
           id: achievementId,
           type: 'daily_goal',
-          title: 'Daily Calorie Goal',
-          description: `Reached the goal of ${state.goals.calories} kcal`,
+          title: 'Meta Diária de Calorias',
+          description: `Atingiste a meta de ${state.goals.calories} kcal`,
           unlockedAt: today,
           icon: '🎯',
         });
@@ -470,14 +470,14 @@ export const useNutrition = () => {
       if (!hasShownAchievementRef.current.has(achievementId)) {
         hasShownAchievementRef.current.add(achievementId);
         shouldTriggerConfetti = true;
-        toast.success('💪 Protein Goal Reached!', {
-          description: `${updatedTotals.protein}g of protein consumed. Your muscles thank you!`,
+        toast.success('💪 Meta de Proteína Atingida!', {
+          description: `${updatedTotals.protein}g de proteína consumidos. Músculos agradecem!`,
         });
         newAchievements.push({
           id: achievementId,
           type: 'protein_champion',
-          title: 'Protein Champion',
-          description: `Reached ${state.goals.protein}g of protein`,
+          title: 'Campeão da Proteína',
+          description: `Atingiste ${state.goals.protein}g de proteína`,
           unlockedAt: today,
           icon: '💪',
         });
@@ -496,14 +496,14 @@ export const useNutrition = () => {
       if (!hasShownAchievementRef.current.has(achievementId)) {
         hasShownAchievementRef.current.add(achievementId);
         shouldTriggerConfetti = true;
-        toast.success('🔥 Full Week!', {
-          description: 'You logged meals for all 7 days this week!',
+        toast.success('🔥 Semana Completa!', {
+          description: 'Registaste refeições todos os 7 dias desta semana!',
         });
         newAchievements.push({
           id: achievementId,
           type: 'weekly_streak',
-          title: 'Perfect Week',
-          description: 'Logged meals for 7 consecutive days',
+          title: 'Semana Perfeita',
+          description: 'Registaste refeições durante 7 dias seguidos',
           unlockedAt: today,
           icon: '🔥',
         });
@@ -636,7 +636,7 @@ export const useNutrition = () => {
       
       days.push({
         date: dateStr,
-        dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        dayName: date.toLocaleDateString('pt-PT', { weekday: 'short' }),
         calories: log?.totals.calories || 0,
         protein: log?.totals.protein || 0,
         carbs: log?.totals.carbs || 0,
@@ -729,12 +729,12 @@ export const useNutrition = () => {
 };
 
 export const mealTypeLabels: Record<Meal['type'], string> = {
-  breakfast: 'Breakfast',
-  lunch: 'Lunch',
-  dinner: 'Dinner',
-  snack: 'Snack',
-  pre_workout: 'Pre-Workout',
-  post_workout: 'Post-Workout',
+  breakfast: 'Pequeno-almoço',
+  lunch: 'Almoço',
+  dinner: 'Jantar',
+  snack: 'Lanche',
+  pre_workout: 'Pré-treino',
+  post_workout: 'Pós-treino',
 };
 
 export const mealTypeIcons: Record<Meal['type'], string> = {

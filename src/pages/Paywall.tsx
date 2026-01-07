@@ -7,29 +7,27 @@ import { Card } from "@/components/ui/card";
 import { useSubscription, SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/hooks/useLanguage";
 
 // Email autorizado para bypass de dev
 const DEV_AUTHORIZED_EMAIL = "emilianojesus333@gmail.com";
+
+const benefits = [
+  { icon: Brain, text: "AI Coach Pessoal 24/7" },
+  { icon: Dumbbell, text: "Planos de treino personalizados" },
+  { icon: ChefHat, text: "Nutrição inteligente com scanner" },
+  { icon: Zap, text: "Análise de progresso avançada" },
+  { icon: Sparkles, text: "Receitas e meal plans adaptados" },
+  { icon: Shield, text: "Suporte prioritário" },
+];
 
 const Paywall = () => {
   const navigate = useNavigate();
   const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing, status } = useSubscription();
   const { toast } = useToast();
-  const { language } = useLanguage();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [devTapCount, setDevTapCount] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const devTapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const benefits = [
-    { icon: Brain, text: language === 'pt' ? "AI Coach Pessoal 24/7" : "Personal AI Coach 24/7" },
-    { icon: Dumbbell, text: language === 'pt' ? "Planos de treino personalizados" : "Personalized workout plans" },
-    { icon: ChefHat, text: language === 'pt' ? "Nutrição inteligente com scanner" : "Smart nutrition with scanner" },
-    { icon: Zap, text: language === 'pt' ? "Análise de progresso avançada" : "Advanced progress analysis" },
-    { icon: Sparkles, text: language === 'pt' ? "Receitas e meal plans adaptados" : "Adapted recipes and meal plans" },
-    { icon: Shield, text: language === 'pt' ? "Suporte prioritário" : "Priority support" },
-  ];
 
   // Get current user email
   useEffect(() => {
@@ -60,8 +58,8 @@ const Paywall = () => {
     if (devTapCount + 1 >= 5) {
       localStorage.setItem("liftmate_dev_bypass", "true");
       toast({
-        title: language === 'pt' ? "🔓 Modo Dev Ativado" : "🔓 Dev Mode Activated",
-        description: language === 'pt' ? "Bypass exclusivo ativado para ti." : "Exclusive bypass activated for you.",
+        title: "🔓 Modo Dev Ativado",
+        description: "Bypass exclusivo ativado para ti.",
       });
       setTimeout(() => {
         navigate("/home", { replace: true });
@@ -93,10 +91,8 @@ const Paywall = () => {
       await createCheckout(priceId);
     } catch (error) {
       toast({
-        title: language === 'pt' ? "Erro" : "Error",
-        description: language === 'pt' 
-          ? "Não foi possível iniciar o checkout. Tenta novamente." 
-          : "Could not start checkout. Please try again.",
+        title: "Erro",
+        description: "Não foi possível iniciar o checkout. Tenta novamente.",
         variant: "destructive",
       });
     } finally {
@@ -135,16 +131,10 @@ const Paywall = () => {
             <span className="text-sm font-medium text-primary">LiftMate Pro</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            {language === 'pt' ? (
-              <>Desbloqueia o Teu <span className="text-primary">Potencial Máximo</span></>
-            ) : (
-              <>Unlock Your <span className="text-primary">Maximum Potential</span></>
-            )}
+            Desbloqueia o Teu <span className="text-primary">Potencial Máximo</span>
           </h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            {language === 'pt' 
-              ? "Transforma o teu corpo com o poder da inteligência artificial e coaching personalizado."
-              : "Transform your body with the power of artificial intelligence and personalized coaching."}
+            Transforma o teu corpo com o poder da inteligência artificial e coaching personalizado.
           </p>
         </motion.div>
 
@@ -183,23 +173,21 @@ const Paywall = () => {
               {/* Best Value Badge */}
               <div className="absolute -top-2.5 left-4">
                 <span className="bg-primary text-primary-foreground text-[10px] font-medium px-2.5 py-1 rounded-full">
-                  {language === 'pt' ? 'Melhor valor' : 'Best value'}
+                  Melhor valor
                 </span>
               </div>
 
               <div className="flex items-center justify-between mb-4 mt-1">
                 <div>
-                  <h3 className="text-base font-semibold">{language === 'pt' ? 'Anual' : 'Annual'}</h3>
-                  <p className="text-xs text-muted-foreground">{SUBSCRIPTION_PRODUCTS.annual.total}€/{language === 'pt' ? 'ano' : 'year'}</p>
+                  <h3 className="text-base font-semibold">Anual</h3>
+                  <p className="text-xs text-muted-foreground">{SUBSCRIPTION_PRODUCTS.annual.total}€/ano</p>
                 </div>
                 <div className="text-right">
                   <div className="flex items-baseline gap-0.5">
                     <span className="text-2xl font-bold">{SUBSCRIPTION_PRODUCTS.annual.price.toFixed(2).replace('.', ',')}€</span>
-                    <span className="text-sm text-muted-foreground">/{language === 'pt' ? 'mês' : 'mo'}</span>
+                    <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
-                  <p className="text-[10px] text-primary">
-                    {language === 'pt' ? 'Poupas 20% vs mensal' : 'Save 20% vs monthly'}
-                  </p>
+                  <p className="text-[10px] text-primary">Poupas 20% vs mensal</p>
                 </div>
               </div>
 
@@ -211,7 +199,7 @@ const Paywall = () => {
                 {loadingPlan === "annual" ? (
                   <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  language === 'pt' ? "Começar 7 dias grátis" : "Start 7-day free trial"
+                  "Começar 7 dias grátis"
                 )}
               </Button>
             </Card>
@@ -226,15 +214,13 @@ const Paywall = () => {
             <Card className="p-5 border border-border/30 bg-card/50">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-semibold">{language === 'pt' ? 'Mensal' : 'Monthly'}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {language === 'pt' ? 'Cancela quando quiseres' : 'Cancel anytime'}
-                  </p>
+                  <h3 className="text-base font-semibold">Mensal</h3>
+                  <p className="text-xs text-muted-foreground">Cancela quando quiseres</p>
                 </div>
                 <div className="text-right">
                   <div className="flex items-baseline gap-0.5">
                     <span className="text-2xl font-bold">{SUBSCRIPTION_PRODUCTS.monthly.price}€</span>
-                    <span className="text-sm text-muted-foreground">/{language === 'pt' ? 'mês' : 'mo'}</span>
+                    <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
                 </div>
               </div>
@@ -248,7 +234,7 @@ const Paywall = () => {
                 {loadingPlan === "monthly" ? (
                   <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  language === 'pt' ? "Escolher Mensal" : "Choose Monthly"
+                  "Escolher Mensal"
                 )}
               </Button>
             </Card>
@@ -264,14 +250,10 @@ const Paywall = () => {
         >
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <Shield className="w-4 h-4" />
-            <span className="text-sm">
-              {language === 'pt' ? 'Pagamento seguro via Stripe' : 'Secure payment via Stripe'}
-            </span>
+            <span className="text-sm">Pagamento seguro via Stripe</span>
           </div>
           <p className="text-xs text-muted-foreground/70 max-w-xs mx-auto">
-            {language === 'pt' 
-              ? 'Teste gratuito de 7 dias. Cancela quando quiseres, sem compromisso.'
-              : '7-day free trial. Cancel anytime, no commitment.'}
+            Teste gratuito de 7 dias. Cancela quando quiseres, sem compromisso.
           </p>
           
         </motion.div>

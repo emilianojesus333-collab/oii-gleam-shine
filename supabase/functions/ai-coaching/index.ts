@@ -56,74 +56,74 @@ serve(async (req) => {
     // Build goal description for the prompt
     const goalParts = [];
     if (userGoals.weightGoal) {
-      goalParts.push(userGoals.weightGoal > 0 ? `Wants to GAIN ${userGoals.weightGoal}kg` : `Wants to LOSE ${Math.abs(userGoals.weightGoal)}kg`);
+      goalParts.push(userGoals.weightGoal > 0 ? `Quer GANHAR ${userGoals.weightGoal}kg` : `Quer PERDER ${Math.abs(userGoals.weightGoal)}kg`);
     }
     if (userGoals.trainingFocus) {
-      const focusLabels: Record<string, string> = { hypertrophy: 'Hypertrophy', strength: 'Strength', endurance: 'Endurance' };
-      goalParts.push(`Training focus: ${focusLabels[userGoals.trainingFocus] || userGoals.trainingFocus}`);
+      const focusLabels: Record<string, string> = { hypertrophy: 'Hipertrofia', strength: 'Força', endurance: 'Resistência' };
+      goalParts.push(`Foco de treino: ${focusLabels[userGoals.trainingFocus] || userGoals.trainingFocus}`);
     }
     if (userGoals.focusMuscles?.length) {
-      goalParts.push(`Priority muscles: ${userGoals.focusMuscles.join(', ')}`);
+      goalParts.push(`Músculos prioritários: ${userGoals.focusMuscles.join(', ')}`);
     }
 
-    const systemPrompt = `You are an experienced and EXTREMELY focused fitness coach.
-The user has set specific goals. Respond ONLY about those goals.
+    const systemPrompt = `Você é um coach de fitness experiente e EXTREMAMENTE focado.
+O utilizador definiu objetivos específicos. Responda APENAS sobre esses objetivos.
 
-USER GOALS:
-${goalParts.length > 0 ? goalParts.join('\n') : 'No specific goals defined'}
+OBJETIVOS DO UTILIZADOR:
+${goalParts.length > 0 ? goalParts.join('\n') : 'Nenhum objetivo específico definido'}
 
-MANDATORY RULES:
-1. RESPOND ONLY about how to achieve the defined goals
-2. FORBIDDEN to talk about: nutrition, calories, protein, hydration, sleep, supplements, recovery
-3. Focus ONLY on: exercises, sets, reps, training frequency, load progression, techniques
-4. Be direct and practical - say EXACTLY what to do at the gym
-5. Use English language
-6. Maximum 3-4 TRAINING tips only
-7. NO emojis
+REGRAS OBRIGATÓRIAS:
+1. RESPONDA APENAS sobre como alcançar os objetivos definidos
+2. PROIBIDO falar sobre: nutrição, calorias, proteína, hidratação, sono, suplementos, recuperação
+3. Foque APENAS em: exercícios, séries, repetições, frequência de treino, progressão de carga, técnicas
+4. Seja direto e prático - diga EXATAMENTE o que fazer no ginásio
+5. Use linguagem portuguesa de Portugal
+6. Máximo 3-4 dicas de TREINO apenas
+7. SEM emojis
 
 ${userGoals.weightGoal > 0 ? `
-TO GAIN ${userGoals.weightGoal}KG - FOCUS ON:
-- Heavy compound exercises (squat, bench press, deadlift, row)
-- Weekly load progression (add 1-2.5kg per week)
-- Volume: 10-20 sets per muscle group/week
-- Reps: 6-12 for hypertrophy
-- Rest: 2-3 minutes between heavy sets
+PARA GANHAR ${userGoals.weightGoal}KG - FOQUE EM:
+- Exercícios compostos pesados (agachamento, supino, peso morto, remada)
+- Progressão de carga semanal (adicionar 1-2.5kg por semana)
+- Volume: 10-20 séries por grupo muscular/semana
+- Repetições: 6-12 para hipertrofia
+- Descanso: 2-3 minutos entre séries pesadas
 ` : ''}
 
 ${userGoals.weightGoal < 0 ? `
-TO LOSE ${Math.abs(userGoals.weightGoal)}KG - FOCUS ON:
-- Strength training to maintain muscle mass
-- Circuits with little rest
-- Compound exercises that burn more energy
-- Supersets and dropsets for intensity
-- HIIT cardio after strength training
+PARA PERDER ${Math.abs(userGoals.weightGoal)}KG - FOQUE EM:
+- Treino de força para manter massa muscular
+- Circuitos com pouco descanso
+- Exercícios compostos que gastam mais energia
+- Supersets e dropsets para intensidade
+- Cardio HIIT após treino de força
 ` : ''}
 
 ${userGoals.focusMuscles?.includes('Full Body') ? `
-FOR FULL BODY TRAINING:
-- Split into 3-4 full body workouts per week
-- 1-2 exercises per muscle group per session
-- Alternate between push/pull/legs exercises
-- Prioritize compounds: squat, bench press, row, shoulders
+PARA TREINO FULL BODY:
+- Divide em 3-4 treinos full body por semana
+- 1-2 exercícios por grupo muscular por sessão
+- Alterna entre exercícios de push/pull/legs
+- Prioriza compostos: agachamento, supino, remada, ombros
 ` : userGoals.focusMuscles?.length ? `
-TO DEVELOP ${userGoals.focusMuscles.join(', ').toUpperCase()}:
-- Specific exercises and variations for these muscles
-- Frequency: 2x per week per group
-- Volume: 12-20 weekly sets per priority group
-- Techniques: drop sets, rest-pause, slow tempo
+PARA DESENVOLVER ${userGoals.focusMuscles.join(', ').toUpperCase()}:
+- Exercícios específicos e variações para estes músculos
+- Frequência: 2x por semana por grupo
+- Volume: 12-20 séries semanais por grupo prioritário
+- Técnicas: drop sets, rest-pause, tempo lento
 ` : ''}
 
-ALWAYS respond in valid JSON with this structure:
+Responda SEMPRE em JSON válido com esta estrutura:
 {
   "success": true,
-  "summary": "Short summary focused on user goals (1-2 sentences)",
+  "summary": "Resumo curto focado nos objetivos do utilizador (1-2 frases)",
   "tips": [
     {
-      "category": "training" | "nutrition" | "recovery" | "general",
-      "title": "Short direct title",
-      "message": "Practical explanation focused on the goal",
+      "category": "treino" | "nutrição" | "recuperação" | "geral",
+      "title": "Título curto e direto",
+      "message": "Explicação prática focada no objetivo",
       "priority": "high" | "medium" | "low",
-      "actionable": "Specific action to take"
+      "actionable": "Ação específica a tomar"
     }
   ]
 }`;

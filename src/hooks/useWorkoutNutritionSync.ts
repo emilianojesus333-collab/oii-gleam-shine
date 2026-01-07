@@ -16,13 +16,13 @@ interface WorkoutNutritionContext {
 }
 
 const weekDaysMap: Record<number, string> = {
-  0: 'Sunday',
-  1: 'Monday',
-  2: 'Tuesday',
-  3: 'Wednesday',
-  4: 'Thursday',
-  5: 'Friday',
-  6: 'Saturday',
+  0: 'Domingo',
+  1: 'Segunda-feira',
+  2: 'Terça-feira',
+  3: 'Quarta-feira',
+  4: 'Quinta-feira',
+  5: 'Sexta-feira',
+  6: 'Sábado',
 };
 
 export const useWorkoutNutritionSync = (): WorkoutNutritionContext => {
@@ -127,19 +127,19 @@ export const getMuscleSpecificTips = (muscleGroups: string[]): string[] => {
     const normalizedGroup = group.toLowerCase();
     
     if (normalizedGroup.includes('perna') || normalizedGroup.includes('leg')) {
-      tips.push('Leg training requires more carbs for recovery.');
+      tips.push('Treino de pernas requer mais carbs para recuperação.');
     }
     if (normalizedGroup.includes('peito') || normalizedGroup.includes('chest')) {
-      tips.push('Post-chest: focus on protein for muscle repair.');
+      tips.push('Pós-peito: foca em proteína para reparação muscular.');
     }
     if (normalizedGroup.includes('costa') || normalizedGroup.includes('back')) {
-      tips.push('Back uses a lot of energy - replenish glycogen.');
+      tips.push('Costas usam muita energia - reabastece os glicogénios.');
     }
     if (normalizedGroup.includes('ombro') || normalizedGroup.includes('shoulder')) {
-      tips.push('Shoulders are small muscle groups - moderate protein is enough.');
+      tips.push('Ombros são grupos pequenos - proteína moderada é suficiente.');
     }
     if (normalizedGroup.includes('braço') || normalizedGroup.includes('arm') || normalizedGroup.includes('bicep') || normalizedGroup.includes('tricep')) {
-      tips.push('Arms recover fast - don\'t overdo the calories.');
+      tips.push('Braços recuperam rápido - não exageres nas calorias.');
     }
   });
   

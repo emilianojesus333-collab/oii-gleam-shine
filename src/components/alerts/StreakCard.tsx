@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Flame, Trophy, Target, Calendar } from 'lucide-react';
 import { StreakData } from '@/hooks/useAlerts';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface StreakCardProps {
   streak: StreakData;
@@ -9,7 +8,6 @@ interface StreakCardProps {
 }
 
 export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
-  const { t } = useLanguage();
   const today = new Date().toISOString().split('T')[0];
   const workedOutToday = streak.lastWorkoutDate === today;
   
@@ -28,12 +26,12 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
   };
 
   const getMotivationalMessage = () => {
-    if (workedOutToday) return t("streak.recordedToday");
-    if (streak.currentStreak === 0) return t("streak.startNew");
-    if (streak.currentStreak >= 30) return t("streak.legendary");
-    if (streak.currentStreak >= 14) return t("streak.unstoppable");
-    if (streak.currentStreak >= 7) return t("streak.oneWeek");
-    return t("streak.dontBreak");
+    if (workedOutToday) return 'Treino registado hoje! 💪';
+    if (streak.currentStreak === 0) return 'Começa uma nova sequência!';
+    if (streak.currentStreak >= 30) return 'Lendário! Continua assim!';
+    if (streak.currentStreak >= 14) return 'Imparável! 2 semanas!';
+    if (streak.currentStreak >= 7) return 'Uma semana! Excelente!';
+    return 'Não quebres a sequência!';
   };
 
   return (
@@ -53,7 +51,7 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
             <Flame className={`w-6 h-6 ${getFlameColor()}`} />
           </motion.div>
           <div>
-            <h3 className="font-semibold text-white">{t("streak.title")}</h3>
+            <h3 className="font-semibold text-white">Consistência</h3>
             <p className="text-xs text-gray-400">{getMotivationalMessage()}</p>
           </div>
         </div>
@@ -64,7 +62,7 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
             onClick={onRecordWorkout}
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-medium shadow-lg shadow-orange-500/25"
           >
-            {t("streak.recordWorkout")}
+            Registar Treino
           </motion.button>
         )}
       </div>
@@ -80,7 +78,7 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
           >
             {streak.currentStreak}
           </motion.div>
-          <p className="text-xs text-gray-400 mt-1">{t("streak.days")}</p>
+          <p className="text-xs text-gray-400 mt-1">DIAS</p>
         </div>
         
         <div className="h-16 w-px bg-white/10" />
@@ -88,13 +86,13 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <Trophy className="w-4 h-4 text-yellow-500" />
-            <span className="text-gray-400">{t("streak.record")}:</span>
-            <span className="font-semibold text-white">{streak.longestStreak} {t("streak.daysLabel")}</span>
+            <span className="text-gray-400">Recorde:</span>
+            <span className="font-semibold text-white">{streak.longestStreak} dias</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Target className="w-4 h-4 text-green-500" />
-            <span className="text-gray-400">{t("streak.total")}:</span>
-            <span className="font-semibold text-white">{streak.totalWorkouts} {t("streak.workouts")}</span>
+            <span className="text-gray-400">Total:</span>
+            <span className="font-semibold text-white">{streak.totalWorkouts} treinos</span>
           </div>
         </div>
       </div>
@@ -102,7 +100,7 @@ export const StreakCard = ({ streak, onRecordWorkout }: StreakCardProps) => {
       {/* Last 7 days visualization */}
       <div className="flex gap-1">
         {last7Days.map((date, index) => {
-          const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'short' }).charAt(0).toUpperCase();
+          const dayName = new Date(date).toLocaleDateString('pt-PT', { weekday: 'short' }).charAt(0).toUpperCase();
           const isToday = date === today;
           const wasWorkedOut = streak.lastWorkoutDate && date <= streak.lastWorkoutDate && 
             (streak.currentStreak >= (6 - index + 1) || date === streak.lastWorkoutDate);
