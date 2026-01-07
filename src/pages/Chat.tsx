@@ -133,12 +133,12 @@ const Chat = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        if (response.status === 429) {
-          toast.error("Limite de pedidos excedido. Tenta novamente em alguns segundos.");
+      if (response.status === 429) {
+          toast.error(t("chat.limitExceeded"));
         } else if (response.status === 402) {
-          toast.error("Créditos esgotados. Adiciona mais créditos na área de definições.");
+          toast.error(t("chat.creditsExhausted"));
         } else {
-          toast.error(errorData.error || "Erro ao comunicar com a IA");
+          toast.error(errorData.error || t("chat.errorAI"));
         }
         setIsLoading(false);
         return;
@@ -238,7 +238,7 @@ const Chat = () => {
 
     } catch (error) {
       console.error("Chat error:", error);
-      toast.error("Erro ao comunicar com a IA. Tenta novamente.");
+      toast.error(t("chat.errorAI"));
       // Remove the empty assistant message if there was an error
       setMessages(prev => prev.filter(m => m.text !== ""));
     } finally {
@@ -272,7 +272,7 @@ const Chat = () => {
     if (!convId) {
       convId = await createConversation(userMessage);
       if (!convId) {
-        toast.error("Erro ao criar conversa. Faz login para guardar o histórico.");
+        toast.error(t("chat.errorCreatingConversation"));
         return;
       }
     } else {

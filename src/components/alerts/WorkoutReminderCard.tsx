@@ -16,23 +16,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface WorkoutReminderCardProps {
   settings: WorkoutReminder;
   onUpdate: (updates: Partial<WorkoutReminder>) => void;
 }
 
-const motivationalQuotes = [
-  "A dor de hoje é a vitória de amanhã! 💪",
-  "Cada repetição conta. Bora treinar!",
-  "O único treino mau é o que não fizeste!",
-  "Levanta, treina, repete. 🔥",
+const motivationalQuotesEn = [
+  "Today's pain is tomorrow's victory! 💪",
+  "Every rep counts. Let's train!",
+  "The only bad workout is the one you didn't do!",
+  "Rise, train, repeat. 🔥",
 ];
 
 // Get user-specific storage key
 const getStorageKey = (userId?: string) => userId ? `liftmate_workout_time_${userId}` : null;
 
 export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardProps) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [workoutTime, setWorkoutTime] = useState('18:00');
@@ -50,7 +52,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
   
   // Fix: Use useState with initializer to prevent re-renders causing text flickering
   const [randomQuote] = useState(() => 
-    motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]
+    motivationalQuotesEn[Math.floor(Math.random() * motivationalQuotesEn.length)]
   );
   
   const { permission, scheduleWorkoutReminder, cancelNotification } = usePushNotifications();
@@ -101,9 +103,9 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
             <Dumbbell className="w-6 h-6 text-amber-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Lembrete de Treino</h3>
+            <h3 className="font-semibold text-white">{t("workoutReminder.title")}</h3>
             <p className="text-xs text-gray-400">
-              {settings.minutesBefore}min antes do treino
+              {settings.minutesBefore} {t("workoutReminder.minBeforeWorkout")}
             </p>
           </div>
         </div>
@@ -117,11 +119,11 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Configurar Lembrete</DrawerTitle>
+                <DrawerTitle>{t("workoutReminder.configure")}</DrawerTitle>
               </DrawerHeader>
               <div className="p-4 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Ativar lembretes</span>
+                  <span className="font-medium">{t("workoutReminder.enableReminders")}</span>
                   <Switch
                     checked={settings.enabled}
                     onCheckedChange={(enabled) => onUpdate({ enabled })}
@@ -131,7 +133,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 mb-2">
                     <CalendarClock className="w-4 h-4 text-muted-foreground" />
-                    <Label className="text-sm font-medium">Hora do treino</Label>
+                    <Label className="text-sm font-medium">{t("workoutReminder.workoutTime")}</Label>
                   </div>
                   <Input
                     type="time"
@@ -144,7 +146,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Avisar antes</span>
+                    <span className="text-sm text-muted-foreground">{t("workoutReminder.notifyBefore")}</span>
                     <span className="text-sm font-medium">{settings.minutesBefore} min</span>
                   </div>
                   <Slider
@@ -160,7 +162,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium">Mensagem motivacional</span>
+                    <span className="font-medium">{t("workoutReminder.motivationalMessage")}</span>
                   </div>
                   <Switch
                     checked={settings.motivationalMessage}
@@ -171,7 +173,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
 
                 {isDisabled && (
                   <p className="text-xs text-amber-400/80 text-center pt-2">
-                    Ativa as notificações primeiro para usar lembretes
+                    {t("workoutReminder.enableNotificationsFirst")}
                   </p>
                 )}
               </div>
@@ -198,10 +200,10 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-medium text-sm text-white">Hora de Treinar!</span>
+              <span className="font-medium text-sm text-white">{t("workoutReminder.timeToTrain")}</span>
               <div className="flex items-center gap-1 text-xs text-gray-400">
                 <Clock className="w-3 h-3" />
-                <span>agora</span>
+                <span>{t("workoutReminder.now")}</span>
               </div>
             </div>
             {settings.motivationalMessage && (
@@ -214,7 +216,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       </motion.div>
 
       <p className="text-xs text-gray-500 mt-3 text-center">
-        Pré-visualização da notificação
+        {t("workoutReminder.notificationPreview")}
       </p>
     </motion.div>
   );
