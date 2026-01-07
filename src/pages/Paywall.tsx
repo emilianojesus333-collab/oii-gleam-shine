@@ -180,14 +180,14 @@ const Paywall = () => {
               <div className="flex items-center justify-between mb-4 mt-1">
                 <div>
                   <h3 className="text-base font-semibold">Anual</h3>
-                  <p className="text-xs text-muted-foreground">49€/ano</p>
+                  <p className="text-xs text-muted-foreground">{SUBSCRIPTION_PRODUCTS.annual.total}€/ano</p>
                 </div>
                 <div className="text-right">
                   <div className="flex items-baseline gap-0.5">
                     <span className="text-2xl font-bold">{SUBSCRIPTION_PRODUCTS.annual.price.toFixed(2).replace('.', ',')}€</span>
                     <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
-                  <p className="text-[10px] text-primary">Poupas 18% vs mensal</p>
+                  <p className="text-[10px] text-primary">Poupas 20% vs mensal</p>
                 </div>
               </div>
 

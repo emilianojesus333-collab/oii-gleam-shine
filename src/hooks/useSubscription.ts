@@ -16,19 +16,19 @@ interface SubscriptionState {
 
 export const SUBSCRIPTION_PRODUCTS = {
   monthly: {
-    price_id: "price_1SmzUdRtkQ9T14tb2IT3Nqn6",
-    product_id: "prod_TkUTcHve9l1PA5",
+    price_id: "price_1SmzYGRtkQ9T14tbu8qsxiET",
+    product_id: "prod_TkUX5itMA5IPWm",
     name: "LiftMate Pro Mensal",
-    price: 5,
+    price: 4.99,
     interval: "mês",
   },
   annual: {
-    price_id: "price_1SmzUuRtkQ9T14tbvkwfFgRU",
-    product_id: "prod_TkUTHrndyXFD1I",
+    price_id: "price_1SmzhaRtkQ9T14tbVUBXe5qm",
+    product_id: "prod_TkUgknvFWZAazQ",
     name: "LiftMate Pro Anual",
-    price: 4.08,
+    price: 3.99,
     interval: "mês",
-    total: 49,
+    total: 47.88,
   },
 };
 
