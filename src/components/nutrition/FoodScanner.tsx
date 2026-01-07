@@ -295,8 +295,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           </motion.button>
         </DrawerTrigger>
 
-        <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10">
-          <DrawerHeader>
+        <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10 flex flex-col">
+          <DrawerHeader className="shrink-0">
             <DrawerTitle className="flex items-center gap-2 text-white">
               <Utensils className="w-5 h-5" />
               Adicionar Refeição
@@ -331,8 +331,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             </div>
           </div>
 
-          <ScrollArea className="flex-1 max-h-[60vh]" type="always">
-            <div className="px-4 pb-4 space-y-4">
+          <ScrollArea className="flex-1 min-h-0 overflow-hidden" type="always">
+            <div className="px-4 pb-4 space-y-4 pr-2">
               {/* AI Tab */}
               {activeTab === 'ai' && (
                 <AnimatePresence mode="wait">
@@ -438,22 +438,25 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         />
                       )}
 
-                      {/* Meal type selector */}
-                      <div className="flex flex-wrap gap-2">
-                        {mealTypes.map((type) => (
-                          <button
-                            key={type}
-                            onClick={() => setSelectedMealType(type)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                              selectedMealType === type
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                            }`}
-                          >
-                            {mealTypeLabels[type]}
-                          </button>
-                        ))}
-                      </div>
+                      {/* Meal type selector - horizontal scroll */}
+                      <ScrollArea className="w-full" type="scroll">
+                        <div className="flex gap-2 pb-2 pr-4">
+                          {mealTypes.map((type) => (
+                            <button
+                              key={type}
+                              onClick={() => setSelectedMealType(type)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap shrink-0 ${
+                                selectedMealType === type
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                              }`}
+                            >
+                              {mealTypeLabels[type]}
+                            </button>
+                          ))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
 
                         {/* Foods list */}
                         <div className="space-y-2">
@@ -526,22 +529,25 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                   animate={{ opacity: 1 }}
                   className="space-y-4"
                 >
-                  {/* Meal type selector */}
-                  <div className="flex flex-wrap gap-2">
-                    {mealTypes.map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setSelectedMealType(type)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          selectedMealType === type
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                        }`}
-                      >
-                        {mealTypeLabels[type]}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Meal type selector - horizontal scroll */}
+                  <ScrollArea className="w-full" type="scroll">
+                    <div className="flex gap-2 pb-2 pr-4">
+                      {mealTypes.map((type) => (
+                        <button
+                          key={type}
+                          onClick={() => setSelectedMealType(type)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap shrink-0 ${
+                            selectedMealType === type
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                          }`}
+                        >
+                          {mealTypeLabels[type]}
+                        </button>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
 
                   {/* Search input */}
                   <div className="relative">
@@ -677,9 +683,9 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             </div>
           </ScrollArea>
 
-          {/* Footer buttons */}
+          {/* Footer buttons - fixed at bottom */}
           {((activeTab === 'ai' && analysisResult) || (activeTab === 'search' && selectedFoods.length > 0)) && (
-            <DrawerFooter>
+            <DrawerFooter className="shrink-0 border-t border-white/10 bg-zinc-900">
               <div className="flex gap-2">
                 <Button variant="outline" onClick={resetState} className="flex-1">
                   {activeTab === 'ai' ? 'Nova Análise' : 'Limpar'}
