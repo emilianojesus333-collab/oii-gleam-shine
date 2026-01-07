@@ -73,11 +73,11 @@ export const RecipesView = () => {
             />
           </div>
 
-          <ScrollArea className="w-full" type="scroll">
-            <div className="flex gap-2 pb-3 pr-4">
+          <ScrollArea className="w-full whitespace-nowrap" type="scroll">
+            <div className="flex gap-2 pb-2">
               <Badge 
                 variant={activeCategory === 'all' ? 'default' : 'outline'}
-                className="cursor-pointer whitespace-nowrap shrink-0"
+                className="cursor-pointer shrink-0"
                 onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
               >
                 Todas
@@ -86,17 +86,17 @@ export const RecipesView = () => {
                 <Badge
                   key={key}
                   variant={activeCategory === key ? 'default' : 'outline'}
-                  className="cursor-pointer whitespace-nowrap shrink-0"
+                  className="cursor-pointer shrink-0"
                   onClick={() => { setActiveCategory(key); setSearchQuery(''); }}
                 >
                   {label}
                 </Badge>
               ))}
             </div>
-            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="horizontal" className="opacity-20" />
           </ScrollArea>
 
-          <ScrollArea className="flex-1 min-h-0" type="always">
+          <ScrollArea className="flex-1 min-h-0" type="scroll">
             <AnimatePresence mode="popLayout">
               {selectedRecipe ? (
                 <motion.div

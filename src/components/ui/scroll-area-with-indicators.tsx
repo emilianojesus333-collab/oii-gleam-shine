@@ -59,9 +59,9 @@ export function ScrollAreaWithIndicators({
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full" type="always">
         {children}
-        <ScrollBar orientation={orientation} />
+        <ScrollBar orientation={orientation} className="opacity-30 hover:opacity-60 transition-opacity" />
       </ScrollArea>
 
       {/* Top/Left gradient indicator */}
