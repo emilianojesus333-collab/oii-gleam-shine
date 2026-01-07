@@ -63,14 +63,14 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-green-500'}`} />
               <motion.span
-              key={consumed.calories}
+              key={Math.round(consumed.calories)}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
               className="text-2xl font-bold text-white"
             >
-              {consumed.calories}
+              {Math.round(consumed.calories)}
             </motion.span>
-            <span className="text-xs text-gray-400">/{goals.calories} kcal</span>
+            <span className="text-xs text-gray-400">/{Math.round(goals.calories)} kcal</span>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
           <div className="text-center">
             <p className="text-sm text-gray-400">Restante</p>
             <p className={`text-3xl font-bold ${isOverCalories ? 'text-red-500' : 'text-white'}`}>
-              {isOverCalories ? '+' : ''}{Math.abs(goals.calories - consumed.calories)}
+              {isOverCalories ? '+' : ''}{Math.round(Math.abs(goals.calories - consumed.calories))}
             </p>
             <p className="text-xs text-gray-400">kcal</p>
           </div>
@@ -110,7 +110,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
               <div className="flex-1">
                   <p className="text-xs text-gray-400">{label}</p>
                   <p className="text-sm font-semibold text-white">
-                    {value}/{goal}{unit}
+                    {Math.round(value)}/{Math.round(goal)}{unit}
                   </p>
                 </div>
               </div>

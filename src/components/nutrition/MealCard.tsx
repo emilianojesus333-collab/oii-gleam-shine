@@ -29,7 +29,7 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">{meal.total.calories} kcal</span>
+          <span className="text-lg font-bold text-primary">{Math.round(meal.total.calories)} kcal</span>
           <Button
             variant="ghost"
             size="icon"
@@ -46,7 +46,7 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
         {meal.foods.map((food, i) => (
           <div key={i} className="flex justify-between text-xs text-gray-400">
             <span>{food.name} ({food.portion})</span>
-            <span>{food.calories} kcal</span>
+            <span>{Math.round(food.calories)} kcal</span>
           </div>
         ))}
       </div>
@@ -55,15 +55,15 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
       <div className="flex gap-4 text-xs text-gray-300">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-red-500" />
-          <span>{meal.total.protein}g P</span>
+          <span>{Math.round(meal.total.protein)}g P</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-yellow-500" />
-          <span>{meal.total.carbs}g C</span>
+          <span>{Math.round(meal.total.carbs)}g C</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-blue-500" />
-          <span>{meal.total.fat}g G</span>
+          <span>{Math.round(meal.total.fat)}g G</span>
         </div>
       </div>
 
