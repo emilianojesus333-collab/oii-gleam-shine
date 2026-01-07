@@ -13,7 +13,8 @@ import {
   LogOut,
   FileText,
   Shield,
-  Headphones
+  Headphones,
+  Trash2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -27,6 +28,16 @@ import { useNutrition } from "@/hooks/useNutrition";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const weekDays = [
   "Segunda-feira",
@@ -60,6 +71,10 @@ const Settings = () => {
   const [aiName, setAiName] = useState("Liftmate");
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
+  
+  // State for delete account dialog
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Get user settings from database (per-user data)
   const { settings, updateSettings, updateSchedule: saveScheduleToDb, isLoading: settingsLoading } = useUserSettings();
@@ -411,17 +426,18 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Logout Button */}
+        {/* Account Actions - Logout and Delete */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-card rounded-[20px] p-4 border border-destructive/30"
+          className="bg-card rounded-[20px] p-4 border border-border/30 space-y-4"
         >
+          {/* Logout */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
-                <LogOut className="w-5 h-5 text-destructive" />
+              <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
+                <LogOut className="w-5 h-5 text-muted-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Terminar sessão</h3>
@@ -441,9 +457,32 @@ const Settings = () => {
                   toast.error("Erro ao terminar sessão");
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 text-foreground font-medium text-sm border border-border/50"
             >
               Sair
+            </motion.button>
+          </div>
+          
+          <div className="border-t border-border/20" />
+          
+          {/* Delete Account */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Apagar conta</h3>
+                <p className="text-xs text-muted-foreground">Elimina todos os dados</p>
+              </div>
+            </div>
+            
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowDeleteDialog(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm"
+            >
+              Apagar
             </motion.button>
           </div>
         </motion.div>
@@ -548,6 +587,71 @@ const Settings = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apagar conta permanentemente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação é irreversível. Todos os teus dados serão eliminados permanentemente, incluindo:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Histórico de treinos</li>
+                <li>Registos nutricionais</li>
+                <li>Medidas corporais</li>
+                <li>Conversas com a IA</li>
+                <li>Definições e preferências</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsDeleting(true);
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) throw new Error("Utilizador não encontrado");
+                  
+                  // Delete all user data from all tables
+                  await supabase.from('body_measurements').delete().eq('user_id', user.id);
+                  await supabase.from('conversations').delete().eq('user_id', user.id);
+                  await supabase.from('nutrition_logs').delete().eq('user_id', user.id);
+                  await supabase.from('nutrition_profiles').delete().eq('user_id', user.id);
+                  await supabase.from('one_rm_records').delete().eq('user_id', user.id);
+                  await supabase.from('user_settings').delete().eq('user_id', user.id);
+                  await supabase.from('user_subscriptions').delete().eq('user_id', user.id);
+                  await supabase.from('workout_sessions').delete().eq('user_id', user.id);
+                  
+                  // Delete messages (via conversation cascade)
+                  // Sign out and delete auth user
+                  await supabase.auth.signOut();
+                  
+                  // Clear local storage
+                  const keysToRemove = Object.keys(localStorage).filter(
+                    key => key.startsWith('liftmate') || key.startsWith('gymAlerts')
+                  );
+                  keysToRemove.forEach(key => localStorage.removeItem(key));
+                  
+                  toast.success("Conta eliminada com sucesso");
+                  navigate("/auth");
+                } catch (error) {
+                  console.error("Error deleting account:", error);
+                  toast.error("Erro ao eliminar conta. Tenta novamente.");
+                } finally {
+                  setIsDeleting(false);
+                  setShowDeleteDialog(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "A eliminar..." : "Apagar conta"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <BottomNav />
     </div>
