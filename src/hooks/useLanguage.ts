@@ -1,5 +1,9 @@
-// English translations - fixed language
-const translations: Record<string, string> = {
+import { useMemo } from 'react';
+
+type TranslationKeys = Record<string, string>;
+
+// English translations (default)
+const en: TranslationKeys = {
   // Auth
   "auth.welcomeTo": "Welcome to",
   "auth.journeyStarts": "Your fitness journey starts here.",
@@ -129,6 +133,12 @@ const translations: Record<string, string> = {
   "settings.errorPortal": "Error opening management portal",
   "settings.sessionEnded": "Session ended",
   "settings.errorLogout": "Error logging out",
+  "settings.deleteAccount": "Delete account",
+  "settings.deleteAccountDesc": "Permanently remove your account and data",
+  "settings.deleteAccountConfirmTitle": "Delete Account?",
+  "settings.deleteAccountConfirmDesc": "This action cannot be undone. All your data, workouts, and settings will be permanently deleted.",
+  "settings.deleting": "Deleting...",
+  "settings.delete": "Delete",
   
   // BottomNav
   "nav.home": "Home",
@@ -310,12 +320,402 @@ const translations: Record<string, string> = {
   "workoutReminder.timeToTrain": "Time to Train!",
   "workoutReminder.now": "now",
   "workoutReminder.notificationPreview": "Notification preview",
+  
+  // Muscle Groups
+  "muscle.chest": "Chest",
+  "muscle.back": "Back",
+  "muscle.shoulders": "Shoulders",
+  "muscle.biceps": "Biceps",
+  "muscle.triceps": "Triceps",
+  "muscle.legs": "Legs",
+  "muscle.glutes": "Glutes",
+  "muscle.abs": "Abs",
+  "muscle.cardio": "Cardio",
+  "muscle.rest": "Rest",
+  
+  // Onboarding
+  "onboarding.next": "Next",
+  "onboarding.back": "Back",
+  "onboarding.start": "Start",
+  "onboarding.finish": "Finish",
+  "onboarding.skip": "Skip",
 };
+
+// Portuguese translations
+const pt: TranslationKeys = {
+  // Auth
+  "auth.welcomeTo": "Bem-vindo ao",
+  "auth.journeyStarts": "Sua jornada fitness começa aqui.",
+  "auth.createAccount": "Criar Conta",
+  "auth.login": "Entrar",
+  "auth.yourName": "Seu nome",
+  "auth.email": "Email",
+  "auth.password": "Senha",
+  "auth.noAccount": "Não tem uma conta?",
+  "auth.hasAccount": "Já tem uma conta?",
+  "auth.signUp": "Cadastrar",
+  "auth.back": "Voltar",
+  "auth.termsOfUse": "Termos de Uso",
+  "auth.privacyPolicy": "Política de Privacidade",
+  "auth.loginSuccess": "Login realizado com sucesso!",
+  "auth.accountCreated": "Conta criada com sucesso!",
+  "auth.emailRegistered": "Este email já está cadastrado. Tente fazer login.",
+  "auth.invalidCredentials": "Email ou senha inválidos.",
+  
+  // Home
+  "home.rest": "Descanso",
+  "home.todayWorkout": "Treino de hoje",
+  "home.recoveryDay": "Dia de recuperação",
+  "home.progress": "Progresso",
+  "home.seriesDone": "Séries feitas",
+  "home.totalReps": "Repetições totais",
+  "home.trainingMin": "Min de treino",
+  "home.suggestedExercise": "Exercício sugerido",
+  "home.focusOn": "Foco em",
+  "home.recovery": "Recuperação",
+  "home.upcomingWorkouts": "Próximos treinos",
+  "home.workoutComplete": "Treino completo! 💪",
+  "home.congratsAllExercises": "Parabéns, você completou todos os exercícios hoje!",
+  "home.exercises": "Exercícios",
+  "home.suggestedExercisesFor": "Exercícios sugeridos para",
+  "home.resetOnboarding": "Refazer onboarding",
+  "home.resetOnboardingDesc": "Redefinir suas preferências de treino",
+  "home.settings": "Configurações",
+  
+  // Workout
+  "workout.restDay": "Dia de Descanso",
+  "workout.activeRecovery": "Recuperação Ativa",
+  "workout.restImportant": "O descanso é tão importante quanto o treino. Reserve um tempo para recuperar!",
+  "workout.trainingType": "Tipo de Treino",
+  "workout.strength": "Força",
+  "workout.hypertrophy": "Hipertrofia",
+  "workout.endurance": "Resistência",
+  "workout.savedExercisesToday": "Exercícios Salvos Hoje",
+  "workout.restCalculation": "Cálculo de Descanso",
+  "workout.baseTime": "Tempo base",
+  "workout.weight": "Peso",
+  "workout.reps": "Reps",
+  "workout.highSets": "Muitas séries",
+  "workout.totalRecommended": "Total recomendado",
+  "workout.restTimer": "Timer",
+  "workout.restEnded": "Tempo de descanso terminou! 💪",
+  "workout.selectExercise": "Selecione um exercício primeiro",
+  "workout.saved": "salvo!",
+  
+  // Nutrition
+  "nutrition.title": "Nutrição",
+  "nutrition.mealsToday": "Refeições de Hoje",
+  "nutrition.noMeals": "Você ainda não registrou nenhuma refeição",
+  "nutrition.useScannerHint": "Use o scanner de IA acima para começar!",
+  "nutrition.protein": "Proteína",
+  "nutrition.carbs": "Carbos",
+  "nutrition.fat": "Gordura",
+  "nutrition.plansRecipes": "Planos e Receitas",
+  "nutrition.tipsForAthletes": "Dicas para Atletas",
+  "nutrition.postWorkout": "Pós-treino",
+  "nutrition.postWorkoutTip": "Proteína + carbos em até 2h após o treino",
+  "nutrition.distributedProtein": "Proteína distribuída",
+  "nutrition.distributedProteinTip": "20-40g por refeição é ideal",
+  
+  // Chat
+  "chat.hello": "Olá! Eu sou",
+  "chat.askMe": "Pergunte sobre treinos, nutrição, recuperação ou seu progresso!",
+  "chat.suggestWorkout": "Sugerir treino",
+  "chat.recovery": "Recuperação",
+  "chat.substitute": "Substituir",
+  "chat.progressLabel": "Progresso",
+  "chat.nutritionLabel": "Nutrição",
+  "chat.restLabel": "Descanso",
+  "chat.continuousMode": "Conversa contínua",
+  "chat.continuousModeOn": "Modo contínuo ativado",
+  "chat.continuousModeOff": "Modo contínuo desativado",
+  "chat.listen": "Ouvir",
+  "chat.playing": "Reproduzindo...",
+  "chat.recording": "Gravando...",
+  "chat.transcribing": "Transcrevendo...",
+  "chat.placeholder": "Digite uma mensagem...",
+  "chat.tapToCancel": "Toque para cancelar",
+  "chat.errorCreatingConversation": "Erro ao criar conversa. Faça login para salvar histórico.",
+  "chat.errorAI": "Erro ao comunicar com IA. Tente novamente.",
+  "chat.limitExceeded": "Limite de requisições excedido. Tente novamente em alguns segundos.",
+  "chat.creditsExhausted": "Créditos esgotados. Adicione mais créditos nas configurações.",
+  
+  // Alerts
+  "alerts.title": "Alertas",
+  "alerts.subtitle": "Seu assistente de treino",
+  "alerts.workoutRecorded": "Treino registrado! 💪",
+  "alerts.streakMilestone": "Marco de Sequência!",
+  "alerts.consecutiveDays": "dias consecutivos de treino!",
+  
+  // Settings
+  "settings.title": "Configurações",
+  "settings.subtitle": "Personalize seu treino",
+  "settings.aiName": "Nome do assistente",
+  "settings.calendar": "Calendário",
+  "settings.tapToEdit": "Toque para editar",
+  "settings.subscription": "Assinatura",
+  "settings.managePayment": "Gerenciar plano e pagamento",
+  "settings.manage": "Gerenciar",
+  "settings.theme": "Tema",
+  "settings.changeAppearance": "Alterar aparência",
+  "settings.language": "Idioma",
+  "settings.selectLanguage": "Selecionar idioma",
+  "settings.termsOfUse": "Termos de Uso",
+  "settings.privacyPolicy": "Política de Privacidade",
+  "settings.support": "Suporte",
+  "settings.logout": "Sair",
+  "settings.logoutDesc": "Encerrar sessão da sua conta",
+  "settings.lightTheme": "Tema claro ativado",
+  "settings.darkTheme": "Tema escuro ativado",
+  "settings.languageUpdated": "Idioma atualizado!",
+  "settings.aiNameUpdated": "Nome da IA atualizado!",
+  "settings.errorPortal": "Erro ao abrir portal de gerenciamento",
+  "settings.sessionEnded": "Sessão encerrada",
+  "settings.errorLogout": "Erro ao fazer logout",
+  "settings.deleteAccount": "Excluir conta",
+  "settings.deleteAccountDesc": "Remover permanentemente sua conta e dados",
+  "settings.deleteAccountConfirmTitle": "Excluir Conta?",
+  "settings.deleteAccountConfirmDesc": "Esta ação não pode ser desfeita. Todos os seus dados, treinos e configurações serão permanentemente excluídos.",
+  "settings.deleting": "Excluindo...",
+  "settings.delete": "Excluir",
+  
+  // BottomNav
+  "nav.home": "Início",
+  "nav.workout": "Treino",
+  "nav.nutrition": "Nutrição",
+  "nav.chat": "Chat",
+  "nav.alerts": "Alertas",
+  
+  // Common
+  "common.training": "Treino",
+  "common.rest": "Descanso",
+  "common.save": "Salvar",
+  "common.cancel": "Cancelar",
+  "common.back": "Voltar",
+  "common.loading": "Carregando...",
+  "common.error": "Erro",
+  "common.success": "Sucesso",
+  "common.incredible": "Incrível!",
+  
+  // Days
+  "days.sunday": "Domingo",
+  "days.monday": "Segunda",
+  "days.tuesday": "Terça",
+  "days.wednesday": "Quarta",
+  "days.thursday": "Quinta",
+  "days.friday": "Sexta",
+  "days.saturday": "Sábado",
+  "days.sun": "Dom",
+  "days.mon": "Seg",
+  "days.tue": "Ter",
+  "days.wed": "Qua",
+  "days.thu": "Qui",
+  "days.fri": "Sex",
+  "days.sat": "Sáb",
+  
+  // AI Workout Generator
+  "aiWorkout.title": "Gerador de Treino IA",
+  "aiWorkout.generating": "Gerando treino personalizado...",
+  "aiWorkout.generateFor": "Gerar Treino para",
+  "aiWorkout.noMuscleGroups": "Nenhum grupo muscular definido para hoje",
+  "aiWorkout.success": "Treino gerado com sucesso! 💪",
+  "aiWorkout.error": "Erro ao gerar treino. Tente novamente.",
+  "aiWorkout.progress": "Progresso",
+  "aiWorkout.exercises": "exercícios",
+  "aiWorkout.duration": "Duração",
+  "aiWorkout.level": "Nível",
+  "aiWorkout.warmup": "Aquecimento",
+  "aiWorkout.cooldown": "Volta à calma",
+  "aiWorkout.tip": "Dica",
+  "aiWorkout.equipment": "Equipamento",
+  "aiWorkout.useInRecord": "Usar no registro →",
+  "aiWorkout.regenerate": "Gerar Novo Treino",
+  "aiWorkout.rest": "descanso",
+  
+  // Food Scanner
+  "foodScanner.addMeal": "Adicionar Refeição",
+  "foodScanner.takePhoto": "Tirar Foto",
+  "foodScanner.gallery": "Galeria",
+  "foodScanner.orDescribe": "ou descreva",
+  "foodScanner.exampleDescription": "Ex: 200g frango grelhado, arroz integral...",
+  "foodScanner.analyzing": "Analisando com IA...",
+  "foodScanner.analysisComplete": "Análise concluída!",
+  "foodScanner.foodsIdentified": "alimento(s) identificado(s)",
+  "foodScanner.analysisError": "Erro na análise",
+  "foodScanner.analysisErrorDesc": "Não foi possível analisar a imagem. Tente novamente.",
+  "foodScanner.textAnalysisError": "Não foi possível analisar a descrição.",
+  "foodScanner.addedFood": "adicionado",
+  "foodScanner.mealAdded": "Refeição adicionada!",
+  "foodScanner.kcalRegistered": "kcal registradas",
+  "foodScanner.identifiedFoods": "Alimentos identificados",
+  "foodScanner.total": "Total",
+  "foodScanner.protein": "Proteína",
+  "foodScanner.carbs": "Carbos",
+  "foodScanner.fat": "Gordura",
+  "foodScanner.fiber": "Fibra",
+  "foodScanner.aiScanner": "Scanner IA",
+  "foodScanner.search": "Buscar",
+  "foodScanner.searchFoods": "Buscar alimentos...",
+  "foodScanner.suggestions": "Sugestões",
+  "foodScanner.postWorkoutSuggestions": "Pós-Treino",
+  "foodScanner.preWorkoutSuggestions": "Pré-Treino",
+  "foodScanner.results": "Resultados",
+  "foodScanner.noFoodFound": "Nenhum alimento encontrado",
+  "foodScanner.selected": "Selecionados",
+  "foodScanner.items": "itens",
+  "foodScanner.newAnalysis": "Nova Análise",
+  "foodScanner.clear": "Limpar",
+  "foodScanner.add": "Adicionar",
+  "foodScanner.postWorkoutWindow": "Janela Pós-Treino",
+  "foodScanner.preWorkoutPrep": "Preparação Pré-Treino",
+  "foodScanner.activeRecovery": "Recuperação Ativa",
+  
+  // Hydration Card
+  "hydration.title": "Hidratação",
+  "hydration.every": "A cada",
+  "hydration.min": "min",
+  "hydration.configure": "Configurar Hidratação",
+  "hydration.enableReminders": "Ativar lembretes",
+  "hydration.interval": "Intervalo",
+  "hydration.dailyGoal": "Meta diária",
+  "hydration.remove": "Remover",
+  
+  // Streak Card
+  "streak.title": "Consistência",
+  "streak.recordedToday": "Treino registrado hoje! 💪",
+  "streak.startNew": "Comece uma nova sequência!",
+  "streak.legendary": "Lendário! Continue assim!",
+  "streak.unstoppable": "Imparável! 2 semanas!",
+  "streak.oneWeek": "Uma semana! Excelente!",
+  "streak.dontBreak": "Não quebre a sequência!",
+  "streak.recordWorkout": "Registrar Treino",
+  "streak.days": "DIAS",
+  "streak.record": "Recorde",
+  "streak.daysLabel": "dias",
+  "streak.total": "Total",
+  "streak.workouts": "treinos",
+  
+  // Supplements Card
+  "supplements.title": "Suplementos",
+  "supplements.activeReminders": "lembretes ativos",
+  "supplements.newSupplement": "Novo Suplemento",
+  "supplements.name": "Nome",
+  "supplements.namePlaceholder": "Ex: Ômega 3, BCAA...",
+  "supplements.time": "Horário",
+  "supplements.addSupplement": "Adicionar Suplemento",
+  "supplements.noSupplements": "Nenhum suplemento configurado",
+  
+  // Sleep Card
+  "sleep.title": "Sono e Recuperação",
+  "sleep.reminderBefore": "Lembrete",
+  "sleep.minBefore": "min antes",
+  "sleep.configure": "Configurar Sono",
+  "sleep.enableReminders": "Ativar lembretes",
+  "sleep.sleep": "Dormir",
+  "sleep.wake": "Acordar",
+  "sleep.reminderBeforeLabel": "Lembrete antes",
+  "sleep.excellent": "Excelente",
+  "sleep.good": "Bom",
+  "sleep.fair": "Regular",
+  "sleep.insufficient": "Insuficiente",
+  "sleep.sleepEqualsGains": "Sono = Ganhos",
+  "sleep.recoversMusles": "Recupera músculos",
+  
+  // Quick Timer Card
+  "timer.title": "Timer Rápido",
+  "timer.restBetweenSets": "Descanso entre séries",
+  "timer.remaining": "restante",
+  "timer.stop": "Parar",
+  "timer.restart": "Reiniciar",
+  
+  // Meal Notification Card
+  "mealNotification.title": "Lembretes de Refeição",
+  "mealNotification.enableNotificationsFirst": "Ative as notificações primeiro",
+  "mealNotification.mealsActive": "refeições ativas",
+  "mealNotification.disabled": "Desativado",
+  "mealNotification.mealTimes": "Horários das Refeições",
+  "mealNotification.breakfast": "Café da manhã",
+  "mealNotification.morningSnack": "Lanche da manhã",
+  "mealNotification.lunch": "Almoço",
+  "mealNotification.afternoonSnack": "Lanche da tarde",
+  "mealNotification.dinner": "Jantar",
+  "mealNotification.preWorkout": "Pré-Treino",
+  "mealNotification.postWorkout": "Pós-Treino",
+  "mealNotification.waterReminders": "Lembretes de Água",
+  "mealNotification.hydrationThroughDay": "Hidratação ao longo do dia",
+  "mealNotification.start": "Início",
+  "mealNotification.end": "Fim",
+  "mealNotification.intervalHours": "Intervalo (horas)",
+  
+  // Workout Reminder Card
+  "workoutReminder.title": "Lembrete de Treino",
+  "workoutReminder.minBeforeWorkout": "min antes do treino",
+  "workoutReminder.configure": "Configurar Lembrete",
+  "workoutReminder.enableReminders": "Ativar lembretes",
+  "workoutReminder.workoutTime": "Horário do treino",
+  "workoutReminder.notifyBefore": "Notificar antes",
+  "workoutReminder.motivationalMessage": "Mensagem motivacional",
+  "workoutReminder.enableNotificationsFirst": "Ative as notificações primeiro para usar lembretes",
+  "workoutReminder.timeToTrain": "Hora de Treinar!",
+  "workoutReminder.now": "agora",
+  "workoutReminder.notificationPreview": "Prévia da notificação",
+  
+  // Muscle Groups
+  "muscle.chest": "Peito",
+  "muscle.back": "Costas",
+  "muscle.shoulders": "Ombros",
+  "muscle.biceps": "Bíceps",
+  "muscle.triceps": "Tríceps",
+  "muscle.legs": "Pernas",
+  "muscle.glutes": "Glúteos",
+  "muscle.abs": "Abdômen",
+  "muscle.cardio": "Cardio",
+  "muscle.rest": "Descanso",
+  
+  // Onboarding
+  "onboarding.next": "Próximo",
+  "onboarding.back": "Voltar",
+  "onboarding.start": "Começar",
+  "onboarding.finish": "Finalizar",
+  "onboarding.skip": "Pular",
+};
+
+// Available languages
+const translations: Record<string, TranslationKeys> = {
+  en,
+  pt,
+};
+
+// Detect browser/system language
+const detectLanguage = (): string => {
+  if (typeof navigator === 'undefined') return 'en';
+  
+  const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
+  const langCode = browserLang.split('-')[0].toLowerCase();
+  
+  // Return the language if supported, otherwise fallback to English
+  return translations[langCode] ? langCode : 'en';
+};
+
+// Get current language (detected from system)
+const currentLanguage = detectLanguage();
 
 export const useLanguage = () => {
-  const t = (key: string): string => {
-    return translations[key] || key;
-  };
+  const t = useMemo(() => {
+    const currentTranslations = translations[currentLanguage] || translations.en;
+    
+    return (key: string): string => {
+      return currentTranslations[key] || translations.en[key] || key;
+    };
+  }, []);
 
-  return { t };
+  return { t, language: currentLanguage };
 };
+
+// Export for use outside React components
+export const getTranslation = (key: string): string => {
+  const currentTranslations = translations[currentLanguage] || translations.en;
+  return currentTranslations[key] || translations.en[key] || key;
+};
+
+export const getCurrentLanguage = (): string => currentLanguage;
