@@ -23,21 +23,26 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
-const weekDaysMap: Record<number, string> = {
-  0: "Domingo",
-  1: "Segunda-feira",
-  2: "Terça-feira",
-  3: "Quarta-feira",
-  4: "Quinta-feira",
-  5: "Sexta-feira",
-  6: "Sábado",
-};
+const getWeekDaysMap = (language: 'en' | 'pt'): Record<number, string> => ({
+  0: language === 'en' ? "Sunday" : "Domingo",
+  1: language === 'en' ? "Monday" : "Segunda-feira",
+  2: language === 'en' ? "Tuesday" : "Terça-feira",
+  3: language === 'en' ? "Wednesday" : "Quarta-feira",
+  4: language === 'en' ? "Thursday" : "Quinta-feira",
+  5: language === 'en' ? "Friday" : "Sexta-feira",
+  6: language === 'en' ? "Saturday" : "Sábado",
+});
 
-const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const getShortDays = (language: 'en' | 'pt') => 
+  language === 'en' 
+    ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    : ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const Home = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const weekDaysMap = getWeekDaysMap(language);
+  const shortDays = getShortDays(language);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showExercises, setShowExercises] = useState(false);
