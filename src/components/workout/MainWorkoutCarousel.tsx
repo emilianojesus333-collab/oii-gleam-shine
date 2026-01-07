@@ -164,8 +164,8 @@ export const MainWorkoutCarousel = ({
   }, [calcExercise, showResults, getProgressData]);
 
   const slides = [
-    { id: "register", icon: Dumbbell, title: "Registar Exercício" },
-    { id: "1rm", icon: Calculator, title: "Calculadora 1RM" },
+    { id: "register", icon: Dumbbell, title: "Record Exercise" },
+    { id: "1rm", icon: Calculator, title: "1RM Calculator" },
   ];
 
   const swipeConfidenceThreshold = 10000;
@@ -280,13 +280,13 @@ export const MainWorkoutCarousel = ({
                 <div className="space-y-4">
                   {/* Exercise selector */}
                   <div>
-                    <label className="text-sm text-gray-400 mb-2 block">Nome do Exercício</label>
+                    <label className="text-sm text-gray-400 mb-2 block">Exercise Name</label>
                     <input
                       type="text"
                       list="exercise-options"
                       value={selectedExercise}
                       onChange={(e) => setSelectedExercise(e.target.value)}
-                      placeholder="Escreve ou seleciona um exercício..."
+                      placeholder="Type or select an exercise..."
                       className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                     />
                     <datalist id="exercise-options">
@@ -299,7 +299,7 @@ export const MainWorkoutCarousel = ({
                   {/* Input Grid */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Peso (kg)</label>
+                      <label className="text-sm text-gray-400 mb-2 block">Weight (kg)</label>
                       <input
                         type="number"
                         value={weight}
@@ -309,7 +309,7 @@ export const MainWorkoutCarousel = ({
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Repetições</label>
+                      <label className="text-sm text-gray-400 mb-2 block">Reps</label>
                       <input
                         type="number"
                         value={reps}
@@ -319,7 +319,7 @@ export const MainWorkoutCarousel = ({
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Séries</label>
+                      <label className="text-sm text-gray-400 mb-2 block">Sets</label>
                       <input
                         type="number"
                         value={sets}
@@ -329,7 +329,7 @@ export const MainWorkoutCarousel = ({
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Descanso (seg)</label>
+                      <label className="text-sm text-gray-400 mb-2 block">Rest (sec)</label>
                       <input
                         type="number"
                         value={restTime}
@@ -363,7 +363,7 @@ export const MainWorkoutCarousel = ({
                           className="flex items-center gap-2"
                         >
                           <Check className="w-5 h-5" />
-                          Guardado!
+                          Saved!
                         </motion.div>
                       ) : (
                         <motion.div
@@ -374,7 +374,7 @@ export const MainWorkoutCarousel = ({
                           className="flex items-center gap-2"
                         >
                           <Save className="w-5 h-5" />
-                          Guardar Exercício
+                          Save Exercise
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -388,17 +388,17 @@ export const MainWorkoutCarousel = ({
                     <>
                       {/* Input Form */}
                       <div className="text-center mb-4">
-                        <p className="text-gray-400 text-sm">Insere os dados do teu melhor set para calcular o 1RM</p>
+                        <p className="text-gray-400 text-sm">Enter your best set data to calculate 1RM</p>
                       </div>
 
                       <div>
-                        <label className="text-sm text-gray-400 mb-2 block">Exercício</label>
+                        <label className="text-sm text-gray-400 mb-2 block">Exercise</label>
                         <input
                           type="text"
                           list="calc-exercise-options"
                           value={calcExercise}
                           onChange={(e) => setCalcExercise(e.target.value)}
-                          placeholder="Ex: Supino Reto, Agachamento..."
+                          placeholder="E.g., Bench Press, Squat..."
                           className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                         />
                         <datalist id="calc-exercise-options">
@@ -410,7 +410,7 @@ export const MainWorkoutCarousel = ({
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-sm text-gray-400 mb-2 block">Peso levantado (kg)</label>
+                          <label className="text-sm text-gray-400 mb-2 block">Weight lifted (kg)</label>
                           <input
                             type="number"
                             value={calcWeight}
@@ -420,7 +420,7 @@ export const MainWorkoutCarousel = ({
                           />
                         </div>
                         <div>
-                          <label className="text-sm text-gray-400 mb-2 block">Repetições feitas</label>
+                          <label className="text-sm text-gray-400 mb-2 block">Reps done</label>
                           <input
                             type="number"
                             value={calcReps}
@@ -442,7 +442,7 @@ export const MainWorkoutCarousel = ({
                         }`}
                       >
                         <Calculator className="w-5 h-5" />
-                        Calcular 1RM
+                        Calculate 1RM
                       </motion.button>
                     </>
                   ) : (
@@ -457,7 +457,7 @@ export const MainWorkoutCarousel = ({
                           <p className="text-primary text-sm font-medium mb-1">{calcExercise}</p>
                         )}
                         <p className="text-gray-400 text-xs mb-2">
-                          Baseado em {calcWeight}kg × {calcReps} reps
+                          Based on {calcWeight}kg × {calcReps} reps
                         </p>
                         <motion.p
                           initial={{ scale: 0.8 }}
@@ -467,19 +467,19 @@ export const MainWorkoutCarousel = ({
                           {calculatedRM?.average}
                           <span className="text-xl text-gray-400 ml-1">kg</span>
                         </motion.p>
-                        <p className="text-xs text-gray-500 mt-1">Média de 5 fórmulas científicas</p>
+                        <p className="text-xs text-gray-500 mt-1">Average of 5 scientific formulas</p>
                       </div>
 
                       {/* Training Zones */}
                       <div className="bg-[#2A2A2A]/40 rounded-xl p-3">
                         <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
-                          <Target className="w-3 h-3" /> Zonas de Treino
+                          <Target className="w-3 h-3" /> Training Zones
                         </p>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Zap className="w-3 h-3 text-red-400" />
-                              <span className="text-xs text-gray-300">Força (85-95%)</span>
+                              <span className="text-xs text-gray-300">Strength (85-95%)</span>
                             </div>
                             <span className="text-xs font-semibold text-red-400">
                               {trainingZones?.strength.min}-{trainingZones?.strength.max}kg
@@ -488,7 +488,7 @@ export const MainWorkoutCarousel = ({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <TrendingUp className="w-3 h-3 text-primary" />
-                              <span className="text-xs text-gray-300">Hipertrofia (65-85%)</span>
+                              <span className="text-xs text-gray-300">Hypertrophy (65-85%)</span>
                             </div>
                             <span className="text-xs font-semibold text-primary">
                               {trainingZones?.hypertrophy.min}-{trainingZones?.hypertrophy.max}kg
@@ -497,7 +497,7 @@ export const MainWorkoutCarousel = ({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Activity className="w-3 h-3 text-green-400" />
-                              <span className="text-xs text-gray-300">Resistência (50-65%)</span>
+                              <span className="text-xs text-gray-300">Endurance (50-65%)</span>
                             </div>
                             <span className="text-xs font-semibold text-green-400">
                               {trainingZones?.endurance.min}-{trainingZones?.endurance.max}kg
@@ -508,7 +508,7 @@ export const MainWorkoutCarousel = ({
 
                       {/* XRM Projections */}
                       <div className="bg-[#2A2A2A]/40 rounded-xl p-3">
-                        <p className="text-xs text-gray-400 mb-2">Projeções XRM</p>
+                        <p className="text-xs text-gray-400 mb-2">XRM Projections</p>
                         <div className="grid grid-cols-5 gap-1">
                           {xrmProjections && Object.entries(xrmProjections).map(([key, value]) => (
                             <div key={key} className="text-center bg-[#1E1E1E]/50 rounded-lg py-2">
@@ -546,17 +546,17 @@ export const MainWorkoutCarousel = ({
                           ) : savedRM ? (
                             <>
                               <Check className="w-4 h-4" />
-                              Guardado!
+                              Saved!
                             </>
                           ) : !isAuthenticated ? (
                             <>
                               <User className="w-4 h-4" />
-                              Login para guardar
+                              Login to save
                             </>
                           ) : (
                             <>
                               <BookmarkPlus className="w-4 h-4" />
-                              Guardar 1RM
+                              Save 1RM
                             </>
                           )}
                         </motion.button>
@@ -565,7 +565,7 @@ export const MainWorkoutCarousel = ({
                           onClick={resetCalculator}
                           className="px-4 py-3 rounded-xl font-medium text-sm bg-[#2A2A2A]/50 text-gray-400 hover:bg-[#2A2A2A]/80 transition-all"
                         >
-                          Novo
+                          New
                         </motion.button>
                       </div>
                     </motion.div>
@@ -588,7 +588,7 @@ export const MainWorkoutCarousel = ({
                 ? "bg-white/70"
                 : "bg-white/20"
             }`}
-            aria-label={`Ir para slide ${index + 1}`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>

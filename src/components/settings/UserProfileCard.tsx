@@ -48,7 +48,7 @@ export const UserProfileCard = () => {
 
     // Validate
     if (!editData.name.trim()) {
-      toast.error("Nome é obrigatório");
+      toast.error("Name is required");
       return;
     }
 
@@ -64,7 +64,7 @@ export const UserProfileCard = () => {
 
     setUserData(editData);
     setIsEditing(false);
-    toast.success("Perfil atualizado!");
+    toast.success("Profile updated!");
   };
 
   const handleCancel = () => {
@@ -94,7 +94,7 @@ export const UserProfileCard = () => {
           <div>
             <h2 className="text-lg font-semibold text-foreground">{userData.name}</h2>
             <p className="text-xs text-muted-foreground">
-              {age ? `${age} anos` : ""}
+              {age ? `${age} years old` : ""}
             </p>
           </div>
         </div>
@@ -144,7 +144,7 @@ export const UserProfileCard = () => {
                 value={editData.name}
                 onChange={(e) => setEditData({ ...editData, name: e.target.value })}
                 className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Nome"
+                placeholder="Name"
                 maxLength={30}
               />
             </div>
@@ -157,7 +157,7 @@ export const UserProfileCard = () => {
                 value={editData.height}
                 onChange={(e) => setEditData({ ...editData, height: e.target.value })}
                 className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Altura (cm)"
+                placeholder="Height (cm)"
                 min={100}
                 max={250}
               />
@@ -172,7 +172,7 @@ export const UserProfileCard = () => {
                 value={editData.weight}
                 onChange={(e) => setEditData({ ...editData, weight: e.target.value })}
                 className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Peso (kg)"
+                placeholder="Weight (kg)"
                 min={30}
                 max={200}
               />
@@ -187,7 +187,7 @@ export const UserProfileCard = () => {
                 value={editData.birthYear}
                 onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })}
                 className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Ano de nascimento"
+                placeholder="Birth year"
                 min={1940}
                 max={2010}
               />
@@ -219,7 +219,7 @@ export const UserProfileCard = () => {
               <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
                 <Calendar className="w-4 h-4 text-primary mb-1" />
                 <span className="text-sm font-semibold text-foreground">{age}</span>
-                <span className="text-xs text-muted-foreground">anos</span>
+                <span className="text-xs text-muted-foreground">years</span>
               </div>
             )}
           </motion.div>

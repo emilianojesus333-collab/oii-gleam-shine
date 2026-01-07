@@ -43,12 +43,12 @@ const getWeekDaysMap = (language: 'en' | 'pt'): Record<number, string> => ({
   6: language === 'en' ? "Saturday" : "Sábado",
 });
 
-type TrainingType = "Força" | "Hipertrofia" | "Resistência";
+type TrainingType = "Strength" | "Hypertrophy" | "Endurance";
 
 const getTrainingTypeConfig = (language: 'en' | 'pt'): Record<TrainingType, { icon: typeof Zap; description: string }> => ({
-  "Força": { icon: Zap, description: language === 'en' ? "Heavy loads, few reps" : "Cargas altas, poucas reps" },
-  "Hipertrofia": { icon: TrendingUp, description: language === 'en' ? "Moderate volume" : "Volume moderado" },
-  "Resistência": { icon: Clock, description: language === 'en' ? "More reps, less rest" : "Mais reps, menos descanso" },
+  "Strength": { icon: Zap, description: language === 'en' ? "Heavy loads, few reps" : "Cargas altas, poucas reps" },
+  "Hypertrophy": { icon: TrendingUp, description: language === 'en' ? "Moderate volume" : "Volume moderado" },
+  "Endurance": { icon: Clock, description: language === 'en' ? "More reps, less rest" : "Mais reps, menos descanso" },
 });
 
 // Calculate rest time based on exercise parameters with breakdown
@@ -67,16 +67,16 @@ const calculateRestTime = (weight: number, reps: number, sets: number): { total:
   // Lower reps = more rest (strength training needs more recovery)
   if (reps <= 5) {
     breakdown.repsAdjustment = 60;
-    breakdown.repsCategory = "Força máxima";
+    breakdown.repsCategory = "Max Strength";
   } else if (reps <= 8) {
     breakdown.repsAdjustment = 30;
-    breakdown.repsCategory = "Força/Hipertrofia";
+    breakdown.repsCategory = "Strength/Hypertrophy";
   } else if (reps <= 12) {
     breakdown.repsAdjustment = 0;
-    breakdown.repsCategory = "Hipertrofia";
+    breakdown.repsCategory = "Hypertrophy";
   } else {
     breakdown.repsAdjustment = -15;
-    breakdown.repsCategory = "Resistência";
+    breakdown.repsCategory = "Endurance";
   }
   
   // More sets = slightly more rest
@@ -106,7 +106,7 @@ const Workout = () => {
   const weekDaysMap = getWeekDaysMap(language);
   const trainingTypeConfig = getTrainingTypeConfig(language);
   const { settings, isLoading } = useUserSettings();
-  const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
+  const [trainingType, setTrainingType] = useState<TrainingType>("Hypertrophy");
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
   const [reps, setReps] = useState("7");
@@ -117,7 +117,7 @@ const Workout = () => {
     weightBonus: 30,
     repsAdjustment: 30,
     setsBonus: 0,
-    repsCategory: "Força/Hipertrofia",
+    repsCategory: "Strength/Hypertrophy",
   });
   
   // Rest timer state
@@ -157,13 +157,13 @@ const Workout = () => {
 
   // Get muscle groups as array for AI generator
   const todayMuscleGroups = useMemo(() => {
-    if (!todayWorkout || todayWorkout === "Descanso") return [];
+    if (!todayWorkout || todayWorkout === "Rest") return [];
     return todayWorkout.split(" + ");
   }, [todayWorkout]);
 
   // Get exercises for today
   const todayExercises = useMemo(() => {
-    if (!todayWorkout || todayWorkout === "Descanso") return [];
+    if (!todayWorkout || todayWorkout === "Rest") return [];
     const muscleGroups = todayWorkout.split(" + ");
     return getExercisesForGroups(muscleGroups);
   }, [todayWorkout]);
@@ -200,7 +200,7 @@ const Workout = () => {
             if (!hasNotifiedRef.current) {
               hasNotifiedRef.current = true;
               notifyTimerEnd();
-              toast.success("Tempo de descanso terminado! 💪");
+              toast.success("Rest time ended! 💪");
             }
             return parseInt(restTime);
           }
@@ -229,12 +229,12 @@ const Workout = () => {
 
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) {
-      toast.error("Seleciona um exercício primeiro");
+      toast.error("Select an exercise first");
       return;
     }
     
     if (!user) {
-      toast.error("Faz login para guardar exercícios");
+      toast.error("Log in to save exercises");
       return;
     }
     
@@ -280,14 +280,14 @@ const Workout = () => {
     // Show feedback
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
-    toast.success(`${selectedExercise} guardado!`);
+    toast.success(`${selectedExercise} saved!`);
     
     // Clear form for next exercise
     setSelectedExercise("");
     setShowSaveConfirm(false);
   };
 
-  const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+  const isRestDay = !todayWorkout || todayWorkout === "Rest";
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -417,7 +417,7 @@ const Workout = () => {
                     <div>
                       <p className="text-sm font-medium text-white/70">{exercise.name}</p>
                       <p className="text-xs text-gray-400/70">
-                        {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(exercise.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                     <div className="text-right">

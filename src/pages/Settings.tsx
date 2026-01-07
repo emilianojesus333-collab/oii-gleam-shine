@@ -101,7 +101,7 @@ const Settings = () => {
       // Save to database (per-user)
       try {
         await updateSettings({ ai_name: newName });
-        toast.success("Nome da IA atualizado!");
+        toast.success("AI name updated!");
       } catch (error) {
         console.error("Error saving AI name:", error);
       }
@@ -135,7 +135,7 @@ const Settings = () => {
     // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} atualizado!`);
+      toast.success(`${selectedDay} updated!`);
     } catch (error) {
       console.error("Error saving schedule:", error);
     }
@@ -156,7 +156,7 @@ const Settings = () => {
     // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} definido como descanso!`);
+      toast.success(`${selectedDay} set as rest day!`);
     } catch (error) {
       console.error("Error saving rest day:", error);
     }
@@ -168,7 +168,7 @@ const Settings = () => {
   const getWorkoutDisplay = (day: string) => {
     const groups = schedule[day];
     if (!groups || (Array.isArray(groups) && groups.length === 0)) {
-      return "Descanso";
+      return "Rest";
     }
     return Array.isArray(groups) ? groups.join(" + ") : groups;
   };
@@ -190,8 +190,8 @@ const Settings = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Definições</h1>
-            <p className="text-sm text-muted-foreground">Personaliza o teu treino</p>
+            <h1 className="text-xl font-bold text-foreground">Settings</h1>
+            <p className="text-sm text-muted-foreground">Customize your training</p>
           </div>
         </motion.div>
       </div>
@@ -219,7 +219,7 @@ const Settings = () => {
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Nome do assistente</h3>
+                <h3 className="font-semibold text-foreground">Assistant name</h3>
                 <p className="text-xs text-muted-foreground">{aiName}</p>
               </div>
             </div>
@@ -244,16 +244,16 @@ const Settings = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-semibold text-foreground">Calendário</h2>
+              <h2 className="text-sm font-semibold text-foreground">Calendar</h2>
             </div>
-            <p className="text-xs text-muted-foreground">Toca para editar</p>
+            <p className="text-xs text-muted-foreground">Tap to edit</p>
           </div>
 
           <div className="grid grid-cols-7 gap-1">
-            {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((shortDay, index) => {
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((shortDay, index) => {
               const fullDay = weekDays[index];
               const workout = getWorkoutDisplay(fullDay);
-              const isRest = workout === "Descanso";
+              const isRest = workout === "Rest";
               
               return (
                 <motion.button
@@ -277,11 +277,11 @@ const Settings = () => {
           <div className="flex items-center justify-center gap-4 mt-3 pt-2 border-t border-border/20">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <div className="w-2 h-2 rounded-full bg-primary/50"></div>
-              <span>Treino</span>
+              <span>Training</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <div className="w-2 h-2 rounded-full bg-muted/50"></div>
-              <span>Descanso</span>
+              <span>Rest</span>
             </div>
           </div>
         </motion.div>
@@ -323,7 +323,7 @@ const Settings = () => {
                 <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
                   <FileText className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <span className="font-medium text-foreground">Termos de Uso</span>
+                <span className="font-medium text-foreground">Terms of Use</span>
               </div>
               <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
             </button>
@@ -338,7 +338,7 @@ const Settings = () => {
                 <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <span className="font-medium text-foreground">Política de Privacidade</span>
+                <span className="font-medium text-foreground">Privacy Policy</span>
               </div>
               <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
             </button>
@@ -353,7 +353,7 @@ const Settings = () => {
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Headphones className="w-5 h-5 text-primary" />
                 </div>
-                <span className="font-medium text-foreground">Suporte</span>
+                <span className="font-medium text-foreground">Support</span>
               </div>
               <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
             </button>
@@ -430,7 +430,7 @@ const Settings = () => {
           </SheetHeader>
           
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Seleciona os grupos musculares:</p>
+            <p className="text-sm text-muted-foreground">Select muscle groups:</p>
             
             <div className="grid grid-cols-3 gap-2">
               {muscleGroups.map((group) => {
@@ -459,7 +459,7 @@ const Settings = () => {
                 onClick={setRestDay}
                 className="flex-1 py-4 rounded-xl bg-muted/30 border border-border/50 font-semibold text-foreground"
               >
-                Dia de Descanso
+                Rest Day
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -467,7 +467,7 @@ const Settings = () => {
                 className="flex-1 py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2"
               >
                 <Save className="w-5 h-5" />
-                Guardar
+                Save
               </motion.button>
             </div>
           </div>
@@ -478,11 +478,11 @@ const Settings = () => {
       <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
+            <SheetTitle className="text-xl font-bold">Assistant Name</SheetTitle>
           </SheetHeader>
           
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
+            <p className="text-sm text-muted-foreground">What do you want to call your assistant?</p>
             
             <Input
               value={tempAiName}
@@ -516,7 +516,7 @@ const Settings = () => {
               className="w-full py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Save className="w-5 h-5" />
-              Guardar
+              Save
             </motion.button>
           </div>
         </SheetContent>
@@ -526,20 +526,20 @@ const Settings = () => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Apagar conta permanentemente?</AlertDialogTitle>
+            <AlertDialogTitle>Delete account permanently?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação é irreversível. Todos os teus dados serão eliminados permanentemente, incluindo:
+              This action is irreversible. All your data will be permanently deleted, including:
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Histórico de treinos</li>
-                <li>Registos nutricionais</li>
-                <li>Medidas corporais</li>
-                <li>Conversas com a IA</li>
-                <li>Definições e preferências</li>
+                <li>Workout history</li>
+                <li>Nutrition logs</li>
+                <li>Body measurements</li>
+                <li>AI conversations</li>
+                <li>Settings and preferences</li>
               </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={async (e) => {
@@ -547,7 +547,7 @@ const Settings = () => {
                 setIsDeleting(true);
                 try {
                   const { data: { user } } = await supabase.auth.getUser();
-                  if (!user) throw new Error("Utilizador não encontrado");
+                  if (!user) throw new Error("User not found");
                   
                   // Delete all user data from all tables
                   await supabase.from('body_measurements').delete().eq('user_id', user.id);
@@ -569,11 +569,11 @@ const Settings = () => {
                   );
                   keysToRemove.forEach(key => localStorage.removeItem(key));
                   
-                  toast.success("Conta eliminada com sucesso");
+                  toast.success("Account deleted successfully");
                   navigate("/auth");
                 } catch (error) {
                   console.error("Error deleting account:", error);
-                  toast.error("Erro ao eliminar conta. Tenta novamente.");
+                  toast.error("Error deleting account. Please try again.");
                 } finally {
                   setIsDeleting(false);
                   setShowDeleteDialog(false);
@@ -581,7 +581,7 @@ const Settings = () => {
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? "A eliminar..." : "Apagar conta"}
+              {isDeleting ? "Deleting..." : "Delete account"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
