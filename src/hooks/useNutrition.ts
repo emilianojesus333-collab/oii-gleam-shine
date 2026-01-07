@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 import { useAuth } from './useAuth';
 import { invalidateCachePattern } from './useDataCache';
 import { registerCacheCleaner, unregisterCacheCleaner } from './cacheUtils';
+import { hapticFeedback } from '@/lib/haptics';
 
 export interface MacroGoals {
   calories: number;
@@ -509,9 +510,10 @@ export const useNutrition = () => {
       }
     }
 
-    // Trigger confetti for any new achievement
+    // Trigger confetti and haptic feedback for any new achievement
     if (shouldTriggerConfetti) {
       triggerConfetti();
+      hapticFeedback('success');
     }
 
     if (newAchievements.length > 0) {
@@ -524,6 +526,9 @@ export const useNutrition = () => {
   }, [state.goals]);
 
   const addMeal = useCallback((meal: Omit<Meal, 'id'>) => {
+    // Haptic feedback when adding a meal
+    hapticFeedback('medium');
+    
     setState(prev => {
       const newMeal: Meal = {
         ...meal,
