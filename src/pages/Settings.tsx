@@ -21,7 +21,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ExportData } from "@/components/settings/ExportData";
 import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
-import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useNutrition } from "@/hooks/useNutrition";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,14 +306,6 @@ const Settings = () => {
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
-        {/* Language Selector */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
-        >
-          <LanguageSelector />
-        </motion.div>
 
         {/* Legal Links */}
         <motion.div
