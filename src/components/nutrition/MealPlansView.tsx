@@ -287,7 +287,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
                           <div className="flex flex-wrap gap-1 mb-2">
                             {meal.foods.map((food, i) => (
                               <span key={i} className="px-2 py-0.5 rounded-full bg-muted/50 text-xs">
-                                {getLocalizedText(food.name)}
+                                {food.name}
                               </span>
                             ))}
                           </div>
