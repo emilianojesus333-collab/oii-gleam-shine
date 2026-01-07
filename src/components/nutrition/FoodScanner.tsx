@@ -18,6 +18,7 @@ import { Meal, FoodItem, mealTypeLabels } from '@/hooks/useNutrition';
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 import { searchFoods, getPreWorkoutFoods, getPostWorkoutFoods, FoodDatabaseItem, categoryLabels } from '@/data/foodDatabase';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollAreaWithIndicators } from '@/components/ui/scroll-area-with-indicators';
 
 interface FoodScannerProps {
   onMealAdded: (meal: Omit<Meal, 'id'>) => void;
@@ -331,8 +332,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             </div>
           </div>
 
-          <ScrollArea className="flex-1 min-h-0 overflow-hidden" type="always">
-            <div className="px-4 pb-4 space-y-4 pr-2">
+          <ScrollAreaWithIndicators className="flex-1 min-h-0 overflow-hidden" showTopIndicator={false}>
+            <div className="px-4 pb-6 space-y-4 pr-2">
               {/* AI Tab */}
               {activeTab === 'ai' && (
                 <AnimatePresence mode="wait">
@@ -681,7 +682,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                 </motion.div>
               )}
             </div>
-          </ScrollArea>
+          </ScrollAreaWithIndicators>
 
           {/* Footer buttons - fixed at bottom */}
           {((activeTab === 'ai' && analysisResult) || (activeTab === 'search' && selectedFoods.length > 0)) && (
