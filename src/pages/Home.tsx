@@ -642,16 +642,6 @@ const Home = () => {
         </motion.div>
       </main>
 
-      {/* Chat FAB */}
-      <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.5, type: "spring" }}
-        onClick={() => navigate("/chat")}
-        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 touch-target z-40"
-      >
-        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-      </motion.button>
 
       {/* Exercises Sheet */}
       <Sheet open={showExercises} onOpenChange={setShowExercises}>
