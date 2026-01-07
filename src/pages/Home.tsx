@@ -566,15 +566,15 @@ const Home = () => {
             </CarouselContent>
           </Carousel>
           
-          {/* Carousel Indicators */}
-          <div className="flex justify-center gap-2 mt-2 sm:mt-3">
+          {/* Carousel Indicators - Minimal dots */}
+          <div className="flex justify-center gap-1.5 mt-3">
             <button 
               onClick={() => carouselApi?.scrollTo(0)}
-              className={`h-1 sm:h-1.5 w-5 sm:w-6 rounded-full transition-colors touch-target ${currentSlide === 0 ? 'bg-primary/60' : 'bg-white/20'}`} 
+              className={`w-1.5 h-1.5 rounded-full transition-opacity ${currentSlide === 0 ? 'bg-white/70' : 'bg-white/20'}`} 
             />
             <button 
               onClick={() => carouselApi?.scrollTo(1)}
-              className={`h-1 sm:h-1.5 w-5 sm:w-6 rounded-full transition-colors touch-target ${currentSlide === 1 ? 'bg-primary/60' : 'bg-white/20'}`} 
+              className={`w-1.5 h-1.5 rounded-full transition-opacity ${currentSlide === 1 ? 'bg-white/70' : 'bg-white/20'}`} 
             />
           </div>
         </motion.div>

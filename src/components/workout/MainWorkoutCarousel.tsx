@@ -577,16 +577,16 @@ export const MainWorkoutCarousel = ({
         </AnimatePresence>
       </div>
 
-      {/* Navigation Dots */}
-      <div className="flex justify-center gap-2 pb-5">
+      {/* Navigation Dots - Minimal */}
+      <div className="flex justify-center gap-1.5 pb-5">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            className={`w-1.5 h-1.5 rounded-full transition-opacity ${
               activeSlide === index
-                ? "bg-primary w-6"
-                : "bg-gray-600 w-1.5 hover:bg-gray-500"
+                ? "bg-white/70"
+                : "bg-white/20"
             }`}
             aria-label={`Ir para slide ${index + 1}`}
           />
