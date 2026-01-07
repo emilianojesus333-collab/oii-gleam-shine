@@ -339,6 +339,38 @@ const en: TranslationKeys = {
   "onboarding.start": "Start",
   "onboarding.finish": "Finish",
   "onboarding.skip": "Skip",
+  
+  // Chat History
+  "chatHistory.title": "Chat History",
+  "chatHistory.today": "Today",
+  "chatHistory.yesterday": "Yesterday",
+  "chatHistory.newConversation": "New Conversation",
+  "chatHistory.noConversations": "No conversations yet",
+  
+  // Notifications
+  "notifications.notSupported": "Browser doesn't support notifications",
+  "notifications.notSupportedDesc": "Use a compatible browser for full experience",
+  "notifications.active": "Notifications Active",
+  "notifications.activeDesc": "You'll receive workout and meal alerts",
+  "notifications.blocked": "Notifications Blocked",
+  "notifications.blockedDesc": "Enable in browser settings",
+  "notifications.enable": "Enable Notifications",
+  "notifications.enableDesc": "Stay on top of workouts and meals",
+  "notifications.enableBtn": "Enable",
+  
+  // Achievements
+  "achievements.calorieGoal": "Calorie Goal Reached!",
+  "achievements.calorieGoalDesc": "You consumed {calories} kcal today. Excellent!",
+  "achievements.calorieGoalTitle": "Daily Calorie Goal",
+  "achievements.calorieGoalAchieved": "Reached the goal of {goal} kcal",
+  "achievements.proteinGoal": "Protein Goal Reached!",
+  "achievements.proteinGoalDesc": "{protein}g of protein consumed. Your muscles thank you!",
+  "achievements.proteinGoalTitle": "Protein Champion",
+  "achievements.proteinGoalAchieved": "Reached {goal}g of protein",
+  "achievements.weeklyComplete": "Full Week!",
+  "achievements.weeklyCompleteDesc": "You logged meals for all 7 days this week!",
+  "achievements.weeklyCompleteTitle": "Perfect Week",
+  "achievements.weeklyCompleteAchieved": "Logged meals for 7 consecutive days",
 };
 
 // Portuguese translations
@@ -678,6 +710,38 @@ const pt: TranslationKeys = {
   "onboarding.start": "Começar",
   "onboarding.finish": "Finalizar",
   "onboarding.skip": "Pular",
+  
+  // Chat History
+  "chatHistory.title": "Histórico de Chat",
+  "chatHistory.today": "Hoje",
+  "chatHistory.yesterday": "Ontem",
+  "chatHistory.newConversation": "Nova Conversa",
+  "chatHistory.noConversations": "Nenhuma conversa ainda",
+  
+  // Notifications
+  "notifications.notSupported": "Navegador não suporta notificações",
+  "notifications.notSupportedDesc": "Use um navegador compatível para experiência completa",
+  "notifications.active": "Notificações Ativas",
+  "notifications.activeDesc": "Você receberá alertas de treino e refeições",
+  "notifications.blocked": "Notificações Bloqueadas",
+  "notifications.blockedDesc": "Ative nas configurações do navegador",
+  "notifications.enable": "Ativar Notificações",
+  "notifications.enableDesc": "Fique em dia com treinos e refeições",
+  "notifications.enableBtn": "Ativar",
+  
+  // Achievements
+  "achievements.calorieGoal": "Meta de Calorias Atingida!",
+  "achievements.calorieGoalDesc": "Você consumiu {calories} kcal hoje. Excelente!",
+  "achievements.calorieGoalTitle": "Meta Diária de Calorias",
+  "achievements.calorieGoalAchieved": "Atingiu a meta de {goal} kcal",
+  "achievements.proteinGoal": "Meta de Proteína Atingida!",
+  "achievements.proteinGoalDesc": "{protein}g de proteína consumidos. Seus músculos agradecem!",
+  "achievements.proteinGoalTitle": "Campeão da Proteína",
+  "achievements.proteinGoalAchieved": "Atingiu {goal}g de proteína",
+  "achievements.weeklyComplete": "Semana Completa!",
+  "achievements.weeklyCompleteDesc": "Você registrou refeições todos os 7 dias desta semana!",
+  "achievements.weeklyCompleteTitle": "Semana Perfeita",
+  "achievements.weeklyCompleteAchieved": "Registrou refeições durante 7 dias seguidos",
 };
 
 // Available languages
