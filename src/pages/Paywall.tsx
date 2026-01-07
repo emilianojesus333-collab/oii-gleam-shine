@@ -163,46 +163,43 @@ const Paywall = () => {
 
         {/* Pricing Cards */}
         <div className="flex-1 flex flex-col justify-center gap-4 max-w-md mx-auto w-full">
-          {/* Annual Plan - Recommended */}
+          {/* Annual Plan - Best Value */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-          <Card className="relative p-6 border-2 border-primary bg-gradient-to-br from-primary/10 to-background shadow-lg">
-              {/* Recommended Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-                  ⭐ RECOMENDADO
+            <Card className="relative p-5 border border-primary/50 bg-card">
+              {/* Best Value Badge */}
+              <div className="absolute -top-2.5 left-4">
+                <span className="bg-primary text-primary-foreground text-[10px] font-medium px-2.5 py-1 rounded-full">
+                  Melhor valor
                 </span>
               </div>
 
-              <div className="flex items-center justify-between mb-4 mt-2">
+              <div className="flex items-center justify-between mb-4 mt-1">
                 <div>
-                  <h3 className="text-lg font-bold">Plano Anual</h3>
-                  <p className="text-sm text-muted-foreground">Melhor valor</p>
+                  <h3 className="text-base font-semibold">Anual</h3>
+                  <p className="text-xs text-muted-foreground">49€/ano</p>
                 </div>
                 <div className="text-right">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">{SUBSCRIPTION_PRODUCTS.annual.price}€</span>
-                    <span className="text-muted-foreground">/mês</span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-2xl font-bold">{SUBSCRIPTION_PRODUCTS.annual.price.toFixed(2).replace('.', ',')}€</span>
+                    <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
-                  <p className="text-xs text-primary font-medium">Poupas 40%</p>
+                  <p className="text-[10px] text-primary">Poupas 18% vs mensal</p>
                 </div>
               </div>
 
               <Button
                 onClick={() => handleSubscribe(SUBSCRIPTION_PRODUCTS.annual.price_id, "annual")}
                 disabled={loadingPlan !== null}
-                className="w-full h-14 text-lg font-semibold"
+                className="w-full h-12 font-medium"
               >
                 {loadingPlan === "annual" ? (
-                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>
-                    <Check className="w-5 h-5 mr-2" />
-                    Começar Trial Grátis
-                  </>
+                  "Começar 7 dias grátis"
                 )}
               </Button>
             </Card>
@@ -210,20 +207,20 @@ const Paywall = () => {
 
           {/* Monthly Plan */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-6 border border-border/50 bg-card/50">
+            <Card className="p-5 border border-border/30 bg-card/50">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-bold">Plano Mensal</h3>
-                  <p className="text-sm text-muted-foreground">Flexibilidade total</p>
+                  <h3 className="text-base font-semibold">Mensal</h3>
+                  <p className="text-xs text-muted-foreground">Cancela quando quiseres</p>
                 </div>
                 <div className="text-right">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">{SUBSCRIPTION_PRODUCTS.monthly.price}€</span>
-                    <span className="text-muted-foreground">/mês</span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-2xl font-bold">{SUBSCRIPTION_PRODUCTS.monthly.price}€</span>
+                    <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
                 </div>
               </div>
@@ -232,10 +229,10 @@ const Paywall = () => {
                 onClick={() => handleSubscribe(SUBSCRIPTION_PRODUCTS.monthly.price_id, "monthly")}
                 disabled={loadingPlan !== null}
                 variant="outline"
-                className="w-full h-14 text-lg font-semibold"
+                className="w-full h-12 font-medium"
               >
                 {loadingPlan === "monthly" ? (
-                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 ) : (
                   "Escolher Mensal"
                 )}

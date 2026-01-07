@@ -60,16 +60,16 @@ export const AIFeaturesCarousel = () => {
         </div>
       </div>
 
-      {/* Dots indicator */}
-      <div className="flex justify-center gap-2">
+      {/* Dots indicator - Minimal */}
+      <div className="flex justify-center gap-1.5">
         {features.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-1.5 h-1.5 rounded-full transition-opacity ${
               idx === currentIndex 
-                ? 'bg-primary w-6' 
-                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                ? 'bg-white/70' 
+                : 'bg-white/20'
             }`}
           />
         ))}

@@ -319,15 +319,15 @@ export const PhotoComparisonView = () => {
             {currentPhoto && new Date(currentPhoto.date).toLocaleDateString('pt-PT')}
           </div>
 
-          {/* Dots indicator */}
+          {/* Dots indicator - Minimal */}
           {posePhotos.length > 1 && (
-            <div className="flex justify-center gap-1 mt-3">
+            <div className="flex justify-center gap-1.5 mt-3">
               {posePhotos.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    i === currentIndex ? 'bg-cyan-500 w-4' : 'bg-white/30'
+                  className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                    i === currentIndex ? 'bg-white/70' : 'bg-white/20'
                   }`}
                 />
               ))}
