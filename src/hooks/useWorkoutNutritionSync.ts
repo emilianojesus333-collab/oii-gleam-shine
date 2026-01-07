@@ -127,19 +127,19 @@ export const getMuscleSpecificTips = (muscleGroups: string[]): string[] => {
     const normalizedGroup = group.toLowerCase();
     
     if (normalizedGroup.includes('perna') || normalizedGroup.includes('leg')) {
-      tips.push('Treino de pernas requer mais carbs para recuperação.');
+      tips.push('Leg training requires more carbs for recovery.');
     }
     if (normalizedGroup.includes('peito') || normalizedGroup.includes('chest')) {
-      tips.push('Pós-peito: foca em proteína para reparação muscular.');
+      tips.push('Post-chest: focus on protein for muscle repair.');
     }
     if (normalizedGroup.includes('costa') || normalizedGroup.includes('back')) {
-      tips.push('Costas usam muita energia - reabastece os glicogénios.');
+      tips.push('Back uses a lot of energy - replenish glycogen.');
     }
     if (normalizedGroup.includes('ombro') || normalizedGroup.includes('shoulder')) {
-      tips.push('Ombros são grupos pequenos - proteína moderada é suficiente.');
+      tips.push('Shoulders are small muscle groups - moderate protein is enough.');
     }
     if (normalizedGroup.includes('braço') || normalizedGroup.includes('arm') || normalizedGroup.includes('bicep') || normalizedGroup.includes('tricep')) {
-      tips.push('Braços recuperam rápido - não exageres nas calorias.');
+      tips.push('Arms recover fast - don\'t overdo the calories.');
     }
   });
   
