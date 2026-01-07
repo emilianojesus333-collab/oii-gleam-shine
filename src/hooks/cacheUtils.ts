@@ -21,6 +21,8 @@ export const USER_DATA_KEYS_PATTERNS = [
   'liftmate_progress_photos_',
   'liftmate_challenges_',
   'liftmate_one_rm_',
+  'liftmate_ai_coaching_',
+  'liftmate_coaching_goals_',
 ];
 
 // Global keys to remove (legacy without user_id)
@@ -37,6 +39,8 @@ export const LEGACY_GLOBAL_KEYS = [
   'liftmate_name_banner_dismissed',
   'liftmate_onboarding',
   'liftmate_ai_name',
+  'liftmate_ai_coaching',
+  'liftmate_coaching_goals',
 ];
 
 // Clear all user-specific localStorage entries

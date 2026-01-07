@@ -6,6 +6,7 @@ import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { compressImage } from "@/lib/imageCompression";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MuscleAnalysis {
   muscleGroup: string;
@@ -35,9 +36,10 @@ interface PhysiqueAnalysis {
 }
 
 const EVALUATION_COOLDOWN_DAYS = 15;
-const STORAGE_KEY = 'liftmate_physique_evaluation';
+const STORAGE_KEY_PREFIX = 'liftmate_physique_evaluation_';
 
 export const PhysiqueEvaluation = () => {
+  const { user } = useAuth();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<PhysiqueAnalysis | null>(null);
@@ -48,9 +50,17 @@ export const PhysiqueEvaluation = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // Helper to get user-scoped storage key
+  const getStorageKey = () => user?.id ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
+
   useEffect(() => {
+    if (!user) return;
+    
+    const key = getStorageKey();
+    if (!key) return;
+    
     // Load last evaluation date from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
         const data = JSON.parse(stored);
@@ -86,14 +96,17 @@ export const PhysiqueEvaluation = () => {
         console.error('Error loading physique evaluation data:', e);
       }
     }
-  }, []);
+  }, [user]);
 
   const saveEvaluation = (analysisResults: PhysiqueAnalysis) => {
+    const key = getStorageKey();
+    if (!key) return;
+    
     const data = {
       lastEvaluationDate: new Date().toISOString(),
       lastResults: analysisResults
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
     setLastEvaluationDate(new Date());
   };
 
