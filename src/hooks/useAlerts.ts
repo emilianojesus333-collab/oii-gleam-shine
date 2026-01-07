@@ -9,6 +9,7 @@ export interface HydrationSettings {
   dailyGoalLiters: number;
   currentIntake: number;
   lastReminder: number | null;
+  lastResetDate: string | null; // Track the last date hydration was reset
 }
 
 export interface SupplementReminder {
@@ -62,6 +63,7 @@ const defaultState: AlertsState = {
     dailyGoalLiters: 3,
     currentIntake: 0,
     lastReminder: null,
+    lastResetDate: null,
   },
   supplements: [],
   workout: {
@@ -100,6 +102,25 @@ export const useAlerts = () => {
   const [quickTimerRemaining, setQuickTimerRemaining] = useState<number>(0);
   const { notifyTimerEnd } = useTimerNotification();
 
+  // Check and reset hydration if it's a new day
+  const checkAndResetDailyHydration = useCallback((currentState: AlertsState): AlertsState => {
+    const today = new Date().toISOString().split('T')[0];
+    const lastResetDate = currentState.hydration.lastResetDate;
+    
+    // If it's a new day, reset hydration intake
+    if (lastResetDate !== today) {
+      return {
+        ...currentState,
+        hydration: {
+          ...currentState.hydration,
+          currentIntake: 0,
+          lastResetDate: today,
+        },
+      };
+    }
+    return currentState;
+  }, []);
+
   // Load alerts from database (user_settings.alerts_config) or user-specific localStorage
   useEffect(() => {
     const loadAlerts = async () => {
@@ -117,19 +138,23 @@ export const useAlerts = () => {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        let loadedState = defaultState;
+        
         if (settings?.alerts_config) {
           const alertsConfig = settings.alerts_config as unknown as AlertsState;
-          setState({ ...defaultState, ...alertsConfig });
+          loadedState = { ...defaultState, ...alertsConfig };
         } else {
           // Fallback to user-specific localStorage
           const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
           const saved = localStorage.getItem(userKey);
           if (saved) {
-            setState({ ...defaultState, ...JSON.parse(saved) });
-          } else {
-            setState(defaultState);
+            loadedState = { ...defaultState, ...JSON.parse(saved) };
           }
         }
+        
+        // Check and reset hydration if it's a new day
+        const finalState = checkAndResetDailyHydration(loadedState);
+        setState(finalState);
       } catch (error) {
         console.error('Error loading alerts:', error);
         setState(defaultState);
@@ -138,7 +163,7 @@ export const useAlerts = () => {
     };
 
     loadAlerts();
-  }, [user]);
+  }, [user, checkAndResetDailyHydration]);
 
   // Persist state to database and localStorage
   useEffect(() => {
@@ -195,19 +220,28 @@ export const useAlerts = () => {
   }, []);
 
   const addWaterIntake = useCallback((liters: number) => {
-    setState((prev) => ({
-      ...prev,
-      hydration: {
-        ...prev.hydration,
-        currentIntake: Math.min(prev.hydration.currentIntake + liters, prev.hydration.dailyGoalLiters * 1.5),
-      },
-    }));
+    const today = new Date().toISOString().split('T')[0];
+    setState((prev) => {
+      // Check if we need to reset for a new day before adding
+      const needsReset = prev.hydration.lastResetDate !== today;
+      const currentIntake = needsReset ? 0 : prev.hydration.currentIntake;
+      
+      return {
+        ...prev,
+        hydration: {
+          ...prev.hydration,
+          currentIntake: Math.min(currentIntake + liters, prev.hydration.dailyGoalLiters * 1.5),
+          lastResetDate: today,
+        },
+      };
+    });
   }, []);
 
   const resetDailyHydration = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0];
     setState((prev) => ({
       ...prev,
-      hydration: { ...prev.hydration, currentIntake: 0 },
+      hydration: { ...prev.hydration, currentIntake: 0, lastResetDate: today },
     }));
   }, []);
 
