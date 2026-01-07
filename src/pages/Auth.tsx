@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { useLanguage } from "@/hooks/useLanguage";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const Auth = () => {
   const { t } = useLanguage();
@@ -231,15 +232,15 @@ const Auth = () => {
 
               <div>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="password"
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                  <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t("auth.password")}
                     required
                     minLength={6}
-                    className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-12 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all h-auto"
+                    iconClassName="text-gray-400 hover:text-white"
                   />
                 </div>
               </div>
