@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/supabaseHelpers";
 
 type SubscriptionStatus = "never_subscribed" | "active" | "expired" | "canceled_but_active";
 
@@ -123,17 +124,26 @@ export const useSubscription = (enabled: boolean = true) => {
     }
   }, []);
 
-  const syncWithStripe = useCallback(async (accessToken: string): Promise<SubscriptionState | null> => {
+  const syncWithStripe = useCallback(async (): Promise<SubscriptionState | null> => {
     try {
       console.log("[Subscription] Syncing with Stripe...");
-      const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
-      const { data, error } = await supabase.functions.invoke("check-subscription", {
-        headers: authHeaders,
-      });
+      const { data, error } = await invokeWithAuth<{
+        subscribed: boolean;
+        status: SubscriptionStatus;
+        product_id: string | null;
+        subscription_end: string | null;
+        subscription_start: string | null;
+        is_trialing: boolean;
+      }>("check-subscription");
 
       if (error) {
         console.error("[Subscription] Error checking subscription with Stripe:", error);
+        return null;
+      }
+
+      if (!data) {
+        console.error("[Subscription] No data returned from check-subscription");
         return null;
       }
 
@@ -210,7 +220,7 @@ export const useSubscription = (enabled: boolean = true) => {
         });
         
         // Still sync with Stripe in background (don't await)
-        syncWithStripe(session.access_token).then((stripeData) => {
+        syncWithStripe().then((stripeData) => {
           if (stripeData) {
             setState(stripeData);
           }
@@ -219,7 +229,7 @@ export const useSubscription = (enabled: boolean = true) => {
       }
 
       // If no local active subscription, check Stripe directly
-      const stripeData = await syncWithStripe(session.access_token);
+      const stripeData = await syncWithStripe();
       if (stripeData) {
         setState(stripeData);
       } else {
