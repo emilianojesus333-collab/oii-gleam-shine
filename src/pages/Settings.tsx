@@ -6,8 +6,6 @@ import {
   Save, 
   Check,
   Dumbbell,
-  Sun,
-  Moon,
   Sparkles,
   Edit3,
   LogOut,
@@ -316,61 +314,6 @@ const Settings = () => {
           transition={{ delay: 0.28 }}
         >
           <LanguageSelector />
-        </motion.div>
-
-        {/* Theme Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-card rounded-[20px] p-4 border border-border/30"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                {document.documentElement.classList.contains('dark') ? (
-                  <Moon className="w-5 h-5 text-primary" />
-                ) : (
-                  <Sun className="w-5 h-5 text-primary" />
-                )}
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Tema</h3>
-                <p className="text-xs text-muted-foreground">Altera a aparência</p>
-              </div>
-            </div>
-            
-            <div className="flex bg-muted/30 rounded-xl p-1">
-              <button
-                onClick={() => {
-                  document.documentElement.classList.remove('dark');
-                  localStorage.setItem('liftmate_theme', 'light');
-                  toast.success('Tema claro ativado');
-                }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  !document.documentElement.classList.contains('dark')
-                    ? 'bg-white text-black shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Sun className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  document.documentElement.classList.add('dark');
-                  localStorage.setItem('liftmate_theme', 'dark');
-                  toast.success('Tema escuro ativado');
-                }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  document.documentElement.classList.contains('dark')
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Moon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
         </motion.div>
 
         {/* Legal Links */}
