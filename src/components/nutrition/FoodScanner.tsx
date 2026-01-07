@@ -17,7 +17,7 @@ import {
 import { Meal, FoodItem, mealTypeLabels } from '@/hooks/useNutrition';
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 import { searchFoods, getPreWorkoutFoods, getPostWorkoutFoods, FoodDatabaseItem, categoryLabels } from '@/data/foodDatabase';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface FoodScannerProps {
   onMealAdded: (meal: Omit<Meal, 'id'>) => void;
@@ -331,7 +331,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             </div>
           </div>
 
-          <ScrollArea className="flex-1 max-h-[60vh]">
+          <ScrollArea className="flex-1 max-h-[60vh]" type="always">
             <div className="px-4 pb-4 space-y-4">
               {/* AI Tab */}
               {activeTab === 'ai' && (
