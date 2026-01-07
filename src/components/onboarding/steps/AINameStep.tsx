@@ -52,8 +52,8 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-2xl font-bold text-white">Dá um nome ao teu assistente</h1>
-          <p className="text-white/60 text-sm">Personaliza o teu assistente de treino</p>
+          <h1 className="text-2xl font-bold text-white">Name your assistant</h1>
+          <p className="text-white/60 text-sm">Personalize your training assistant</p>
         </motion.div>
 
         {/* AI Avatar */}
@@ -86,7 +86,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           <div className="relative">
             <Input
               type="text"
-              placeholder="Escreve um nome..."
+              placeholder="Enter a name..."
               value={aiName}
               onChange={(e) => {
                 setAiName(e.target.value);
@@ -106,7 +106,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
           transition={{ delay: 0.5 }}
           className="w-full space-y-3"
         >
-          <p className="text-sm text-white/50 text-center">Ou escolhe uma sugestão</p>
+          <p className="text-sm text-white/50 text-center">Or choose a suggestion</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {suggestedNames.map((name, index) => (
               <motion.button
@@ -142,7 +142,7 @@ export const AINameStep = ({ onContinue, onBack }: AINameStepProps) => {
                 <p className="font-medium text-white">
                   {aiName.trim() || selectedSuggestion}
                 </p>
-                <p className="text-xs text-white/50">O teu assistente pessoal</p>
+                <p className="text-xs text-white/50">Your personal assistant</p>
               </div>
               <div className="ml-auto w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             </div>

@@ -25,7 +25,7 @@ const heightOptions = Array.from({ length: 81 }, (_, i) => {
 
 // Generate weight options (40kg - 150kg)
 const weightOptions = [
-  { value: "", label: "Prefiro não dizer" },
+  { value: "", label: "Prefer not to say" },
   ...Array.from({ length: 111 }, (_, i) => {
     const kg = 40 + i;
     return { value: String(kg), label: `${kg} kg` };
@@ -34,10 +34,10 @@ const weightOptions = [
 
 // Gender options
 const genderOptions = [
-  { value: "male", label: "Masculino" },
-  { value: "female", label: "Feminino" },
-  { value: "other", label: "Outro" },
-  { value: "prefer_not", label: "Prefiro não dizer" },
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+  { value: "prefer_not", label: "Prefer not to say" },
 ];
 
 // Birth year options (1940 - 2010)
@@ -69,23 +69,23 @@ export const PersonalDataStep = ({
   const getDisplayValue = (field: PickerField) => {
     switch (field) {
       case "height":
-        return personalData.height ? `${personalData.height} cm` : "Selecionar";
+        return personalData.height ? `${personalData.height} cm` : "Select";
       case "weight":
-        return personalData.weight ? `${personalData.weight} kg` : "Opcional";
+        return personalData.weight ? `${personalData.weight} kg` : "Optional";
       case "gender":
-        return genderOptions.find(g => g.value === personalData.gender)?.label || "Selecionar";
+        return genderOptions.find(g => g.value === personalData.gender)?.label || "Select";
       case "birthYear":
-        return personalData.birthYear || "Selecionar";
+        return personalData.birthYear || "Select";
       default:
         return "";
     }
   };
 
   const fields = [
-    { key: "height" as PickerField, icon: Ruler, label: "Altura", required: true },
-    { key: "weight" as PickerField, icon: Weight, label: "Peso", required: false },
-    { key: "gender" as PickerField, icon: Heart, label: "Género", required: true },
-    { key: "birthYear" as PickerField, icon: User, label: "Ano de nascimento", required: true },
+    { key: "height" as PickerField, icon: Ruler, label: "Height", required: true },
+    { key: "weight" as PickerField, icon: Weight, label: "Weight", required: false },
+    { key: "gender" as PickerField, icon: Heart, label: "Gender", required: true },
+    { key: "birthYear" as PickerField, icon: User, label: "Birth Year", required: true },
   ];
 
   return (
@@ -102,10 +102,10 @@ export const PersonalDataStep = ({
           transition={{ duration: 0.4 }}
         >
           <h1 className="text-xl font-bold text-foreground mb-1">
-            Conta-nos sobre ti
+            Tell us about yourself
           </h1>
           <p className="text-sm text-muted-foreground mb-6">
-            Estas informações ajudam a personalizar a tua experiência
+            This information helps personalize your experience
           </p>
         </motion.div>
 
@@ -123,13 +123,13 @@ export const PersonalDataStep = ({
               </div>
               <div className="flex-1">
                 <label className="text-xs text-muted-foreground mb-1 block">
-                  Nome *
+                  Name *
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={handleNameChange}
-                  placeholder="Como te chamas?"
+                  placeholder="What's your name?"
                   className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                   maxLength={30}
                 />
@@ -160,7 +160,7 @@ export const PersonalDataStep = ({
                       {field.label} {field.required && "*"}
                     </label>
                     <span className={`text-[15px] ${
-                      getDisplayValue(field.key) === "Selecionar" || getDisplayValue(field.key) === "Opcional"
+                      getDisplayValue(field.key) === "Select" || getDisplayValue(field.key) === "Optional"
                         ? "text-muted-foreground/50" 
                         : "text-foreground"
                     }`}>
@@ -214,7 +214,7 @@ export const PersonalDataStep = ({
           transition={{ delay: 0.5 }}
           className="text-xs text-muted-foreground/60 text-center mt-auto pt-4"
         >
-          * Campos obrigatórios
+          * Required fields
         </motion.p>
       </div>
     </OnboardingLayout>

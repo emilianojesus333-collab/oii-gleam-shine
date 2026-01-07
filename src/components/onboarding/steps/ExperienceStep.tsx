@@ -10,10 +10,10 @@ interface ExperienceStepProps {
 }
 
 const experiences = [
-  "Começando agora",
-  "Rato de academia",
-  "Consistente",
-  "Voltando ao ritmo",
+  "Just Starting",
+  "Gym Rat",
+  "Consistent",
+  "Getting Back Into It",
 ];
 
 export const ExperienceStep = ({
@@ -30,9 +30,9 @@ export const ExperienceStep = ({
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-xl font-bold text-foreground">Qual é o teu nível no treino?</h1>
+          <h1 className="text-xl font-bold text-foreground">What's your training level?</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            isto vai ajudar a personalizar o seu treino
+            This will help personalize your training
           </p>
         </motion.div>
 

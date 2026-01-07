@@ -16,10 +16,10 @@ export const WelcomeStep = ({ onContinue, onBack }: WelcomeStepProps) => {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-2xl font-bold text-foreground">
-            Bem-Vindo ao LiftMate
+            Welcome to LiftMate
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
-            Vamos personalizar a tua experiência
+            Let's personalize your experience
           </p>
         </motion.div>
       </div>

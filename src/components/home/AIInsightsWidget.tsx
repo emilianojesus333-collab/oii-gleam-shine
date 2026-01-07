@@ -69,9 +69,9 @@ export const AIInsightsWidget = () => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'treino': return 'from-blue-500/20 to-blue-500/5 border-blue-500/30';
-      case 'nutrição': return 'from-green-500/20 to-green-500/5 border-green-500/30';
-      case 'recuperação': return 'from-purple-500/20 to-purple-500/5 border-purple-500/30';
+      case 'workout': return 'from-blue-500/20 to-blue-500/5 border-blue-500/30';
+      case 'nutrition': return 'from-green-500/20 to-green-500/5 border-green-500/30';
+      case 'recovery': return 'from-purple-500/20 to-purple-500/5 border-purple-500/30';
       default: return 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30';
     }
   };
@@ -85,7 +85,7 @@ export const AIInsightsWidget = () => {
     >
       <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-primary" />
-        Insights IA
+        AI Insights
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
@@ -113,10 +113,10 @@ export const AIInsightsWidget = () => {
           ) : (
             <>
               <p className="text-sm font-semibold text-white/80 mb-1">
-                Dicas Personalizadas
+                Personalized Tips
               </p>
               <p className="text-xs text-white/50">
-                Toca para gerar
+                Tap to generate
               </p>
             </>
           )}
@@ -131,16 +131,16 @@ export const AIInsightsWidget = () => {
         >
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-white/50">Avaliação</span>
+            <span className="text-xs text-white/50">Evaluation</span>
           </div>
           
           {canEvaluate ? (
             <>
               <p className="text-sm font-semibold text-white/80 mb-1">
-                {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
+                {lastScore ? 'New Evaluation' : 'Physique Evaluation'}
               </p>
               <p className="text-xs text-white/50">
-                {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Disponível agora'}
+                {lastScore ? `Last: ${lastScore.toFixed(1)}/10` : 'Available now'}
               </p>
               <div className="absolute top-2 right-2">
                 <span className="flex h-2 w-2">
@@ -154,12 +154,12 @@ export const AIInsightsWidget = () => {
               <div className="flex items-center gap-1.5 mb-1">
                 <Lock className="w-3 h-3 text-orange-400" />
                 <p className="text-sm font-semibold text-white/80">
-                  Bloqueada
+                  Locked
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs text-white/50">
                 <Calendar className="w-3 h-3" />
-                <span>Em {daysUntilEval} dias</span>
+                <span>In {daysUntilEval} days</span>
               </div>
               {lastScore && (
                 <p className="text-xs text-purple-400/70 mt-1">

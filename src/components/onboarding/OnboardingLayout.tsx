@@ -91,7 +91,7 @@ export const OnboardingLayout = ({
             whileTap={{ scale: 0.97 }}
             className="w-full rounded-2xl bg-card py-4 text-base font-semibold text-foreground transition-all hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            continuar
+            continue
           </motion.button>
         </motion.div>
       )}

@@ -8,38 +8,38 @@ interface QuickCommandsProps {
 const commands = [
   { 
     icon: Dumbbell, 
-    label: "Sugere treino", 
-    command: "Sugere-me um treino para hoje com base no meu histórico e objetivos",
+    label: "Suggest workout", 
+    command: "Suggest a workout for today based on my history and goals",
     color: "text-primary"
   },
   { 
     icon: Heart, 
-    label: "Recuperação", 
-    command: "Dá-me dicas de recuperação para depois do treino",
+    label: "Recovery", 
+    command: "Give me recovery tips for after my workout",
     color: "text-red-400"
   },
   { 
     icon: RefreshCw, 
-    label: "Substituir", 
-    command: "Preciso de uma alternativa para um exercício. Que opções tenho?",
+    label: "Substitute", 
+    command: "I need an alternative for an exercise. What options do I have?",
     color: "text-blue-400"
   },
   { 
     icon: Target, 
-    label: "Progresso", 
-    command: "Mostra-me o meu progresso e estatísticas",
+    label: "Progress", 
+    command: "Show me my progress and statistics",
     color: "text-green-400"
   },
   { 
     icon: Utensils, 
-    label: "Nutrição", 
-    command: "Que dicas de nutrição tens para o meu objetivo?",
+    label: "Nutrition", 
+    command: "What nutrition tips do you have for my goal?",
     color: "text-orange-400"
   },
   { 
     icon: Moon, 
-    label: "Descanso", 
-    command: "Como posso melhorar a minha recuperação e sono?",
+    label: "Rest", 
+    command: "How can I improve my recovery and sleep?",
     color: "text-purple-400"
   },
 ];
@@ -47,7 +47,7 @@ const commands = [
 export const QuickCommands = ({ onCommand }: QuickCommandsProps) => {
   return (
     <div className="px-4 py-3 border-b border-white/10">
-      <p className="text-xs text-white/50 mb-2">Comandos rápidos</p>
+      <p className="text-xs text-white/50 mb-2">Quick commands</p>
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {commands.map((cmd, index) => (
           <motion.button
