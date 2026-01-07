@@ -7,6 +7,7 @@ import { getWorkoutStats } from "@/data/workoutHistory";
 import { useNutrition } from "@/hooks/useNutrition";
 import { useAlerts } from "@/hooks/useAlerts";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CoachingTip {
   category: 'treino' | 'nutrição' | 'recuperação' | 'geral';
@@ -23,8 +24,8 @@ interface UserGoals {
   confirmed?: boolean;
 }
 
-const STORAGE_KEY = 'liftmate_ai_coaching';
-const GOALS_STORAGE_KEY = 'liftmate_coaching_goals';
+const STORAGE_KEY_PREFIX = 'liftmate_ai_coaching_';
+const GOALS_STORAGE_KEY_PREFIX = 'liftmate_coaching_goals_';
 const COOLDOWN_HOURS = 4;
 
 const MUSCLE_OPTIONS = [
@@ -39,6 +40,7 @@ const TRAINING_FOCUS_OPTIONS = [
 ];
 
 export const AICoaching = () => {
+  const { user } = useAuth();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tips, setTips] = useState<CoachingTip[]>([]);
   const [summary, setSummary] = useState<string>("");
@@ -54,13 +56,22 @@ export const AICoaching = () => {
   const { state: alertsState, getSleepHours } = useAlerts();
   const { permission, showNotification } = usePushNotifications();
 
+  // Helper to get user-scoped storage keys
+  const getStorageKey = () => user?.id ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
+  const getGoalsStorageKey = () => user?.id ? `${GOALS_STORAGE_KEY_PREFIX}${user.id}` : null;
+
   useEffect(() => {
-    loadStoredTips();
-    loadUserGoals();
-  }, []);
+    if (user) {
+      loadStoredTips();
+      loadUserGoals();
+    }
+  }, [user]);
 
   const loadUserGoals = () => {
-    const stored = localStorage.getItem(GOALS_STORAGE_KEY);
+    const key = getGoalsStorageKey();
+    if (!key) return;
+    
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
         const data = JSON.parse(stored);
@@ -78,13 +89,16 @@ export const AICoaching = () => {
   };
 
   const saveUserGoals = (confirmed: boolean = false) => {
+    const key = getGoalsStorageKey();
+    if (!key) return;
+    
     const newGoals: UserGoals = {
       weightGoal: tempWeightGoal ? parseFloat(tempWeightGoal) : undefined,
       focusMuscles: tempFocusMuscles.length > 0 ? tempFocusMuscles : undefined,
       trainingFocus: tempTrainingFocus || undefined,
       confirmed,
     };
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(newGoals));
+    localStorage.setItem(key, JSON.stringify(newGoals));
     setUserGoals(newGoals);
   };
 
@@ -122,7 +136,10 @@ export const AICoaching = () => {
   };
 
   const loadStoredTips = () => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey();
+    if (!key) return;
+    
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
         const data = JSON.parse(stored);
@@ -142,12 +159,15 @@ export const AICoaching = () => {
   };
 
   const saveCoachingData = (newTips: CoachingTip[], newSummary: string) => {
+    const key = getStorageKey();
+    if (!key) return;
+    
     const data = {
       tips: newTips,
       summary: newSummary,
       lastUpdate: new Date().toISOString()
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
     setLastUpdate(new Date());
     setCanRefresh(false);
   };
@@ -233,8 +253,10 @@ export const AICoaching = () => {
   };
 
   const resetGoals = () => {
-    localStorage.removeItem(GOALS_STORAGE_KEY);
-    localStorage.removeItem(STORAGE_KEY);
+    const goalsKey = getGoalsStorageKey();
+    const storageKey = getStorageKey();
+    if (goalsKey) localStorage.removeItem(goalsKey);
+    if (storageKey) localStorage.removeItem(storageKey);
     setUserGoals({});
     setTempWeightGoal('');
     setTempFocusMuscles([]);
