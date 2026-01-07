@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { invokeWithAuth } from "@/lib/supabaseHelpers";
+import { invokeWithAuth, waitForAuthReady } from "@/lib/supabaseHelpers";
 
 type SubscriptionStatus = "never_subscribed" | "active" | "expired" | "canceled_but_active";
 
@@ -124,9 +124,11 @@ export const useSubscription = (enabled: boolean = true) => {
     }
   }, []);
 
-  const syncWithStripe = useCallback(async (): Promise<SubscriptionState | null> => {
+  const syncWithStripe = useCallback(async (silentMode: boolean = false): Promise<SubscriptionState | null> => {
     try {
-      console.log("[Subscription] Syncing with Stripe...");
+      if (!silentMode) {
+        console.log("[Subscription] Syncing with Stripe...");
+      }
 
       const { data, error } = await invokeWithAuth<{
         subscribed: boolean;
@@ -135,7 +137,12 @@ export const useSubscription = (enabled: boolean = true) => {
         subscription_end: string | null;
         subscription_start: string | null;
         is_trialing: boolean;
-      }>("check-subscription");
+      }>("check-subscription", { silentOn401: silentMode });
+
+      // In silent mode, null data without error is expected for unauthenticated users
+      if (silentMode && !data && !error) {
+        return null;
+      }
 
       if (error) {
         console.error("[Subscription] Error checking subscription with Stripe:", error);
@@ -143,7 +150,9 @@ export const useSubscription = (enabled: boolean = true) => {
       }
 
       if (!data) {
-        console.error("[Subscription] No data returned from check-subscription");
+        if (!silentMode) {
+          console.error("[Subscription] No data returned from check-subscription");
+        }
         return null;
       }
 
@@ -162,21 +171,21 @@ export const useSubscription = (enabled: boolean = true) => {
       
       return newState;
     } catch (error) {
-      console.error("[Subscription] Error syncing with Stripe:", error);
+      if (!silentMode) {
+        console.error("[Subscription] Error syncing with Stripe:", error);
+      }
       return null;
     }
   }, []);
 
-  const checkSubscription = useCallback(async () => {
+  const checkSubscription = useCallback(async (isInitialBoot: boolean = false) => {
     // Debounce: prevent multiple rapid checks
     const now = Date.now();
     if (now - lastCheckRef.current < 2000) {
-      console.log("[Subscription] Skipping check - too soon since last check");
       return;
     }
     
     if (checkingRef.current) {
-      console.log("[Subscription] Skipping check - already checking");
       return;
     }
     
@@ -186,10 +195,15 @@ export const useSubscription = (enabled: boolean = true) => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
+      // On initial boot (especially Capacitor), wait for auth to be ready
+      if (isInitialBoot) {
+        await waitForAuthReady(3000);
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        console.log("[Subscription] No session, user not authenticated");
+        // Silently set default state - no logging needed for expected case
         setState({
           isLoading: false,
           subscribed: false,
@@ -219,8 +233,8 @@ export const useSubscription = (enabled: boolean = true) => {
           error: null,
         });
         
-        // Still sync with Stripe in background (don't await)
-        syncWithStripe().then((stripeData) => {
+        // Still sync with Stripe in background (silent mode for boot)
+        syncWithStripe(isInitialBoot).then((stripeData) => {
           if (stripeData) {
             setState(stripeData);
           }
@@ -228,8 +242,8 @@ export const useSubscription = (enabled: boolean = true) => {
         return;
       }
 
-      // If no local active subscription, check Stripe directly
-      const stripeData = await syncWithStripe();
+      // If no local active subscription, check Stripe directly (silent on boot)
+      const stripeData = await syncWithStripe(isInitialBoot);
       if (stripeData) {
         setState(stripeData);
       } else {
@@ -241,12 +255,11 @@ export const useSubscription = (enabled: boolean = true) => {
           status: localData?.status || "never_subscribed",
         }));
       }
-    } catch (error) {
-      console.error("[Subscription] Error in checkSubscription:", error);
+    } catch {
+      // Silent error handling - just set loading to false
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : "Unknown error",
       }));
     } finally {
       checkingRef.current = false;
@@ -384,22 +397,22 @@ export const useSubscription = (enabled: boolean = true) => {
       return;
     }
 
-    checkSubscription();
+    // Initial boot check with auth-ready wait and silent 401 handling
+    checkSubscription(true);
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      console.log("[Subscription] Auth state changed:", event);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        // Reset ref to allow immediate check
+        // Reset ref to allow immediate check (not initial boot)
         lastCheckRef.current = 0;
-        checkSubscription();
+        checkSubscription(false);
       }
     });
 
-    // Auto-refresh every 2 minutes (reduced frequency)
+    // Auto-refresh every 2 minutes (reduced frequency, not initial boot)
     const interval = setInterval(() => {
-      lastCheckRef.current = 0; // Allow the check
-      checkSubscription();
+      lastCheckRef.current = 0;
+      checkSubscription(false);
     }, 120000);
 
     return () => {
