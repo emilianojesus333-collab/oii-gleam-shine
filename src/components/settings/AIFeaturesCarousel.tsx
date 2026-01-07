@@ -5,8 +5,8 @@ import { AICoaching } from "./AICoaching";
 import { PhysiqueEvaluation } from "./PhysiqueEvaluation";
 
 const features = [
-  { id: 'coaching', title: 'Coaching IA', icon: Brain },
-  { id: 'physique', title: 'Avaliação Física', icon: Target },
+  { id: 'coaching', title: 'AI Coaching', icon: Brain },
+  { id: 'physique', title: 'Physique Evaluation', icon: Target },
 ];
 
 export const AIFeaturesCarousel = () => {
@@ -37,8 +37,8 @@ export const AIFeaturesCarousel = () => {
             <Brain className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-foreground">Funcionalidades IA</h2>
-            <p className="text-xs text-muted-foreground">Coaching & Avaliação</p>
+            <h2 className="text-base font-semibold text-foreground">AI Features</h2>
+            <p className="text-xs text-muted-foreground">Coaching & Evaluation</p>
           </div>
         </div>
         
