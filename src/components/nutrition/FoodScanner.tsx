@@ -470,13 +470,13 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                                   <p className="text-xs text-gray-400">{food.portion}</p>
                                 </div>
                                 <span className="text-sm font-semibold text-primary">
-                                  {food.calories} kcal
+                                  {Math.round(food.calories)} kcal
                                 </span>
                               </div>
                               <div className="flex gap-3 mt-2 text-xs text-gray-400">
-                                <span>P: {food.protein}g</span>
-                                <span>C: {food.carbs}g</span>
-                                <span>G: {food.fat}g</span>
+                                <span>P: {Math.round(food.protein)}g</span>
+                                <span>C: {Math.round(food.carbs)}g</span>
+                                <span>G: {Math.round(food.fat)}g</span>
                               </div>
                             </div>
                         ))}
@@ -487,24 +487,24 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                           <div className="flex justify-between items-center mb-2">
                             <span className="font-semibold text-white">Total</span>
                             <span className="text-xl font-bold text-primary">
-                              {analysisResult.total.calories} kcal
+                              {Math.round(analysisResult.total.calories)} kcal
                             </span>
                         </div>
                           <div className="grid grid-cols-4 gap-2 text-center text-xs">
                             <div>
-                              <p className="font-semibold text-white">{analysisResult.total.protein}g</p>
+                              <p className="font-semibold text-white">{Math.round(analysisResult.total.protein)}g</p>
                               <p className="text-gray-400">Proteína</p>
                             </div>
                             <div>
-                              <p className="font-semibold text-white">{analysisResult.total.carbs}g</p>
+                              <p className="font-semibold text-white">{Math.round(analysisResult.total.carbs)}g</p>
                               <p className="text-gray-400">Carbs</p>
                             </div>
                             <div>
-                              <p className="font-semibold text-white">{analysisResult.total.fat}g</p>
+                              <p className="font-semibold text-white">{Math.round(analysisResult.total.fat)}g</p>
                               <p className="text-gray-400">Gordura</p>
                             </div>
                             <div>
-                              <p className="font-semibold text-white">{analysisResult.total.fiber}g</p>
+                              <p className="font-semibold text-white">{Math.round(analysisResult.total.fiber)}g</p>
                               <p className="text-gray-400">Fibra</p>
                             </div>
                           </div>
@@ -576,7 +576,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                             className="p-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-left hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
                           >
                             <p className="font-medium text-sm truncate">{food.name}</p>
-                            <p className="text-xs text-muted-foreground">{food.calories} kcal</p>
+                            <p className="text-xs text-muted-foreground">{Math.round(food.calories)} kcal</p>
                           </button>
                         ))}
                       </div>
@@ -607,8 +607,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                                   </p>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-sm font-semibold text-primary">{food.calories} kcal</p>
-                                  <p className="text-xs text-muted-foreground">P: {food.protein}g</p>
+                                  <p className="text-sm font-semibold text-primary">{Math.round(food.calories)} kcal</p>
+                                  <p className="text-xs text-muted-foreground">P: {Math.round(food.protein)}g</p>
                                 </div>
                               </div>
                             </button>
@@ -638,7 +638,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                               <p className="text-xs text-muted-foreground">{food.portion}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold">{food.calories} kcal</span>
+                              <span className="text-sm font-semibold">{Math.round(food.calories)} kcal</span>
                               <button
                                 onClick={() => removeFoodFromSelection(food.id)}
                                 className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20"
@@ -655,24 +655,24 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-semibold">Total</span>
                           <span className="text-xl font-bold text-primary">
-                            {selectedFoods.reduce((sum, f) => sum + f.calories, 0)} kcal
+                            {Math.round(selectedFoods.reduce((sum, f) => sum + f.calories, 0))} kcal
                           </span>
                         </div>
                         <div className="grid grid-cols-4 gap-2 text-center text-xs">
                           <div>
-                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.protein, 0)}g</p>
+                            <p className="font-semibold">{Math.round(selectedFoods.reduce((sum, f) => sum + f.protein, 0))}g</p>
                             <p className="text-muted-foreground">Proteína</p>
                           </div>
                           <div>
-                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.carbs, 0)}g</p>
+                            <p className="font-semibold">{Math.round(selectedFoods.reduce((sum, f) => sum + f.carbs, 0))}g</p>
                             <p className="text-muted-foreground">Carbs</p>
                           </div>
                           <div>
-                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.fat, 0)}g</p>
+                            <p className="font-semibold">{Math.round(selectedFoods.reduce((sum, f) => sum + f.fat, 0))}g</p>
                             <p className="text-muted-foreground">Gordura</p>
                           </div>
                           <div>
-                            <p className="font-semibold">{selectedFoods.reduce((sum, f) => sum + f.fiber, 0)}g</p>
+                            <p className="font-semibold">{Math.round(selectedFoods.reduce((sum, f) => sum + f.fiber, 0))}g</p>
                             <p className="text-muted-foreground">Fibra</p>
                           </div>
                         </div>
