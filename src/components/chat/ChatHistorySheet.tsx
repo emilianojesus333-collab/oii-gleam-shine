@@ -3,7 +3,7 @@ import { ChatConversation } from "@/hooks/useChatHistory";
 import { MessageSquare, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { pt } from "date-fns/locale";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ChatHistorySheetProps {
   open: boolean;
@@ -24,23 +24,25 @@ export const ChatHistorySheet = ({
   onDeleteConversation,
   onNewConversation,
 }: ChatHistorySheetProps) => {
+  const { t } = useLanguage();
+  
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (days === 0) return "Hoje";
-    if (days === 1) return "Ontem";
-    if (days < 7) return format(date, "EEEE", { locale: pt });
-    return format(date, "d MMM", { locale: pt });
+    if (days === 0) return t("chatHistory.today");
+    if (days === 1) return t("chatHistory.yesterday");
+    if (days < 7) return format(date, "EEEE");
+    return format(date, "d MMM");
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[300px] bg-[#0d0d0d] border-white/10 p-0">
         <SheetHeader className="p-4 border-b border-white/10">
-          <SheetTitle className="text-white text-left">Histórico</SheetTitle>
+          <SheetTitle className="text-white text-left">{t("chatHistory.title")}</SheetTitle>
         </SheetHeader>
 
         <div className="p-4">
@@ -52,7 +54,7 @@ export const ChatHistorySheet = ({
             className="w-full flex items-center gap-3 rounded-xl bg-primary/20 border border-primary/30 p-3 text-primary hover:bg-primary/30 transition-colors"
           >
             <Plus className="h-5 w-5" />
-            <span className="font-medium">Nova conversa</span>
+            <span className="font-medium">{t("chatHistory.newConversation")}</span>
           </button>
         </div>
 
@@ -60,7 +62,7 @@ export const ChatHistorySheet = ({
           {conversations.length === 0 ? (
             <div className="text-center py-8">
               <MessageSquare className="h-12 w-12 text-white/20 mx-auto mb-3" />
-              <p className="text-white/50 text-sm">Sem conversas guardadas</p>
+              <p className="text-white/50 text-sm">{t("chatHistory.noConversations")}</p>
             </div>
           ) : (
             <div className="space-y-2">

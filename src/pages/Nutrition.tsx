@@ -63,7 +63,7 @@ const Nutrition = () => {
             <div>
               <h1 className="text-2xl font-black text-white">{t("nutrition.title")}</h1>
               <p className="text-xs text-emerald-400">
-                {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>
           </div>

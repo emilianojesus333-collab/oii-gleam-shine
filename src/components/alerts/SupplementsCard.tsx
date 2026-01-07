@@ -13,6 +13,7 @@ import {
   DrawerFooter,
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface SupplementsCardProps {
   supplements: SupplementReminder[];
@@ -28,9 +29,10 @@ const iconMap = {
   capsule: Pill,
 };
 
-const dayLabels = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: SupplementsCardProps) => {
+  const { t } = useLanguage();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newTime, setNewTime] = useState('09:00');
@@ -72,9 +74,9 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
             <Pill className="w-6 h-6 text-purple-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Suplementação</h3>
+            <h3 className="font-semibold text-white">{t("supplements.title")}</h3>
             <p className="text-xs text-gray-400">
-              {supplements.filter((s) => s.enabled).length} lembretes ativos
+              {supplements.filter((s) => s.enabled).length} {t("supplements.activeReminders")}
             </p>
           </div>
         </div>
@@ -87,19 +89,19 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
           </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Novo Suplemento</DrawerTitle>
+              <DrawerTitle>{t("supplements.newSupplement")}</DrawerTitle>
             </DrawerHeader>
             <div className="p-4 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Nome</label>
+                <label className="text-sm text-muted-foreground">{t("supplements.name")}</label>
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Ex: Omega 3, BCAA..."
+                  placeholder={t("supplements.namePlaceholder")}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Horário</label>
+                <label className="text-sm text-muted-foreground">{t("supplements.time")}</label>
                 <Input
                   type="time"
                   value={newTime}
@@ -109,7 +111,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
             </div>
             <DrawerFooter>
               <Button onClick={handleAdd} className="w-full">
-                Adicionar Suplemento
+                {t("supplements.addSupplement")}
               </Button>
             </DrawerFooter>
           </DrawerContent>
@@ -187,7 +189,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
         {supplements.length === 0 && (
           <div className="text-center py-6 text-gray-400">
             <Pill className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Nenhum suplemento configurado</p>
+            <p className="text-sm">{t("supplements.noSupplements")}</p>
           </div>
         )}
       </div>

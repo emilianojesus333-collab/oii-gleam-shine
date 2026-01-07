@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface SleepCardProps {
   settings: SleepSettings;
@@ -21,6 +22,7 @@ interface SleepCardProps {
 }
 
 export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   
   const getQualityColor = () => {
@@ -30,10 +32,10 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
   };
 
   const getQualityLabel = () => {
-    if (sleepHours >= 8) return 'Ótimo';
-    if (sleepHours >= 7) return 'Bom';
-    if (sleepHours >= 6) return 'Razoável';
-    return 'Insuficiente';
+    if (sleepHours >= 8) return t("sleep.excellent");
+    if (sleepHours >= 7) return t("sleep.good");
+    if (sleepHours >= 6) return t("sleep.fair");
+    return t("sleep.insufficient");
   };
 
   return (
@@ -49,9 +51,9 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
             <BedDouble className="w-6 h-6 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Sono & Recuperação</h3>
+            <h3 className="font-semibold text-white">{t("sleep.title")}</h3>
             <p className="text-xs text-gray-400">
-              Lembrete {settings.reminderMinutesBefore}min antes
+              {t("sleep.reminderBefore")} {settings.reminderMinutesBefore} {t("sleep.minBefore")}
             </p>
           </div>
         </div>
@@ -65,11 +67,11 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Configurar Sono</DrawerTitle>
+                <DrawerTitle>{t("sleep.configure")}</DrawerTitle>
               </DrawerHeader>
               <div className="p-4 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Ativar lembretes</span>
+                  <span className="font-medium">{t("sleep.enableReminders")}</span>
                   <Switch
                     checked={settings.enabled}
                     onCheckedChange={(enabled) => onUpdate({ enabled })}
@@ -80,7 +82,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground flex items-center gap-2">
                       <Moon className="w-4 h-4" />
-                      Dormir
+                      {t("sleep.sleep")}
                     </label>
                     <Input
                       type="time"
@@ -91,7 +93,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground flex items-center gap-2">
                       <Sun className="w-4 h-4" />
-                      Acordar
+                      {t("sleep.wake")}
                     </label>
                     <Input
                       type="time"
@@ -103,7 +105,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Lembrete antes</span>
+                    <span className="text-sm text-muted-foreground">{t("sleep.reminderBeforeLabel")}</span>
                     <span className="text-sm font-medium">{settings.reminderMinutesBefore} min</span>
                   </div>
                   <Slider
@@ -132,7 +134,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
             <Moon className="w-5 h-5 text-indigo-400" />
             <div>
               <p className="text-lg font-semibold text-white">{settings.bedtime}</p>
-              <p className="text-[10px] text-gray-400">Dormir</p>
+              <p className="text-[10px] text-gray-400">{t("sleep.sleep")}</p>
             </div>
           </div>
           
@@ -146,7 +148,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           <div className="flex items-center gap-2">
             <div className="text-right">
               <p className="text-lg font-semibold text-white">{settings.wakeTime}</p>
-              <p className="text-[10px] text-gray-400">Acordar</p>
+              <p className="text-[10px] text-gray-400">{t("sleep.wake")}</p>
             </div>
             <Sun className="w-5 h-5 text-amber-400" />
           </div>
@@ -162,11 +164,11 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-500/10">
           <span>💪</span>
-          <span className="text-gray-300">Sono = Ganhos</span>
+          <span className="text-gray-300">{t("sleep.sleepEqualsGains")}</span>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-500/10">
           <span>🔋</span>
-          <span className="text-gray-300">Recupera músculos</span>
+          <span className="text-gray-300">{t("sleep.recoversMusles")}</span>
         </div>
       </div>
     </motion.div>

@@ -12,6 +12,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Slider } from '@/components/ui/slider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface HydrationCardProps {
   settings: HydrationSettings;
@@ -20,6 +21,7 @@ interface HydrationCardProps {
 }
 
 export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardProps) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const percentage = Math.min((settings.currentIntake / settings.dailyGoalLiters) * 100, 100);
   
@@ -37,9 +39,9 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
             <Droplets className="w-6 h-6 text-blue-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Hidratação</h3>
+            <h3 className="font-semibold text-white">{t("hydration.title")}</h3>
             <p className="text-xs text-gray-400">
-              A cada {settings.intervalMinutes} min
+              {t("hydration.every")} {settings.intervalMinutes} {t("hydration.min")}
             </p>
           </div>
         </div>
@@ -53,11 +55,11 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Configurar Hidratação</DrawerTitle>
+                <DrawerTitle>{t("hydration.configure")}</DrawerTitle>
               </DrawerHeader>
               <div className="p-4 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Ativar lembretes</span>
+                  <span className="font-medium">{t("hydration.enableReminders")}</span>
                   <Switch
                     checked={settings.enabled}
                     onCheckedChange={(enabled) => onUpdate({ enabled })}
@@ -66,7 +68,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Intervalo</span>
+                    <span className="text-sm text-muted-foreground">{t("hydration.interval")}</span>
                     <span className="text-sm font-medium">{settings.intervalMinutes} min</span>
                   </div>
                   <Slider
@@ -80,7 +82,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Meta diária</span>
+                    <span className="text-sm text-muted-foreground">{t("hydration.dailyGoal")}</span>
                     <span className="text-sm font-medium">{settings.dailyGoalLiters}L</span>
                   </div>
                   <Slider
@@ -164,7 +166,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
           className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
           <Minus className="w-4 h-4" />
-          Remover 0.25L
+          {t("hydration.remove")} 0.25L
         </motion.button>
       )}
     </motion.div>

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, BellOff, BellRing, Check, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface NotificationPermissionCardProps {
   permission: NotificationPermission;
@@ -14,6 +15,7 @@ export const NotificationPermissionCard = ({
   isSupported,
   onRequestPermission,
 }: NotificationPermissionCardProps) => {
+  const { t } = useLanguage();
   const [isRequesting, setIsRequesting] = useState(false);
 
   const handleRequest = async () => {
@@ -34,9 +36,9 @@ export const NotificationPermissionCard = ({
             <BellOff className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <p className="font-medium text-red-400">Notificações não suportadas</p>
+            <p className="font-medium text-red-400">{t("notifications.notSupported")}</p>
             <p className="text-xs text-gray-400">
-              O teu navegador não suporta notificações push.
+              {t("notifications.notSupportedDesc")}
             </p>
           </div>
         </div>
@@ -56,9 +58,9 @@ export const NotificationPermissionCard = ({
             <BellRing className="w-5 h-5 text-green-400" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-green-400">Notificações ativas</p>
+            <p className="font-medium text-green-400">{t("notifications.active")}</p>
             <p className="text-xs text-gray-400">
-              Vais receber alertas mesmo com a app fechada.
+              {t("notifications.activeDesc")}
             </p>
           </div>
           <Check className="w-5 h-5 text-green-400" />
@@ -79,9 +81,9 @@ export const NotificationPermissionCard = ({
             <BellOff className="w-5 h-5 text-amber-400" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-amber-400">Notificações bloqueadas</p>
+            <p className="font-medium text-amber-400">{t("notifications.blocked")}</p>
             <p className="text-xs text-gray-400">
-              Ativa nas definições do navegador para receber alertas.
+              {t("notifications.blockedDesc")}
             </p>
           </div>
           <X className="w-5 h-5 text-amber-400" />
@@ -105,9 +107,9 @@ export const NotificationPermissionCard = ({
           <Bell className="w-5 h-5 text-primary" />
         </motion.div>
         <div className="flex-1">
-          <p className="font-medium text-white">Ativar Notificações</p>
+          <p className="font-medium text-white">{t("notifications.enable")}</p>
           <p className="text-xs text-gray-400">
-            Recebe alertas mesmo quando a app está fechada.
+            {t("notifications.enableDesc")}
           </p>
         </div>
         <Button
@@ -119,7 +121,7 @@ export const NotificationPermissionCard = ({
           {isRequesting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            'Ativar'
+            t("notifications.enableBtn")
           )}
         </Button>
       </div>
