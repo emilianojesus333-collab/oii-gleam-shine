@@ -7,11 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { useFavorites } from '@/hooks/useFavorites';
-import { FitnessRecipe } from '@/data/fitnessRecipes';
+import { FitnessRecipe, getLocalizedText } from '@/data/fitnessRecipes';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const FavoritesView = () => {
   const { favorites, removeFoodFavorite, removeRecipeFavorite, totalFavorites } = useFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
+  const { language } = useLanguage();
 
   const difficultyColors = {
     easy: 'bg-emerald-500/20 text-emerald-400',
@@ -19,7 +21,11 @@ export const FavoritesView = () => {
     hard: 'bg-rose-500/20 text-rose-400',
   };
 
-  const difficultyLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
+  const difficultyLabels = { 
+    easy: language === 'pt' ? 'Fácil' : 'Easy', 
+    medium: language === 'pt' ? 'Médio' : 'Medium', 
+    hard: language === 'pt' ? 'Difícil' : 'Hard' 
+  };
 
   return (
     <Sheet>
@@ -36,8 +42,8 @@ export const FavoritesView = () => {
                 <Heart className="w-6 h-6 text-rose-400" fill="currentColor" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Favoritos</h3>
-                <p className="text-xs text-rose-300/70">{totalFavorites} itens guardados</p>
+                <h3 className="font-semibold text-white">{language === 'pt' ? 'Favoritos' : 'Favorites'}</h3>
+                <p className="text-xs text-rose-300/70">{totalFavorites} {language === 'pt' ? 'itens guardados' : 'saved items'}</p>
               </div>
             </div>
             {totalFavorites > 0 && (
@@ -53,7 +59,7 @@ export const FavoritesView = () => {
         <SheetHeader className="pb-4">
           <SheetTitle className="flex items-center gap-2 text-white">
             <Heart className="w-5 h-5 text-rose-400" fill="currentColor" />
-            Favoritos
+            {language === 'pt' ? 'Favoritos' : 'Favorites'}
           </SheetTitle>
         </SheetHeader>
 
@@ -61,11 +67,11 @@ export const FavoritesView = () => {
           <TabsList className="w-full bg-muted/50">
             <TabsTrigger value="foods" className="flex-1 gap-2">
               <Apple className="w-4 h-4" />
-              Alimentos ({favorites.foods.length})
+              {language === 'pt' ? 'Alimentos' : 'Foods'} ({favorites.foods.length})
             </TabsTrigger>
             <TabsTrigger value="recipes" className="flex-1 gap-2">
               <ChefHat className="w-4 h-4" />
-              Receitas ({favorites.recipes.length})
+              {language === 'pt' ? 'Receitas' : 'Recipes'} ({favorites.recipes.length})
             </TabsTrigger>
           </TabsList>
 
@@ -74,8 +80,12 @@ export const FavoritesView = () => {
               {favorites.foods.length === 0 ? (
                 <div className="text-center py-12">
                   <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                  <p className="text-gray-400">Ainda não tens alimentos favoritos</p>
-                  <p className="text-xs text-gray-500 mt-1">Adiciona alimentos usando o scanner IA</p>
+                  <p className="text-gray-400">
+                    {language === 'pt' ? 'Ainda não tens alimentos favoritos' : "You don't have any favorite foods yet"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {language === 'pt' ? 'Adiciona alimentos usando o scanner IA' : 'Add foods using the AI scanner'}
+                  </p>
                 </div>
               ) : (
                   favorites.foods.map((food) => (
@@ -122,13 +132,13 @@ export const FavoritesView = () => {
                     className="space-y-4"
                   >
                     <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)} className="text-gray-300">
-                      <X className="w-4 h-4 mr-2" /> Voltar
+                      <X className="w-4 h-4 mr-2" /> {language === 'pt' ? 'Voltar' : 'Back'}
                     </Button>
 
                     <div className="text-center">
                       <span className="text-5xl">{selectedRecipe.imageEmoji}</span>
-                      <h2 className="text-xl font-bold mt-2 text-white">{selectedRecipe.name}</h2>
-                      <p className="text-sm text-gray-400">{selectedRecipe.cuisine}</p>
+                      <h2 className="text-xl font-bold mt-2 text-white">{getLocalizedText(selectedRecipe.name)}</h2>
+                      <p className="text-sm text-gray-400">{getLocalizedText(selectedRecipe.cuisine)}</p>
                     </div>
 
                     <div className="flex justify-center gap-4 text-sm text-gray-300">
@@ -138,7 +148,7 @@ export const FavoritesView = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        {selectedRecipe.servings} porções
+                        {selectedRecipe.servings} {language === 'pt' ? 'porções' : 'servings'}
                       </div>
                       <Badge className={difficultyColors[selectedRecipe.difficulty]}>
                         {difficultyLabels[selectedRecipe.difficulty]}
@@ -152,7 +162,7 @@ export const FavoritesView = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-lg font-bold text-rose-400">{Math.round(selectedRecipe.totalMacros.protein / selectedRecipe.servings)}g</p>
-                        <p className="text-xs text-gray-400">Proteína</p>
+                        <p className="text-xs text-gray-400">{language === 'pt' ? 'Proteína' : 'Protein'}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-lg font-bold text-amber-400">{Math.round(selectedRecipe.totalMacros.carbs / selectedRecipe.servings)}g</p>
@@ -160,19 +170,19 @@ export const FavoritesView = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-lg font-bold text-sky-400">{Math.round(selectedRecipe.totalMacros.fat / selectedRecipe.servings)}g</p>
-                        <p className="text-xs text-gray-400">Gordura</p>
+                        <p className="text-xs text-gray-400">{language === 'pt' ? 'Gordura' : 'Fat'}</p>
                       </div>
                     </div>
 
                     <Tabs defaultValue="ingredients">
                       <TabsList className="w-full">
-                        <TabsTrigger value="ingredients" className="flex-1">Ingredientes</TabsTrigger>
-                        <TabsTrigger value="steps" className="flex-1">Passos</TabsTrigger>
+                        <TabsTrigger value="ingredients" className="flex-1">{language === 'pt' ? 'Ingredientes' : 'Ingredients'}</TabsTrigger>
+                        <TabsTrigger value="steps" className="flex-1">{language === 'pt' ? 'Passos' : 'Steps'}</TabsTrigger>
                       </TabsList>
                       <TabsContent value="ingredients" className="space-y-2 mt-3">
                         {selectedRecipe.ingredients.map((ing, i) => (
                           <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
-                            <span className="text-white">{ing.name}</span>
+                            <span className="text-white">{getLocalizedText(ing.name)}</span>
                             <span className="text-gray-400">{ing.amount}</span>
                           </div>
                         ))}
@@ -183,7 +193,7 @@ export const FavoritesView = () => {
                             <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
                               {i + 1}
                             </span>
-                            <p className="text-gray-300">{step}</p>
+                            <p className="text-gray-300">{getLocalizedText(step)}</p>
                           </div>
                         ))}
                       </TabsContent>
@@ -192,8 +202,12 @@ export const FavoritesView = () => {
                 ) : favorites.recipes.length === 0 ? (
                   <div className="text-center py-12">
                     <ChefHat className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                    <p className="text-gray-400">Ainda não tens receitas favoritas</p>
-                    <p className="text-xs text-gray-500 mt-1">Explora as receitas fitness e guarda as tuas preferidas</p>
+                    <p className="text-gray-400">
+                      {language === 'pt' ? 'Ainda não tens receitas favoritas' : "You don't have any favorite recipes yet"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {language === 'pt' ? 'Explora as receitas fitness e guarda as tuas preferidas' : 'Explore fitness recipes and save your favorites'}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid gap-3">
@@ -216,8 +230,8 @@ export const FavoritesView = () => {
                           className="flex-1 min-w-0 cursor-pointer" 
                           onClick={() => setSelectedRecipe(recipe)}
                         >
-                          <h4 className="font-medium truncate text-white">{recipe.name}</h4>
-                          <p className="text-xs text-gray-400">{recipe.cuisine}</p>
+                          <h4 className="font-medium truncate text-white">{getLocalizedText(recipe.name)}</h4>
+                          <p className="text-xs text-gray-400">{getLocalizedText(recipe.cuisine)}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs flex items-center gap-1">
                               <Clock className="w-3 h-3" />
