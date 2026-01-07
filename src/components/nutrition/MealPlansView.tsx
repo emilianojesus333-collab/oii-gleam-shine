@@ -104,7 +104,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
           </DrawerTitle>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 max-h-[65vh]" type="always">
+        <ScrollArea className="flex-1 max-h-[60vh]" type="scroll">
           <div className="px-4 pb-6 space-y-4">
             <AnimatePresence mode="wait">
               {!selectedPlan ? (

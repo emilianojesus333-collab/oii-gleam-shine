@@ -187,7 +187,7 @@ const Nutrition = () => {
               <span className="text-xl">💪</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Pós-treino</p>
-                <p className="text-xs text-gray-400">Proteína + carbs até 2h após treino</p>
+                <p className="text-xs text-gray-400">Consome proteína e hidratos até 2h após o treino</p>
               </div>
             </motion.div>
             <motion.div 
@@ -198,8 +198,8 @@ const Nutrition = () => {
             >
               <span className="text-xl">🥛</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Proteína distribuída</p>
-                <p className="text-xs text-gray-400">20-40g por refeição é ideal</p>
+                <p className="text-sm font-medium text-white">Distribui a proteína</p>
+                <p className="text-xs text-gray-400">20-40g por refeição para melhor absorção</p>
               </div>
             </motion.div>
           </div>

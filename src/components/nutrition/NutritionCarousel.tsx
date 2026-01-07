@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface NutritionCarouselProps {
   title: string;
@@ -9,55 +8,18 @@ interface NutritionCarouselProps {
 
 export const NutritionCarousel = ({ title, children }: NutritionCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const checkScroll = () => {
     if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 0);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.8;
-    scrollRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth'
-    });
-    setTimeout(checkScroll, 300);
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    const index = Math.round(scrollLeft / (clientWidth * 0.85));
+    setCurrentIndex(Math.min(index, children.length - 1));
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-white">{title}</h3>
-        <div className="flex gap-1">
-          <button
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-              canScrollLeft 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'bg-white/5 text-gray-600 cursor-not-allowed'
-            }`}
-          >
-            <ChevronLeft className="w-3 h-3" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-              canScrollRight 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'bg-white/5 text-gray-600 cursor-not-allowed'
-            }`}
-          >
-            <ChevronRight className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
+    <div className="space-y-2">
+      <h3 className="font-semibold text-sm text-white">{title}</h3>
       
       <div 
         ref={scrollRef}
@@ -77,6 +39,20 @@ export const NutritionCarousel = ({ title, children }: NutritionCarouselProps) =
           </motion.div>
         ))}
       </div>
+
+      {/* Minimal dot indicators */}
+      {children.length > 1 && (
+        <div className="flex justify-center gap-1 pt-1">
+          {children.map((_, index) => (
+            <div 
+              key={index}
+              className={`w-1 h-1 rounded-full transition-opacity ${
+                currentIndex === index ? 'bg-white/50' : 'bg-white/15'
+              }`} 
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

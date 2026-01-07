@@ -296,8 +296,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           </motion.button>
         </DrawerTrigger>
 
-        <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10 flex flex-col">
-          <DrawerHeader className="shrink-0">
+        <DrawerContent className="max-h-[85vh] bg-zinc-900 border-white/10 flex flex-col overflow-hidden">
+          <DrawerHeader className="shrink-0 pb-2">
             <DrawerTitle className="flex items-center gap-2 text-white">
               <Utensils className="w-5 h-5" />
               Adicionar Refeição
@@ -305,7 +305,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
           </DrawerHeader>
 
           {/* Tab Switcher */}
-          <div className="px-4 mb-4">
+          <div className="px-4 mb-3 shrink-0">
             <div className="flex bg-white/5 rounded-xl p-1">
               <button
                 onClick={() => setActiveTab('ai')}
@@ -332,7 +332,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             </div>
           </div>
 
-          <ScrollAreaWithIndicators className="flex-1 min-h-0 overflow-hidden" showTopIndicator={false}>
+          <ScrollAreaWithIndicators className="flex-1 min-h-0" showTopIndicator={false}>
             <div className="px-4 pb-6 space-y-4 pr-2">
               {/* AI Tab */}
               {activeTab === 'ai' && (
