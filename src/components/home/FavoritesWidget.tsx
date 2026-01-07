@@ -2,10 +2,13 @@ import { motion } from 'framer-motion';
 import { Heart, Apple, ChefHat, ChevronRight } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useNavigate } from 'react-router-dom';
+import { getLocalizedText } from '@/data/fitnessRecipes';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const FavoritesWidget = () => {
   const { favorites, totalFavorites } = useFavorites();
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   // Get emoji based on category
   const getCategoryEmoji = (category: string) => {
@@ -25,7 +28,7 @@ export const FavoritesWidget = () => {
   // Get first 3 items to display
   const previewItems = [
     ...favorites.foods.slice(0, 2).map(f => ({ type: 'food' as const, name: f.name, emoji: getCategoryEmoji(f.category) })),
-    ...favorites.recipes.slice(0, 2).map(r => ({ type: 'recipe' as const, name: r.name, emoji: r.imageEmoji })),
+    ...favorites.recipes.slice(0, 2).map(r => ({ type: 'recipe' as const, name: getLocalizedText(r.name), emoji: r.imageEmoji })),
   ].slice(0, 3);
 
   if (totalFavorites === 0) {
@@ -41,14 +44,14 @@ export const FavoritesWidget = () => {
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
           <Heart className="w-4 h-4 text-rose-400" />
-          Favoritos Rápidos
+          {language === 'pt' ? 'Favoritos Rápidos' : 'Quick Favorites'}
         </h3>
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/nutrition')}
           className="text-xs text-primary/70 flex items-center gap-1"
         >
-          Ver todos
+          {language === 'pt' ? 'Ver todos' : 'See all'}
           <ChevronRight className="w-3 h-3" />
         </motion.button>
       </div>
@@ -70,12 +73,12 @@ export const FavoritesWidget = () => {
               {item.type === 'food' ? (
                 <>
                   <Apple className="w-2.5 h-2.5" />
-                  Alimento
+                  {language === 'pt' ? 'Alimento' : 'Food'}
                 </>
               ) : (
                 <>
                   <ChefHat className="w-2.5 h-2.5" />
-                  Receita
+                  {language === 'pt' ? 'Receita' : 'Recipe'}
                 </>
               )}
             </p>
@@ -93,7 +96,7 @@ export const FavoritesWidget = () => {
             className="rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/20 p-3 text-center"
           >
             <span className="text-2xl block mb-1">+{totalFavorites - 3}</span>
-            <p className="text-xs text-rose-300/70 font-medium">mais</p>
+            <p className="text-xs text-rose-300/70 font-medium">{language === 'pt' ? 'mais' : 'more'}</p>
           </motion.button>
         )}
       </div>
