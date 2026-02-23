@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Check, Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat } from "lucide-react";
@@ -7,9 +7,6 @@ import { Card } from "@/components/ui/card";
 import { useSubscription, SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-// Email autorizado para bypass de dev
-const DEV_AUTHORIZED_EMAIL = "emilianojesus333@gmail.com";
 
 const benefits = [
   { icon: Brain, text: "AI Coach Pessoal 24/7" },
@@ -25,47 +22,7 @@ const Paywall = () => {
   const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing, status } = useSubscription();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [devTapCount, setDevTapCount] = useState(0);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const devTapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Get current user email
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserEmail(user?.email || null);
-    };
-    getUser();
-  }, []);
-
-  // Secret dev mode: tap logo 5 times to bypass (only for authorized email)
-  const handleDevTap = () => {
-    // Only allow if user email matches authorized email
-    if (userEmail?.toLowerCase() !== DEV_AUTHORIZED_EMAIL.toLowerCase()) {
-      return; // Silently ignore taps from non-authorized users
-    }
-
-    setDevTapCount(prev => prev + 1);
-    
-    if (devTapTimeoutRef.current) {
-      clearTimeout(devTapTimeoutRef.current);
-    }
-    
-    devTapTimeoutRef.current = setTimeout(() => {
-      setDevTapCount(0);
-    }, 2000);
-    
-    if (devTapCount + 1 >= 5) {
-      localStorage.setItem("liftmate_dev_bypass", "true");
-      toast({
-        title: "🔓 Modo Dev Ativado",
-        description: "Bypass exclusivo ativado para ti.",
-      });
-      setTimeout(() => {
-        navigate("/home", { replace: true });
-      }, 500);
-    }
-  };
+  
 
   // CRITICAL: Check if user already has valid subscription and redirect
   useEffect(() => {
@@ -124,8 +81,7 @@ const Paywall = () => {
           className="text-center mb-8"
         >
           <div 
-            className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4 cursor-pointer select-none"
-            onClick={handleDevTap}
+            className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4"
           >
             <Crown className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-primary">LiftMate Pro</span>
