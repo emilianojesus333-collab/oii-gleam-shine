@@ -26,48 +26,85 @@ serve(async (req) => {
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    
+    // Log key prefix for debugging (safe - only first 12 chars)
+    console.log("[GET-PRICING] Using key prefix:", stripeKey.substring(0, 12));
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    const [monthlyPrice, annualPrice] = await Promise.all([
-      stripe.prices.retrieve(PRICE_IDS.monthly, { expand: ["product"] }),
-      stripe.prices.retrieve(PRICE_IDS.annual, { expand: ["product"] }),
-    ]);
+    // Try each price individually for better error reporting
+    const results: Record<string, any> = {};
+    const errors: Record<string, string> = {};
 
-    const monthlyAmount = monthlyPrice.unit_amount || 0;
-    const annualAmount = annualPrice.unit_amount || 0;
-    const annualMonthlyEquivalent = Math.round(annualAmount / 12);
-    const monthlyCurrency = monthlyPrice.currency || "eur";
-    const annualCurrency = annualPrice.currency || "eur";
+    for (const [plan, priceId] of Object.entries(PRICE_IDS)) {
+      try {
+        const price = await stripe.prices.retrieve(priceId);
+        results[plan] = price;
+        console.log(`[GET-PRICING] ${plan} price found:`, priceId, price.unit_amount);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        errors[plan] = msg;
+        console.error(`[GET-PRICING] ${plan} price NOT found:`, priceId, msg);
+      }
+    }
 
-    const savingsPercent =
-      monthlyAmount > 0
-        ? Math.round((1 - annualMonthlyEquivalent / monthlyAmount) * 100)
-        : 0;
+    // If both failed, return error with details
+    if (Object.keys(results).length === 0) {
+      return new Response(JSON.stringify({ 
+        error: "No prices found", 
+        details: errors,
+        hint: "Verify these Price IDs exist in your Stripe LIVE dashboard"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
-    const response = {
-      monthly: {
+    // Build response with available prices
+    const response: Record<string, any> = {};
+    
+    if (results.monthly) {
+      const p = results.monthly;
+      response.monthly = {
         price_id: PRICE_IDS.monthly,
-        unit_amount: monthlyAmount,
-        currency: monthlyCurrency,
-        interval: monthlyPrice.recurring?.interval || "month",
-        formatted_price: formatPrice(monthlyAmount, monthlyCurrency),
-        display_price: monthlyAmount / 100,
-      },
-      annual: {
+        unit_amount: p.unit_amount || 0,
+        currency: p.currency || "eur",
+        interval: p.recurring?.interval || "month",
+        formatted_price: formatPrice(p.unit_amount || 0, p.currency || "eur"),
+        display_price: (p.unit_amount || 0) / 100,
+      };
+    }
+
+    if (results.annual) {
+      const p = results.annual;
+      const annualAmount = p.unit_amount || 0;
+      const monthlyEquiv = Math.round(annualAmount / 12);
+      response.annual = {
         price_id: PRICE_IDS.annual,
         unit_amount: annualAmount,
-        currency: annualCurrency,
-        interval: annualPrice.recurring?.interval || "year",
-        formatted_price: formatPrice(annualAmount, annualCurrency),
+        currency: p.currency || "eur",
+        interval: p.recurring?.interval || "year",
+        formatted_price: formatPrice(annualAmount, p.currency || "eur"),
         display_price: annualAmount / 100,
-        monthly_equivalent: annualMonthlyEquivalent / 100,
-        monthly_equivalent_formatted: formatPrice(annualMonthlyEquivalent, annualCurrency),
-      },
-      savings_percent: savingsPercent,
-    };
+        monthly_equivalent: monthlyEquiv / 100,
+        monthly_equivalent_formatted: formatPrice(monthlyEquiv, p.currency || "eur"),
+      };
+    }
 
-    console.log("[GET-PRICING] Prices fetched successfully", response);
+    // Calculate savings if both exist
+    if (results.monthly && results.annual) {
+      const monthlyAmt = results.monthly.unit_amount || 0;
+      const annualMonthly = Math.round((results.annual.unit_amount || 0) / 12);
+      response.savings_percent = monthlyAmt > 0 
+        ? Math.round((1 - annualMonthly / monthlyAmt) * 100) 
+        : 0;
+    }
+
+    if (errors && Object.keys(errors).length > 0) {
+      response.warnings = errors;
+    }
+
+    console.log("[GET-PRICING] Response:", JSON.stringify(response));
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
