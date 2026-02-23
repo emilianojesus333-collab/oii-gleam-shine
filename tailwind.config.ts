@@ -9,20 +9,20 @@ export default {
   		center: true,
   		padding: '1rem',
   		screens: {
-  			'xs': '360px',
-  			'sm': '390px',
-  			'md': '430px',
-  			'lg': '640px',
-  			'xl': '768px',
+  			xs: '360px',
+  			sm: '390px',
+  			md: '430px',
+  			lg: '640px',
+  			xl: '768px',
   			'2xl': '1024px'
   		}
   	},
   	screens: {
-  		'xs': '360px',
-  		'sm': '390px',
-  		'md': '430px',
-  		'lg': '640px',
-  		'xl': '768px',
+  		xs: '360px',
+  		sm: '390px',
+  		md: '430px',
+  		lg: '640px',
+  		xl: '768px',
   		'2xl': '1024px'
   	},
   	extend: {
@@ -105,7 +105,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Inter',
+  				'Raleway',
   				'ui-sans-serif',
   				'system-ui',
   				'sans-serif',
@@ -115,7 +115,7 @@ export default {
   				'Noto Color Emoji'
   			],
   			serif: [
-  				'Lora',
+  				'Playfair Display',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -124,7 +124,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Space Mono',
+  				'Fira Code',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
