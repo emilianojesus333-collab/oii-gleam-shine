@@ -9,8 +9,8 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+  DrawerTrigger } from
+'@/components/ui/drawer';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,11 +23,11 @@ interface WorkoutReminderCardProps {
 }
 
 const motivationalQuotes = [
-  "A dor de hoje é a vitória de amanhã! 💪",
-  "Cada repetição conta. Bora treinar!",
-  "O único treino mau é o que não fizeste!",
-  "Levanta, treina, repete. 🔥",
-];
+"A dor de hoje é a vitória de amanhã! 💪",
+"Cada repetição conta. Bora treinar!",
+"O único treino mau é o que não fizeste!",
+"Levanta, treina, repete. 🔥"];
+
 
 // Get user-specific storage key
 const getStorageKey = (userId?: string) => userId ? `liftmate_workout_time_${userId}` : null;
@@ -36,7 +36,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [workoutTime, setWorkoutTime] = useState('18:00');
-  
+
   // Load user-specific workout time
   useEffect(() => {
     const key = getStorageKey(user?.id);
@@ -47,12 +47,12 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       }
     }
   }, [user?.id]);
-  
+
   // Fix: Use useState with initializer to prevent re-renders causing text flickering
-  const [randomQuote] = useState(() => 
-    motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]
+  const [randomQuote] = useState(() =>
+  motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]
   );
-  
+
   const { permission, scheduleWorkoutReminder, cancelNotification } = usePushNotifications();
 
   // Schedule workout notification when settings change
@@ -66,7 +66,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
     const now = new Date();
     const workoutDate = new Date(now);
     workoutDate.setHours(hours, minutes, 0, 0);
-    
+
     // If workout time passed today, schedule for tomorrow
     if (workoutDate <= now) {
       workoutDate.setDate(workoutDate.getDate() + 1);
@@ -93,8 +93,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-amber-500/20"
-    >
+      className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-muted">
+
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -124,8 +124,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                   <span className="font-medium">Ativar lembretes</span>
                   <Switch
                     checked={settings.enabled}
-                    onCheckedChange={(enabled) => onUpdate({ enabled })}
-                  />
+                    onCheckedChange={(enabled) => onUpdate({ enabled })} />
+
                 </div>
                 
                 <div className="space-y-3">
@@ -138,8 +138,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                     value={workoutTime}
                     onChange={(e) => handleTimeChange(e.target.value)}
                     className="w-full bg-background/50"
-                    disabled={isDisabled}
-                  />
+                    disabled={isDisabled} />
+
                 </div>
 
                 <div className="space-y-3">
@@ -153,8 +153,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                     min={15}
                     max={120}
                     step={15}
-                    disabled={isDisabled}
-                  />
+                    disabled={isDisabled} />
+
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -165,15 +165,15 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                   <Switch
                     checked={settings.motivationalMessage}
                     onCheckedChange={(motivationalMessage) => onUpdate({ motivationalMessage })}
-                    disabled={isDisabled}
-                  />
+                    disabled={isDisabled} />
+
                 </div>
 
-                {isDisabled && (
-                  <p className="text-xs text-amber-400/80 text-center pt-2">
+                {isDisabled &&
+                <p className="text-xs text-amber-400/80 text-center pt-2">
                     Ativa as notificações primeiro para usar lembretes
                   </p>
-                )}
+                }
               </div>
             </DrawerContent>
           </Drawer>
@@ -181,8 +181,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
           <Switch
             checked={settings.enabled}
             onCheckedChange={(enabled) => onUpdate({ enabled })}
-            disabled={isDisabled}
-          />
+            disabled={isDisabled} />
+
         </div>
       </div>
 
@@ -190,8 +190,8 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
-        className="p-4 rounded-xl bg-white/5 border border-white/10"
-      >
+        className="p-4 rounded-xl bg-white/5 border border-white/10">
+
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
             <Dumbbell className="w-5 h-5 text-primary" />
@@ -204,11 +204,11 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
                 <span>agora</span>
               </div>
             </div>
-            {settings.motivationalMessage && (
-              <p className="text-xs text-gray-400 line-clamp-2">
+            {settings.motivationalMessage &&
+            <p className="text-xs text-gray-400 line-clamp-2">
                 {randomQuote}
               </p>
-            )}
+            }
           </div>
         </div>
       </motion.div>
@@ -216,6 +216,6 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       <p className="text-xs text-gray-500 mt-3 text-center">
         Pré-visualização da notificação
       </p>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
