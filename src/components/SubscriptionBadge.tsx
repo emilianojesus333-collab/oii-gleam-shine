@@ -20,10 +20,10 @@ export const SubscriptionBadge = ({ variant = "default", className = "" }: Subsc
   }
 
   const getPlanName = () => {
-    if (productId === SUBSCRIPTION_PRODUCTS.annual.product_id) {
+    if (productId === SUBSCRIPTION_PRODUCTS.annual.price_id) {
       return "Pro Anual";
     }
-    if (productId === SUBSCRIPTION_PRODUCTS.monthly.product_id) {
+    if (productId === SUBSCRIPTION_PRODUCTS.monthly.price_id) {
       return "Pro Mensal";
     }
     return "Pro";
