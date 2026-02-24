@@ -9,8 +9,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  type CarouselApi,
-} from "@/components/ui/carousel";
+  type CarouselApi } from
+"@/components/ui/carousel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, type Exercise } from "@/data/exerciseDatabase";
 import { saveWorkoutSession, getTodayStats } from "@/data/workoutHistory";
@@ -30,7 +30,7 @@ const weekDaysMap: Record<number, string> = {
   3: "Quarta-feira",
   4: "Quinta-feira",
   5: "Sexta-feira",
-  6: "Sábado",
+  6: "Sábado"
 };
 
 const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -44,7 +44,7 @@ const Home = () => {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   // Load user settings from database (per-user data)
   const { settings, isLoading: settingsLoading } = useUserSettings();
   const { user } = useAuth();
@@ -55,7 +55,7 @@ const Home = () => {
       setCompletedExercises(new Set());
       return;
     }
-    
+
     const userKey = `liftmate_completed_exercises_${user.id}`;
     const saved = localStorage.getItem(userKey);
     if (saved) {
@@ -100,36 +100,36 @@ const Home = () => {
       if (Date.now() < end) {
         requestAnimationFrame(frame);
       }
-    }());
+    })();
 
     // Show success toast
     toast.success(t("home.workoutComplete"), {
       description: t("home.congratsAllExercises"),
-      duration: 5000,
+      duration: 5000
     });
   }, [t]);
 
   const toggleExerciseComplete = (exerciseName: string) => {
     if (!user) return;
-    
-    setCompletedExercises(prev => {
+
+    setCompletedExercises((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(exerciseName)) {
         newSet.delete(exerciseName);
       } else {
         newSet.add(exerciseName);
       }
-      
+
       // Save to user-specific localStorage key with today's date
       const userKey = `liftmate_completed_exercises_${user.id}`;
       const toSave = {
         date: new Date().toDateString(),
         exercises: Array.from(newSet),
         workout: todayWorkout,
-        muscleGroups: todayMuscleGroups,
+        muscleGroups: todayMuscleGroups
       };
       localStorage.setItem(userKey, JSON.stringify(toSave));
-      
+
       // Also save to workout history for long-term tracking
       const today = new Date();
       const totalExercises = aiSuggestions.allExercises.length;
@@ -140,14 +140,14 @@ const Home = () => {
         exercisesCompleted: Array.from(newSet),
         exerciseLogs: [],
         totalExercises: totalExercises,
-        completionRate: totalExercises > 0 ? Math.round((newSet.size / totalExercises) * 100) : 0,
+        completionRate: totalExercises > 0 ? Math.round(newSet.size / totalExercises * 100) : 0
       });
 
       // Trigger celebration when all exercises are completed
       if (newSet.size === totalExercises && totalExercises > 0 && !prev.has(exerciseName)) {
         setTimeout(() => triggerCelebration(), 300);
       }
-      
+
       return newSet;
     });
   };
@@ -164,7 +164,7 @@ const Home = () => {
       carouselApi.off("select", onSelect);
     };
   }, [carouselApi]);
-  
+
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
   const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
@@ -173,64 +173,64 @@ const Home = () => {
   const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions } = useMemo(() => {
     // Load schedule from user settings (database) - per-user data
     const userSchedule = settings?.onboarding_data?.schedule || {};
-    
+
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
     const muscleGroups = userSchedule[todayName] || null;
-    
+
     // Format workout display (join muscle groups)
-    const workout = muscleGroups 
-      ? (Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups)
-      : null;
+    const workout = muscleGroups ?
+    Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups :
+    null;
 
     // Get current week schedule (Mon-Sun)
     const schedule = [];
     const currentDayOfWeek = today.getDay();
     const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date();
       date.setDate(today.getDate() + mondayOffset + i);
       const dayIndex = date.getDay();
       const dayName = weekDaysMap[dayIndex];
       const dayGroups = userSchedule[dayName] || null;
-      const dayWorkout = dayGroups 
-        ? (Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups)
-        : null;
+      const dayWorkout = dayGroups ?
+      Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups :
+      null;
       schedule.push({
         shortDay: shortDays[dayIndex],
         fullDay: dayName,
         workout: dayWorkout,
         date: date.getDate(),
-        isToday: date.toDateString() === today.toDateString(),
+        isToday: date.toDateString() === today.toDateString()
       });
     }
 
     // Generate AI suggestions based on today's muscle groups
     const { exercise, focus } = getSuggestedExercise(muscleGroups);
     const recovery = getRecoverySuggestion(muscleGroups);
-    
+
     // Get all exercises for today's muscle groups
     const allExercises = muscleGroups ? getExercisesForGroups(muscleGroups) : [];
-    
+
     const suggestions = {
       exercise: exercise?.name || "Alongamentos",
       focus: focus,
       recovery: recovery,
-      allExercises: allExercises,
+      allExercises: allExercises
     };
 
     return {
       todayWorkout: workout,
       todayMuscleGroups: muscleGroups,
       weekSchedule: schedule,
-      aiSuggestions: suggestions,
+      aiSuggestions: suggestions
     };
   }, [settings]);
 
   const workoutProgress = todayWorkout && todayWorkout !== "Descanso" ? 0 : 100;
   const circumference = 2 * Math.PI * 45;
-  const strokeDashoffset = circumference - (workoutProgress / 100) * circumference;
+  const strokeDashoffset = circumference - workoutProgress / 100 * circumference;
 
   const handleResetOnboarding = () => {
     localStorage.removeItem("liftmate_onboarding");
@@ -261,21 +261,21 @@ const Home = () => {
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
       {/* Hero Background Image with Parallax and Flicker Effect */}
       <div className="absolute inset-x-0 top-0 h-64 sm:h-80 overflow-hidden">
-        <motion.img 
-          src={gymBackground} 
-          alt="" 
+        <motion.img
+          src={gymBackground}
+          alt=""
           className="h-full w-full object-cover"
-          style={{ 
-            y: imageY, 
+          style={{
+            y: imageY,
             scale: imageScale,
             opacity: imageOpacity,
-            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)',
+            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)'
           }}
           animate={{
-            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)',
+            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)'
           }}
-          transition={{ duration: 0.05 }}
-        />
+          transition={{ duration: 0.05 }} />
+
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black" />
       </div>
 
@@ -283,8 +283,8 @@ const Home = () => {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top"
-      >
+        className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top">
+
         <div className="flex items-center gap-2 sm:gap-3">
           <h1 className="text-xl sm:text-2xl font-black text-white/70">LiftMate</h1>
           <SubscriptionBadge variant="compact" />
@@ -293,8 +293,8 @@ const Home = () => {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
-            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target"
-          >
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target">
+
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
           </motion.button>
         </div>
@@ -302,36 +302,36 @@ const Home = () => {
 
       {/* Settings Modal */}
       <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowSettings(false)}
-          >
+        {showSettings &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowSettings(false)}>
+
             <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10"
-            >
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10">
+
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Configurações</h2>
                 <button
-                  onClick={() => setShowSettings(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary"
-                >
+                onClick={() => setShowSettings(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
+
                   <X className="h-4 w-4 text-foreground" />
                 </button>
               </div>
               
               <button
-                onClick={handleResetOnboarding}
-                className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80"
-              >
+              onClick={handleResetOnboarding}
+              className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80">
+
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
                   <RotateCcw className="h-6 w-6 text-primary" />
                 </div>
@@ -342,7 +342,7 @@ const Home = () => {
               </button>
             </motion.div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       {/* Week Calendar */}
@@ -350,33 +350,33 @@ const Home = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4"
-      >
+        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4">
+
         <div className="flex justify-between gap-1">
-          {weekSchedule.map((item, index) => (
-            <motion.div
-              key={item.fullDay}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15 + index * 0.03 }}
-              className="flex flex-col items-center flex-1"
-            >
+          {weekSchedule.map((item, index) =>
+          <motion.div
+            key={item.fullDay}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.15 + index * 0.03 }}
+            className="flex flex-col items-center flex-1">
+
               <span className="text-[10px] sm:text-xs text-gray-400/70 mb-1.5 sm:mb-2">{item.shortDay}</span>
               <div
-                className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
-                  item.isToday
-                    ? "rounded-lg sm:rounded-xl bg-[#1E1E1E]/50"
-                    : item.workout && item.workout !== "Descanso"
-                    ? "rounded-lg sm:rounded-xl border border-dashed border-gray-500/40"
-                    : ""
-                }`}
-              >
+              className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
+              item.isToday ?
+              "rounded-lg sm:rounded-xl bg-[#1E1E1E]/50" :
+              item.workout && item.workout !== "Descanso" ?
+              "rounded-lg sm:rounded-xl border border-dashed border-gray-500/40" :
+              ""}`
+              }>
+
                 <span className="text-base sm:text-lg font-semibold text-white/70">
                   {item.date}
                 </span>
               </div>
             </motion.div>
-          ))}
+          )}
         </div>
       </motion.div>
 
@@ -388,122 +388,122 @@ const Home = () => {
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ 
-            delay: 0.2, 
+          transition={{
+            delay: 0.2,
             duration: 0.5,
             type: "spring",
             stiffness: 100,
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-2xl sm:rounded-3xl bg-[#1E1E1E]/50 p-4 sm:p-6"
-        >
+          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] bg-[#0d0d11] sm:rounded-3xl">
+
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.4 }}
-            className="text-center"
-          >
+            className="text-center">
+
             <p className="text-2xl sm:text-4xl font-black text-white/70">
               {todayWorkout || t("home.rest")}
             </p>
             <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
-              {todayWorkout && todayWorkout !== "Descanso" 
-                ? t("home.todayWorkout") 
-                : t("home.recoveryDay")}
+              {todayWorkout && todayWorkout !== "Descanso" ?
+              t("home.todayWorkout") :
+              t("home.recoveryDay")}
             </p>
           </motion.div>
 
-          {todayWorkout && todayWorkout !== "Descanso" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-4 sm:mt-6"
-            >
+          {todayWorkout && todayWorkout !== "Descanso" &&
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-4 sm:mt-6">
+
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs sm:text-sm text-gray-400/70">{t("home.progress")}</span>
                 <button
-                  onClick={() => setShowExercises(true)}
-                  className="flex items-center gap-1 text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors touch-target"
-                >
+                onClick={() => setShowExercises(true)}
+                className="flex items-center gap-1 text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors touch-target">
+
                   <span className="font-semibold">{completedExercises.size}/{aiSuggestions.allExercises.length}</span>
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
               <div className="h-1.5 sm:h-2 w-full rounded-full bg-[#2A2A2A]/50 overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ 
-                    width: aiSuggestions.allExercises.length > 0 
-                      ? `${(completedExercises.size / aiSuggestions.allExercises.length) * 100}%` 
-                      : "0%" 
-                  }}
-                  transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
-                  className="h-full rounded-full bg-primary"
-                />
+                <motion.div
+                initial={{ width: 0 }}
+                animate={{
+                  width: aiSuggestions.allExercises.length > 0 ?
+                  `${completedExercises.size / aiSuggestions.allExercises.length * 100}%` :
+                  "0%"
+                }}
+                transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
+                className="h-full rounded-full bg-primary" />
+
               </div>
             </motion.div>
-          )}
+          }
         </motion.div>
 
         {/* Stats Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+          transition={{ delay: 0.3 }}>
+
           <Carousel className="w-full" setApi={setCarouselApi}>
             <CarouselContent>
               {/* State 1: Stats */}
               <CarouselItem>
-                <motion.div 
+                <motion.div
                   className="grid grid-cols-3 gap-2 sm:gap-3"
                   animate={{ opacity: currentSlide === 0 ? 1 : 0.3 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                >
+                  transition={{ duration: 0.4, ease: "easeInOut" }}>
+
                   {(() => {
                     const todayStats = getTodayStats();
                     return [
-                      { value: todayStats.totalSets.toString(), label: t("home.seriesDone") },
-                      { value: todayStats.totalReps.toString(), label: t("home.totalReps") },
-                      { value: todayStats.totalMinutes.toString(), label: t("home.trainingMin") },
-                    ];
-                  })().map((stat, index) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ 
-                        delay: 0.3 + index * 0.1,
-                        duration: 0.4,
-                        type: "spring",
-                        stiffness: 120,
-                        damping: 12
-                      }}
-                      className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
-                    >
+                    { value: todayStats.totalSets.toString(), label: t("home.seriesDone") },
+                    { value: todayStats.totalReps.toString(), label: t("home.totalReps") },
+                    { value: todayStats.totalMinutes.toString(), label: t("home.trainingMin") }];
+
+                  })().map((stat, index) =>
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{
+                      delay: 0.3 + index * 0.1,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 12
+                    }}
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+
                       <p className="text-xl sm:text-2xl font-black text-white/70">
                         {stat.value}
                       </p>
                       <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
                     </motion.div>
-                  ))}
+                  )}
                 </motion.div>
               </CarouselItem>
 
               {/* State 2: AI Suggestions */}
               <CarouselItem>
-                <motion.div 
+                <motion.div
                   className="grid grid-cols-3 gap-2 sm:gap-3"
                   animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                >
+                  transition={{ duration: 0.4, ease: "easeInOut" }}>
+
                   {/* Treino Sugerido - Clickable */}
                   <motion.button
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
+                    transition={{
                       delay: 0.3,
                       duration: 0.4,
                       type: "spring",
@@ -512,8 +512,8 @@ const Home = () => {
                     }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowExercises(true)}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4 text-left relative group touch-target"
-                  >
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4 text-left relative group touch-target">
+
                     <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.exercise}
@@ -526,15 +526,15 @@ const Home = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
+                    transition={{
                       delay: 0.4,
                       duration: 0.4,
                       type: "spring",
                       stiffness: 120,
                       damping: 12
                     }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
-                  >
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+
                     <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.focus}
@@ -546,15 +546,15 @@ const Home = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
+                    transition={{
                       delay: 0.5,
                       duration: 0.4,
                       type: "spring",
                       stiffness: 120,
                       damping: 12
                     }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
-                  >
+                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+
                     <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
                     <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
                       {aiSuggestions.recovery}
@@ -568,14 +568,14 @@ const Home = () => {
           
           {/* Carousel Indicators - Ultra minimal dots */}
           <div className="flex justify-center gap-1 mt-2">
-            <button 
+            <button
               onClick={() => carouselApi?.scrollTo(0)}
-              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 0 ? 'bg-white/50' : 'bg-white/15'}`} 
-            />
-            <button 
+              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 0 ? 'bg-white/50' : 'bg-white/15'}`} />
+
+            <button
               onClick={() => carouselApi?.scrollTo(1)}
-              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 1 ? 'bg-white/50' : 'bg-white/15'}`} 
-            />
+              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 1 ? 'bg-white/50' : 'bg-white/15'}`} />
+
           </div>
         </motion.div>
 
@@ -589,55 +589,55 @@ const Home = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <motion.h3 
+          transition={{ delay: 0.5 }}>
+
+          <motion.h3
             className="text-lg sm:text-xl font-bold text-white/70 mb-3 sm:mb-4"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.55 }}
-          >
+            transition={{ delay: 0.55 }}>
+
             {t("home.upcomingWorkouts")}
           </motion.h3>
           
           <div className="space-y-2 sm:space-y-3">
-            {weekSchedule
-              .filter(d => !d.isToday && d.workout && d.workout !== "Descanso")
-              .slice(0, 3)
-              .map((item, index) => (
-                <motion.div
-                  key={item.fullDay}
-                  initial={{ opacity: 0, x: -40, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ 
-                    delay: 0.6 + index * 0.1,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15
-                  }}
-                  whileHover={{ scale: 1.02, x: 5 }}
-                  className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4"
-                >
+            {weekSchedule.
+            filter((d) => !d.isToday && d.workout && d.workout !== "Descanso").
+            slice(0, 3).
+            map((item, index) =>
+            <motion.div
+              key={item.fullDay}
+              initial={{ opacity: 0, x: -40, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{
+                delay: 0.6 + index * 0.1,
+                duration: 0.4,
+                type: "spring",
+                stiffness: 100,
+                damping: 15
+              }}
+              whileHover={{ scale: 1.02, x: 5 }}
+              className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+
                   <div className="flex-1">
                     <p className="font-semibold text-white/70 text-sm sm:text-base">{item.workout}</p>
                     <p className="text-xs sm:text-sm text-gray-400/70">{item.fullDay}</p>
                   </div>
                 </motion.div>
-              ))}
+            )}
 
-            {weekSchedule.filter(d => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 && (
-              <motion.div 
-                className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-4 sm:p-6 text-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6, type: "spring" }}
-              >
+            {weekSchedule.filter((d) => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 &&
+            <motion.div
+              className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-4 sm:p-6 text-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, type: "spring" }}>
+
                 <p className="text-gray-400/70 text-sm sm:text-base">
                   Nenhum treino agendado para esta semana
                 </p>
               </motion.div>
-            )}
+            }
           </div>
         </motion.div>
       </main>
@@ -658,83 +658,83 @@ const Home = () => {
           
           <div className="overflow-y-auto h-[calc(100%-80px)] pb-6 -mx-2 px-2">
             {/* Progress indicator */}
-            {aiSuggestions.allExercises.length > 0 && (
-              <div className="mb-4 flex items-center justify-between text-sm">
+            {aiSuggestions.allExercises.length > 0 &&
+            <div className="mb-4 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t("home.progress")}</span>
                 <span className="font-semibold text-primary">
                   {completedExercises.size}/{aiSuggestions.allExercises.length}
                 </span>
               </div>
-            )}
+            }
             
             <div className="space-y-3">
-              {aiSuggestions.allExercises.length > 0 ? (
-                aiSuggestions.allExercises.map((exercise: Exercise, index: number) => {
-                  const isCompleted = completedExercises.has(exercise.name);
-                  return (
-                    <motion.button
-                      key={`${exercise.name}-${index}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      onClick={() => toggleExerciseComplete(exercise.name)}
-                      className={`flex items-center gap-4 rounded-2xl p-4 w-full text-left transition-all ${
-                        isCompleted 
-                          ? 'bg-primary/20 border border-primary/30' 
-                          : 'bg-secondary/50 hover:bg-secondary/70'
-                      }`}
-                    >
-                      <motion.div 
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
-                          isCompleted ? 'bg-primary' : 'bg-primary/20'
-                        }`}
-                        animate={{ scale: isCompleted ? [1, 1.2, 1] : 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {isCompleted ? (
-                          <Check className="h-5 w-5 text-primary-foreground" />
-                        ) : (
-                          <Dumbbell className="h-5 w-5 text-primary" />
-                        )}
+              {aiSuggestions.allExercises.length > 0 ?
+              aiSuggestions.allExercises.map((exercise: Exercise, index: number) => {
+                const isCompleted = completedExercises.has(exercise.name);
+                return (
+                  <motion.button
+                    key={`${exercise.name}-${index}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => toggleExerciseComplete(exercise.name)}
+                    className={`flex items-center gap-4 rounded-2xl p-4 w-full text-left transition-all ${
+                    isCompleted ?
+                    'bg-primary/20 border border-primary/30' :
+                    'bg-secondary/50 hover:bg-secondary/70'}`
+                    }>
+
+                      <motion.div
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                      isCompleted ? 'bg-primary' : 'bg-primary/20'}`
+                      }
+                      animate={{ scale: isCompleted ? [1, 1.2, 1] : 1 }}
+                      transition={{ duration: 0.3 }}>
+
+                        {isCompleted ?
+                      <Check className="h-5 w-5 text-primary-foreground" /> :
+
+                      <Dumbbell className="h-5 w-5 text-primary" />
+                      }
                       </motion.div>
                       <div className="flex-1">
                         <p className={`font-semibold transition-all ${
-                          isCompleted ? 'text-primary line-through' : 'text-foreground'
-                        }`}>
+                      isCompleted ? 'text-primary line-through' : 'text-foreground'}`
+                      }>
                           {exercise.name}
                         </p>
                         <p className={`text-sm flex items-center gap-1 ${
-                          isCompleted ? 'text-primary/60' : 'text-muted-foreground'
-                        }`}>
+                      isCompleted ? 'text-primary/60' : 'text-muted-foreground'}`
+                      }>
                           <Target className="h-3 w-3" />
                           {exercise.focus}
                         </p>
                       </div>
-                      {isCompleted && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="text-xs text-primary font-medium"
-                        >
+                      {isCompleted &&
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="text-xs text-primary font-medium">
+
                           ✓ Feito
                         </motion.div>
-                      )}
-                    </motion.button>
-                  );
-                })
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
+                    }
+                    </motion.button>);
+
+              }) :
+
+              <div className="text-center py-8 text-muted-foreground">
                   <p>Dia de descanso - aproveita para recuperar!</p>
                 </div>
-              )}
+              }
             </div>
           </div>
         </SheetContent>
       </Sheet>
 
       <BottomNav />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Home;
