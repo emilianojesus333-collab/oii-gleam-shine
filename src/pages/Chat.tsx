@@ -544,7 +544,7 @@ const Chat = () => {
           </motion.div>
         }
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-black">
           {/* Voice recording button with animations */}
           <motion.button
             onClick={async () => {
