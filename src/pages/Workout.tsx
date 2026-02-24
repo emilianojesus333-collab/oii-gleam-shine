@@ -333,7 +333,7 @@ const Workout = () => {
           transition={{ delay: 0.1 }}
           className="rounded-[20px] p-5 bg-[#111311]">
 
-            <span className="text-sm font-medium text-gray-400/70 mb-4 block">
+            <span className="text-sm font-medium mb-4 block text-destructive-foreground">
               {t("workout.trainingType")}
             </span>
             <div className="flex gap-2">
