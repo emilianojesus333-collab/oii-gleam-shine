@@ -199,7 +199,7 @@ const Nutrition = () => {
               <span className="text-xl">🥛</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Distribui a proteína</p>
-                <p className="text-xs text-gray-400">20-40g por refeição para melhor absorção</p>
+                <p className="text-xs text-gray-400">​20–40g por refeição melhora absorção e recuperação</p>
               </div>
             </motion.div>
           </div>
