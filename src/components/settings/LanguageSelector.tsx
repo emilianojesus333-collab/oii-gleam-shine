@@ -29,7 +29,7 @@ export const LanguageSelector = () => {
           className="w-full flex items-center justify-between">
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
               <Globe className="w-5 h-5 text-primary" />
             </div>
             <div className="text-left">

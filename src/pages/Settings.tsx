@@ -216,7 +216,7 @@ const Settings = () => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -359,7 +359,7 @@ const Settings = () => {
               className="w-full flex items-center justify-between py-2">
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
                   <Headphones className="w-5 h-5 text-primary" />
                 </div>
                 <span className="font-medium text-foreground">Suporte</span>
@@ -411,7 +411,7 @@ const Settings = () => {
           {/* Delete Account */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
                 <Trash2 className="w-5 h-5 text-destructive" />
               </div>
               <div>
