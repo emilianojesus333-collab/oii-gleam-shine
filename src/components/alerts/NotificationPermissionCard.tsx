@@ -27,7 +27,7 @@ export const NotificationPermissionCard = ({
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl p-4 border mb-4 bg-stone-950 border-stone-950">
+        className="rounded-xl p-4 border mb-4 border-stone-950 bg-[#111311]">
 
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">

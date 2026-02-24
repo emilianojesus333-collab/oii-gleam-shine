@@ -41,7 +41,7 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-2xl p-5 border border-indigo-500/20 bg-stone-950">
+      className="bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-2xl p-5 border border-indigo-500/20 bg-[#111311]">
 
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
