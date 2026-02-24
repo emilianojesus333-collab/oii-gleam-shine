@@ -283,7 +283,7 @@ const Home = () => {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top">
+        className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top flex items-start justify-between">
 
         <div className="flex items-center gap-2 sm:gap-3">
           <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
