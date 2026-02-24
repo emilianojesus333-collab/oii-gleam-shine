@@ -156,7 +156,7 @@ const Nutrition = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8">
+              className="text-center py-8 bg-black">
 
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
