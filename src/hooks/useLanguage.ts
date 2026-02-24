@@ -153,7 +153,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Chat
     "chat.hello": "Olá! Sou o",
-    "chat.askMe": "Pergunta-me sobre treinos, nutrição, recuperação ou o teu progresso!",
+    "chat.askMe": "Treino, nutrição, estratégia e mais.",
     "chat.suggestWorkout": "Sugere treino",
     "chat.recovery": "Recuperação",
     "chat.substitute": "Substituir",
