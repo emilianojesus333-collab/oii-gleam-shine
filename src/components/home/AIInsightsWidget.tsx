@@ -99,7 +99,7 @@ export const AIInsightsWidget = () => {
 
           <div className="flex items-center gap-2 mb-2">
             <Brain className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-secondary-foreground">Coaching</span>
+            <span className="text-xs text-black">Coaching</span>
           </div>
           {topTip ?
           <>
