@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -17,47 +17,43 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Check if user is already logged in and redirect based on onboarding status
+  // Only auto-redirect if NOT coming from a logout action
   useEffect(() => {
-    const checkSessionAndOnboarding = async (session: any) => {
-      if (!session) return;
-      
-      // Check onboarding status from database
-      const { data: settings } = await supabase
-        .from("user_settings")
-        .select("has_completed_onboarding")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-      
-      if (settings?.has_completed_onboarding) {
-        // User completed onboarding, go to home
-        navigate("/home", { replace: true });
-      } else {
-        // New user or hasn't completed onboarding, go to onboarding
-        navigate("/onboarding", { replace: true });
-      }
-    };
+    const fromLogout = searchParams.get("logout") === "1";
+    if (fromLogout) return; // Don't auto-redirect after logout
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        checkSessionAndOnboarding(session);
+        redirectBasedOnOnboarding(session);
       }
     };
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        // Use setTimeout to avoid Supabase deadlock
-        setTimeout(() => {
-          checkSessionAndOnboarding(session);
-        }, 0);
+      if (event === 'SIGNED_IN' && session) {
+        setTimeout(() => redirectBasedOnOnboarding(session), 0);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, searchParams]);
+
+  const redirectBasedOnOnboarding = async (session: any) => {
+    const { data: settings } = await supabase
+      .from("user_settings")
+      .select("has_completed_onboarding")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (settings?.has_completed_onboarding) {
+      navigate("/home", { replace: true });
+    } else {
+      navigate("/onboarding", { replace: true });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,43 +61,33 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        // LOGIN: User already has account, check onboarding status
-        const { data: authData, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        
-        // Check if user completed onboarding
+
         const { data: settings } = await supabase
           .from("user_settings")
           .select("has_completed_onboarding")
           .eq("user_id", authData.user.id)
           .maybeSingle();
-        
+
         toast.success(t("auth.loginSuccess"));
-        
+
         if (settings?.has_completed_onboarding) {
           navigate("/home", { replace: true });
         } else {
-          // Existing user without onboarding (edge case)
           navigate("/onboarding", { replace: true });
         }
       } else {
-        // SIGNUP: New user, always go to onboarding
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: {
-              name,
-            },
+            data: { name },
             emailRedirectTo: `${window.location.origin}/auth`,
           },
         });
         if (error) throw error;
         toast.success(t("auth.accountCreated"));
-        // New users MUST go through onboarding
         navigate("/onboarding", { replace: true });
       }
     } catch (error: any) {
@@ -117,7 +103,6 @@ const Auth = () => {
     }
   };
 
-
   const handleBackToMain = () => {
     setShowEmailForm(false);
     setEmail("");
@@ -127,17 +112,14 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${gymBackground})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col justify-between px-6 py-12">
-        {/* Top Section - Title */}
         <div className="flex-1 flex flex-col justify-center items-center text-center">
           <motion.h1
             initial={{ y: 30, opacity: 0 }}
@@ -149,7 +131,7 @@ const Auth = () => {
             <br />
             <span className="text-primary">LiftMate</span>
           </motion.h1>
-          
+
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -160,7 +142,6 @@ const Auth = () => {
           </motion.p>
         </div>
 
-        {/* Bottom Section - Buttons */}
         <motion.div
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -169,32 +150,22 @@ const Auth = () => {
         >
           {!showEmailForm ? (
             <>
-              {/* Sign Up Button */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setIsLogin(false);
-                  setShowEmailForm(true);
-                }}
+                onClick={() => { setIsLogin(false); setShowEmailForm(true); }}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-semibold transition-colors"
               >
                 {t("auth.createAccount")}
               </motion.button>
-
-              {/* Login Button */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setIsLogin(true);
-                  setShowEmailForm(true);
-                }}
+                onClick={() => { setIsLogin(true); setShowEmailForm(true); }}
                 className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-white py-4 rounded-xl font-semibold transition-colors"
               >
                 {t("auth.login")}
               </motion.button>
             </>
           ) : (
-            /* Email Form */
             <motion.form
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -202,47 +173,41 @@ const Auth = () => {
               className="space-y-4"
             >
               {!isLogin && (
-                <div>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={t("auth.yourName")}
-                      className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t("auth.email")}
-                    required
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t("auth.yourName")}
                     className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   />
                 </div>
+              )}
+
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("auth.email")}
+                  required
+                  className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                />
               </div>
 
-              <div>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                  <PasswordInput
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t("auth.password")}
-                    required
-                    minLength={6}
-                    className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-12 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all h-auto"
-                    iconClassName="text-gray-400 hover:text-white"
-                  />
-                </div>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t("auth.password")}
+                  required
+                  minLength={6}
+                  className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-12 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all h-auto"
+                  iconClassName="text-gray-400 hover:text-white"
+                />
               </div>
 
               <motion.button
@@ -251,21 +216,20 @@ const Auth = () => {
                 disabled={loading}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-semibold transition-colors disabled:opacity-50"
               >
-              {loading ? (
+                {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
                 ) : (
                   isLogin ? t("auth.login") : t("auth.createAccount")
                 )}
               </motion.button>
 
-              {/* Toggle & Back */}
               <div className="flex flex-col items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
-                {isLogin ? (
+                  {isLogin ? (
                     <>{t("auth.noAccount")} <span className="text-primary font-medium">{t("auth.createAccount")}</span></>
                   ) : (
                     <>{t("auth.hasAccount")} <span className="text-primary font-medium">{t("auth.login")}</span></>
@@ -282,15 +246,10 @@ const Auth = () => {
             </motion.form>
           )}
 
-          {/* Legal Links */}
           <div className="flex justify-center gap-4 pt-4 text-xs text-gray-400">
-            <a href="/terms" className="hover:text-white transition-colors">
-              {t("auth.termsOfUse")}
-            </a>
+            <a href="/terms" className="hover:text-white transition-colors">{t("auth.termsOfUse")}</a>
             <span>•</span>
-            <a href="/privacy" className="hover:text-white transition-colors">
-              {t("auth.privacyPolicy")}
-            </a>
+            <a href="/privacy" className="hover:text-white transition-colors">{t("auth.privacyPolicy")}</a>
           </div>
         </motion.div>
       </div>

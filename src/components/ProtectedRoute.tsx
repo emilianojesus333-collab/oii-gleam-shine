@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,17 +14,8 @@ const ProtectedRoute = ({
   requireOnboarding = false 
 }: ProtectedRouteProps) => {
   const { isAuthenticated, hasCompletedOnboarding, isLoading } = useOnboardingStatus();
-  
-  // Only check subscription when authenticated
-  const { 
-    isLoading: subscriptionLoading, 
-    shouldShowPaywall, 
-    isSubscriptionValid,
-    status: subscriptionStatus,
-    isTrialing
-  } = useSubscription(isAuthenticated);
+  const { isLoading: subscriptionLoading, shouldShowPaywall, isSubscriptionValid, isTrialing } = useSubscriptionContext();
 
-  // Show loading while checking auth or onboarding status
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -33,19 +24,15 @@ const ProtectedRoute = ({
     );
   }
 
-  // Redirect to auth if not logged in
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if onboarding is required and not completed
   if (requireOnboarding && !hasCompletedOnboarding) {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // If subscription is required, check subscription status
   if (requireSubscription) {
-    // Show loading while checking subscription
     if (subscriptionLoading) {
       return (
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -54,32 +41,13 @@ const ProtectedRoute = ({
       );
     }
 
-    // Check onboarding for subscription routes (from database)
     if (!hasCompletedOnboarding) {
       return <Navigate to="/onboarding" replace />;
     }
 
-    // CRITICAL: Use the updated shouldShowPaywall which handles trialing correctly
-    // The function now checks: status, isTrialing, and only returns true for never_subscribed/expired
-    const needsPaywall = shouldShowPaywall();
-    const hasValidSubscription = isSubscriptionValid();
-    
-    console.log("[ProtectedRoute] Subscription check:", {
-      status: subscriptionStatus,
-      isTrialing,
-      needsPaywall,
-      hasValidSubscription
-    });
-
-    // Only redirect to paywall if:
-    // 1. shouldShowPaywall returns true (status is never_subscribed or expired AND not trialing)
-    // 2. AND subscription is not valid
-    if (needsPaywall && !hasValidSubscription) {
-      console.log("[ProtectedRoute] Redirecting to paywall");
+    if (shouldShowPaywall() && !isSubscriptionValid()) {
       return <Navigate to="/paywall" replace />;
     }
-    
-    console.log("[ProtectedRoute] Access granted - subscription valid or trialing");
   }
 
   return <>{children}</>;
