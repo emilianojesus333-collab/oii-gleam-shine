@@ -92,7 +92,7 @@ export const AIInsightsWidget = () => {
         {/* Coaching Tip Card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')} className="bg-[#0d0d11] text-[#1b1b1d] px-[16px] py-[16px] border rounded-2xl text-center">
+          onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center bg-[#ff0037] text-primary-foreground">
 
 
 
