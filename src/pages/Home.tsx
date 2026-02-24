@@ -404,7 +404,7 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.4 }}
             className="text-center">
 
-            <p className="text-2xl sm:text-4xl font-black text-white/70">
+            <p className="text-2xl sm:text-4xl font-black text-destructive-foreground">
               {todayWorkout || t("home.rest")}
             </p>
             <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
@@ -483,7 +483,7 @@ const Home = () => {
                     }}
                     className="rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
 
-                      <p className="text-xl sm:text-2xl font-black text-white/70">
+                      <p className="text-xl sm:text-2xl font-black text-destructive-foreground">
                         {stat.value}
                       </p>
                       <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
@@ -620,7 +620,7 @@ const Home = () => {
               className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
 
                   <div className="flex-1">
-                    <p className="font-semibold text-white/70 text-sm sm:text-base">{item.workout}</p>
+                    <p className="font-semibold text-sm sm:text-base text-destructive-foreground">{item.workout}</p>
                     <p className="text-xs sm:text-sm text-gray-400/70">{item.fullDay}</p>
                   </div>
                 </motion.div>
