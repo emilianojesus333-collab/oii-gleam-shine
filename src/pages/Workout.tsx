@@ -325,13 +325,13 @@ const Workout = () => {
           </p>
         </motion.div> :
 
-      <div className="px-5 space-y-5 bg-stone-950">
+      <div className="px-5 space-y-5 bg-black">
           {/* Training Type Selector */}
           <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-[20px] p-5 bg-stone-900">
+          className="rounded-[20px] p-5 bg-[#111311]">
 
             <span className="text-sm font-medium text-gray-400/70 mb-4 block">
               {t("workout.trainingType")}
@@ -433,7 +433,7 @@ const Workout = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-[20px] p-5 bg-stone-950">
+          className="rounded-[20px] p-5 bg-[#111311]">
 
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-gray-400/70">{t("workout.restCalculation")}</span>
@@ -501,7 +501,7 @@ const Workout = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20">
+          className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20 bg-[#111311]">
 
             <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
               {t("workout.restTimer")}
