@@ -48,7 +48,7 @@ export const AIInsightsWidget = () => {
           const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const evalDay = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
           const daysSinceEval = Math.floor((today.getTime() - evalDay.getTime()) / (1000 * 60 * 60 * 24));
-
+          
           if (daysSinceEval > 0 && daysSinceEval < EVALUATION_COOLDOWN_DAYS) {
             setCanEvaluate(false);
             setDaysUntilEval(EVALUATION_COOLDOWN_DAYS - daysSinceEval);
@@ -57,7 +57,7 @@ export const AIInsightsWidget = () => {
             setDaysUntilEval(null);
           }
         }
-
+        
         if (data.lastResults?.analysis?.overallScore) {
           setLastScore(data.lastResults.analysis.overallScore);
         }
@@ -69,10 +69,10 @@ export const AIInsightsWidget = () => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'treino':return 'from-blue-500/20 to-blue-500/5 border-blue-500/30';
-      case 'nutrição':return 'from-green-500/20 to-green-500/5 border-green-500/30';
-      case 'recuperação':return 'from-purple-500/20 to-purple-500/5 border-purple-500/30';
-      default:return 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30';
+      case 'treino': return 'from-blue-500/20 to-blue-500/5 border-blue-500/30';
+      case 'nutrição': return 'from-green-500/20 to-green-500/5 border-green-500/30';
+      case 'recuperação': return 'from-purple-500/20 to-purple-500/5 border-purple-500/30';
+      default: return 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30';
     }
   };
 
@@ -81,8 +81,8 @@ export const AIInsightsWidget = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45 }}
-      className="space-y-3">
-
+      className="space-y-3"
+    >
       <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-primary" />
         Insights IA
@@ -92,34 +92,34 @@ export const AIInsightsWidget = () => {
         {/* Coaching Tip Card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center bg-[#ff0037] text-primary-foreground">
-
-
-
-
+          onClick={() => navigate('/settings')}
+          className={`rounded-2xl p-4 text-left bg-gradient-to-br ${
+            topTip ? getCategoryColor(topTip.category) : 'from-blue-500/20 to-blue-500/5 border-blue-500/30'
+          } border`}
+        >
           <div className="flex items-center gap-2 mb-2">
             <Brain className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-black">Coaching</span>
+            <span className="text-xs text-white/50">Coaching</span>
           </div>
-          {topTip ?
-          <>
+          {topTip ? (
+            <>
               <p className="text-sm font-semibold text-white/80 line-clamp-2 mb-1">
                 {topTip.title}
               </p>
               <p className="text-xs text-white/50 line-clamp-2">
                 {topTip.message}
               </p>
-            </> :
-
-          <>
-              <p className="text-sm font-semibold mb-1 text-black">
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-white/80 mb-1">
                 Dicas Personalizadas
               </p>
-              <p className="text-xs text-secondary-foreground">
+              <p className="text-xs text-white/50">
                 Toca para gerar
               </p>
             </>
-          }
+          )}
           <ChevronRight className="w-4 h-4 text-white/30 absolute right-3 top-1/2 -translate-y-1/2" />
         </motion.button>
 
@@ -127,15 +127,15 @@ export const AIInsightsWidget = () => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/settings')}
-          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] bg-[#0d0d11] border-purple-500">
-
+          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border border-purple-500/30 relative overflow-hidden"
+        >
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-purple-400" />
             <span className="text-xs text-white/50">Avaliação</span>
           </div>
           
-          {canEvaluate ?
-          <>
+          {canEvaluate ? (
+            <>
               <p className="text-sm font-semibold text-white/80 mb-1">
                 {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
               </p>
@@ -148,9 +148,9 @@ export const AIInsightsWidget = () => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
               </div>
-            </> :
-
-          <>
+            </>
+          ) : (
+            <>
               <div className="flex items-center gap-1.5 mb-1">
                 <Lock className="w-3 h-3 text-orange-400" />
                 <p className="text-sm font-semibold text-white/80">
@@ -161,15 +161,15 @@ export const AIInsightsWidget = () => {
                 <Calendar className="w-3 h-3" />
                 <span>Em {daysUntilEval} dias</span>
               </div>
-              {lastScore &&
-            <p className="text-xs text-purple-400/70 mt-1">
+              {lastScore && (
+                <p className="text-xs text-purple-400/70 mt-1">
                   Score: {lastScore.toFixed(1)}/10
                 </p>
-            }
+              )}
             </>
-          }
+          )}
         </motion.button>
       </div>
-    </motion.div>);
-
+    </motion.div>
+  );
 };
