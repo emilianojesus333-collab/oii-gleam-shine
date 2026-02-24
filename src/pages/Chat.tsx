@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, MicOff, Volume2, MessageCircle, AudioLines, Activity } from "lucide-react";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, MicOff, Volume2, MessageCircle, AudioLines, Activity, Dumbbell } from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
