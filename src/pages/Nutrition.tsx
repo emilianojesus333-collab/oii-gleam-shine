@@ -97,7 +97,7 @@ const Nutrition = () => {
 
 
         {/* Carousel: Planos & Receitas */}
-        <NutritionCarousel title="Planos e Receitas">
+        <NutritionCarousel title={t("nutrition.plansAndRecipes")}>
           <MealPlansView
             currentGoal={profile.goal}
             onApplyPlan={(plan: MealPlan) => {
@@ -148,7 +148,7 @@ const Nutrition = () => {
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
-            Refeições de Hoje
+            {t("nutrition.todayMeals")}
           </h3>
           
           <AnimatePresence>
@@ -159,7 +159,7 @@ const Nutrition = () => {
               className="text-center py-8 bg-black">
 
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-300">Nenhuma refeição registada hoje.</p>
+                <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
                 <p className="text-xs text-gray-400">{t("nutrition.useScannerHint")}</p>
               </motion.div> :
 
@@ -177,7 +177,7 @@ const Nutrition = () => {
 
         {/* Tips section */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-white">Dicas de Nutrição</h3>
+          <h3 className="font-semibold text-white">​Insights De Hoje  </h3>
           <div className="grid gap-3">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
