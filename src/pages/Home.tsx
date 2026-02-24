@@ -483,7 +483,7 @@ const Home = () => {
                     }}
                     className="rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
 
-                      <p className="text-xl sm:text-2xl font-black text-destructive-foreground">
+                      <p className="text-xl sm:text-2xl font-black text-[#b5c2d4]">
                         {stat.value}
                       </p>
                       <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
@@ -620,7 +620,7 @@ const Home = () => {
               className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
 
                   <div className="flex-1">
-                    <p className="font-semibold text-sm sm:text-base text-destructive-foreground">{item.workout}</p>
+                    <p className="font-semibold text-sm sm:text-base text-[#b5c2d4]">{item.workout}</p>
                     <p className="text-xs sm:text-sm text-gray-400/70">{item.fullDay}</p>
                   </div>
                 </motion.div>
