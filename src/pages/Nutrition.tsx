@@ -119,7 +119,7 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center bg-stone-950 border-stone-950">
+            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-stone-950 bg-[#111311]">
 
             <p className="text-2xl font-black text-[#a51d1d]">{Math.round(remaining.protein)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
@@ -182,7 +182,7 @@ const Nutrition = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-stone-950">
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
 
               <span className="text-xl">💪</span>
               <div className="flex-1">
@@ -194,7 +194,7 @@ const Nutrition = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-stone-950">
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
 
               <span className="text-xl">🥛</span>
               <div className="flex-1">

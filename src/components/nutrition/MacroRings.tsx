@@ -98,7 +98,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
               key={key}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-3 rounded-xl border border-border/50 bg-stone-950">
+              className="p-3 rounded-xl border border-border/50 bg-[#111311]">
 
               <div className="flex items-center gap-2 mb-2">
                 <div
