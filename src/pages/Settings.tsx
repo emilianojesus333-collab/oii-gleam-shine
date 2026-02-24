@@ -212,7 +212,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-gray-950">
+          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -240,7 +240,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-gray-950">
+          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
 
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-gray-950">
+          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
 
           <div className="space-y-3">
             <button
@@ -374,7 +374,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-[20px] p-4 border border-border/30 space-y-4 bg-gray-950">
+          className="rounded-[20px] p-4 border border-border/30 space-y-4 bg-[#111311]">
 
           {/* Logout */}
           <div className="flex items-center justify-between">
