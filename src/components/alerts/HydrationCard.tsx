@@ -9,8 +9,8 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+  DrawerTrigger } from
+'@/components/ui/drawer';
 import { Slider } from '@/components/ui/slider';
 
 interface HydrationCardProps {
@@ -21,16 +21,16 @@ interface HydrationCardProps {
 
 export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const percentage = Math.min((settings.currentIntake / settings.dailyGoalLiters) * 100, 100);
-  
+  const percentage = Math.min(settings.currentIntake / settings.dailyGoalLiters * 100, 100);
+
   const waterLevels = [0.25, 0.5, 0.75, 1];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl p-5 border border-blue-500/20"
-    >
+      className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl p-5 border border-blue-500/20 bg-[#1b1b1d]">
+
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
@@ -60,8 +60,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                   <span className="font-medium">Ativar lembretes</span>
                   <Switch
                     checked={settings.enabled}
-                    onCheckedChange={(enabled) => onUpdate({ enabled })}
-                  />
+                    onCheckedChange={(enabled) => onUpdate({ enabled })} />
+
                 </div>
                 
                 <div className="space-y-3">
@@ -74,8 +74,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                     onValueChange={([v]) => onUpdate({ intervalMinutes: v })}
                     min={15}
                     max={60}
-                    step={5}
-                  />
+                    step={5} />
+
                 </div>
                 
                 <div className="space-y-3">
@@ -88,8 +88,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                     onValueChange={([v]) => onUpdate({ dailyGoalLiters: v })}
                     min={1}
                     max={5}
-                    step={0.5}
-                  />
+                    step={0.5} />
+
                 </div>
               </div>
             </DrawerContent>
@@ -97,8 +97,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
           
           <Switch
             checked={settings.enabled}
-            onCheckedChange={(enabled) => onUpdate({ enabled })}
-          />
+            onCheckedChange={(enabled) => onUpdate({ enabled })} />
+
         </div>
       </div>
 
@@ -113,8 +113,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
               stroke="currentColor"
               strokeWidth="8"
               fill="none"
-              className="text-blue-500/20"
-            />
+              className="text-blue-500/20" />
+
             <motion.circle
               cx="48"
               cy="48"
@@ -126,8 +126,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
               className="text-blue-400"
               initial={{ strokeDasharray: '0 264' }}
               animate={{ strokeDasharray: `${percentage * 2.64} 264` }}
-              transition={{ duration: 0.5 }}
-            />
+              transition={{ duration: 0.5 }} />
+
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-lg font-bold text-white">
@@ -140,33 +140,33 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
         </div>
 
         <div className="flex-1 grid grid-cols-2 gap-2">
-          {waterLevels.map((amount) => (
-            <motion.button
-              key={amount}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onAddWater(amount)}
-              className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-colors border border-blue-500/20"
-            >
+          {waterLevels.map((amount) =>
+          <motion.button
+            key={amount}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onAddWater(amount)}
+            className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-colors border border-blue-500/20">
+
               <Plus className="w-3 h-3 text-blue-400" />
               <span className="text-sm font-medium text-blue-400">{amount}L</span>
             </motion.button>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Quick reset */}
-      {settings.currentIntake > 0 && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onUpdate({ currentIntake: Math.max(0, settings.currentIntake - 0.25) })}
-          className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-        >
+      {settings.currentIntake > 0 &&
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => onUpdate({ currentIntake: Math.max(0, settings.currentIntake - 0.25) })}
+        className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+
           <Minus className="w-4 h-4" />
           Remover 0.25L
         </motion.button>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 };
