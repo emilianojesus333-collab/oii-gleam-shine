@@ -22,7 +22,7 @@ export const LanguageSelector = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-[20px] p-4 border border-border/30 bg-black">
+        className="rounded-[20px] p-4 border border-border/30 bg-gray-950">
 
         <button
           onClick={() => setIsOpen(true)}

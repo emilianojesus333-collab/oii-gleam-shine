@@ -206,7 +206,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild className="bg-black">
+      <DrawerTrigger asChild className="bg-gray-950 hover:bg-gray-800">
         <motion.button
           whileTap={{ scale: 0.98 }}
           className="w-full bg-card border border-border/30 rounded-[20px] p-5 flex items-center gap-4">

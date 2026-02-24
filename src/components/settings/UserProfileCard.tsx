@@ -82,7 +82,7 @@ export const UserProfileCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[20px] p-5 border border-border/30 bg-black">
+      className="rounded-[20px] p-5 border border-border/30 bg-gray-950">
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
