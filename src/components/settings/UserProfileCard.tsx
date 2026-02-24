@@ -84,7 +84,7 @@ export const UserProfileCard = () => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-[20px] p-5 border border-border/30 bg-[#111311]">
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
             <span className="text-xl font-bold text-white">
@@ -199,10 +199,10 @@ export const UserProfileCard = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="grid grid-cols-3 gap-3">
+          className="grid grid-cols-3 gap-3 px-0 py-0 my-0 mx-0">
 
             {userData.height &&
-          <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
+          <div className="flex-col p-3 bg-muted/20 gap-0 flex items-center justify-center rounded-2xl">
                 <Ruler className="w-4 h-4 text-primary mb-1" />
                 <span className="text-sm font-semibold text-foreground">{userData.height}</span>
                 <span className="text-xs text-muted-foreground">cm</span>
