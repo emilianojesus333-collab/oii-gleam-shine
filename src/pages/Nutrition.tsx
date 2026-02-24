@@ -184,7 +184,7 @@ const Nutrition = () => {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
 
-              <span className="text-xl">💪</span>
+              <span className="text-xl">​🏋️</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Pós-treino</p>
                 <p className="text-xs text-gray-400">​Consumir 30g de proteína nas próximas 2h melhora recuperação.</p>
