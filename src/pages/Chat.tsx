@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Dumbbell, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, Mic, MicOff, Volume2, MessageCircle } from "lucide-react";
+import { Send, ArrowLeft, Menu, Plus, MoreHorizontal, Heart, RefreshCw, TrendingUp as Progress, Utensils, Moon, Loader2, MicOff, Volume2, MessageCircle, AudioLines, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -383,7 +383,7 @@ const Chat = () => {
           {messages.length === 0 &&
           <div className="flex flex-col items-center justify-center py-12 text-center bg-black">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
-                <Dumbbell className="h-8 w-8 text-white/40" />
+                <Activity className="h-8 w-8 text-white" />
               </div>
               <h2 className="mb-2 text-lg font-medium text-white">{t("chat.hello")} {aiName}</h2>
               <p className="max-w-xs text-sm text-white/60">
@@ -578,7 +578,7 @@ const Chat = () => {
                 <MicOff className="h-5 w-5" />
               </motion.div> :
 
-            <Mic className="h-5 w-5 text-[#32fa05]" />
+            <AudioLines className="h-5 w-5 text-[#32fa05]" />
             }
           </motion.button>
           
