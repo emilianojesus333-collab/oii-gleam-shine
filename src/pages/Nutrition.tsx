@@ -196,7 +196,7 @@ const Nutrition = () => {
               transition={{ delay: 0.1 }}
               className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
 
-              <span className="text-xl">🥛</span>
+              <span className="text-xl">​🍽️</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Distribui a proteína</p>
                 <p className="text-xs text-gray-400">​20–40g por refeição melhora absorção e recuperação</p>
