@@ -38,7 +38,7 @@ export const RecipesView = () => {
           whileTap={{ scale: 0.98 }}
           className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
 
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse py-[11px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse py-[11px] mx-[2px] my-[3px] px-[9px]" />
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
