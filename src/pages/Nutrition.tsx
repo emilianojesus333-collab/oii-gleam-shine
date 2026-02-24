@@ -121,7 +121,7 @@ const Nutrition = () => {
             transition={{ delay: 0.1 }}
             className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
-            <p className="text-2xl font-black text-rose-400">{Math.round(remaining.protein)}g</p>
+            <p className="text-2xl font-black text-white">{Math.round(remaining.protein)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
           </motion.div>
           <motion.div
@@ -130,7 +130,7 @@ const Nutrition = () => {
             transition={{ delay: 0.15 }}
             className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
-            <p className="text-2xl font-black text-amber-400">{Math.round(remaining.carbs)}g</p>
+            <p className="text-2xl font-black text-white">{Math.round(remaining.carbs)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.carbs")}</p>
           </motion.div>
           <motion.div
@@ -139,7 +139,7 @@ const Nutrition = () => {
             transition={{ delay: 0.2 }}
             className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
-            <p className="text-2xl font-black text-sky-400">{Math.round(remaining.fat)}g</p>
+            <p className="text-2xl font-black text-white">{Math.round(remaining.fat)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.fat")}</p>
           </motion.div>
         </div>
