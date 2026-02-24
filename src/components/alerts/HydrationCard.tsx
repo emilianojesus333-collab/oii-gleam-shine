@@ -29,7 +29,7 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl p-5 border bg-[#0d0d11] border-[#0d0d11]">
+      className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl p-5 border border-[#0d0d11] bg-stone-900">
 
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
