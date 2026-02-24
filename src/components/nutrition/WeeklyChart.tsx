@@ -14,14 +14,14 @@ interface WeeklyChartProps {
 }
 
 export const WeeklyChart = ({ data }: WeeklyChartProps) => {
-  const maxValue = Math.max(...data.map(d => Math.max(d.calories, d.goalCalories))) * 1.1;
+  const maxValue = Math.max(...data.map((d) => Math.max(d.calories, d.goalCalories))) * 1.1;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-2xl bg-white/5 border border-white/10"
-    >
+      className="p-4 rounded-2xl border border-white/10 bg-stone-900">
+
       <h3 className="font-semibold mb-4 text-white">Últimos 7 dias</h3>
       
       <div className="h-40">
@@ -33,30 +33,30 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
                 <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <XAxis 
-              dataKey="dayName" 
+            <XAxis
+              dataKey="dayName"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-            />
-            <YAxis 
-              hide 
-              domain={[0, maxValue]}
-            />
-            <ReferenceLine 
-              y={data[0]?.goalCalories} 
-              stroke="hsl(var(--muted-foreground))" 
+              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+
+            <YAxis
+              hide
+              domain={[0, maxValue]} />
+
+            <ReferenceLine
+              y={data[0]?.goalCalories}
+              stroke="hsl(var(--muted-foreground))"
               strokeDasharray="3 3"
-              strokeOpacity={0.5}
-            />
+              strokeOpacity={0.5} />
+
             <Area
               type="monotone"
               dataKey="calories"
               stroke="hsl(var(--primary))"
               strokeWidth={2}
               fill="url(#colorCalories)"
-              dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 4 }}
-            />
+              dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 4 }} />
+
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -72,6 +72,6 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
           <span>Meta</span>
         </div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };

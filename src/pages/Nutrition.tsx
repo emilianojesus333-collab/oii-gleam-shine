@@ -182,7 +182,7 @@ const Nutrition = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-stone-950">
 
               <span className="text-xl">💪</span>
               <div className="flex-1">
@@ -194,7 +194,7 @@ const Nutrition = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-stone-950">
 
               <span className="text-xl">🥛</span>
               <div className="flex-1">
