@@ -381,7 +381,7 @@ const Chat = () => {
       <div className="flex-1 overflow-y-auto px-4 py-6 bg-black">
         <div className="flex flex-col gap-4">
           {messages.length === 0 &&
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center bg-black">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
                 <Dumbbell className="h-8 w-8 text-white/40" />
               </div>
@@ -578,7 +578,7 @@ const Chat = () => {
                 <MicOff className="h-5 w-5" />
               </motion.div> :
 
-            <Mic className="h-5 w-5" />
+            <Mic className="h-5 w-5 text-white" />
             }
           </motion.button>
           
