@@ -31,7 +31,7 @@ const Nutrition = () => {
     addMeal,
     removeMeal,
     updateProfile,
-    setCustomGoals,
+    setCustomGoals
   } = useNutrition();
 
   // Group meals by type
@@ -53,8 +53,8 @@ const Nutrition = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 px-6 pt-12 pb-4"
-      >
+        className="relative z-10 px-6 pt-12 pb-4">
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/20 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -75,14 +75,14 @@ const Nutrition = () => {
               monthlyData={monthlyData}
               weeklyStats={weeklyStats}
               goals={goals}
-              achievements={achievements}
-            />
+              achievements={achievements} />
+
             <ProfileSetup
               profile={profile}
               goals={goals}
               onUpdateProfile={updateProfile}
-              onSetGoals={setCustomGoals}
-            />
+              onSetGoals={setCustomGoals} />
+
           </div>
         </div>
       </motion.div>
@@ -93,19 +93,19 @@ const Nutrition = () => {
         <MacroRings
           goals={goals}
           consumed={todayLog.totals}
-          progress={progress}
-        />
+          progress={progress} />
+
 
         {/* Carousel: Planos & Receitas */}
         <NutritionCarousel title={t("nutrition.plansAndRecipes")}>
-          <MealPlansView 
-            currentGoal={profile.goal} 
+          <MealPlansView
+            currentGoal={profile.goal}
             onApplyPlan={(plan: MealPlan) => {
               const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
               updateProfile({ goal: plan.goal });
               setCustomGoals({ calories: avgCalories });
-            }}
-          />
+            }} />
+
           <RecipesView />
           <FavoritesView />
         </NutritionCarousel>
@@ -115,30 +115,30 @@ const Nutrition = () => {
 
         {/* Quick stats */}
         <div className="grid grid-cols-3 gap-3">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border border-rose-500/30 p-4 text-center"
-          >
+            className="rounded-2xl bg-[#1C1C1E] border p-4 text-center">
+
             <p className="text-2xl font-black text-rose-400">{Math.round(remaining.protein)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/30 p-4 text-center"
-          >
+            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/30 p-4 text-center">
+
             <p className="text-2xl font-black text-amber-400">{Math.round(remaining.carbs)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.carbs")}</p>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border border-sky-500/30 p-4 text-center"
-          >
+            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border border-sky-500/30 p-4 text-center">
+
             <p className="text-2xl font-black text-sky-400">{Math.round(remaining.fat)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.fat")}</p>
           </motion.div>
@@ -152,23 +152,23 @@ const Nutrition = () => {
           </h3>
           
           <AnimatePresence>
-            {todayLog.meals.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-8"
-              >
+            {todayLog.meals.length === 0 ?
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-8">
+
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
                 <p className="text-xs text-gray-400">{t("nutrition.useScannerHint")}</p>
-              </motion.div>
-            ) : (
-              <div className="space-y-3">
-                {todayLog.meals.map((meal) => (
-                  <MealCard key={meal.id} meal={meal} onRemove={removeMeal} />
-                ))}
+              </motion.div> :
+
+            <div className="space-y-3">
+                {todayLog.meals.map((meal) =>
+              <MealCard key={meal.id} meal={meal} onRemove={removeMeal} />
+              )}
               </div>
-            )}
+            }
           </AnimatePresence>
         </div>
 
@@ -179,23 +179,23 @@ const Nutrition = () => {
         <div className="space-y-3">
           <h3 className="font-semibold text-white">Dicas de Nutrição</h3>
           <div className="grid gap-3">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10"
-            >
+              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+
               <span className="text-xl">💪</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Pós-treino</p>
                 <p className="text-xs text-gray-400">Consome proteína e hidratos até 2h após o treino</p>
               </div>
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10"
-            >
+              className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+
               <span className="text-xl">🥛</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Distribui a proteína</p>
@@ -207,8 +207,8 @@ const Nutrition = () => {
       </div>
 
       <BottomNav />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Nutrition;
