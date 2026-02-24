@@ -175,9 +175,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen pb-32 bg-black">
       {/* Header */}
-      <div className="px-5 pt-12 pb-6">
+      <div className="px-5 pt-12 pb-6 bg-black">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
