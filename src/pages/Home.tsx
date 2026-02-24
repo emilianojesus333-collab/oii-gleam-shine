@@ -286,7 +286,7 @@ const Home = () => {
         className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top">
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <h1 className="text-xl sm:text-2xl font-black text-white/70">LiftMate</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-secondary-foreground">LiftMate</h1>
           <SubscriptionBadge variant="compact" />
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
