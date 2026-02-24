@@ -16,8 +16,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenuSeparator } from
+"@/components/ui/dropdown-menu";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface CompletedExercisesData {
@@ -34,13 +34,13 @@ const Chat = () => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  
+
   // Continuous conversation mode - user specific
   const [continuousMode, setContinuousMode] = useState(false);
-  
+
   // Load user-specific continuous mode setting
   useEffect(() => {
     if (user?.id) {
@@ -57,7 +57,7 @@ const Chat = () => {
     getCurrentConversation,
     loadConversation,
     deleteConversation,
-    clearCurrentConversation,
+    clearCurrentConversation
   } = useChatHistory();
 
   const {
@@ -68,7 +68,7 @@ const Chat = () => {
     stopRecording,
     cancelRecording,
     speakText,
-    stopSpeaking,
+    stopSpeaking
   } = useVoiceChat();
 
   // Load AI name from useUserSettings (per-user from database)
@@ -96,11 +96,11 @@ const Chat = () => {
 
   const streamChat = async (userMessageText: string, conversationId: string) => {
     setIsLoading(true);
-    
+
     // Prepare messages for API (convert to OpenAI format)
-    const apiMessages = messages.map(m => ({
+    const apiMessages = messages.map((m) => ({
       role: m.isUser ? 'user' : 'assistant',
-      content: m.text,
+      content: m.text
     }));
     apiMessages.push({ role: 'user', content: userMessageText });
 
@@ -111,7 +111,7 @@ const Chat = () => {
     try {
       // Obter token do utilizador para evitar 401 / Invalid JWT
       const {
-        data: { session },
+        data: { session }
       } = await supabase.auth.getSession();
 
       const authHeaders: Record<string, string> = {};
@@ -125,9 +125,9 @@ const Chat = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...authHeaders,
+            ...authHeaders
           },
-          body: JSON.stringify({ messages: apiMessages, context: formattedContext }),
+          body: JSON.stringify({ messages: apiMessages, context: formattedContext })
         }
       );
 
@@ -160,14 +160,14 @@ const Chat = () => {
         id: aiMessageId,
         text: "",
         isUser: false,
-        timestamp: Date.now(),
+        timestamp: Date.now()
       };
-      setMessages(prev => [...prev, initialAiMessage]);
+      setMessages((prev) => [...prev, initialAiMessage]);
 
       while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
-        
+
         textBuffer += decoder.decode(value, { stream: true });
 
         // Process line-by-line
@@ -192,10 +192,10 @@ const Chat = () => {
             if (content) {
               assistantContent += content;
               // Update the last message with new content
-              setMessages(prev => 
-                prev.map((m, i) => 
-                  i === prev.length - 1 ? { ...m, text: assistantContent } : m
-                )
+              setMessages((prev) =>
+              prev.map((m, i) =>
+              i === prev.length - 1 ? { ...m, text: assistantContent } : m
+              )
               );
             }
           } catch {
@@ -221,7 +221,7 @@ const Chat = () => {
             if (content) {
               assistantContent += content;
             }
-          } catch { /* ignore */ }
+          } catch {/* ignore */}
         }
       }
 
@@ -231,7 +231,7 @@ const Chat = () => {
           id: aiMessageId,
           text: assistantContent,
           isUser: false,
-          timestamp: Date.now(),
+          timestamp: Date.now()
         };
         addMessage(conversationId, finalAiMessage);
       }
@@ -240,10 +240,10 @@ const Chat = () => {
       console.error("Chat error:", error);
       toast.error("Erro ao comunicar com a IA. Tenta novamente.");
       // Remove the empty assistant message if there was an error
-      setMessages(prev => prev.filter(m => m.text !== ""));
+      setMessages((prev) => prev.filter((m) => m.text !== ""));
     } finally {
       setIsLoading(false);
-      
+
       // Auto-start recording in continuous mode
       if (continuousMode && !isRecording) {
         setTimeout(() => {
@@ -261,10 +261,10 @@ const Chat = () => {
       id: Date.now().toString(),
       text: messageText,
       isUser: true,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
     // If no current conversation, create one
@@ -297,29 +297,29 @@ const Chat = () => {
   };
 
   const quickCommands = [
-    { label: t("chat.suggestWorkout"), icon: Dumbbell, command: t("chat.suggestWorkout") },
-    { label: t("chat.recovery"), icon: Heart, command: t("chat.recovery") },
-    { label: t("chat.substitute"), icon: RefreshCw, command: t("chat.substitute") },
-    { label: t("chat.progressLabel"), icon: Progress, command: t("chat.progressLabel") },
-    { label: t("chat.nutritionLabel"), icon: Utensils, command: t("chat.nutritionLabel") },
-    { label: t("chat.restLabel"), icon: Moon, command: t("chat.restLabel") },
-  ];
+  { label: t("chat.suggestWorkout"), icon: Dumbbell, command: t("chat.suggestWorkout") },
+  { label: t("chat.recovery"), icon: Heart, command: t("chat.recovery") },
+  { label: t("chat.substitute"), icon: RefreshCw, command: t("chat.substitute") },
+  { label: t("chat.progressLabel"), icon: Progress, command: t("chat.progressLabel") },
+  { label: t("chat.nutritionLabel"), icon: Utensils, command: t("chat.nutritionLabel") },
+  { label: t("chat.restLabel"), icon: Moon, command: t("chat.restLabel") }];
+
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-[#0d0d0d]">
+      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-black">
         <div className="flex items-center gap-1">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-          >
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+
             <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <button
             onClick={() => setShowHistorySheet(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-          >
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+
             <Menu className="h-5 w-5 text-white" />
           </button>
         </div>
@@ -332,8 +332,8 @@ const Chat = () => {
         <div className="flex items-center gap-1">
           <button
             onClick={handleNewConversation}
-            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-          >
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+
             <Plus className="h-5 w-5 text-white" />
           </button>
 
@@ -358,30 +358,30 @@ const Chat = () => {
                       localStorage.setItem(`liftmate_continuous_mode_${user.id}`, String(checked));
                     }
                     toast.success(checked ? t("chat.continuousModeOn") : t("chat.continuousModeOff"));
-                  }}
-                />
+                  }} />
+
               </div>
               <DropdownMenuSeparator className="bg-white/10" />
-              {quickCommands.map((cmd) => (
-                <DropdownMenuItem
-                  key={cmd.label}
-                  onClick={() => handleQuickCommand(cmd.command)}
-                  className="flex items-center gap-2 text-white hover:bg-white/10 focus:bg-white/10"
-                >
+              {quickCommands.map((cmd) =>
+              <DropdownMenuItem
+                key={cmd.label}
+                onClick={() => handleQuickCommand(cmd.command)}
+                className="flex items-center gap-2 text-white hover:bg-white/10 focus:bg-white/10">
+
                   <cmd.icon className="h-4 w-4 text-white/60" />
                   <span>{cmd.label}</span>
                 </DropdownMenuItem>
-              ))}
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 bg-black">
         <div className="flex flex-col gap-4">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+          {messages.length === 0 &&
+          <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
                 <Dumbbell className="h-8 w-8 text-white/40" />
               </div>
@@ -390,159 +390,159 @@ const Chat = () => {
                 {t("chat.askMe")}
               </p>
             </div>
-          )}
+          }
           
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
-            >
+          {messages.map((message) =>
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                  message.isUser
-                    ? "bg-white text-[#0d0d0d]"
-                    : "bg-[#1a1a1a] text-white border border-white/10"
-                }`}
-              >
+              className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+              message.isUser ?
+              "bg-white text-[#0d0d0d]" :
+              "bg-[#1a1a1a] text-white border border-white/10"}`
+              }>
+
                 <p className="text-sm leading-relaxed whitespace-pre-line">
-                  {message.text || (
-                    <span className="flex items-center gap-2 text-white/60">
-                      <motion.span 
-                        className="flex items-center gap-1"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        {[0, 1, 2].map((i) => (
-                          <motion.span
-                            key={i}
-                            className="h-2 w-2 rounded-full bg-primary"
-                            animate={{
-                              scale: [1, 1.3, 1],
-                              opacity: [0.5, 1, 0.5],
-                            }}
-                            transition={{
-                              duration: 0.8,
-                              repeat: Infinity,
-                              delay: i * 0.2,
-                              ease: "easeInOut",
-                            }}
-                          />
-                        ))}
+                  {message.text ||
+                <span className="flex items-center gap-2 text-white/60">
+                      <motion.span
+                    className="flex items-center gap-1"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}>
+
+                        {[0, 1, 2].map((i) =>
+                    <motion.span
+                      key={i}
+                      className="h-2 w-2 rounded-full bg-primary"
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 0.8,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        ease: "easeInOut"
+                      }} />
+
+                    )}
                       </motion.span>
                     </span>
-                  )}
+                }
                 </p>
                 {/* Voice button for AI messages with animation */}
-                {!message.isUser && message.text && (
-                  <motion.button
-                    onClick={() => isSpeaking ? stopSpeaking() : speakText(message.text)}
-                    className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
-                    disabled={isTranscribing}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {isSpeaking ? (
-                      <>
+                {!message.isUser && message.text &&
+              <motion.button
+                onClick={() => isSpeaking ? stopSpeaking() : speakText(message.text)}
+                className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                disabled={isTranscribing}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+
+                    {isSpeaking ?
+                <>
                         {/* Animated sound bars for playing state */}
                         <div className="flex items-center gap-0.5 h-3.5 w-3.5">
-                          {[...Array(3)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              className="w-0.5 bg-white/60 rounded-full"
-                              animate={{
-                                height: ["4px", "12px", "4px"],
-                              }}
-                              transition={{
-                                duration: 0.4,
-                                repeat: Infinity,
-                                delay: i * 0.15,
-                                ease: "easeInOut",
-                              }}
-                            />
-                          ))}
+                          {[...Array(3)].map((_, i) =>
+                    <motion.div
+                      key={i}
+                      className="w-0.5 bg-white/60 rounded-full"
+                      animate={{
+                        height: ["4px", "12px", "4px"]
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        repeat: Infinity,
+                        delay: i * 0.15,
+                        ease: "easeInOut"
+                      }} />
+
+                    )}
                         </div>
                         <span>{t("chat.playing")}</span>
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                <>
                         <Volume2 className="h-3.5 w-3.5" />
                         <span>{t("chat.listen")}</span>
                       </>
-                    )}
+                }
                   </motion.button>
-                )}
+              }
               </div>
             </motion.div>
-          ))}
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/10 p-4 pb-8 safe-area-bottom bg-[#0d0d0d]">
+      <div className="border-t border-white/10 p-4 pb-8 safe-area-bottom bg-black">
         {/* Recording indicator with enhanced animation */}
-        {isRecording && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-3 flex items-center justify-center gap-3"
-          >
+        {isRecording &&
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-3 flex items-center justify-center gap-3">
+
             {/* Animated sound waves */}
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 bg-red-500 rounded-full"
-                  animate={{
-                    height: ["8px", "20px", "8px"],
-                  }}
-                  transition={{
-                    duration: 0.5,
-                    repeat: Infinity,
-                    delay: i * 0.1,
-                    ease: "easeInOut",
-                  }}
-                />
-              ))}
+              {[...Array(5)].map((_, i) =>
+            <motion.div
+              key={i}
+              className="w-1 bg-red-500 rounded-full"
+              animate={{
+                height: ["8px", "20px", "8px"]
+              }}
+              transition={{
+                duration: 0.5,
+                repeat: Infinity,
+                delay: i * 0.1,
+                ease: "easeInOut"
+              }} />
+
+            )}
             </div>
             <span className="text-sm text-red-400 font-medium">{t("chat.recording")}</span>
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 bg-red-500 rounded-full"
-                  animate={{
-                    height: ["8px", "20px", "8px"],
-                  }}
-                  transition={{
-                    duration: 0.5,
-                    repeat: Infinity,
-                    delay: (4 - i) * 0.1,
-                    ease: "easeInOut",
-                  }}
-                />
-              ))}
+              {[...Array(5)].map((_, i) =>
+            <motion.div
+              key={i}
+              className="w-1 bg-red-500 rounded-full"
+              animate={{
+                height: ["8px", "20px", "8px"]
+              }}
+              transition={{
+                duration: 0.5,
+                repeat: Infinity,
+                delay: (4 - i) * 0.1,
+                ease: "easeInOut"
+              }} />
+
+            )}
             </div>
           </motion.div>
-        )}
+        }
         
-        {isTranscribing && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-3 flex items-center justify-center gap-2 text-white/60"
-          >
+        {isTranscribing &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-3 flex items-center justify-center gap-2 text-white/60">
+
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+
               <Loader2 className="h-4 w-4" />
             </motion.div>
             <span className="text-sm">{t("chat.transcribing")}</span>
           </motion.div>
-        )}
+        }
         
         <div className="flex items-center gap-2">
           {/* Voice recording button with animations */}
@@ -561,25 +561,25 @@ const Chat = () => {
             whileTap={{ scale: 0.9 }}
             animate={isRecording ? {
               scale: [1, 1.1, 1],
-              boxShadow: ["0 0 0 0 rgba(239,68,68,0.4)", "0 0 0 12px rgba(239,68,68,0)", "0 0 0 0 rgba(239,68,68,0.4)"],
+              boxShadow: ["0 0 0 0 rgba(239,68,68,0.4)", "0 0 0 12px rgba(239,68,68,0)", "0 0 0 0 rgba(239,68,68,0.4)"]
             } : {}}
             transition={isRecording ? { duration: 1.5, repeat: Infinity } : {}}
             className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
-              isRecording 
-                ? "bg-red-500 text-white" 
-                : "bg-[#1a1a1a] text-white/60 hover:text-white border border-white/10"
-            } disabled:opacity-50`}
-          >
-            {isRecording ? (
-              <motion.div
-                animate={{ scale: [1, 0.8, 1] }}
-                transition={{ duration: 0.5, repeat: Infinity }}
-              >
+            isRecording ?
+            "bg-red-500 text-white" :
+            "bg-[#1a1a1a] text-white/60 hover:text-white border border-white/10"} disabled:opacity-50`
+            }>
+
+            {isRecording ?
+            <motion.div
+              animate={{ scale: [1, 0.8, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity }}>
+
                 <MicOff className="h-5 w-5" />
-              </motion.div>
-            ) : (
-              <Mic className="h-5 w-5" />
-            )}
+              </motion.div> :
+
+            <Mic className="h-5 w-5" />
+            }
           </motion.button>
           
           <input
@@ -589,26 +589,26 @@ const Chat = () => {
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder={isRecording ? t("chat.recording") : t("chat.placeholder")}
             disabled={isLoading || isRecording}
-            className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
-          />
+            className="flex-1 rounded-2xl bg-[#1a1a1a] border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50" />
+
           
           <motion.button
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading || isRecording}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] disabled:opacity-50"
-          >
-            {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              >
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0d0d0d] disabled:opacity-50">
+
+            {isLoading ?
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+
                 <Loader2 className="h-5 w-5" />
-              </motion.div>
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
+              </motion.div> :
+
+            <Send className="h-5 w-5" />
+            }
           </motion.button>
         </div>
       </div>
@@ -621,10 +621,10 @@ const Chat = () => {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onDeleteConversation={deleteConversation}
-        onNewConversation={handleNewConversation}
-      />
-    </div>
-  );
+        onNewConversation={handleNewConversation} />
+
+    </div>);
+
 };
 
 export default Chat;
