@@ -578,7 +578,7 @@ const Chat = () => {
                 <MicOff className="h-5 w-5" />
               </motion.div> :
 
-            <Mic className="h-5 w-5 text-white" />
+            <Mic className="h-5 w-5 text-[#32fa05]" />
             }
           </motion.button>
           
