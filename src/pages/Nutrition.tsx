@@ -97,7 +97,7 @@ const Nutrition = () => {
 
 
         {/* Carousel: Planos & Receitas */}
-        <NutritionCarousel title={t("nutrition.plansRecipes")}>
+        <NutritionCarousel title={t("nutrition.plansAndRecipes")}>
           <MealPlansView
             currentGoal={profile.goal}
             onApplyPlan={(plan: MealPlan) => {
@@ -119,7 +119,7 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-secondary bg-gradient-end ">
+            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
             <p className="text-2xl font-black text-rose-400">{Math.round(remaining.protein)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
@@ -128,7 +128,7 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/30 p-4 text-center">
+            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
             <p className="text-2xl font-black text-amber-400">{Math.round(remaining.carbs)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.carbs")}</p>
@@ -137,7 +137,7 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border border-sky-500/30 p-4 text-center">
+            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
             <p className="text-2xl font-black text-sky-400">{Math.round(remaining.fat)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.fat")}</p>
