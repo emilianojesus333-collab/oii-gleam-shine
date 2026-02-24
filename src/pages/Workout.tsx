@@ -300,7 +300,7 @@ const Workout = () => {
             <Dumbbell className="w-6 h-6 text-primary" />
           </div>
           <div>
-          <h1 className="text-xl font-bold text-white/70">
+          <h1 className="text-xl font-bold text-destructive-foreground">
               {isRestDay ? t("workout.restDay") : todayWorkout}
             </h1>
             <p className="text-sm text-gray-400/70">
@@ -333,7 +333,7 @@ const Workout = () => {
           transition={{ delay: 0.1 }}
           className="rounded-[20px] p-5 bg-[#111311]">
 
-            <span className="text-sm font-medium mb-4 block text-destructive-foreground">
+            <span className="text-sm font-medium mb-4 block text-gray-400">
               {t("workout.trainingType")}
             </span>
             <div className="flex gap-2">
