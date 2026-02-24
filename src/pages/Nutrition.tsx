@@ -119,7 +119,7 @@ const Nutrition = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-[#1C1C1E] border p-4 text-center">
+            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-secondary bg-gradient-end ">
 
             <p className="text-2xl font-black text-rose-400">{Math.round(remaining.protein)}g</p>
             <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
