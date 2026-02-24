@@ -404,7 +404,7 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.4 }}
             className="text-center">
 
-            <p className="text-2xl sm:text-4xl font-black text-destructive-foreground">
+            <p className="text-2xl sm:text-4xl font-black text-[#b5c2d4]">
               {todayWorkout || t("home.rest")}
             </p>
             <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
