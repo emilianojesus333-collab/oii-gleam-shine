@@ -112,7 +112,7 @@ export const AIInsightsWidget = () => {
             </> :
 
           <>
-              <p className="text-sm font-semibold mb-1 text-primary">
+              <p className="text-sm font-semibold mb-1 text-black">
                 Dicas Personalizadas
               </p>
               <p className="text-xs text-white/50">
