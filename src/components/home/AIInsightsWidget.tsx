@@ -92,14 +92,14 @@ export const AIInsightsWidget = () => {
         {/* Coaching Tip Card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')}
-          className={`rounded-2xl p-4 text-left bg-gradient-to-br ${
-          topTip ? getCategoryColor(topTip.category) : 'from-blue-500/20 to-blue-500/5 border-blue-500/30'} border`
-          }>
+          onClick={() => navigate('/settings')} className="bg-[#0d0d11] text-[#1b1b1d]">
+
+
+
 
           <div className="flex items-center gap-2 mb-2">
             <Brain className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-white/50">Coaching</span>
+            <span className="text-xs text-secondary-foreground">Coaching</span>
           </div>
           {topTip ?
           <>
@@ -112,7 +112,7 @@ export const AIInsightsWidget = () => {
             </> :
 
           <>
-              <p className="text-sm font-semibold text-white/80 mb-1">
+              <p className="text-sm font-semibold mb-1 text-primary">
                 Dicas Personalizadas
               </p>
               <p className="text-xs text-white/50">
