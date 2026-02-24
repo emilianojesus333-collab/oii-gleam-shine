@@ -396,7 +396,7 @@ const Home = () => {
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] bg-[#0d0d11] sm:rounded-3xl">
+          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-stone-950">
 
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -481,7 +481,7 @@ const Home = () => {
                       stiffness: 120,
                       damping: 12
                     }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+                    className="rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-stone-950">
 
                       <p className="text-xl sm:text-2xl font-black text-white/70">
                         {stat.value}
@@ -617,7 +617,7 @@ const Home = () => {
                 damping: 15
               }}
               whileHover={{ scale: 1.02, x: 5 }}
-              className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
+              className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-stone-950">
 
                   <div className="flex-1">
                     <p className="font-semibold text-white/70 text-sm sm:text-base">{item.workout}</p>
