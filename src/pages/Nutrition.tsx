@@ -148,7 +148,7 @@ const Nutrition = () => {
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
-            {t("nutrition.todayMeals")}
+            Refeições de Hoje
           </h3>
           
           <AnimatePresence>
@@ -159,7 +159,7 @@ const Nutrition = () => {
               className="text-center py-8 bg-black">
 
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
+                <p className="text-sm text-gray-300">Nenhuma refeição registada hoje.</p>
                 <p className="text-xs text-gray-400">{t("nutrition.useScannerHint")}</p>
               </motion.div> :
 
