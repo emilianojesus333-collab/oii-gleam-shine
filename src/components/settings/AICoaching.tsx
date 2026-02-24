@@ -29,15 +29,15 @@ const GOALS_STORAGE_KEY_PREFIX = 'liftmate_coaching_goals_';
 const COOLDOWN_HOURS = 4;
 
 const MUSCLE_OPTIONS = [
-  'Full Body', 'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 
-  'Core', 'Quadríceps', 'Posteriores', 'Glúteos', 'Gémeos'
-];
+'Full Body', 'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps',
+'Core', 'Quadríceps', 'Posteriores', 'Glúteos', 'Gémeos'];
+
 
 const TRAINING_FOCUS_OPTIONS = [
-  { value: 'hypertrophy', label: 'Hipertrofia', icon: Dumbbell },
-  { value: 'strength', label: 'Força', icon: Zap },
-  { value: 'endurance', label: 'Resistência', icon: Target },
-];
+{ value: 'hypertrophy', label: 'Hipertrofia', icon: Dumbbell },
+{ value: 'strength', label: 'Força', icon: Zap },
+{ value: 'endurance', label: 'Resistência', icon: Target }];
+
 
 export const AICoaching = () => {
   const { user } = useAuth();
@@ -70,7 +70,7 @@ export const AICoaching = () => {
   const loadUserGoals = () => {
     const key = getGoalsStorageKey();
     if (!key) return;
-    
+
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -91,12 +91,12 @@ export const AICoaching = () => {
   const saveUserGoals = (confirmed: boolean = false) => {
     const key = getGoalsStorageKey();
     if (!key) return;
-    
+
     const newGoals: UserGoals = {
       weightGoal: tempWeightGoal ? parseFloat(tempWeightGoal) : undefined,
       focusMuscles: tempFocusMuscles.length > 0 ? tempFocusMuscles : undefined,
       trainingFocus: tempTrainingFocus || undefined,
-      confirmed,
+      confirmed
     };
     localStorage.setItem(key, JSON.stringify(newGoals));
     setUserGoals(newGoals);
@@ -120,17 +120,17 @@ export const AICoaching = () => {
   const toggleMuscle = (muscle: string) => {
     if (muscle === 'Full Body') {
       // Full Body is mutually exclusive - select only it or deselect it
-      setTempFocusMuscles(prev => 
-        prev.includes('Full Body') ? [] : ['Full Body']
+      setTempFocusMuscles((prev) =>
+      prev.includes('Full Body') ? [] : ['Full Body']
       );
     } else {
       // Other muscles - can't select if Full Body is selected
       if (tempFocusMuscles.includes('Full Body')) return;
-      
-      setTempFocusMuscles(prev => 
-        prev.includes(muscle) 
-          ? prev.filter(m => m !== muscle)
-          : [...prev, muscle].slice(0, 3)
+
+      setTempFocusMuscles((prev) =>
+      prev.includes(muscle) ?
+      prev.filter((m) => m !== muscle) :
+      [...prev, muscle].slice(0, 3)
       );
     }
   };
@@ -138,7 +138,7 @@ export const AICoaching = () => {
   const loadStoredTips = () => {
     const key = getStorageKey();
     if (!key) return;
-    
+
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -148,7 +148,7 @@ export const AICoaching = () => {
         if (data.lastUpdate) {
           const lastDate = new Date(data.lastUpdate);
           setLastUpdate(lastDate);
-          
+
           const hoursSince = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60);
           setCanRefresh(hoursSince >= COOLDOWN_HOURS);
         }
@@ -161,7 +161,7 @@ export const AICoaching = () => {
   const saveCoachingData = (newTips: CoachingTip[], newSummary: string) => {
     const key = getStorageKey();
     if (!key) return;
-    
+
     const data = {
       tips: newTips,
       summary: newSummary,
@@ -175,7 +175,7 @@ export const AICoaching = () => {
   const gatherContext = () => {
     const workoutStats = getWorkoutStats();
     const sleepHours = getSleepHours();
-    
+
     return {
       workout: {
         totalSessions: workoutStats.totalSessions,
@@ -203,9 +203,9 @@ export const AICoaching = () => {
 
   const sendHighPriorityNotifications = async (newTips: CoachingTip[]) => {
     if (permission !== 'granted') return;
-    
-    const highPriorityTips = newTips.filter(t => t.priority === 'high');
-    
+
+    const highPriorityTips = newTips.filter((t) => t.priority === 'high');
+
     for (const tip of highPriorityTips) {
       await showNotification(tip.title, {
         body: tip.actionable,
@@ -222,11 +222,11 @@ export const AICoaching = () => {
     }
 
     setIsAnalyzing(true);
-    
+
     try {
       const context = gatherContext();
-      
-      const { data, error } = await invokeWithAuth<{ success: boolean; error?: string; tips?: CoachingTip[]; summary?: string }>('ai-coaching', {
+
+      const { data, error } = await invokeWithAuth<{success: boolean;error?: string;tips?: CoachingTip[];summary?: string;}>('ai-coaching', {
         body: { context }
       });
 
@@ -240,9 +240,9 @@ export const AICoaching = () => {
       setTips(data.tips || []);
       setSummary(data.summary || '');
       saveCoachingData(data.tips || [], data.summary || '');
-      
+
       await sendHighPriorityNotifications(data.tips || []);
-      
+
       toast.success('Análise concluída');
     } catch (error) {
       console.error('Error in AI coaching:', error);
@@ -268,27 +268,27 @@ export const AICoaching = () => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'treino': return <Dumbbell className="w-4 h-4" />;
-      case 'nutrição': return <Apple className="w-4 h-4" />;
-      case 'recuperação': return <Moon className="w-4 h-4" />;
-      default: return <Lightbulb className="w-4 h-4" />;
+      case 'treino':return <Dumbbell className="w-4 h-4" />;
+      case 'nutrição':return <Apple className="w-4 h-4" />;
+      case 'recuperação':return <Moon className="w-4 h-4" />;
+      default:return <Lightbulb className="w-4 h-4" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'treino': return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-      case 'nutrição': return 'text-green-400 bg-green-500/20 border-green-500/30';
-      case 'recuperação': return 'text-purple-400 bg-purple-500/20 border-purple-500/30';
-      default: return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+      case 'treino':return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
+      case 'nutrição':return 'text-green-400 bg-green-500/20 border-green-500/30';
+      case 'recuperação':return 'text-purple-400 bg-purple-500/20 border-purple-500/30';
+      default:return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
     }
   };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-500/20 text-red-400';
-      case 'medium': return 'bg-orange-500/20 text-orange-400';
-      default: return 'bg-muted/30 text-muted-foreground';
+      case 'high':return 'bg-red-500/20 text-red-400';
+      case 'medium':return 'bg-orange-500/20 text-orange-400';
+      default:return 'bg-muted/30 text-muted-foreground';
     }
   };
 
@@ -307,7 +307,7 @@ export const AICoaching = () => {
       parts.push(val > 0 ? `Ganhar ${val}kg` : `Perder ${Math.abs(val)}kg`);
     }
     if (tempTrainingFocus) {
-      const label = TRAINING_FOCUS_OPTIONS.find(o => o.value === tempTrainingFocus)?.label;
+      const label = TRAINING_FOCUS_OPTIONS.find((o) => o.value === tempTrainingFocus)?.label;
       if (label) parts.push(`Foco: ${label}`);
     }
     if (tempFocusMuscles.length) {
@@ -320,8 +320,8 @@ export const AICoaching = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-500/10 via-card to-cyan-500/10 rounded-[20px] p-5 border border-blue-500/20 h-full"
-    >
+      className="bg-gradient-to-br from-blue-500/10 via-card to-cyan-500/10 rounded-[20px] p-5 border h-full bg-black border-black">
+
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -332,25 +332,25 @@ export const AICoaching = () => {
             <p className="text-xs text-muted-foreground">Dicas personalizadas</p>
           </div>
         </div>
-        {step === 'results' && tips.length > 0 && canRefresh && (
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={analyzePatterns}
-            disabled={isAnalyzing}
-            className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-          >
+        {step === 'results' && tips.length > 0 && canRefresh &&
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={analyzePatterns}
+          disabled={isAnalyzing}
+          className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors">
+
             <RefreshCw className={`w-4 h-4 ${isAnalyzing ? 'animate-spin' : ''}`} />
           </motion.button>
-        )}
+        }
       </div>
 
-      {isAnalyzing ? (
-        <div className="flex flex-col items-center justify-center py-8 gap-4">
+      {isAnalyzing ?
+      <div className="flex flex-col items-center justify-center py-8 gap-4">
           <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
           <p className="text-sm text-foreground/70">A gerar dicas para os teus objetivos...</p>
-        </div>
-      ) : step === 'goals' ? (
-        <div className="space-y-4">
+        </div> :
+      step === 'goals' ?
+      <div className="space-y-4">
           <p className="text-sm text-foreground/80">Define os teus objetivos:</p>
 
           {/* Weight Goal */}
@@ -360,35 +360,35 @@ export const AICoaching = () => {
               Quanto peso queres ganhar/perder? (kg)
             </label>
             <input
-              type="number"
-              value={tempWeightGoal}
-              onChange={(e) => setTempWeightGoal(e.target.value)}
-              placeholder="Ex: 5 para ganhar, -3 para perder"
-              className="w-full px-3 py-2 rounded-lg bg-background/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            />
+            type="number"
+            value={tempWeightGoal}
+            onChange={(e) => setTempWeightGoal(e.target.value)}
+            placeholder="Ex: 5 para ganhar, -3 para perder"
+            className="w-full px-3 py-2 rounded-lg bg-background/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+
           </div>
 
           {/* Training Focus */}
           <div className="space-y-2">
             <label className="text-xs text-foreground/80">Foco de treino:</label>
             <div className="grid grid-cols-3 gap-2">
-              {TRAINING_FOCUS_OPTIONS.map(opt => {
-                const Icon = opt.icon;
-                return (
-                  <button
-                    key={opt.value}
-                    onClick={() => setTempTrainingFocus(opt.value)}
-                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-1 transition-all ${
-                      tempTrainingFocus === opt.value
-                        ? 'bg-blue-500/20 border-blue-500/50 text-blue-400'
-                        : 'bg-background/30 border-border/50 text-foreground/70 hover:border-border'
-                    }`}
-                  >
+              {TRAINING_FOCUS_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setTempTrainingFocus(opt.value)}
+                  className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-1 transition-all ${
+                  tempTrainingFocus === opt.value ?
+                  'bg-blue-500/20 border-blue-500/50 text-blue-400' :
+                  'bg-background/30 border-border/50 text-foreground/70 hover:border-border'}`
+                  }>
+
                     <Icon className="w-4 h-4" />
                     {opt.label}
-                  </button>
-                );
-              })}
+                  </button>);
+
+            })}
             </div>
           </div>
 
@@ -398,108 +398,108 @@ export const AICoaching = () => {
               Músculos a melhorar: (max. 3)
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {MUSCLE_OPTIONS.map(muscle => {
-                const isFullBody = muscle === 'Full Body';
-                const isSelected = tempFocusMuscles.includes(muscle);
-                const isDisabled = !isFullBody && tempFocusMuscles.includes('Full Body');
-                
-                return (
-                  <button
-                    key={muscle}
-                    onClick={() => toggleMuscle(muscle)}
-                    disabled={isDisabled}
-                    className={`px-2.5 py-1 rounded-full text-xs transition-all ${
-                      isSelected
-                        ? isFullBody 
-                          ? 'bg-purple-500/20 border border-purple-500/50 text-purple-400'
-                          : 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-400'
-                        : isDisabled
-                          ? 'bg-background/10 border border-border/30 text-foreground/30 cursor-not-allowed'
-                          : 'bg-background/30 border border-border/50 text-foreground/70 hover:border-border'
-                    }`}
-                  >
+              {MUSCLE_OPTIONS.map((muscle) => {
+              const isFullBody = muscle === 'Full Body';
+              const isSelected = tempFocusMuscles.includes(muscle);
+              const isDisabled = !isFullBody && tempFocusMuscles.includes('Full Body');
+
+              return (
+                <button
+                  key={muscle}
+                  onClick={() => toggleMuscle(muscle)}
+                  disabled={isDisabled}
+                  className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                  isSelected ?
+                  isFullBody ?
+                  'bg-purple-500/20 border border-purple-500/50 text-purple-400' :
+                  'bg-cyan-500/20 border border-cyan-500/50 text-cyan-400' :
+                  isDisabled ?
+                  'bg-background/10 border border-border/30 text-foreground/30 cursor-not-allowed' :
+                  'bg-background/30 border border-border/50 text-foreground/70 hover:border-border'}`
+                  }>
+
                     {muscle}
-                  </button>
-                );
-              })}
+                  </button>);
+
+            })}
             </div>
           </div>
 
           <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleGoToConfirm}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2"
-          >
+          whileTap={{ scale: 0.95 }}
+          onClick={handleGoToConfirm}
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2">
+
             Continuar
             <ChevronRight className="w-4 h-4" />
           </motion.button>
-        </div>
-      ) : step === 'confirm' ? (
-        <div className="space-y-4">
+        </div> :
+      step === 'confirm' ?
+      <div className="space-y-4">
           <p className="text-sm font-medium text-foreground">Confirma os teus objetivos:</p>
           
           <div className="p-4 rounded-xl bg-background/30 border border-border/50 space-y-2">
-            {getGoalSummaryText().map((text, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
+            {getGoalSummaryText().map((text, i) =>
+          <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
                 <Check className="w-4 h-4 text-green-400" />
                 {text}
               </div>
-            ))}
+          )}
           </div>
 
           <div className="flex gap-2">
             <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setStep('goals')}
-              className="flex-1 py-3 rounded-xl bg-background/30 border border-border/50 text-foreground font-medium text-sm"
-            >
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setStep('goals')}
+            className="flex-1 py-3 rounded-xl bg-background/30 border border-border/50 text-foreground font-medium text-sm">
+
               Voltar
             </motion.button>
             <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleConfirmGoals}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2"
-            >
+            whileTap={{ scale: 0.95 }}
+            onClick={handleConfirmGoals}
+            className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2">
+
               <Check className="w-4 h-4" />
               Confirmar
             </motion.button>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
+        </div> :
+
+      <div className="space-y-4">
           {/* Goals Edit Button */}
           <div className="flex items-center justify-between">
             <button
-              onClick={resetGoals}
-              className="text-xs text-blue-400 hover:underline flex items-center gap-1"
-            >
+            onClick={resetGoals}
+            className="text-xs text-blue-400 hover:underline flex items-center gap-1">
+
               <Target className="w-3 h-3" />
               Alterar objetivos
             </button>
-            {lastUpdate && (
-              <span className="text-xs text-muted-foreground">{formatLastUpdate()}</span>
-            )}
+            {lastUpdate &&
+          <span className="text-xs text-muted-foreground">{formatLastUpdate()}</span>
+          }
           </div>
 
           {/* Summary */}
-          {summary && (
-            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+          {summary &&
+        <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
               <p className="text-sm text-foreground/90">{summary}</p>
             </div>
-          )}
+        }
 
           {/* Tips */}
-          {tips.length > 0 ? (
-            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+          {tips.length > 0 ?
+        <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
               <AnimatePresence>
-                {tips.map((tip, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`p-3 rounded-xl border ${getCategoryColor(tip.category)}`}
-                  >
+                {tips.map((tip, index) =>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`p-3 rounded-xl border ${getCategoryColor(tip.category)}`}>
+
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2">
                         {getCategoryIcon(tip.category)}
@@ -515,23 +515,23 @@ export const AICoaching = () => {
                       {tip.actionable}
                     </div>
                   </motion.div>
-                ))}
+            )}
               </AnimatePresence>
-            </div>
-          ) : (
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={analyzePatterns}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold flex items-center justify-center gap-2"
-            >
+            </div> :
+
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={analyzePatterns}
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold flex items-center justify-center gap-2">
+
               <Sparkles className="w-5 h-5" />
               Gerar Dicas
             </motion.button>
-          )}
+        }
         </div>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 };
 
 export default AICoaching;

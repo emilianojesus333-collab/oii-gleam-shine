@@ -1,23 +1,23 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FileDown, 
-  Loader2, 
-  FileText, 
-  Dumbbell, 
+import {
+  FileDown,
+  Loader2,
+  FileText,
+  Dumbbell,
   Apple,
   Calendar,
-  Check
-} from 'lucide-react';
+  Check } from
+'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  Drawer, 
-  DrawerContent, 
-  DrawerHeader, 
-  DrawerTitle, 
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
   DrawerTrigger,
-  DrawerFooter
-} from '@/components/ui/drawer';
+  DrawerFooter } from
+'@/components/ui/drawer';
 import { toast } from 'sonner';
 import { getWorkoutHistory, WorkoutSession } from '@/data/workoutHistory';
 import { DailyLog, MacroGoals } from '@/hooks/useNutrition';
@@ -39,7 +39,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
       weekday: 'short',
       day: 'numeric',
       month: 'short',
-      year: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -50,8 +50,8 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
     let html = '<h2 style="color: #8b5cf6; margin-top: 20px;">📋 Histórico de Treinos</h2>';
     html += `<p style="color: #666;">Total de sessões: ${sessions.length}</p>`;
-    
-    sessions.slice(0, 30).forEach(session => {
+
+    sessions.slice(0, 30).forEach((session) => {
       html += `
         <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 10px 0;">
           <h3 style="margin: 0 0 10px 0;">${formatDate(session.date)} - ${session.muscleGroups.join(' + ')}</h3>
@@ -66,7 +66,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
               </tr>
             </thead>
             <tbody>
-              ${session.exerciseLogs?.map(log => `
+              ${session.exerciseLogs?.map((log) => `
                 <tr>
                   <td style="padding: 8px; border-bottom: 1px solid #ddd;">${log.name}</td>
                   <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.weight}kg</td>
@@ -89,7 +89,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     }
 
     let html = '<h2 style="color: #22c55e; margin-top: 30px;">🥗 Histórico de Nutrição</h2>';
-    
+
     // Goals summary
     html += `
       <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 10px 0;">
@@ -99,10 +99,10 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     `;
 
     // Daily logs
-    logs.slice(0, 30).forEach(log => {
-      const caloriePercent = Math.round((log.totals.calories / goals.calories) * 100);
-      const proteinPercent = Math.round((log.totals.protein / goals.protein) * 100);
-      
+    logs.slice(0, 30).forEach((log) => {
+      const caloriePercent = Math.round(log.totals.calories / goals.calories * 100);
+      const proteinPercent = Math.round(log.totals.protein / goals.protein * 100);
+
       html += `
         <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 10px 0;">
           <h3 style="margin: 0 0 10px 0;">${formatDate(log.date)}</h3>
@@ -119,8 +119,8 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
             <div style="margin-top: 10px;">
               <strong>Refeições (${log.meals.length}):</strong>
               <ul style="margin: 5px 0; padding-left: 20px;">
-                ${log.meals.map(meal => `
-                  <li>${meal.time} - ${meal.foods.map(f => f.name).join(', ')} (${meal.total.calories} kcal)</li>
+                ${log.meals.map((meal) => `
+                  <li>${meal.time} - ${meal.foods.map((f) => f.name).join(', ')} (${meal.total.calories} kcal)</li>
                 `).join('')}
               </ul>
             </div>
@@ -134,7 +134,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
   const handleExport = async () => {
     setIsExporting(true);
-    
+
     try {
       const workoutHistory = getWorkoutHistory();
       const now = new Date();
@@ -185,32 +185,32 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
       URL.revokeObjectURL(url);
 
       toast.success('Relatório exportado!', {
-        description: 'Abre o ficheiro no browser e usa Ctrl+P para imprimir como PDF.',
+        description: 'Abre o ficheiro no browser e usa Ctrl+P para imprimir como PDF.'
       });
       setIsOpen(false);
     } catch (error) {
       console.error('Export error:', error);
       toast.error('Erro ao exportar', {
-        description: 'Tenta novamente.',
+        description: 'Tenta novamente.'
       });
     } finally {
       setIsExporting(false);
     }
   };
 
-  const exportOptions: { type: ExportType; label: string; icon: typeof FileText; description: string }[] = [
-    { type: 'both', label: 'Tudo', icon: FileText, description: 'Treinos e nutrição' },
-    { type: 'workouts', label: 'Treinos', icon: Dumbbell, description: 'Histórico de exercícios' },
-    { type: 'nutrition', label: 'Nutrição', icon: Apple, description: 'Refeições e macros' },
-  ];
+  const exportOptions: {type: ExportType;label: string;icon: typeof FileText;description: string;}[] = [
+  { type: 'both', label: 'Tudo', icon: FileText, description: 'Treinos e nutrição' },
+  { type: 'workouts', label: 'Treinos', icon: Dumbbell, description: 'Histórico de exercícios' },
+  { type: 'nutrition', label: 'Nutrição', icon: Apple, description: 'Refeições e macros' }];
+
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild>
+      <DrawerTrigger asChild className="bg-black">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-card border border-border/30 rounded-[20px] p-5 flex items-center gap-4"
-        >
+          className="w-full bg-card border border-border/30 rounded-[20px] p-5 flex items-center gap-4">
+
           <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
             <FileDown className="w-5 h-5 text-primary" />
           </div>
@@ -238,20 +238,20 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
             {exportOptions.map((option) => {
               const Icon = option.icon;
               const isSelected = selectedType === option.type;
-              
+
               return (
                 <button
                   key={option.type}
                   onClick={() => setSelectedType(option.type)}
                   className={`w-full p-4 rounded-xl flex items-center gap-3 transition-all ${
-                    isSelected 
-                      ? 'bg-primary/10 border-2 border-primary' 
-                      : 'bg-muted/30 border-2 border-transparent'
-                  }`}
-                >
+                  isSelected ?
+                  'bg-primary/10 border-2 border-primary' :
+                  'bg-muted/30 border-2 border-transparent'}`
+                  }>
+
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-primary/20' : 'bg-muted/50'
-                  }`}>
+                  isSelected ? 'bg-primary/20' : 'bg-muted/50'}`
+                  }>
                     <Icon className={`w-5 h-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="flex-1 text-left">
@@ -259,8 +259,8 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
                     <p className="text-xs text-muted-foreground">{option.description}</p>
                   </div>
                   {isSelected && <Check className="w-5 h-5 text-primary" />}
-                </button>
-              );
+                </button>);
+
             })}
           </div>
 
@@ -274,20 +274,20 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
         <DrawerFooter>
           <Button onClick={handleExport} disabled={isExporting} className="w-full">
-            {isExporting ? (
-              <>
+            {isExporting ?
+            <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 A exportar...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <FileDown className="w-4 h-4 mr-2" />
                 Exportar Relatório
               </>
-            )}
+            }
           </Button>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
-  );
+    </Drawer>);
+
 };

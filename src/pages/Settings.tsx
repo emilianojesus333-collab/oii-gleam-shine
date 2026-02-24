@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Save, 
+import {
+  ArrowLeft,
+  Calendar,
+  Save,
   Check,
   Dumbbell,
   Sparkles,
@@ -12,8 +12,8 @@ import {
   FileText,
   Shield,
   Headphones,
-  Trash2
-} from "lucide-react";
+  Trash2 } from
+"lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
@@ -34,30 +34,30 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  AlertDialogTitle } from
+"@/components/ui/alert-dialog";
 
 const weekDays = [
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-  "Domingo",
-];
+"Segunda-feira",
+"Terça-feira",
+"Quarta-feira",
+"Quinta-feira",
+"Sexta-feira",
+"Sábado",
+"Domingo"];
+
 
 const muscleGroups = [
-  "Peito",
-  "Costas",
-  "Ombros",
-  "Bíceps",
-  "Tríceps",
-  "Pernas",
-  "Core",
-  "Glúteos",
-  "Cardio",
-];
+"Peito",
+"Costas",
+"Ombros",
+"Bíceps",
+"Tríceps",
+"Pernas",
+"Core",
+"Glúteos",
+"Cardio"];
+
 
 type Schedule = Record<string, string[] | null>;
 
@@ -69,14 +69,14 @@ const Settings = () => {
   const [aiName, setAiName] = useState("Liftmate");
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
-  
+
   // State for delete account dialog
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Get user settings from database (per-user data)
   const { settings, updateSettings, updateSchedule: saveScheduleToDb, isLoading: settingsLoading } = useUserSettings();
-  
+
   // Get nutrition data for export
   const { allLogs, goals } = useNutrition();
 
@@ -98,7 +98,7 @@ const Settings = () => {
       const newName = tempAiName.trim();
       setAiName(newName);
       setIsEditingAiName(false);
-      
+
       // Save to database (per-user)
       try {
         await updateSettings({ ai_name: newName });
@@ -126,13 +126,13 @@ const Settings = () => {
 
   const saveDay = async () => {
     if (!selectedDay) return;
-    
+
     const newSchedule = {
       ...schedule,
-      [selectedDay]: tempSelection.length > 0 ? tempSelection : null,
+      [selectedDay]: tempSelection.length > 0 ? tempSelection : null
     };
     setSchedule(newSchedule);
-    
+
     // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
@@ -140,20 +140,20 @@ const Settings = () => {
     } catch (error) {
       console.error("Error saving schedule:", error);
     }
-    
+
     setSelectedDay(null);
   };
 
   const setRestDay = async () => {
     if (!selectedDay) return;
     setTempSelection([]);
-    
+
     const newSchedule = {
       ...schedule,
-      [selectedDay]: null,
+      [selectedDay]: null
     };
     setSchedule(newSchedule);
-    
+
     // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
@@ -161,14 +161,14 @@ const Settings = () => {
     } catch (error) {
       console.error("Error saving rest day:", error);
     }
-    
+
     setSelectedDay(null);
   };
 
 
   const getWorkoutDisplay = (day: string) => {
     const groups = schedule[day];
-    if (!groups || (Array.isArray(groups) && groups.length === 0)) {
+    if (!groups || Array.isArray(groups) && groups.length === 0) {
       return "Descanso";
     }
     return Array.isArray(groups) ? groups.join(" + ") : groups;
@@ -181,13 +181,13 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4"
-        >
+          className="flex items-center gap-4">
+
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center"
-          >
+            className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center">
+
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
           <div>
@@ -202,8 +202,8 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+          transition={{ delay: 0.1 }}>
+
           <UserProfileCard />
         </motion.div>
 
@@ -212,8 +212,8 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="bg-card rounded-[20px] p-4 border border-border/30"
-        >
+          className="rounded-[20px] p-4 border border-border/30 bg-black">
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -228,8 +228,8 @@ const Settings = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={openAiNameEditor}
-              className="p-2.5 rounded-xl bg-muted/30 border border-border/50"
-            >
+              className="p-2.5 rounded-xl bg-muted/30 border border-border/50">
+
               <Edit3 className="w-4 h-4 text-muted-foreground" />
             </motion.button>
           </div>
@@ -240,8 +240,8 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-card rounded-[20px] p-4 border border-border/30"
-        >
+          className="rounded-[20px] p-4 border border-border/30 bg-black">
+
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
@@ -255,22 +255,22 @@ const Settings = () => {
               const fullDay = weekDays[index];
               const workout = getWorkoutDisplay(fullDay);
               const isRest = workout === "Descanso";
-              
+
               return (
                 <motion.button
                   key={fullDay}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => openDayEditor(fullDay)}
                   className={`flex flex-col items-center p-2 rounded-lg transition-all ${
-                    isRest
-                      ? "bg-muted/20"
-                      : "bg-primary/20 border border-primary/30"
-                  }`}
-                >
+                  isRest ?
+                  "bg-muted/20" :
+                  "bg-primary/20 border border-primary/30"}`
+                  }>
+
                   <span className="text-[10px] text-muted-foreground mb-1">{shortDay}</span>
                   <Dumbbell className={`w-3.5 h-3.5 ${isRest ? "text-muted-foreground/50" : "text-primary"}`} />
-                </motion.button>
-              );
+                </motion.button>);
+
             })}
           </div>
 
@@ -291,8 +291,8 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
+          transition={{ delay: 0.15 }}>
+
           <AIFeaturesCarousel />
         </motion.div>
 
@@ -302,8 +302,8 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
+          transition={{ delay: 0.25 }}>
+
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
@@ -311,8 +311,8 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
-        >
+          transition={{ delay: 0.28 }}>
+
           <LanguageSelector />
         </motion.div>
 
@@ -321,13 +321,13 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="bg-card rounded-[20px] p-4 border border-border/30"
-        >
+          className="rounded-[20px] p-4 border border-border/30 bg-black">
+
           <div className="space-y-3">
             <button
               onClick={() => navigate("/terms")}
-              className="w-full flex items-center justify-between py-2"
-            >
+              className="w-full flex items-center justify-between py-2">
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
                   <FileText className="w-5 h-5 text-muted-foreground" />
@@ -341,8 +341,8 @@ const Settings = () => {
             
             <button
               onClick={() => navigate("/privacy")}
-              className="w-full flex items-center justify-between py-2"
-            >
+              className="w-full flex items-center justify-between py-2">
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-muted-foreground" />
@@ -356,8 +356,8 @@ const Settings = () => {
             
             <button
               onClick={() => navigate("/support")}
-              className="w-full flex items-center justify-between py-2"
-            >
+              className="w-full flex items-center justify-between py-2">
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Headphones className="w-5 h-5 text-primary" />
@@ -374,8 +374,8 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-card rounded-[20px] p-4 border border-border/30 space-y-4"
-        >
+          className="rounded-[20px] p-4 border border-border/30 space-y-4 bg-black">
+
           {/* Logout */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -400,8 +400,8 @@ const Settings = () => {
                   toast.error("Erro ao terminar sessão");
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 text-foreground font-medium text-sm border border-border/50"
-            >
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 text-foreground font-medium text-sm border border-border/50">
+
               Sair
             </motion.button>
           </div>
@@ -423,8 +423,8 @@ const Settings = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm"
-            >
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm">
+
               Apagar
             </motion.button>
           </div>
@@ -450,15 +450,15 @@ const Settings = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleMuscleGroup(group)}
                     className={`py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                      isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted/30 text-foreground border border-border/50"
-                    }`}
-                  >
+                    isSelected ?
+                    "bg-primary text-primary-foreground" :
+                    "bg-muted/30 text-foreground border border-border/50"}`
+                    }>
+
                     {isSelected && <Check className="w-4 h-4" />}
                     {group}
-                  </motion.button>
-                );
+                  </motion.button>);
+
               })}
             </div>
 
@@ -466,15 +466,15 @@ const Settings = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={setRestDay}
-                className="flex-1 py-4 rounded-xl bg-muted/30 border border-border/50 font-semibold text-foreground"
-              >
+                className="flex-1 py-4 rounded-xl bg-muted/30 border border-border/50 font-semibold text-foreground">
+
                 Dia de Descanso
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={saveDay}
-                className="flex-1 py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2"
-              >
+                className="flex-1 py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2">
+
                 <Save className="w-5 h-5" />
                 Guardar
               </motion.button>
@@ -498,32 +498,32 @@ const Settings = () => {
               onChange={(e) => setTempAiName(e.target.value)}
               placeholder="Ex: Coach, Buddy, Trainer..."
               className="bg-muted/30 border-border/50"
-              maxLength={20}
-            />
+              maxLength={20} />
+
 
             <div className="flex flex-wrap gap-2">
-              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
-                <motion.button
-                  key={suggestion}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setTempAiName(suggestion)}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                    tempAiName === suggestion
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted/30 text-muted-foreground border border-border/50"
-                  }`}
-                >
+              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) =>
+              <motion.button
+                key={suggestion}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setTempAiName(suggestion)}
+                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+                tempAiName === suggestion ?
+                "bg-primary text-primary-foreground" :
+                "bg-muted/30 text-muted-foreground border border-border/50"}`
+                }>
+
                   {suggestion}
                 </motion.button>
-              ))}
+              )}
             </div>
 
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={saveAiName}
               disabled={!tempAiName.trim()}
-              className="w-full py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+              className="w-full py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50">
+
               <Save className="w-5 h-5" />
               Guardar
             </motion.button>
@@ -557,7 +557,7 @@ const Settings = () => {
                 try {
                   const { data: { user } } = await supabase.auth.getUser();
                   if (!user) throw new Error("Utilizador não encontrado");
-                  
+
                   // Delete all user data from all tables
                   await supabase.from('body_measurements').delete().eq('user_id', user.id);
                   await supabase.from('conversations').delete().eq('user_id', user.id);
@@ -567,17 +567,17 @@ const Settings = () => {
                   await supabase.from('user_settings').delete().eq('user_id', user.id);
                   await supabase.from('user_subscriptions').delete().eq('user_id', user.id);
                   await supabase.from('workout_sessions').delete().eq('user_id', user.id);
-                  
+
                   // Delete messages (via conversation cascade)
                   // Sign out and delete auth user
                   await supabase.auth.signOut();
-                  
+
                   // Clear local storage
                   const keysToRemove = Object.keys(localStorage).filter(
-                    key => key.startsWith('liftmate') || key.startsWith('gymAlerts')
+                    (key) => key.startsWith('liftmate') || key.startsWith('gymAlerts')
                   );
-                  keysToRemove.forEach(key => localStorage.removeItem(key));
-                  
+                  keysToRemove.forEach((key) => localStorage.removeItem(key));
+
                   toast.success("Conta eliminada com sucesso");
                   navigate("/auth");
                 } catch (error) {
@@ -588,8 +588,8 @@ const Settings = () => {
                   setShowDeleteDialog(false);
                 }
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+
               {isDeleting ? "A eliminar..." : "Apagar conta"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -597,8 +597,8 @@ const Settings = () => {
       </AlertDialog>
 
       <BottomNav />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Settings;

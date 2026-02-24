@@ -53,11 +53,11 @@ export const UserProfileCard = () => {
     }
 
     // Update in database via useUserSettings
-    const currentOnboardingData = (settings?.onboarding_data as any) || {};
+    const currentOnboardingData = settings?.onboarding_data as any || {};
     const updatedOnboardingData = {
       ...currentOnboardingData,
       personal: editData,
-      personalData: editData, // Keep backwards compatibility
+      personalData: editData // Keep backwards compatibility
     };
 
     await updateSettings({ onboarding_data: updatedOnboardingData });
@@ -82,8 +82,8 @@ export const UserProfileCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-[20px] p-5 border border-border/30"
-    >
+      className="rounded-[20px] p-5 border border-border/30 bg-black">
+
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
@@ -99,68 +99,68 @@ export const UserProfileCard = () => {
           </div>
         </div>
         
-        {!isEditing ? (
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsEditing(true)}
-            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:text-foreground transition-colors"
-          >
+        {!isEditing ?
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsEditing(true)}
+          className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:text-foreground transition-colors">
+
             <Edit2 className="w-4 h-4" />
-          </motion.button>
-        ) : (
-          <div className="flex gap-2">
+          </motion.button> :
+
+        <div className="flex gap-2">
             <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleCancel}
-              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:text-foreground transition-colors"
-            >
+            whileTap={{ scale: 0.9 }}
+            onClick={handleCancel}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:text-foreground transition-colors">
+
               <X className="w-4 h-4" />
             </motion.button>
             <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleSave}
-              className="p-2 rounded-lg bg-primary text-primary-foreground"
-            >
+            whileTap={{ scale: 0.9 }}
+            onClick={handleSave}
+            className="p-2 rounded-lg bg-primary text-primary-foreground">
+
               <Check className="w-4 h-4" />
             </motion.button>
           </div>
-        )}
+        }
       </div>
 
       <AnimatePresence mode="wait">
-        {isEditing ? (
-          <motion.div
-            key="editing"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="space-y-3"
-          >
+        {isEditing ?
+        <motion.div
+          key="editing"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="space-y-3">
+
             {/* Name */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20">
               <User className="w-4 h-4 text-muted-foreground" />
               <input
-                type="text"
-                value={editData.name}
-                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Nome"
-                maxLength={30}
-              />
+              type="text"
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
+              placeholder="Nome"
+              maxLength={30} />
+
             </div>
 
             {/* Height */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20">
               <Ruler className="w-4 h-4 text-muted-foreground" />
               <input
-                type="number"
-                value={editData.height}
-                onChange={(e) => setEditData({ ...editData, height: e.target.value })}
-                className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Altura (cm)"
-                min={100}
-                max={250}
-              />
+              type="number"
+              value={editData.height}
+              onChange={(e) => setEditData({ ...editData, height: e.target.value })}
+              className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
+              placeholder="Altura (cm)"
+              min={100}
+              max={250} />
+
               <span className="text-xs text-muted-foreground">cm</span>
             </div>
 
@@ -168,14 +168,14 @@ export const UserProfileCard = () => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20">
               <Weight className="w-4 h-4 text-muted-foreground" />
               <input
-                type="number"
-                value={editData.weight}
-                onChange={(e) => setEditData({ ...editData, weight: e.target.value })}
-                className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Peso (kg)"
-                min={30}
-                max={200}
-              />
+              type="number"
+              value={editData.weight}
+              onChange={(e) => setEditData({ ...editData, weight: e.target.value })}
+              className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
+              placeholder="Peso (kg)"
+              min={30}
+              max={200} />
+
               <span className="text-xs text-muted-foreground">kg</span>
             </div>
 
@@ -183,48 +183,48 @@ export const UserProfileCard = () => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20">
               <Calendar className="w-4 h-4 text-muted-foreground" />
               <input
-                type="number"
-                value={editData.birthYear}
-                onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })}
-                className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
-                placeholder="Ano de nascimento"
-                min={1940}
-                max={2010}
-              />
+              type="number"
+              value={editData.birthYear}
+              onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })}
+              className="flex-1 bg-transparent text-sm text-foreground focus:outline-none"
+              placeholder="Ano de nascimento"
+              min={1940}
+              max={2010} />
+
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="viewing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-3 gap-3"
-          >
-            {userData.height && (
-              <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
+          </motion.div> :
+
+        <motion.div
+          key="viewing"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="grid grid-cols-3 gap-3">
+
+            {userData.height &&
+          <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
                 <Ruler className="w-4 h-4 text-primary mb-1" />
                 <span className="text-sm font-semibold text-foreground">{userData.height}</span>
                 <span className="text-xs text-muted-foreground">cm</span>
               </div>
-            )}
-            {userData.weight && (
-              <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
+          }
+            {userData.weight &&
+          <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
                 <Weight className="w-4 h-4 text-primary mb-1" />
                 <span className="text-sm font-semibold text-foreground">{userData.weight}</span>
                 <span className="text-xs text-muted-foreground">kg</span>
               </div>
-            )}
-            {age && (
-              <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
+          }
+            {age &&
+          <div className="flex flex-col items-center p-3 rounded-xl bg-muted/20">
                 <Calendar className="w-4 h-4 text-primary mb-1" />
                 <span className="text-sm font-semibold text-foreground">{age}</span>
                 <span className="text-xs text-muted-foreground">anos</span>
               </div>
-            )}
+          }
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </motion.div>
-  );
+    </motion.div>);
+
 };

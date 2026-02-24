@@ -22,12 +22,12 @@ export const LanguageSelector = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card rounded-[20px] p-4 border border-border/30"
-      >
+        className="rounded-[20px] p-4 border border-border/30 bg-black">
+
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full flex items-center justify-between"
-        >
+          className="w-full flex items-center justify-between">
+
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
               <Globe className="w-5 h-5 text-primary" />
@@ -54,18 +54,18 @@ export const LanguageSelector = () => {
           <div className="overflow-y-auto max-h-[60vh] space-y-2 pb-6">
             {languages.map((lang) => {
               const isSelected = language === lang.code;
-              
+
               return (
                 <motion.button
                   key={lang.code}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleSelectLanguage(lang.code)}
                   className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
-                    isSelected
-                      ? "bg-primary/20 border border-primary/30"
-                      : "bg-muted/20 hover:bg-muted/40"
-                  }`}
-                >
+                  isSelected ?
+                  "bg-primary/20 border border-primary/30" :
+                  "bg-muted/20 hover:bg-muted/40"}`
+                  }>
+
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{lang.flag}</span>
                     <div className="text-left">
@@ -76,17 +76,17 @@ export const LanguageSelector = () => {
                     </div>
                   </div>
                   
-                  {isSelected && (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                  {isSelected &&
+                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
                       <Check className="w-4 h-4 text-primary-foreground" />
                     </div>
-                  )}
-                </motion.button>
-              );
+                  }
+                </motion.button>);
+
             })}
           </div>
         </SheetContent>
       </Sheet>
-    </>
-  );
+    </>);
+
 };
