@@ -187,7 +187,7 @@ const Nutrition = () => {
               <span className="text-xl">💪</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">Pós-treino</p>
-                <p className="text-xs text-gray-400">Consome proteína e hidratos até 2h após o treino</p>
+                <p className="text-xs text-gray-400">​Consumir 30g de proteína nas próximas 2h melhora recuperação.</p>
               </div>
             </motion.div>
             <motion.div
