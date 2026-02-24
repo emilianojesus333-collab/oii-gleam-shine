@@ -289,11 +289,11 @@ const Home = () => {
           <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
           <SubscriptionBadge variant="compact" />
         </div>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="gap-2 sm:gap-3 flex items-center justify-start">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
-            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target">
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target flex items-center justify-center">
 
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
           </motion.button>
@@ -359,7 +359,7 @@ const Home = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 + index * 0.03 }}
-            className="flex flex-col items-center flex-1">
+            className="flex-col flex-1 flex items-center justify-start">
 
               <span className="text-[10px] sm:text-xs text-gray-400/70 mb-1.5 sm:mb-2">{item.shortDay}</span>
               <div
