@@ -115,7 +115,7 @@ export const AIInsightsWidget = () => {
               <p className="text-sm font-semibold mb-1 text-black">
                 Dicas Personalizadas
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-secondary-foreground">
                 Toca para gerar
               </p>
             </>
