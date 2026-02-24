@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
   const [subscriptionSynced, setSubscriptionSynced] = useState(false);
   const [syncAttempts, setSyncAttempts] = useState(0);
-  const { checkSubscription, isSubscriptionValid, isTrialing, status, subscribed, isLoading } = useSubscription();
+  const { checkSubscription, isSubscriptionValid, isTrialing, status, subscribed, isLoading } = useSubscriptionContext();
   const syncingRef = useRef(false);
   const maxAttempts = 5;
 

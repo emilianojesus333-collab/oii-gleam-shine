@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat } from "lucide-react";
+import { Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSubscription, SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
+import { SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { usePricing } from "@/hooks/usePricing";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const benefits = [
@@ -20,18 +22,19 @@ const benefits = [
 
 const Paywall = () => {
   const navigate = useNavigate();
-  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing, status } = useSubscription();
+  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing } = useSubscriptionContext();
   const { pricing, isLoading: pricingLoading } = usePricing();
   const { toast } = useToast();
+  const { signOut } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!shouldShowPaywall() || isSubscriptionValid() || isTrialing) {
-        navigate("/home", { replace: true });
-      }
+    if (!isLoading && (!shouldShowPaywall() || isSubscriptionValid() || isTrialing)) {
+      navigate("/home", { replace: true });
     }
-  }, [isLoading, shouldShowPaywall, isSubscriptionValid, isTrialing, status, navigate]);
+  }, [isLoading, isTrialing, navigate]);
+  // Stable deps only — shouldShowPaywall/isSubscriptionValid are derived from context state
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     try {
@@ -45,6 +48,18 @@ const Paywall = () => {
       });
     } finally {
       setLoadingPlan(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+      navigate("/auth?logout=1", { replace: true });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível terminar sessão.", variant: "destructive" });
+    } finally {
+      setLoggingOut(false);
     }
   };
 
@@ -65,6 +80,20 @@ const Paywall = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl opacity-30" />
 
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col min-h-screen">
+        {/* Logout button */}
+        <div className="flex justify-end mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="text-muted-foreground hover:text-foreground gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            {loggingOut ? "A sair..." : "Terminar sessão"}
+          </Button>
+        </div>
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
