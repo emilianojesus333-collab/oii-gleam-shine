@@ -97,7 +97,7 @@ const Nutrition = () => {
 
 
         {/* Carousel: Planos & Receitas */}
-        <NutritionCarousel title={t("nutrition.plansAndRecipes")}>
+        <NutritionCarousel title={t("nutrition.plansRecipes")}>
           <MealPlansView
             currentGoal={profile.goal}
             onApplyPlan={(plan: MealPlan) => {

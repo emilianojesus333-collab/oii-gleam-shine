@@ -144,7 +144,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nutrition.protein": "Proteína",
     "nutrition.carbs": "Carbs",
     "nutrition.fat": "Gordura",
-    "nutrition.plansRecipes": "Planos & Receitas",
+    "nutrition.plansRecipes": "Planos e Receitas",
     "nutrition.tipsForAthletes": "Dicas para Atletas",
     "nutrition.postWorkout": "Pós-treino",
     "nutrition.postWorkoutTip": "Proteína + carbs até 2h após treino",
