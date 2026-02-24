@@ -9,8 +9,8 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+  DrawerTrigger } from
+'@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 
@@ -22,7 +22,7 @@ interface SleepCardProps {
 
 export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const getQualityColor = () => {
     if (sleepHours >= 7.5) return 'text-green-400';
     if (sleepHours >= 6) return 'text-yellow-400';
@@ -41,8 +41,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-2xl p-5 border border-indigo-500/20"
-    >
+      className="bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-2xl p-5 border border-indigo-500/20 bg-card">
+
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
@@ -72,8 +72,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                   <span className="font-medium">Ativar lembretes</span>
                   <Switch
                     checked={settings.enabled}
-                    onCheckedChange={(enabled) => onUpdate({ enabled })}
-                  />
+                    onCheckedChange={(enabled) => onUpdate({ enabled })} />
+
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
@@ -85,8 +85,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                     <Input
                       type="time"
                       value={settings.bedtime}
-                      onChange={(e) => onUpdate({ bedtime: e.target.value })}
-                    />
+                      onChange={(e) => onUpdate({ bedtime: e.target.value })} />
+
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground flex items-center gap-2">
@@ -96,8 +96,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                     <Input
                       type="time"
                       value={settings.wakeTime}
-                      onChange={(e) => onUpdate({ wakeTime: e.target.value })}
-                    />
+                      onChange={(e) => onUpdate({ wakeTime: e.target.value })} />
+
                   </div>
                 </div>
                 
@@ -111,8 +111,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
                     onValueChange={([v]) => onUpdate({ reminderMinutesBefore: v })}
                     min={15}
                     max={60}
-                    step={15}
-                  />
+                    step={15} />
+
                 </div>
               </div>
             </DrawerContent>
@@ -120,8 +120,8 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           
           <Switch
             checked={settings.enabled}
-            onCheckedChange={(enabled) => onUpdate({ enabled })}
-          />
+            onCheckedChange={(enabled) => onUpdate({ enabled })} />
+
         </div>
       </div>
 
@@ -169,6 +169,6 @@ export const SleepCard = ({ settings, sleepHours, onUpdate }: SleepCardProps) =>
           <span className="text-gray-300">Recupera músculos</span>
         </div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
