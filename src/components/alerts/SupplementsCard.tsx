@@ -64,7 +64,7 @@ export const SupplementsCard = ({ supplements, onUpdate, onAdd, onRemove }: Supp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl p-5 border border-[#0d0d11] bg-card">
+      className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl p-5 border border-[#0d0d11] bg-stone-950">
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

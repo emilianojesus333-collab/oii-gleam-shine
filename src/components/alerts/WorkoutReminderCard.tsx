@@ -93,7 +93,7 @@ export const WorkoutReminderCard = ({ settings, onUpdate }: WorkoutReminderCardP
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border bg-[sidebar-accent-foreground] border-[#0d0d11] bg-[#111118]">
+      className="from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border bg-[sidebar-accent-foreground] border-[#0d0d11] bg-stone-950">
 
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
