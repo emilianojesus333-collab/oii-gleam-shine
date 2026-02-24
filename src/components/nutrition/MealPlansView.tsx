@@ -80,7 +80,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => {setIsOpen(open);if (!open) setSelectedPlan(null);}}>
-      <DrawerTrigger asChild className="mx-[3px] my-[4px]">
+      <DrawerTrigger asChild className="mx-[2px] my-[3px] px-[9px] py-[11px]">
         <motion.button
           whileTap={{ scale: 0.95 }}
           className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">

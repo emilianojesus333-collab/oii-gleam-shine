@@ -16,16 +16,16 @@ export const RecipesView = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const { isRecipeFavorite, toggleRecipeFavorite } = useFavorites();
 
-  const filteredRecipes = searchQuery 
-    ? searchRecipes(searchQuery)
-    : activeCategory === 'all' 
-      ? fitnessRecipes 
-      : getRecipesByCategory(activeCategory as FitnessRecipe['category']);
+  const filteredRecipes = searchQuery ?
+  searchRecipes(searchQuery) :
+  activeCategory === 'all' ?
+  fitnessRecipes :
+  getRecipesByCategory(activeCategory as FitnessRecipe['category']);
 
   const difficultyColors = {
     easy: 'bg-emerald-500/20 text-emerald-400',
     medium: 'bg-amber-500/20 text-amber-400',
-    hard: 'bg-rose-500/20 text-rose-400',
+    hard: 'bg-rose-500/20 text-rose-400'
   };
 
   const difficultyLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
@@ -36,9 +36,9 @@ export const RecipesView = () => {
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse" />
+          className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
+
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse py-[11px]" />
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
@@ -69,52 +69,52 @@ export const RecipesView = () => {
               placeholder="Pesquisar receitas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+              className="pl-10" />
+
           </div>
 
           <ScrollArea className="w-full whitespace-nowrap" type="scroll">
             <div className="flex gap-2 pb-2">
-              <Badge 
+              <Badge
                 variant={activeCategory === 'all' ? 'default' : 'outline'}
                 className="cursor-pointer shrink-0"
-                onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
-              >
+                onClick={() => {setActiveCategory('all');setSearchQuery('');}}>
+
                 Todas
               </Badge>
-              {Object.entries(categoryLabels).map(([key, label]) => (
-                <Badge
-                  key={key}
-                  variant={activeCategory === key ? 'default' : 'outline'}
-                  className="cursor-pointer shrink-0"
-                  onClick={() => { setActiveCategory(key); setSearchQuery(''); }}
-                >
+              {Object.entries(categoryLabels).map(([key, label]) =>
+              <Badge
+                key={key}
+                variant={activeCategory === key ? 'default' : 'outline'}
+                className="cursor-pointer shrink-0"
+                onClick={() => {setActiveCategory(key);setSearchQuery('');}}>
+
                   {label}
                 </Badge>
-              ))}
+              )}
             </div>
             <ScrollBar orientation="horizontal" className="opacity-20" />
           </ScrollArea>
 
           <ScrollArea className="flex-1 min-h-0" type="scroll">
             <AnimatePresence mode="popLayout">
-              {selectedRecipe ? (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-4 pr-2"
-                >
+              {selectedRecipe ?
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-4 pr-2">
+
                   <div className="flex justify-between items-center">
                     <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)}>
                       <X className="w-4 h-4 mr-2" /> Voltar
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className={isRecipeFavorite(selectedRecipe.id) ? 'text-rose-400' : 'text-muted-foreground'}
-                      onClick={() => toggleRecipeFavorite(selectedRecipe)}
-                    >
+                    variant="ghost"
+                    size="icon"
+                    className={isRecipeFavorite(selectedRecipe.id) ? 'text-rose-400' : 'text-muted-foreground'}
+                    onClick={() => toggleRecipeFavorite(selectedRecipe)}>
+
                       <Heart className="w-5 h-5" fill={isRecipeFavorite(selectedRecipe.id) ? 'currentColor' : 'none'} />
                     </Button>
                   </div>
@@ -164,47 +164,47 @@ export const RecipesView = () => {
                       <TabsTrigger value="steps" className="flex-1">Passos</TabsTrigger>
                     </TabsList>
                     <TabsContent value="ingredients" className="space-y-2 mt-3">
-                      {selectedRecipe.ingredients.map((ing, i) => (
-                        <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
+                      {selectedRecipe.ingredients.map((ing, i) =>
+                    <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
                           <span className="text-white">{ing.name}</span>
                           <span className="text-gray-400">{ing.amount}</span>
                         </div>
-                      ))}
+                    )}
                     </TabsContent>
                     <TabsContent value="steps" className="space-y-3 mt-3">
-                        {selectedRecipe.steps.map((step, i) => (
-                          <div key={i} className="flex gap-3 text-sm">
+                        {selectedRecipe.steps.map((step, i) =>
+                    <div key={i} className="flex gap-3 text-sm">
                             <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
                               {i + 1}
                           </span>
                           <p className="text-gray-300">{step}</p>
                         </div>
-                      ))}
+                    )}
                     </TabsContent>
                   </Tabs>
 
-                  {selectedRecipe.tips.length > 0 && (
-                    <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+                  {selectedRecipe.tips.length > 0 &&
+                <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
                       <p className="font-semibold text-sm mb-2 text-white">💡 Dicas</p>
                       <ul className="text-xs text-gray-400 space-y-1">
-                        {selectedRecipe.tips.map((tip, i) => (
-                          <li key={i}>• {tip}</li>
-                        ))}
+                        {selectedRecipe.tips.map((tip, i) =>
+                    <li key={i}>• {tip}</li>
+                    )}
                       </ul>
                     </div>
-                  )}
-                </motion.div>
-              ) : (
-                <div className="grid gap-3 pr-2">
-                  {filteredRecipes.map((recipe) => (
-                    <motion.div
-                      key={recipe.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
-                    >
+                }
+                </motion.div> :
+
+              <div className="grid gap-3 pr-2">
+                  {filteredRecipes.map((recipe) =>
+                <motion.div
+                  key={recipe.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
+
                       <span className="text-3xl" onClick={() => setSelectedRecipe(recipe)}>{recipe.imageEmoji}</span>
                       <div className="flex-1 min-w-0" onClick={() => setSelectedRecipe(recipe)}>
                         <h4 className="font-medium truncate text-white">{recipe.name}</h4>
@@ -221,24 +221,24 @@ export const RecipesView = () => {
                         </div>
                       </div>
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className={isRecipeFavorite(recipe.id) ? 'text-rose-400' : 'text-gray-400 hover:text-rose-400'}
-                        onClick={() => toggleRecipeFavorite(recipe)}
-                      >
+                    variant="ghost"
+                    size="icon"
+                    className={isRecipeFavorite(recipe.id) ? 'text-rose-400' : 'text-gray-400 hover:text-rose-400'}
+                    onClick={() => toggleRecipeFavorite(recipe)}>
+
                         <Heart className="w-4 h-4" fill={isRecipeFavorite(recipe.id) ? 'currentColor' : 'none'} />
                       </Button>
                       <Badge className={difficultyColors[recipe.difficulty]} variant="outline">
                         {difficultyLabels[recipe.difficulty]}
                       </Badge>
                     </motion.div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </AnimatePresence>
           </ScrollArea>
         </div>
       </SheetContent>
-    </Sheet>
-  );
+    </Sheet>);
+
 };

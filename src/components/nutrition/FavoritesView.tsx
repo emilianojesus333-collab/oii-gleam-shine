@@ -16,7 +16,7 @@ export const FavoritesView = () => {
   const difficultyColors = {
     easy: 'bg-emerald-500/20 text-emerald-400',
     medium: 'bg-amber-500/20 text-amber-400',
-    hard: 'bg-rose-500/20 text-rose-400',
+    hard: 'bg-rose-500/20 text-rose-400'
   };
 
   const difficultyLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
@@ -27,9 +27,9 @@ export const FavoritesView = () => {
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-purple-500/20 border border-rose-500/30 cursor-pointer relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-purple-500/5 animate-pulse" />
+          className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-purple-500/20 border border-rose-500/30 cursor-pointer relative overflow-hidden">
+
+          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-purple-500/5 animate-pulse py-[11px]" />
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-pink-500/30 flex items-center justify-center">
@@ -40,11 +40,11 @@ export const FavoritesView = () => {
                 <p className="text-xs text-rose-300/70">{totalFavorites} itens guardados</p>
               </div>
             </div>
-            {totalFavorites > 0 && (
-              <div className="w-8 h-8 rounded-full bg-rose-500/30 flex items-center justify-center">
+            {totalFavorites > 0 &&
+            <div className="w-8 h-8 rounded-full bg-rose-500/30 flex items-center justify-center">
                 <span className="text-sm font-bold text-rose-300">{totalFavorites}</span>
               </div>
-            )}
+            }
           </div>
         </motion.div>
       </SheetTrigger>
@@ -71,22 +71,22 @@ export const FavoritesView = () => {
 
           <ScrollArea className="flex-1 min-h-0 mt-4" type="always">
             <TabsContent value="foods" className="space-y-3 pr-2 mt-0">
-              {favorites.foods.length === 0 ? (
-                <div className="text-center py-12">
+              {favorites.foods.length === 0 ?
+              <div className="text-center py-12">
                   <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                   <p className="text-gray-400">Ainda não tens alimentos favoritos</p>
                   <p className="text-xs text-gray-500 mt-1">Adiciona alimentos usando o scanner IA</p>
-                </div>
-              ) : (
-                  favorites.foods.map((food) => (
-                    <motion.div
-                      key={food.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10"
-                    >
+                </div> :
+
+              favorites.foods.map((food) =>
+              <motion.div
+                key={food.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10">
+
                       <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                         <Apple className="w-5 h-5 text-emerald-400" />
                       </div>
@@ -100,27 +100,27 @@ export const FavoritesView = () => {
                       </div>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
-                      onClick={() => removeFoodFavorite(food.id)}
-                    >
+                  variant="ghost"
+                  size="icon"
+                  className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
+                  onClick={() => removeFoodFavorite(food.id)}>
+
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </motion.div>
-                ))
-              )}
+              )
+              }
             </TabsContent>
 
             <TabsContent value="recipes" className="space-y-3 pr-2 mt-0">
               <AnimatePresence mode="popLayout">
-                {selectedRecipe ? (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-4"
-                  >
+                {selectedRecipe ?
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-4">
+
                     <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)} className="text-gray-300">
                       <X className="w-4 h-4 mr-2" /> Voltar
                     </Button>
@@ -170,52 +170,52 @@ export const FavoritesView = () => {
                         <TabsTrigger value="steps" className="flex-1">Passos</TabsTrigger>
                       </TabsList>
                       <TabsContent value="ingredients" className="space-y-2 mt-3">
-                        {selectedRecipe.ingredients.map((ing, i) => (
-                          <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
+                        {selectedRecipe.ingredients.map((ing, i) =>
+                      <div key={i} className="flex justify-between p-2 bg-white/5 rounded-lg text-sm border border-white/10">
                             <span className="text-white">{ing.name}</span>
                             <span className="text-gray-400">{ing.amount}</span>
                           </div>
-                        ))}
+                      )}
                       </TabsContent>
                       <TabsContent value="steps" className="space-y-3 mt-3">
-                        {selectedRecipe.steps.map((step, i) => (
-                          <div key={i} className="flex gap-3 text-sm">
+                        {selectedRecipe.steps.map((step, i) =>
+                      <div key={i} className="flex gap-3 text-sm">
                             <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
                               {i + 1}
                             </span>
                             <p className="text-gray-300">{step}</p>
                           </div>
-                        ))}
+                      )}
                       </TabsContent>
                     </Tabs>
-                  </motion.div>
-                ) : favorites.recipes.length === 0 ? (
-                  <div className="text-center py-12">
+                  </motion.div> :
+                favorites.recipes.length === 0 ?
+                <div className="text-center py-12">
                     <ChefHat className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                     <p className="text-gray-400">Ainda não tens receitas favoritas</p>
                     <p className="text-xs text-gray-500 mt-1">Explora as receitas fitness e guarda as tuas preferidas</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-3">
-                    {favorites.recipes.map((recipe) => (
-                      <motion.div
-                        key={recipe.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
-                      >
-                        <span 
-                          className="text-3xl cursor-pointer" 
-                          onClick={() => setSelectedRecipe(recipe)}
-                        >
+                  </div> :
+
+                <div className="grid gap-3">
+                    {favorites.recipes.map((recipe) =>
+                  <motion.div
+                    key={recipe.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+
+                        <span
+                      className="text-3xl cursor-pointer"
+                      onClick={() => setSelectedRecipe(recipe)}>
+
                           {recipe.imageEmoji}
                         </span>
-                        <div 
-                          className="flex-1 min-w-0 cursor-pointer" 
-                          onClick={() => setSelectedRecipe(recipe)}
-                        >
+                        <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => setSelectedRecipe(recipe)}>
+
                           <h4 className="font-medium truncate text-white">{recipe.name}</h4>
                           <p className="text-xs text-gray-400">{recipe.cuisine}</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -230,22 +230,22 @@ export const FavoritesView = () => {
                           </div>
                         </div>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
-                          onClick={() => removeRecipeFavorite(recipe.id)}
-                        >
+                      variant="ghost"
+                      size="icon"
+                      className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
+                      onClick={() => removeRecipeFavorite(recipe.id)}>
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </motion.div>
-                    ))}
+                  )}
                   </div>
-                )}
+                }
               </AnimatePresence>
             </TabsContent>
           </ScrollArea>
         </Tabs>
       </SheetContent>
-    </Sheet>
-  );
+    </Sheet>);
+
 };
