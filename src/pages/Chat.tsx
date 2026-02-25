@@ -325,7 +325,7 @@ const Chat = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="h-2 w-2 rounded-full animate-pulse bg-black text-black" />
           <h1 className="text-base font-semibold text-white">Chat</h1>
         </div>
 
