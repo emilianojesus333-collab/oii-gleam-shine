@@ -308,7 +308,7 @@ const Chat = () => {
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d0d]">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-black">
+      <header className="border-b border-white/10 px-4 py-3 bg-black items-center justify-between flex flex-row gap-0">
         <div className="flex items-center gap-1">
           <button
             onClick={() => navigate(-1)}
@@ -326,7 +326,7 @@ const Chat = () => {
 
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full animate-pulse bg-black text-black" />
-          <h1 className="text-base font-semibold text-white">Chat</h1>
+          <h1 className="text-base font-semibold text-white text-center">Chat</h1>
         </div>
 
         <div className="flex items-center gap-1">
