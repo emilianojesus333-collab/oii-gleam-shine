@@ -406,7 +406,7 @@ const Chat = () => {
 
 
 
-                <p className="text-sm leading-relaxed whitespace-pre-line">
+                <p className="text-sm leading-relaxed whitespace-pre-line font-bold bg-black">
                   {message.text ||
                 <span className="flex items-center gap-2 text-white/60">
                       <motion.span
