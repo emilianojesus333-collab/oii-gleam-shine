@@ -399,12 +399,12 @@ const Chat = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
 
-              <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-              message.isUser ?
-              "bg-white text-[#0d0d0d]" :
-              "bg-[#1a1a1a] text-white border border-white/10"}`
-              }>
+              <div className="">
+
+
+
+
+
 
                 <p className="text-sm leading-relaxed whitespace-pre-line">
                   {message.text ||
