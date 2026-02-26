@@ -262,6 +262,111 @@ export type Database = {
         }
         Relationships: []
       }
+      progression_logs: {
+        Row: {
+          algorithm_version: string
+          base_weight: number | null
+          confidence: Database["public"]["Enums"]["progression_confidence"]
+          created_at: string
+          data_quality: string | null
+          decision: Database["public"]["Enums"]["progression_decision"]
+          exercise_id: string
+          fatigue_ratio: number | null
+          fatigue_score: number | null
+          fatigue_status: string | null
+          frequency_days: number | null
+          frequency_score: number | null
+          id: string
+          last_7_days_volume: number | null
+          proximity: string | null
+          rpe_avg: number | null
+          rpe_score: number | null
+          score: number
+          session_id: string | null
+          suggested_increment_pct: number | null
+          suggested_weight: number | null
+          training_days_3d: number | null
+          training_days_7d: number | null
+          user_id: string
+          volume_trend_pct: number | null
+          volume_trend_score: number | null
+          weights: Json
+        }
+        Insert: {
+          algorithm_version?: string
+          base_weight?: number | null
+          confidence: Database["public"]["Enums"]["progression_confidence"]
+          created_at?: string
+          data_quality?: string | null
+          decision: Database["public"]["Enums"]["progression_decision"]
+          exercise_id: string
+          fatigue_ratio?: number | null
+          fatigue_score?: number | null
+          fatigue_status?: string | null
+          frequency_days?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_7_days_volume?: number | null
+          proximity?: string | null
+          rpe_avg?: number | null
+          rpe_score?: number | null
+          score: number
+          session_id?: string | null
+          suggested_increment_pct?: number | null
+          suggested_weight?: number | null
+          training_days_3d?: number | null
+          training_days_7d?: number | null
+          user_id: string
+          volume_trend_pct?: number | null
+          volume_trend_score?: number | null
+          weights?: Json
+        }
+        Update: {
+          algorithm_version?: string
+          base_weight?: number | null
+          confidence?: Database["public"]["Enums"]["progression_confidence"]
+          created_at?: string
+          data_quality?: string | null
+          decision?: Database["public"]["Enums"]["progression_decision"]
+          exercise_id?: string
+          fatigue_ratio?: number | null
+          fatigue_score?: number | null
+          fatigue_status?: string | null
+          frequency_days?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_7_days_volume?: number | null
+          proximity?: string | null
+          rpe_avg?: number | null
+          rpe_score?: number | null
+          score?: number
+          session_id?: string | null
+          suggested_increment_pct?: number | null
+          suggested_weight?: number | null
+          training_days_3d?: number | null
+          training_days_7d?: number | null
+          user_id?: string
+          volume_trend_pct?: number | null
+          volume_trend_score?: number | null
+          weights?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progression_logs_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progression_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recovery_logs: {
         Row: {
           created_at: string
@@ -487,6 +592,8 @@ export type Database = {
         | "calves"
         | "abs"
         | "traps"
+      progression_confidence: "low" | "medium" | "high"
+      progression_decision: "progress" | "maintain" | "deload"
       set_type: "working" | "warmup" | "dropset" | "failure" | "backoff"
       subscription_status:
         | "never_subscribed"
@@ -634,6 +741,8 @@ export const Constants = {
         "abs",
         "traps",
       ],
+      progression_confidence: ["low", "medium", "high"],
+      progression_decision: ["progress", "maintain", "deload"],
       set_type: ["working", "warmup", "dropset", "failure", "backoff"],
       subscription_status: [
         "never_subscribed",

@@ -127,15 +127,17 @@ Deno.serve(async (req) => {
 
     // 3c. Volume Trend Score
     let volumeTrendScore = 75; // neutral default
+    let volumeTrendPct: number | null = null;
     if (trend.length >= 2) {
       const recentVolume = trend[0].session_volume;
       const previousVolume = trend[1].session_volume;
       if (previousVolume > 0) {
-        const deltaPct =
-          ((recentVolume - previousVolume) / previousVolume) * 100;
-        volumeTrendScore = clamp(75 + deltaPct * 2, 20, 100);
+        volumeTrendPct = round2(
+          ((recentVolume - previousVolume) / previousVolume) * 100
+        );
+        volumeTrendScore = clamp(75 + volumeTrendPct * 2, 20, 100);
         reasoning.push(
-          `Volume trend: ${round2(deltaPct)}% (${previousVolume} → ${recentVolume}) → score ${round2(volumeTrendScore)}`
+          `Volume trend: ${volumeTrendPct}% (${previousVolume} → ${recentVolume}) → score ${round2(volumeTrendScore)}`
         );
       } else {
         reasoning.push("Volume anterior = 0 — score neutro (75)");
@@ -236,39 +238,81 @@ Deno.serve(async (req) => {
       confidence = "medium";
     }
 
+    // ─── Step 8: Upsert progression log ───
+    const latestSessionId = trend.length > 0 ? trend[0].session_id : null;
+    const muscleVolume = volumeData.find((v: any) => v.muscle_group === muscleGroup);
+    const incrementPct = suggestedIncrement ? suggestedIncrement.percentage : null;
+
+    const logData = {
+      user_id: userId,
+      exercise_id: exercise.id,
+      session_id: latestSessionId,
+      algorithm_version: "v1.0",
+      score: finalScore,
+      decision,
+      confidence,
+      proximity,
+      fatigue_status: fatigueStatus,
+      fatigue_score: fatigueScore,
+      fatigue_ratio: fatigueData.fatigue_ratio,
+      rpe_avg: avgRpe !== null ? round2(avgRpe) : null,
+      rpe_score: round2(rpeScore),
+      volume_trend_pct: volumeTrendPct,
+      volume_trend_score: round2(volumeTrendScore),
+      frequency_days: trainingDays,
+      frequency_score: frequencyScore,
+      base_weight: currentWeight ? round2(currentWeight) : null,
+      suggested_weight: suggestedWeight ? round2(suggestedWeight) : null,
+      suggested_increment_pct: incrementPct,
+      data_quality: fatigueData.data_quality,
+      last_7_days_volume: muscleVolume?.total_volume ?? null,
+      training_days_7d: fatigueData.training_days_7d ?? null,
+      training_days_3d: fatigueData.training_days_3d ?? null,
+      weights: WEIGHTS,
+    };
+
+    // Use service role for upsert (RLS requires auth.uid() = user_id)
+    const { error: logError } = await supabase
+      .from("progression_logs")
+      .upsert(logData, { onConflict: "user_id,exercise_id,session_id" });
+
+    if (logError) {
+      console.error("[PROGRESSION-ENGINE] Log upsert error:", logError);
+    }
+
     const elapsed = Date.now() - startTime;
     console.log(
       `[PROGRESSION-ENGINE] ${exercise.name}: score=${finalScore}, decision=${decision}, confidence=${confidence}, elapsed=${elapsed}ms`
     );
 
-    return new Response(
-      JSON.stringify({
-        exercise_id: exercise.id,
-        exercise_name: exercise.name,
-        muscle_group: muscleGroup,
-        is_compound: isCompound,
-        decision,
-        score: finalScore,
-        proximity,
-        confidence,
-        current_weight: currentWeight,
-        suggested_weight: suggestedWeight,
-        suggested_increment: suggestedIncrement,
-        reasoning,
-        sub_scores: {
-          fatigue: { score: fatigueScore, status: fatigueStatus, weight: WEIGHTS.fatigue },
-          rpe: { score: round2(rpeScore), avg_rpe: avgRpe !== null ? round2(avgRpe) : null, weight: WEIGHTS.rpe },
-          volume_trend: { score: round2(volumeTrendScore), weight: WEIGHTS.volume },
-          frequency: { score: frequencyScore, training_days: trainingDays, weight: WEIGHTS.frequency },
-        },
-        computed_at: new Date().toISOString(),
-        elapsed_ms: elapsed,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    const responseBody = {
+      exercise_id: exercise.id,
+      exercise_name: exercise.name,
+      muscle_group: muscleGroup,
+      is_compound: isCompound,
+      decision,
+      score: finalScore,
+      proximity,
+      confidence,
+      current_weight: currentWeight ? round2(currentWeight) : null,
+      suggested_weight: suggestedWeight ? round2(suggestedWeight) : null,
+      suggested_increment: suggestedIncrement,
+      reasoning,
+      sub_scores: {
+        fatigue: { score: fatigueScore, status: fatigueStatus, weight: WEIGHTS.fatigue },
+        rpe: { score: round2(rpeScore), avg_rpe: avgRpe !== null ? round2(avgRpe) : null, weight: WEIGHTS.rpe },
+        volume_trend: { score: round2(volumeTrendScore), weight: WEIGHTS.volume },
+        frequency: { score: frequencyScore, training_days: trainingDays, weight: WEIGHTS.frequency },
+      },
+      computed_at: new Date().toISOString(),
+      elapsed_ms: elapsed,
+      log_saved: !logError,
+    };
+
+    return new Response(JSON.stringify(responseBody), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.error("[PROGRESSION-ENGINE] Error:", err);
     return new Response(
@@ -323,15 +367,17 @@ async function getExerciseTrend(supabase: any, userId: string, exerciseId: strin
       ? rpeValues.reduce((a: number, b: number) => a + b, 0) / rpeValues.length
       : null;
 
-    // Get max weight used in session (for base weight calculation)
-    const maxWeight = Math.max(...sessionSets.map((s: any) => s.weight));
+    // Weighted avg load: Σ(weight × reps) / Σ(reps)
+    const totalVolume = sessionSets.reduce((sum: number, s: any) => sum + s.weight * s.reps, 0);
+    const totalReps = sessionSets.reduce((sum: number, s: any) => sum + s.reps, 0);
+    const weightedAvgLoad = totalReps > 0 ? totalVolume / totalReps : 0;
 
     return {
       date: session.date,
       session_id: session.id,
       session_volume: sessionVolume,
       avg_rpe: avgRpe,
-      max_weight: maxWeight,
+      weighted_avg_load: weightedAvgLoad,
     };
   });
 }
@@ -435,6 +481,8 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
       status: "insufficient_data",
       data_quality: "low",
       fatigue_ratio: null,
+      training_days_7d: 0,
+      training_days_3d: 0,
     };
   }
 
@@ -469,11 +517,11 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
   }
 
   if (trainingDays7d < 2) {
-    return { status: "insufficient_data", data_quality: "low", fatigue_ratio: null };
+    return { status: "insufficient_data", data_quality: "low", fatigue_ratio: null, training_days_7d: trainingDays7d, training_days_3d: trainingDays3d };
   }
 
   if (trainingDays3d === 0) {
-    return { status: "fully_rested", data_quality: "high", fatigue_ratio: null };
+    return { status: "fully_rested", data_quality: "high", fatigue_ratio: null, training_days_7d: trainingDays7d, training_days_3d: trainingDays3d };
   }
 
   const avg3d = vol3d / trainingDays3d;
@@ -486,30 +534,22 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
   else if (ratio <= 1.5) status = "accumulating";
   else status = "overreaching";
 
-  return { status, data_quality: "high", fatigue_ratio: ratio };
+  return { status, data_quality: "high", fatigue_ratio: ratio, training_days_7d: trainingDays7d, training_days_3d: trainingDays3d };
 }
 
 // ─── Utility Functions ───
 
 function calculateBaseWeight(trend: any[]): number {
-  // Weighted mean: 50/30/20 for last 3 sessions
-  const weights = [0.5, 0.3, 0.2];
-  let totalWeight = 0;
-  let totalW = 0;
-
-  for (let i = 0; i < Math.min(trend.length, 3); i++) {
-    const w = i < weights.length ? weights[i] : 0;
-    totalWeight += trend[i].max_weight * w;
-    totalW += w;
-  }
-
-  // Adjust weights if fewer than 3 sessions
-  if (trend.length === 1) return trend[0].max_weight;
+  // Weighted mean of weighted_avg_load: 50/30/20 for last 3 sessions
+  if (trend.length === 1) return trend[0].weighted_avg_load;
   if (trend.length === 2) {
-    return trend[0].max_weight * 0.6 + trend[1].max_weight * 0.4;
+    return trend[0].weighted_avg_load * 0.6 + trend[1].weighted_avg_load * 0.4;
   }
-
-  return totalWeight / totalW;
+  return (
+    trend[0].weighted_avg_load * 0.5 +
+    trend[1].weighted_avg_load * 0.3 +
+    trend[2].weighted_avg_load * 0.2
+  );
 }
 
 function clamp(value: number, min: number, max: number): number {
