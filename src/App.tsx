@@ -21,6 +21,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
 import FAQ from "./pages/FAQ";
+import DebugProgression from "./pages/DebugProgression";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -112,6 +113,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/support" element={<Support />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/debug-progression" element={<ProtectedRoute requireSubscription><DebugProgression /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </SubscriptionProvider>
