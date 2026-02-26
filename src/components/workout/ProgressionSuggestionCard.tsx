@@ -1,0 +1,94 @@
+import { motion } from "framer-motion";
+import { TrendingUp, Minus, TrendingDown, Loader2, Sparkles } from "lucide-react";
+import { LatestProgression } from "@/services/progressionService";
+
+interface ProgressionSuggestionCardProps {
+  data: LatestProgression | null;
+  loading: boolean;
+  onApply: (weight: number) => void;
+}
+
+const decisionConfig = {
+  progress: {
+    icon: TrendingUp,
+    label: "Progresso",
+    color: "text-green-400",
+    bg: "bg-green-500/10 border-green-500/20",
+    getText: (w: number | null) => w ? `Hoje sobe para ${w} kg.` : "Podes subir de carga.",
+  },
+  maintain: {
+    icon: Minus,
+    label: "Manter",
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/10 border-yellow-500/20",
+    getText: (w: number | null) => w ? `Mantém ${w} kg e consolida.` : "Mantém a carga atual.",
+  },
+  deload: {
+    icon: TrendingDown,
+    label: "Deload",
+    color: "text-orange-400",
+    bg: "bg-orange-500/10 border-orange-500/20",
+    getText: (w: number | null) => w ? `Reduz para ${w} kg (-10%).` : "Reduz a carga para recuperar.",
+  },
+};
+
+const confidenceMap: Record<string, string> = {
+  high: "Alta",
+  medium: "Média",
+  low: "Baixa",
+};
+
+export const ProgressionSuggestionCard = ({
+  data,
+  loading,
+  onApply,
+}: ProgressionSuggestionCardProps) => {
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-2 px-3 rounded-xl bg-muted/30 text-muted-foreground text-sm">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        A analisar histórico…
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const config = decisionConfig[data.decision];
+  const Icon = config.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`rounded-xl border p-4 space-y-3 ${config.bg}`}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-black/20`}>
+            <Icon className={`w-4 h-4 ${config.color}`} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-white/90">
+              {config.getText(data.suggested_weight)}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Confiança: {confidenceMap[data.confidence] || data.confidence}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {data.suggested_weight && (
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => onApply(data.suggested_weight!)}
+          className="w-full py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white/90 transition-colors"
+        >
+          <Sparkles className="w-4 h-4" />
+          Aplicar sugestão — {data.suggested_weight} kg
+        </motion.button>
+      )}
+    </motion.div>
+  );
+};

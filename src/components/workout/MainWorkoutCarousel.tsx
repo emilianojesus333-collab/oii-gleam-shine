@@ -4,6 +4,8 @@ import { Dumbbell, TrendingUp, Save, Check, ChevronLeft, ChevronRight, Calculato
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useNavigate } from "react-router-dom";
 import { OneRMProgressChart } from "./OneRMProgressChart";
+import { useLatestProgression } from "@/hooks/useLatestProgression";
+import { ProgressionSuggestionCard } from "./ProgressionSuggestionCard";
 interface MainWorkoutCarouselProps {
   selectedExercise: string;
   setSelectedExercise: (value: string) => void;
@@ -82,6 +84,7 @@ export const MainWorkoutCarousel = ({
   
   const navigate = useNavigate();
   const { saveRecord, getProgressData, isAuthenticated, fetchRecords, records } = useOneRMRecords();
+  const { data: progressionData, loading: progressionLoading } = useLatestProgression(selectedExercise || null);
   
   // 1RM Calculator state (independent from registration)
   const [calcExercise, setCalcExercise] = useState("");
@@ -295,6 +298,13 @@ export const MainWorkoutCarousel = ({
                       ))}
                     </datalist>
                   </div>
+
+                  {/* Progression Suggestion */}
+                  <ProgressionSuggestionCard
+                    data={progressionData}
+                    loading={!!selectedExercise.trim() && progressionLoading}
+                    onApply={(w) => setWeight(String(w))}
+                  />
 
                   {/* Input Grid */}
                   <div className="grid grid-cols-2 gap-3">
