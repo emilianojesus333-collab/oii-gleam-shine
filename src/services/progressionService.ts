@@ -13,8 +13,7 @@ export interface LatestProgression {
 }
 
 /**
- * Fetches the most recent progression decision for a given exercise.
- * Returns null if no progression data exists yet.
+ * Fetches the most recent progression decision for a given exercise ID.
  */
 export async function getLatestProgression(
   exerciseId: string
@@ -33,4 +32,26 @@ export async function getLatestProgression(
   }
 
   return data as LatestProgression | null;
+}
+
+/**
+ * Fetches the most recent progression decision for an exercise by name.
+ * Looks up the exercise_id first, then queries progression_logs.
+ */
+export async function getLatestProgressionByName(
+  exerciseName: string
+): Promise<LatestProgression | null> {
+  // Find exercise ID by name
+  const { data: exercise, error: exError } = await supabase
+    .from("exercises")
+    .select("id")
+    .eq("name", exerciseName)
+    .limit(1)
+    .maybeSingle();
+
+  if (exError || !exercise) {
+    return null;
+  }
+
+  return getLatestProgression(exercise.id);
 }
