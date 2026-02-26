@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      exercises: {
+        Row: {
+          created_at: string
+          equipment: string | null
+          id: string
+          name: string
+          primary_muscle: Database["public"]["Enums"]["muscle_group"]
+          secondary_muscles:
+            | Database["public"]["Enums"]["muscle_group"][]
+            | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          equipment?: string | null
+          id?: string
+          name: string
+          primary_muscle: Database["public"]["Enums"]["muscle_group"]
+          secondary_muscles?:
+            | Database["public"]["Enums"]["muscle_group"][]
+            | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          equipment?: string | null
+          id?: string
+          name?: string
+          primary_muscle?: Database["public"]["Enums"]["muscle_group"]
+          secondary_muscles?:
+            | Database["public"]["Enums"]["muscle_group"][]
+            | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -226,6 +262,42 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_logs: {
+        Row: {
+          created_at: string
+          date: string
+          fatigue_level: number | null
+          id: string
+          notes: string | null
+          sleep_hours: number | null
+          sleep_quality: number | null
+          stress_level: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          fatigue_level?: number | null
+          id?: string
+          notes?: string | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          stress_level?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          fatigue_level?: number | null
+          id?: string
+          notes?: string | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          stress_level?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           ai_name: string | null
@@ -337,6 +409,63 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_sets: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          notes: string | null
+          reps: number
+          rpe: number | null
+          session_id: string
+          set_number: number
+          set_type: Database["public"]["Enums"]["set_type"]
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          notes?: string | null
+          reps?: number
+          rpe?: number | null
+          session_id: string
+          set_number: number
+          set_type?: Database["public"]["Enums"]["set_type"]
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          notes?: string | null
+          reps?: number
+          rpe?: number | null
+          session_id?: string
+          set_number?: number
+          set_type?: Database["public"]["Enums"]["set_type"]
+          user_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sets_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_sets_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -345,6 +474,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      muscle_group:
+        | "chest"
+        | "back"
+        | "shoulders"
+        | "biceps"
+        | "triceps"
+        | "forearms"
+        | "quadriceps"
+        | "hamstrings"
+        | "glutes"
+        | "calves"
+        | "abs"
+        | "traps"
+      set_type: "working" | "warmup" | "dropset" | "failure" | "backoff"
       subscription_status:
         | "never_subscribed"
         | "active"
@@ -477,6 +620,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      muscle_group: [
+        "chest",
+        "back",
+        "shoulders",
+        "biceps",
+        "triceps",
+        "forearms",
+        "quadriceps",
+        "hamstrings",
+        "glutes",
+        "calves",
+        "abs",
+        "traps",
+      ],
+      set_type: ["working", "warmup", "dropset", "failure", "backoff"],
       subscription_status: [
         "never_subscribed",
         "active",
