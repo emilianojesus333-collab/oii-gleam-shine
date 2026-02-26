@@ -426,7 +426,9 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
       last_7_days_avg: 0,
       training_days_3d: 0,
       training_days_7d: 0,
-      fatigue_ratio: 0,
+      fatigue_ratio: null,
+      status: "insufficient_data",
+      data_quality: "low",
     };
   }
 
@@ -469,8 +471,34 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
 
   const avg3d = trainingDays3d > 0 ? last3DaysVolume / trainingDays3d : 0;
   const avg7d = trainingDays7d > 0 ? last7DaysVolume / trainingDays7d : 0;
-  const fatigueRatio =
-    avg7d > 0 ? Math.round((avg3d / avg7d) * 100) / 100 : 0;
+
+  // Hierarchical status determination
+  // 1. insufficient_data if < 2 training days in 7d
+  // 2. fully_rested if 0 training days in 3d
+  // 3. ratio-based status otherwise
+  let fatigueRatio: number | null = null;
+  let status: string;
+  let dataQuality: string;
+
+  if (trainingDays7d < 2) {
+    status = "insufficient_data";
+    dataQuality = "low";
+  } else if (trainingDays3d === 0) {
+    status = "fully_rested";
+    dataQuality = "high";
+  } else {
+    fatigueRatio = avg7d > 0 ? Math.round((avg3d / avg7d) * 100) / 100 : 0;
+    dataQuality = "high";
+    if (fatigueRatio < 0.8) {
+      status = "recovering";
+    } else if (fatigueRatio <= 1.2) {
+      status = "stable";
+    } else if (fatigueRatio <= 1.5) {
+      status = "accumulating";
+    } else {
+      status = "overreaching";
+    }
+  }
 
   return {
     last_3_days_volume: Math.round(last3DaysVolume),
@@ -480,6 +508,8 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
     training_days_3d: trainingDays3d,
     training_days_7d: trainingDays7d,
     fatigue_ratio: fatigueRatio,
+    status,
+    data_quality: dataQuality,
   };
 }
 
