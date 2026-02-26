@@ -59,11 +59,11 @@ Deno.serve(async (req) => {
     }
 
     const userId = claimsData.claims.sub;
-    const { exercise_id } = await req.json();
+    const { exercise_id, session_id } = await req.json();
 
-    if (!exercise_id) {
+    if (!exercise_id || !session_id) {
       return new Response(
-        JSON.stringify({ error: "exercise_id is required" }),
+        JSON.stringify({ error: "exercise_id and session_id are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -239,7 +239,7 @@ Deno.serve(async (req) => {
     }
 
     // ─── Step 8: Upsert progression log ───
-    const latestSessionId = trend.length > 0 ? trend[0].session_id : null;
+    const latestSessionId = session_id;
     const muscleVolume = volumeData.find((v: any) => v.muscle_group === muscleGroup);
     const incrementPct = suggestedIncrement ? suggestedIncrement.percentage : null;
 
