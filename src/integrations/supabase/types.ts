@@ -482,6 +482,7 @@ export type Database = {
           exercises_completed: string[] | null
           id: string
           muscle_groups: string[] | null
+          status: Database["public"]["Enums"]["session_status"]
           total_exercises: number | null
           updated_at: string
           user_id: string
@@ -495,6 +496,7 @@ export type Database = {
           exercises_completed?: string[] | null
           id?: string
           muscle_groups?: string[] | null
+          status?: Database["public"]["Enums"]["session_status"]
           total_exercises?: number | null
           updated_at?: string
           user_id: string
@@ -508,6 +510,7 @@ export type Database = {
           exercises_completed?: string[] | null
           id?: string
           muscle_groups?: string[] | null
+          status?: Database["public"]["Enums"]["session_status"]
           total_exercises?: number | null
           updated_at?: string
           user_id?: string
@@ -594,6 +597,7 @@ export type Database = {
         | "traps"
       progression_confidence: "low" | "medium" | "high"
       progression_decision: "progress" | "maintain" | "deload"
+      session_status: "in_progress" | "completed"
       set_type: "working" | "warmup" | "dropset" | "failure" | "backoff"
       subscription_status:
         | "never_subscribed"
@@ -743,6 +747,7 @@ export const Constants = {
       ],
       progression_confidence: ["low", "medium", "high"],
       progression_decision: ["progress", "maintain", "deload"],
+      session_status: ["in_progress", "completed"],
       set_type: ["working", "warmup", "dropset", "failure", "backoff"],
       subscription_status: [
         "never_subscribed",

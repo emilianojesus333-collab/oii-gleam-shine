@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.progression-engine]
 verify_jwt = false
+
+[functions.complete-workout]
+verify_jwt = false
