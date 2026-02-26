@@ -282,7 +282,7 @@ export type Database = {
           rpe_avg: number | null
           rpe_score: number | null
           score: number
-          session_id: string | null
+          session_id: string
           suggested_increment_pct: number | null
           suggested_weight: number | null
           training_days_3d: number | null
@@ -311,7 +311,7 @@ export type Database = {
           rpe_avg?: number | null
           rpe_score?: number | null
           score: number
-          session_id?: string | null
+          session_id: string
           suggested_increment_pct?: number | null
           suggested_weight?: number | null
           training_days_3d?: number | null
@@ -340,7 +340,7 @@ export type Database = {
           rpe_avg?: number | null
           rpe_score?: number | null
           score?: number
-          session_id?: string | null
+          session_id?: string
           suggested_increment_pct?: number | null
           suggested_weight?: number | null
           training_days_3d?: number | null

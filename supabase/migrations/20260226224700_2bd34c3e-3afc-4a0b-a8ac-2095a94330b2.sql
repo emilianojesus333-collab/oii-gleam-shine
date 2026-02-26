@@ -1,0 +1,1 @@
+ALTER TABLE progression_logs ALTER COLUMN session_id SET NOT NULL;
