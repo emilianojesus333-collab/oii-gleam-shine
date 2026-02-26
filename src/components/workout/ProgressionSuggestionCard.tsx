@@ -57,11 +57,13 @@ export const ProgressionSuggestionCard = ({
   const config = decisionConfig[data.decision];
   const Icon = config.icon;
 
+  const isLow = data.confidence === "low";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-xl border p-4 space-y-3 ${config.bg}`}
+      className={`rounded-xl border p-4 space-y-3 ${config.bg} ${isLow ? "opacity-70" : ""}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
@@ -69,7 +71,7 @@ export const ProgressionSuggestionCard = ({
             <Icon className={`w-4 h-4 ${config.color}`} />
           </div>
           <div>
-            <p className="text-sm font-medium text-white/90">
+            <p className={`text-sm font-medium text-white/90 ${isLow ? "text-white/60" : ""}`}>
               {config.getText(data.suggested_weight)}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
@@ -79,7 +81,7 @@ export const ProgressionSuggestionCard = ({
         </div>
       </div>
 
-      {data.suggested_weight && (
+      {data.suggested_weight && !isLow && (
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => onApply(data.suggested_weight!)}
