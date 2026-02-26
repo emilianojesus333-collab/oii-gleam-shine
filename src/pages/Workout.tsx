@@ -12,7 +12,9 @@ import {
   TrendingUp,
   Clock,
   Save,
-  Check } from
+  Check,
+  Loader2,
+  CheckCircle2 } from
 "lucide-react";
 import {
   AlertDialog,
@@ -32,6 +34,8 @@ import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { completeWorkout } from "@/services/workoutService";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -127,6 +131,8 @@ const Workout = () => {
   const [justSaved, setJustSaved] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [completing, setCompleting] = useState(false);
 
   // Load today's saved exercises on mount
   useEffect(() => {
@@ -285,6 +291,40 @@ const Workout = () => {
     setShowSaveConfirm(false);
   };
 
+  const handleCompleteWorkout = async () => {
+    if (!user || savedExercises.length === 0) return;
+
+    setCompleting(true);
+    try {
+      const today = new Date();
+      const result = await completeWorkout({
+        date: today.toISOString().split("T")[0],
+        day_of_week: weekDaysMap[today.getDay()],
+        muscle_groups: todayWorkout?.split(" + ") || [],
+        exercises: savedExercises.map((e) => ({
+          name: e.name,
+          weight: e.weight,
+          reps: e.reps,
+          sets: e.sets,
+        })),
+      });
+
+      // Clear localStorage only on success
+      const storageKey = `liftmate_workout_history_${user.id}`;
+      const history = JSON.parse(localStorage.getItem(storageKey) || '{"sessions":[]}');
+      const todayStr = today.toISOString().split("T")[0];
+      history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
+      localStorage.setItem(storageKey, JSON.stringify(history));
+
+      navigate("/workout-summary", { state: { progressionResults: result.progression_results, sessionId: result.session_id } });
+    } catch (err: any) {
+      console.error("[Workout] Complete error:", err);
+      toast.error("Erro ao concluir treino. Os dados não foram perdidos.");
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
   return (
@@ -425,6 +465,26 @@ const Workout = () => {
                   </motion.div>
             )}
               </div>
+
+              {/* Complete Workout Button */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleCompleteWorkout}
+                disabled={completing}
+                className="w-full mt-4 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {completing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    A concluir...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    Concluir Treino
+                  </>
+                )}
+              </motion.button>
             </motion.div>
         }
 
