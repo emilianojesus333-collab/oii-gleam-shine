@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, TrendingUp, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity, BookmarkPlus, TrendingDown, User } from "lucide-react";
+import { Dumbbell, TrendingUp, Save, Check, ChevronLeft, ChevronRight, Calculator, Zap, Target, Activity, BookmarkPlus, TrendingDown, User, Sparkles } from "lucide-react";
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useNavigate } from "react-router-dom";
 import { OneRMProgressChart } from "./OneRMProgressChart";
@@ -85,7 +85,40 @@ export const MainWorkoutCarousel = ({
   const navigate = useNavigate();
   const { saveRecord, getProgressData, isAuthenticated, fetchRecords, records } = useOneRMRecords();
   const { data: progressionData, loading: progressionLoading } = useLatestProgression(selectedExercise || null);
-  
+
+  // Auto-apply progression state
+  const [autoApplied, setAutoApplied] = useState(false);
+  const [userTouchedWeight, setUserTouchedWeight] = useState(false);
+  const lastAutoAppliedExercise = useRef<string>("");
+
+  // Reset touch/auto-apply flags when exercise changes
+  useEffect(() => {
+    setUserTouchedWeight(false);
+    setAutoApplied(false);
+  }, [selectedExercise]);
+
+  // Auto-apply weight for high confidence
+  useEffect(() => {
+    if (
+      progressionData?.confidence === "high" &&
+      progressionData.suggested_weight != null &&
+      !userTouchedWeight &&
+      selectedExercise &&
+      lastAutoAppliedExercise.current !== selectedExercise
+    ) {
+      setWeight(String(progressionData.suggested_weight));
+      setAutoApplied(true);
+      lastAutoAppliedExercise.current = selectedExercise;
+    }
+  }, [progressionData, selectedExercise, userTouchedWeight, setWeight]);
+
+  // Weight change handler that tracks manual edits
+  const handleWeightChange = (value: string) => {
+    setUserTouchedWeight(true);
+    setAutoApplied(false);
+    setWeight(value);
+  };
+
   // 1RM Calculator state (independent from registration)
   const [calcExercise, setCalcExercise] = useState("");
   const [calcWeight, setCalcWeight] = useState("");
@@ -299,12 +332,19 @@ export const MainWorkoutCarousel = ({
                     </datalist>
                   </div>
 
-                  {/* Progression Suggestion */}
-                  <ProgressionSuggestionCard
-                    data={progressionData}
-                    loading={!!selectedExercise.trim() && progressionLoading}
-                    onApply={(w) => setWeight(String(w))}
-                  />
+                  {/* Progression Suggestion — hide full card for high confidence (auto-applied) */}
+                  {progressionData?.confidence !== "high" && (
+                    <ProgressionSuggestionCard
+                      data={progressionData}
+                      loading={!!selectedExercise.trim() && progressionLoading}
+                      onApply={(w) => {
+                        setWeight(String(w));
+                        setAutoApplied(true);
+                        setUserTouchedWeight(false);
+                        lastAutoAppliedExercise.current = selectedExercise;
+                      }}
+                    />
+                  )}
 
                   {/* Input Grid */}
                   <div className="grid grid-cols-2 gap-3">
@@ -313,10 +353,16 @@ export const MainWorkoutCarousel = ({
                       <input
                         type="number"
                         value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
+                        onChange={(e) => handleWeightChange(e.target.value)}
                         className="w-full bg-[#2A2A2A]/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                         placeholder="80"
                       />
+                      {autoApplied && !userTouchedWeight && (
+                        <p className="text-xs text-green-400/70 mt-1.5 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Sugestão aplicada automaticamente (confiança alta)
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm text-gray-400 mb-2 block">Repetições</label>
