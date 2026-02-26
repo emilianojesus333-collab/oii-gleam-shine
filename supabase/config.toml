@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.get-pricing]
 verify_jwt = false
+
+[functions.training-metrics]
+verify_jwt = false
