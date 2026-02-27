@@ -14,12 +14,21 @@ export interface ProgressionResult {
   error?: string;
 }
 
+export interface CelebrationEvent {
+  exercise_id: string;
+  exercise_name: string;
+  type: "new_max" | "new_12_week_high" | "progress_streak";
+  value: number;
+  streak_count?: number;
+}
+
 export interface CompleteWorkoutResponse {
   session_id: string;
   status: string;
   exercises_synced: number;
   sets_inserted: number;
   progression_results: ProgressionResult[];
+  celebrations: CelebrationEvent[];
 }
 
 export interface CompleteWorkoutInput {

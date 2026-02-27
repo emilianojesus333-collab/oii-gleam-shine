@@ -175,7 +175,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results.`);
+    // ─── Step 5: Celebration detection (batch, 2 queries max) ───
+    const celebrations = await detectCelebrations(
+      supabase, userId, sessionId, exercises, exerciseMap, uniqueExerciseIds
+    );
+
+    console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results, ${celebrations.length} celebrations.`);
 
     return jsonResponse({
       session_id: sessionId,
@@ -183,6 +188,7 @@ Deno.serve(async (req) => {
       exercises_synced: exercises.length,
       sets_inserted: setsToInsert.length,
       progression_results: progressionResults,
+      celebrations,
     });
   } catch (err: any) {
     console.error("[COMPLETE-WORKOUT] Error:", err);
@@ -342,6 +348,153 @@ async function runProgressionEngine(
     suggested_increment: suggestedIncrement,
     log_saved: !logError,
   };
+}
+
+// ─── Celebration Detection ───
+interface Celebration {
+  exercise_id: string;
+  exercise_name: string;
+  type: "new_max" | "new_12_week_high" | "progress_streak";
+  value: number;
+  streak_count?: number;
+}
+
+async function detectCelebrations(
+  supabase: any,
+  userId: string,
+  currentSessionId: string,
+  exercises: ExerciseInput[],
+  exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null }>,
+  exerciseIds: string[]
+): Promise<Celebration[]> {
+  if (exerciseIds.length === 0) return [];
+
+  const twelveWeeksAgo = getDateNDaysAgo(84);
+
+  // ── Batch Query 1: Historical sets (12 weeks, excluding current session) ──
+  const { data: historicalSessions } = await supabase
+    .from("workout_sessions")
+    .select("id, date")
+    .eq("user_id", userId)
+    .gte("date", twelveWeeksAgo)
+    .neq("id", currentSessionId);
+
+  const historicalSessionIds = (historicalSessions || []).map((s: any) => s.id);
+
+  let historicalSets: any[] = [];
+  if (historicalSessionIds.length > 0) {
+    const { data: sets } = await supabase
+      .from("workout_sets")
+      .select("exercise_id, session_id, weight, reps")
+      .eq("user_id", userId)
+      .eq("set_type", "working")
+      .in("exercise_id", exerciseIds)
+      .in("session_id", historicalSessionIds);
+    historicalSets = sets || [];
+  }
+
+  // ── Batch Query 2: Recent progression_logs for streak detection ──
+  const { data: recentLogs } = await supabase
+    .from("progression_logs")
+    .select("exercise_id, decision, session_id, created_at")
+    .eq("user_id", userId)
+    .in("exercise_id", exerciseIds)
+    .order("created_at", { ascending: false })
+    .limit(exerciseIds.length * 10); // at most ~10 per exercise
+
+  // ── Build historical stats per exercise (in-memory) ──
+  const histByExercise = new Map<string, { maxWeight: number; maxAvgLoad: number }>();
+  // Group sets by exercise+session for weighted avg
+  const setsByExSession = new Map<string, { weight: number; reps: number }[]>();
+
+  for (const set of historicalSets) {
+    const key = `${set.exercise_id}::${set.session_id}`;
+    if (!setsByExSession.has(key)) setsByExSession.set(key, []);
+    setsByExSession.get(key)!.push({ weight: set.weight, reps: set.reps });
+
+    // Track max single weight
+    const cur = histByExercise.get(set.exercise_id) || { maxWeight: 0, maxAvgLoad: 0 };
+    if (set.weight > cur.maxWeight) cur.maxWeight = set.weight;
+    histByExercise.set(set.exercise_id, cur);
+  }
+
+  // Calculate max weighted_avg_load per session, keep highest per exercise
+  for (const [key, sets] of setsByExSession) {
+    const exerciseId = key.split("::")[0];
+    const totalVol = sets.reduce((s, v) => s + v.weight * v.reps, 0);
+    const totalReps = sets.reduce((s, v) => s + v.reps, 0);
+    const avgLoad = totalReps > 0 ? totalVol / totalReps : 0;
+
+    const cur = histByExercise.get(exerciseId)!;
+    if (avgLoad > cur.maxAvgLoad) cur.maxAvgLoad = avgLoad;
+  }
+
+  // ── Build streaks per exercise from progression_logs ──
+  const streakByExercise = new Map<string, number>();
+  const logsByExercise = new Map<string, any[]>();
+  for (const log of recentLogs || []) {
+    if (!logsByExercise.has(log.exercise_id)) logsByExercise.set(log.exercise_id, []);
+    logsByExercise.get(log.exercise_id)!.push(log);
+  }
+  for (const [exId, logs] of logsByExercise) {
+    // logs already sorted desc by created_at
+    let streak = 0;
+    for (const log of logs) {
+      if (log.decision === "progress") streak++;
+      else break;
+    }
+    if (streak >= 2) streakByExercise.set(exId, streak);
+  }
+
+  // ── Current session stats per exercise ──
+  const celebrations: Celebration[] = [];
+
+  for (const exercise of exercises) {
+    const info = exerciseMap.get(exercise.name);
+    if (!info) continue;
+
+    const currentMaxWeight = exercise.weight;
+    const currentAvgLoad = exercise.reps > 0 ? exercise.weight : 0; // single weight/reps pair
+    const hist = histByExercise.get(info.id);
+
+    let bestCelebration: Celebration | null = null;
+
+    // Priority 1: New max weight
+    if (hist && currentMaxWeight > hist.maxWeight && hist.maxWeight > 0) {
+      bestCelebration = {
+        exercise_id: info.id,
+        exercise_name: exercise.name,
+        type: "new_max",
+        value: round2(currentMaxWeight),
+      };
+    }
+
+    // Priority 2: New 12-week high weighted avg load (only if no max)
+    if (!bestCelebration && hist && currentAvgLoad > hist.maxAvgLoad && hist.maxAvgLoad > 0) {
+      bestCelebration = {
+        exercise_id: info.id,
+        exercise_name: exercise.name,
+        type: "new_12_week_high",
+        value: round2(currentAvgLoad),
+      };
+    }
+
+    // Priority 3: Progress streak >= 2
+    const streak = streakByExercise.get(info.id);
+    if (!bestCelebration && streak && streak >= 2) {
+      bestCelebration = {
+        exercise_id: info.id,
+        exercise_name: exercise.name,
+        type: "progress_streak",
+        value: streak,
+        streak_count: streak,
+      };
+    }
+
+    if (bestCelebration) celebrations.push(bestCelebration);
+  }
+
+  return celebrations;
 }
 
 // ─── Data Helpers (same as progression-engine) ───
