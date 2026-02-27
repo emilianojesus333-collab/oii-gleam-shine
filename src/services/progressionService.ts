@@ -10,6 +10,7 @@ export interface LatestProgression {
   suggested_weight: number | null;
   suggested_increment_pct: number | null;
   created_at: string;
+  score_trend?: "up" | "down" | "stable" | null;
 }
 
 /**
@@ -23,15 +24,29 @@ export async function getLatestProgression(
     .select("id, exercise_id, decision, score, confidence, base_weight, suggested_weight, suggested_increment_pct, created_at")
     .eq("exercise_id", exerciseId)
     .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(3);
 
-  if (error) {
-    console.error("[progressionService] Error fetching progression:", error);
+  if (error || !data || data.length === 0) {
+    if (error) console.error("[progressionService] Error fetching progression:", error);
     return null;
   }
 
-  return data as LatestProgression | null;
+  const latest = data[0] as LatestProgression;
+
+  // Compute trend from last 3 scores
+  if (data.length >= 3) {
+    const [s1, s2, s3] = data.map((d) => Number(d.score));
+    if (s1 > s2 && s2 > s3) latest.score_trend = "up";
+    else if (s1 < s2 && s2 < s3) latest.score_trend = "down";
+    else latest.score_trend = "stable";
+  } else if (data.length === 2) {
+    const [s1, s2] = data.map((d) => Number(d.score));
+    latest.score_trend = s1 > s2 ? "up" : s1 < s2 ? "down" : "stable";
+  } else {
+    latest.score_trend = null;
+  }
+
+  return latest;
 }
 
 /**
