@@ -37,7 +37,7 @@ interface GeneratedWorkout {
 interface AIWorkoutGeneratorProps {
   todayMuscleGroups: string[];
   trainingType: string;
-  onAddExercise: (exercise: { name: string; weight: number; reps: number; sets: number }) => void;
+  onAddExercise: (exercise: {name: string;weight: number;reps: number;sets: number;}) => void;
 }
 
 export const AIWorkoutGenerator = ({
@@ -157,7 +157,7 @@ export const AIWorkoutGenerator = ({
         whileTap={{ scale: 0.95 }}
         onClick={generateWorkout}
         disabled={isGenerating}
-        className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 disabled:opacity-50">
+        className="w-full py-4 rounded-xl font-semibold shadow-lg shadow-primary/30 bg-black text-primary flex items-center justify-center gap-0 border-transparent opacity-75">
 
           {isGenerating ?
         <>
@@ -196,15 +196,15 @@ export const AIWorkoutGenerator = ({
           </div>
 
           {/* Add All Button */}
-          {addedExercises.size < workout.exercises.length && (
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={handleAddAll}
-              className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-green-600/30">
+          {addedExercises.size < workout.exercises.length &&
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={handleAddAll}
+          className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-green-600/30">
               <Plus className="w-5 h-5" />
               Adicionar todos ao treino
             </motion.button>
-          )}
+        }
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 &&
@@ -252,18 +252,18 @@ export const AIWorkoutGenerator = ({
                       </p>
                     </div>
 
-                    {!isAdded ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddExercise(exercise, index);
-                        }}
-                        className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-medium hover:bg-primary/30 transition-all">
+                    {!isAdded ?
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddExercise(exercise, index);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-medium hover:bg-primary/30 transition-all">
                         <Plus className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <span className="text-xs text-green-400 font-medium">✓ Adicionado</span>
-                    )}
+                      </button> :
+
+                  <span className="text-xs text-green-400 font-medium">✓ Adicionado</span>
+                  }
 
                     {isExpanded ?
                   <ChevronUp className="w-5 h-5 text-gray-400" /> :
