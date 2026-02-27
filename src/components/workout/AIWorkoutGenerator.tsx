@@ -10,7 +10,7 @@ import {
   Target,
   Zap,
   AlertCircle,
-  Check } from
+  Plus } from
 "lucide-react";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { toast } from "sonner";
@@ -37,19 +37,19 @@ interface GeneratedWorkout {
 interface AIWorkoutGeneratorProps {
   todayMuscleGroups: string[];
   trainingType: string;
-  onSelectExercise?: (exercise: string) => void;
+  onAddExercise: (exercise: { name: string; weight: number; reps: number; sets: number }) => void;
 }
 
 export const AIWorkoutGenerator = ({
   todayMuscleGroups,
   trainingType,
-  onSelectExercise
+  onAddExercise
 }: AIWorkoutGeneratorProps) => {
   const { t } = useLanguage();
   const [isGenerating, setIsGenerating] = useState(false);
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null);
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
-  const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set());
+  const [addedExercises, setAddedExercises] = useState<Set<number>>(new Set());
 
   // Get user profile from localStorage
   const userProfile = useMemo(() => {
@@ -72,7 +72,7 @@ export const AIWorkoutGenerator = ({
 
     setIsGenerating(true);
     setWorkout(null);
-    setCompletedExercises(new Set());
+    setAddedExercises(new Set());
 
     try {
       const { data, error } = await invokeWithAuth<{workout?: GeneratedWorkout;error?: string;}>("generate-workout", {
@@ -101,21 +101,34 @@ export const AIWorkoutGenerator = ({
     }
   };
 
-  const toggleExerciseComplete = (index: number) => {
-    setCompletedExercises((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
+  const handleAddExercise = (exercise: GeneratedExercise, index: number) => {
+    const repsNum = parseInt(exercise.reps) || 10;
+    onAddExercise({
+      name: exercise.name,
+      weight: 0, // User will set weight
+      reps: repsNum,
+      sets: exercise.sets
     });
+    setAddedExercises((prev) => new Set(prev).add(index));
+    toast.success(`${exercise.name} adicionado ao treino`);
   };
 
-  const progressPercentage = workout ?
-  Math.round(completedExercises.size / workout.exercises.length * 100) :
-  0;
+  const handleAddAll = () => {
+    if (!workout) return;
+    workout.exercises.forEach((exercise, index) => {
+      if (!addedExercises.has(index)) {
+        const repsNum = parseInt(exercise.reps) || 10;
+        onAddExercise({
+          name: exercise.name,
+          weight: 0,
+          reps: repsNum,
+          sets: exercise.sets
+        });
+      }
+    });
+    setAddedExercises(new Set(workout.exercises.map((_, i) => i)));
+    toast.success("Todos os exercícios adicionados ao treino");
+  };
 
   if (todayMuscleGroups.length === 0) {
     return null;
@@ -151,12 +164,10 @@ export const AIWorkoutGenerator = ({
               <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-
                 <Sparkles className="w-5 h-5" />
               </motion.div>
               {t("aiWorkout.generating")}
             </> :
-
         <>
               <Sparkles className="w-5 h-5" />
               {t("aiWorkout.generateFor")} {todayMuscleGroups.join(" + ")}
@@ -165,23 +176,6 @@ export const AIWorkoutGenerator = ({
         </motion.button> :
 
       <div className="space-y-4">
-          {/* Progress Bar */}
-          <div className="bg-[#2A2A2A]/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-400">{t("aiWorkout.progress")}</span>
-              <span className="text-sm font-semibold text-primary">
-                {completedExercises.size}/{workout.exercises.length} {t("aiWorkout.exercises")}
-              </span>
-            </div>
-            <div className="h-2 bg-[#1E1E1E] rounded-full overflow-hidden">
-              <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercentage}%` }}
-              className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full" />
-
-            </div>
-          </div>
-
           {/* Workout Info */}
           <div className="flex gap-3">
             <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
@@ -200,6 +194,17 @@ export const AIWorkoutGenerator = ({
               <p className="text-xs text-gray-400">{t("home.exercises")}</p>
             </div>
           </div>
+
+          {/* Add All Button */}
+          {addedExercises.size < workout.exercises.length && (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleAddAll}
+              className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-green-600/30">
+              <Plus className="w-5 h-5" />
+              Adicionar todos ao treino
+            </motion.button>
+          )}
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 &&
@@ -221,7 +226,7 @@ export const AIWorkoutGenerator = ({
           {/* Exercises */}
           <div className="space-y-2">
             {workout.exercises.map((exercise, index) => {
-            const isCompleted = completedExercises.has(index);
+            const isAdded = addedExercises.has(index);
             const isExpanded = expandedExercise === index;
 
             return (
@@ -231,29 +236,15 @@ export const AIWorkoutGenerator = ({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={`bg-[#2A2A2A]/50 rounded-xl overflow-hidden transition-all ${
-                isCompleted ? "border border-green-500/30" : ""}`
+                isAdded ? "border border-green-500/30" : ""}`
                 }>
 
                   <div
                   className="flex items-center gap-3 p-4 cursor-pointer"
                   onClick={() => setExpandedExercise(isExpanded ? null : index)}>
 
-                    <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleExerciseComplete(index);
-                    }}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-                    isCompleted ?
-                    "bg-green-500 text-white" :
-                    "bg-[#1E1E1E] border border-gray-600"}`
-                    }>
-
-                      {isCompleted && <Check className="w-4 h-4" />}
-                    </button>
-                    
                     <div className="flex-1">
-                      <p className={`font-medium ${isCompleted ? "text-gray-400 line-through" : "text-white"}`}>
+                      <p className={`font-medium ${isAdded ? "text-green-400" : "text-white"}`}>
                         {exercise.name}
                       </p>
                       <p className="text-xs text-gray-400">
@@ -261,9 +252,21 @@ export const AIWorkoutGenerator = ({
                       </p>
                     </div>
 
+                    {!isAdded ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddExercise(exercise, index);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-medium hover:bg-primary/30 transition-all">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <span className="text-xs text-green-400 font-medium">✓ Adicionado</span>
+                    )}
+
                     {isExpanded ?
                   <ChevronUp className="w-5 h-5 text-gray-400" /> :
-
                   <ChevronDown className="w-5 h-5 text-gray-400" />
                   }
                   </div>
@@ -287,14 +290,6 @@ export const AIWorkoutGenerator = ({
                     <p className="text-xs text-gray-400">
                             <span className="text-gray-300">{t("aiWorkout.equipment")}:</span> {exercise.equipment}
                           </p>
-                    }
-                        {onSelectExercise &&
-                    <button
-                      onClick={() => onSelectExercise(exercise.name)}
-                      className="mt-2 text-xs text-primary hover:underline">
-
-                            {t("aiWorkout.useInRecord")}
-                          </button>
                     }
                       </motion.div>
                   }
