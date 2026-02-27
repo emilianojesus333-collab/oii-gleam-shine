@@ -16,6 +16,7 @@ import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups, typ
 import { saveWorkoutSession, getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
+import { WeeklyPerformanceWidget } from "@/components/home/WeeklyPerformanceWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
@@ -578,6 +579,9 @@ const Home = () => {
 
           </div>
         </motion.div>
+
+        {/* Weekly Performance Widget */}
+        <WeeklyPerformanceWidget />
 
         {/* AI Insights Widget */}
         <AIInsightsWidget />

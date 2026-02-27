@@ -59,6 +59,15 @@ export const ProgressionSuggestionCard = ({
 
   const isLow = data.confidence === "low";
 
+  // BLOCO 2: Compute trend from score_trend if available
+  const trendIndicator = data.score_trend
+    ? data.score_trend === "up"
+      ? { symbol: "↑", color: "text-green-400", label: "Tendência positiva" }
+      : data.score_trend === "down"
+      ? { symbol: "↓", color: "text-red-400", label: "Tendência negativa" }
+      : { symbol: "→", color: "text-muted-foreground", label: "Estável" }
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -74,9 +83,19 @@ export const ProgressionSuggestionCard = ({
             <p className={`text-sm font-medium text-white/90 ${isLow ? "text-white/60" : ""}`}>
               {config.getText(data.suggested_weight)}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Confiança: {confidenceMap[data.confidence] || data.confidence}
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-xs text-gray-400">
+                Confiança: {confidenceMap[data.confidence] || data.confidence}
+              </p>
+              {isLow && (
+                <span className="text-[10px] text-gray-500 italic">· Baseado em dados limitados</span>
+              )}
+              {trendIndicator && (
+                <span className={`text-xs font-medium ${trendIndicator.color}`} title={trendIndicator.label}>
+                  {trendIndicator.symbol}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -44,6 +44,28 @@ export default function WorkoutSummary() {
         <h1 className="text-xl font-bold">Resumo do Treino</h1>
       </div>
 
+      {/* BLOCO 4: Micro-narrative */}
+      {(() => {
+        const hasCelebration = celebrations && celebrations.some((c) => c.type === "new_max");
+        const hasProgress = progressionResults.some((r) => r.decision === "progress");
+        const allMaintain = progressionResults.every((r) => r.decision === "maintain");
+        const hasDeload = progressionResults.some((r) => r.decision === "deload");
+
+        const narrative = hasCelebration
+          ? "Hoje superaste o teu melhor desempenho recente."
+          : hasProgress
+          ? "Consistência sólida. O plano está a funcionar."
+          : allMaintain
+          ? "Estás a consolidar força."
+          : hasDeload
+          ? "Recuperação estratégica ativa."
+          : null;
+
+        return narrative ? (
+          <p className="text-sm text-muted-foreground mb-5 italic">{narrative}</p>
+        ) : null;
+      })()}
+
       <p className="text-sm text-muted-foreground mb-4">
         {progressionResults.length} exercício{progressionResults.length > 1 ? "s" : ""} analisado{progressionResults.length > 1 ? "s" : ""}
       </p>
