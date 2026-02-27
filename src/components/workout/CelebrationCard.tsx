@@ -4,17 +4,19 @@ import type { CelebrationEvent } from "@/services/workoutService";
 
 const celebrationConfig = {
   new_max: {
+    eyebrow: "DESEMPENHO MÁXIMO",
     title: "Recorde pessoal nas últimas 12 semanas",
     subtitle: (v: number) => `Nova carga máxima: ${v} kg`,
     icon: Trophy,
-    border: "border-yellow-500/70",
+    border: "border-yellow-500/80",
     iconColor: "text-yellow-400",
     bg: "bg-yellow-400/[0.07]",
     iconSize: "w-6 h-6",
-    titleClass: "text-sm font-bold text-foreground",
-    padding: "p-5",
+    titleClass: "text-base font-bold text-foreground",
+    padding: "py-5 px-5",
   },
   new_12_week_high: {
+    eyebrow: null,
     title: "Melhor média de carga das últimas 12 semanas",
     subtitle: (v: number) => `Média de carga: ${v} kg`,
     icon: TrendingUp,
@@ -26,6 +28,7 @@ const celebrationConfig = {
     padding: "p-4",
   },
   progress_streak: {
+    eyebrow: null,
     title: "Consistência comprovada",
     subtitle: (_v: number, streak?: number) =>
       `${streak ?? _v} sessões consecutivas a progredir`,
@@ -63,6 +66,11 @@ export default function CelebrationCard({ celebration, index }: CelebrationCardP
           <p className="text-xs font-medium text-muted-foreground mb-0.5">
             {celebration.exercise_name}
           </p>
+          {config.eyebrow && (
+            <p className="text-[10px] uppercase tracking-widest font-semibold text-yellow-400/80 mb-1">
+              {config.eyebrow}
+            </p>
+          )}
           <p className={config.titleClass}>
             {config.title}
           </p>
