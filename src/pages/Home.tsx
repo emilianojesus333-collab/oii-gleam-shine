@@ -304,22 +304,22 @@ const Home = () => {
           </motion.div>
 
           {/* Single "Iniciar Treino" button */}
-          {!isRestDay && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-4 sm:mt-6">
+          {!isRestDay &&
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-4 sm:mt-6">
 
               <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => navigate("/workout")}
-                className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-all">
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/workout")}
+              className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition-all text-primary bg-black border-primary">
                 <Dumbbell className="w-5 h-5" />
                 {t("workout.startWorkout") || "Iniciar Treino"}
               </motion.button>
             </motion.div>
-          )}
+          }
         </motion.div>
 
         {/* Stats Carousel */}
