@@ -81,20 +81,32 @@ Deno.serve(async (req) => {
     const sessionId = session_id || crypto.randomUUID();
     const exerciseNames = exercises.map((e) => e.name);
 
-    const { error: sessionError } = await supabase
+    // Check if session already exists for this user+date
+    const { data: existingSession } = await supabase
       .from("workout_sessions")
-      .upsert({
-        id: sessionId,
-        user_id: userId,
-        date,
-        day_of_week,
-        muscle_groups: muscle_groups || [],
-        exercises_completed: exerciseNames,
-        total_exercises: exercises.length,
-        completion_rate: 100,
-        exercise_logs: exercises,
-        status: "completed",
-      }, { onConflict: "id" });
+      .select("id")
+      .eq("user_id", userId)
+      .eq("date", date)
+      .maybeSingle();
+
+    const finalSessionId = existingSession?.id || sessionId;
+
+    const sessionPayload = {
+      id: finalSessionId,
+      user_id: userId,
+      date,
+      day_of_week,
+      muscle_groups: muscle_groups || [],
+      exercises_completed: exerciseNames,
+      total_exercises: exercises.length,
+      completion_rate: 100,
+      exercise_logs: exercises,
+      status: "completed",
+    };
+
+    const { error: sessionError } = existingSession
+      ? await supabase.from("workout_sessions").update(sessionPayload).eq("id", finalSessionId)
+      : await supabase.from("workout_sessions").insert(sessionPayload);
 
     if (sessionError) {
       console.error("[COMPLETE-WORKOUT] Session upsert error:", sessionError);
@@ -103,7 +115,7 @@ Deno.serve(async (req) => {
 
     // ─── Step 2: Resolve exercise IDs ───
     // Look up exercises by name, create if not found
-    const exerciseMap = new Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null }>();
+    const exerciseMap = new Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null; user_id: string | null }>();
 
     const { data: existingExercises } = await supabase
       .from("exercises")
@@ -132,7 +144,7 @@ Deno.serve(async (req) => {
       for (let setNum = 1; setNum <= exercise.sets; setNum++) {
         setsToInsert.push({
           user_id: userId,
-          session_id: sessionId,
+          session_id: finalSessionId,
           exercise_id: exerciseInfo.id,
           set_number: setNum,
           weight: exercise.weight,
@@ -148,7 +160,7 @@ Deno.serve(async (req) => {
       await supabase
         .from("workout_sets")
         .delete()
-        .eq("session_id", sessionId)
+        .eq("session_id", finalSessionId)
         .eq("user_id", userId);
 
       const { error: setsError } = await supabase
@@ -172,7 +184,7 @@ Deno.serve(async (req) => {
 
     for (const exerciseId of uniqueExerciseIds) {
       try {
-        const result = await runProgressionEngine(supabase, userId, exerciseId, sessionId);
+        const result = await runProgressionEngine(supabase, userId, exerciseId, finalSessionId);
         progressionResults.push(result);
       } catch (err: any) {
         console.error(`[COMPLETE-WORKOUT] Progression error for ${exerciseId}:`, err.message);
@@ -187,13 +199,13 @@ Deno.serve(async (req) => {
       if (pr.exercise_id && pr.decision) decisionMap.set(pr.exercise_id, pr.decision);
     }
     const celebrations = await detectCelebrations(
-      supabase, userId, sessionId, exercises, exerciseMap, uniqueExerciseIds, decisionMap
+      supabase, userId, finalSessionId, exercises, exerciseMap, uniqueExerciseIds, decisionMap
     );
 
     console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results, ${celebrations.length} celebrations.`);
 
     return jsonResponse({
-      session_id: sessionId,
+      session_id: finalSessionId,
       status: "completed",
       exercises_synced: exercises.length,
       sets_inserted: setsToInsert.length,
@@ -374,7 +386,7 @@ async function detectCelebrations(
   userId: string,
   currentSessionId: string,
   exercises: ExerciseInput[],
-  exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null }>,
+  exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null; user_id: string | null }>,
   exerciseIds: string[],
   decisionMap: Map<string, string>
 ): Promise<Celebration[]> {
