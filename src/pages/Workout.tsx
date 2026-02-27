@@ -316,7 +316,7 @@ const Workout = () => {
       history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
       localStorage.setItem(storageKey, JSON.stringify(history));
 
-      navigate("/workout-summary", { state: { progressionResults: result.progression_results, sessionId: result.session_id } });
+      navigate(`/workout-summary/${result.session_id}`);
     } catch (err: any) {
       console.error("[Workout] Complete error:", err);
       toast.error("Erro ao concluir treino. Os dados não foram perdidos.");
