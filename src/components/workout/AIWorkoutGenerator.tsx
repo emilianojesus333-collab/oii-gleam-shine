@@ -327,20 +327,6 @@ export const AIWorkoutGenerator = ({
             {t("aiWorkout.regenerate")}
           </button>
 
-          {/* Ver Treino sticky button */}
-          {addedExercises.size > 0 && (
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                document.getElementById("saved-exercises-section")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="sticky bottom-4 w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 z-10">
-              <Dumbbell className="w-5 h-5" />
-              Ver Treino ({addedExercises.size} exercícios)
-            </motion.button>
-          )}
         </div>
       }
     </motion.div>);
