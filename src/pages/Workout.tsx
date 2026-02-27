@@ -350,6 +350,32 @@ const Workout = () => {
         </motion.div>
       </div>
 
+      {/* Fixed bottom CTA */}
+      {!isRestDay && savedExercises.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-20 left-0 right-0 z-50 px-5 pb-4 pt-3 bg-gradient-to-t from-black via-black/95 to-transparent">
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleCompleteWorkout}
+            disabled={completing}
+            className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-green-600/30">
+            {completing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                A concluir...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                Concluir Treino ({savedExercises.length})
+              </>
+            )}
+          </motion.button>
+        </motion.div>
+      )}
+
       {isRestDay ?
       <motion.div
         initial={{ opacity: 0 }}
@@ -437,6 +463,7 @@ const Workout = () => {
           {/* Saved Exercises Today */}
           {savedExercises.length > 0 &&
         <motion.div
+          id="saved-exercises-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -472,25 +499,6 @@ const Workout = () => {
             )}
               </div>
 
-              {/* Complete Workout Button */}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handleCompleteWorkout}
-                disabled={completing}
-                className="w-full mt-4 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {completing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    A concluir...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-5 h-5" />
-                    Concluir Treino
-                  </>
-                )}
-              </motion.button>
             </motion.div>
         }
 
