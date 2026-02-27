@@ -48,13 +48,18 @@ export default function WorkoutSummary() {
         {progressionResults.length} exercício{progressionResults.length > 1 ? "s" : ""} analisado{progressionResults.length > 1 ? "s" : ""}
       </p>
 
-      {celebrations && celebrations.length > 0 && (
-        <div className="space-y-2 mb-5">
-          {celebrations.map((c, i) => (
-            <CelebrationCard key={c.exercise_id} celebration={c} index={i} />
-          ))}
-        </div>
-      )}
+      {celebrations && celebrations.length > 0 && (() => {
+        const priority: Record<string, number> = { new_max: 1, new_12_week_high: 2, progress_streak: 3 };
+        const sorted = [...celebrations].sort((a, b) => (priority[a.type] ?? 9) - (priority[b.type] ?? 9));
+        const hasMaxFirst = sorted[0]?.type === "new_max";
+        return (
+          <div className={`space-y-2 ${hasMaxFirst ? "mb-6" : "mb-5"}`}>
+            {sorted.map((c, i) => (
+              <CelebrationCard key={c.exercise_id} celebration={c} index={i} />
+            ))}
+          </div>
+        );
+      })()}
 
       <div className="space-y-3">
         {progressionResults.map((result, i) => {
