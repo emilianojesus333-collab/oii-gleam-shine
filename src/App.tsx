@@ -22,6 +22,7 @@ import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
 import FAQ from "./pages/FAQ";
 import WorkoutSummary from "./pages/WorkoutSummary";
+import History from "./pages/History";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -110,10 +111,18 @@ const App = () => (
               }
             />
             <Route
-              path="/workout-summary"
+              path="/workout-summary/:sessionId"
               element={
                 <ProtectedRoute requireSubscription>
                   <WorkoutSummary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <History />
                 </ProtectedRoute>
               }
             />
