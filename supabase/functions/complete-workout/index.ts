@@ -131,6 +131,43 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Auto-create exercises that don't exist yet
+    const missingExercises = exerciseNames.filter((name) => !exerciseMap.has(name));
+    if (missingExercises.length > 0) {
+      // Map muscle_groups to valid enum; fallback to "chest"
+      const validMuscles = ["chest","back","shoulders","biceps","triceps","forearms","quadriceps","hamstrings","glutes","calves","abs","traps"];
+      const muscleGroupMap: Record<string, string> = {
+        "Peito": "chest", "Costas": "back", "Ombros": "shoulders",
+        "Bíceps": "biceps", "Tríceps": "triceps", "Antebraços": "forearms",
+        "Pernas": "quadriceps", "Quadríceps": "quadriceps", "Posteriores": "hamstrings",
+        "Glúteos": "glutes", "Gémeos": "calves", "Abdómen": "abs", "Trapézio": "traps",
+      };
+      const inferredMuscle = (muscle_groups || [])
+        .map((mg: string) => muscleGroupMap[mg])
+        .find((m: string | undefined) => m && validMuscles.includes(m)) || "chest";
+
+      const toInsert = missingExercises.map((name) => ({
+        name,
+        user_id: userId,
+        primary_muscle: inferredMuscle,
+        secondary_muscles: [],
+      }));
+
+      const { data: created, error: createError } = await supabase
+        .from("exercises")
+        .insert(toInsert)
+        .select("id, name, primary_muscle, secondary_muscles, user_id");
+
+      if (createError) {
+        console.error("[COMPLETE-WORKOUT] Failed to auto-create exercises:", createError.message);
+      } else if (created) {
+        for (const ex of created) {
+          exerciseMap.set(ex.name, ex);
+        }
+        console.log(`[COMPLETE-WORKOUT] Auto-created ${created.length} exercises: ${missingExercises.join(", ")}`);
+      }
+    }
+
     // ─── Step 3: Insert workout_sets ───
     const setsToInsert: any[] = [];
 
