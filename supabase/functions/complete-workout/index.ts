@@ -107,11 +107,16 @@ Deno.serve(async (req) => {
 
     const { data: existingExercises } = await supabase
       .from("exercises")
-      .select("id, name, primary_muscle, secondary_muscles")
-      .in("name", exerciseNames);
+      .select("id, name, primary_muscle, secondary_muscles, user_id")
+      .in("name", exerciseNames)
+      .or(`user_id.eq.${userId},user_id.is.null`);
 
+    // Priority: user-owned exercises override globals with same name
     for (const ex of existingExercises || []) {
-      exerciseMap.set(ex.name, ex);
+      const current = exerciseMap.get(ex.name);
+      if (!current || (ex.user_id !== null && current.user_id === null)) {
+        exerciseMap.set(ex.name, ex);
+      }
     }
 
     // ─── Step 3: Insert workout_sets ───
