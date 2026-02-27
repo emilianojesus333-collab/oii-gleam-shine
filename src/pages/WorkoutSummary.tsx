@@ -2,7 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, TrendingUp, Minus, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ProgressionResult } from "@/services/workoutService";
+import CelebrationCard from "@/components/workout/CelebrationCard";
+import type { ProgressionResult, CelebrationEvent } from "@/services/workoutService";
 
 const decisionConfig = {
   progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
@@ -19,9 +20,10 @@ const confidenceLabels: Record<string, string> = {
 export default function WorkoutSummary() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { progressionResults, sessionId } = (location.state || {}) as {
+  const { progressionResults, sessionId, celebrations } = (location.state || {}) as {
     progressionResults?: ProgressionResult[];
     sessionId?: string;
+    celebrations?: CelebrationEvent[];
   };
 
   if (!progressionResults || progressionResults.length === 0) {
@@ -45,6 +47,14 @@ export default function WorkoutSummary() {
       <p className="text-sm text-muted-foreground mb-4">
         {progressionResults.length} exercício{progressionResults.length > 1 ? "s" : ""} analisado{progressionResults.length > 1 ? "s" : ""}
       </p>
+
+      {celebrations && celebrations.length > 0 && (
+        <div className="space-y-2 mb-5">
+          {celebrations.map((c, i) => (
+            <CelebrationCard key={c.exercise_id} celebration={c} index={i} />
+          ))}
+        </div>
+      )}
 
       <div className="space-y-3">
         {progressionResults.map((result, i) => {
