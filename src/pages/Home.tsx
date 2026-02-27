@@ -314,7 +314,7 @@ const Home = () => {
               <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate("/workout")}
-              className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition-all text-primary bg-black border-primary">
+              className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition-all text-primary bg-black border-primary opacity-75">
                 <Dumbbell className="w-5 h-5" />
                 {t("workout.startWorkout") || "Iniciar Treino"}
               </motion.button>
