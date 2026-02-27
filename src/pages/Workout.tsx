@@ -401,7 +401,13 @@ const Workout = () => {
           <AIWorkoutGenerator
           todayMuscleGroups={todayMuscleGroups}
           trainingType={trainingType}
-          onSelectExercise={setSelectedExercise} />
+          onAddExercise={(exercise) => {
+            // Pre-fill form with the exercise data
+            setSelectedExercise(exercise.name);
+            setWeight(String(exercise.weight || 30));
+            setReps(String(exercise.reps));
+            setSets(String(exercise.sets));
+          }} />
 
 
           {/* Main Carousel Card */}
