@@ -176,8 +176,13 @@ Deno.serve(async (req) => {
     }
 
     // ─── Step 5: Celebration detection (batch, 2 queries max) ───
+    // Build a map of exercise_id → decision from progression results
+    const decisionMap = new Map<string, string>();
+    for (const pr of progressionResults) {
+      if (pr.exercise_id && pr.decision) decisionMap.set(pr.exercise_id, pr.decision);
+    }
     const celebrations = await detectCelebrations(
-      supabase, userId, sessionId, exercises, exerciseMap, uniqueExerciseIds
+      supabase, userId, sessionId, exercises, exerciseMap, uniqueExerciseIds, decisionMap
     );
 
     console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results, ${celebrations.length} celebrations.`);
@@ -365,9 +370,12 @@ async function detectCelebrations(
   currentSessionId: string,
   exercises: ExerciseInput[],
   exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null }>,
-  exerciseIds: string[]
+  exerciseIds: string[],
+  decisionMap: Map<string, string>
 ): Promise<Celebration[]> {
-  if (exerciseIds.length === 0) return [];
+  // Only consider exercises where decision === "progress"
+  const progressExerciseIds = exerciseIds.filter((id) => decisionMap.get(id) === "progress");
+  if (progressExerciseIds.length === 0) return [];
 
   const twelveWeeksAgo = getDateNDaysAgo(84);
 
@@ -388,23 +396,23 @@ async function detectCelebrations(
       .select("exercise_id, session_id, weight, reps")
       .eq("user_id", userId)
       .eq("set_type", "working")
-      .in("exercise_id", exerciseIds)
+      .in("exercise_id", progressExerciseIds)
       .in("session_id", historicalSessionIds);
     historicalSets = sets || [];
   }
 
-  // ── Batch Query 2: Recent progression_logs for streak detection ──
+  // ── Batch Query 2: Recent progression_logs for streak (excluding current session) ──
   const { data: recentLogs } = await supabase
     .from("progression_logs")
     .select("exercise_id, decision, session_id, created_at")
     .eq("user_id", userId)
-    .in("exercise_id", exerciseIds)
+    .in("exercise_id", progressExerciseIds)
+    .neq("session_id", currentSessionId) // exclude current to avoid double-count
     .order("created_at", { ascending: false })
-    .limit(exerciseIds.length * 10); // at most ~10 per exercise
+    .limit(progressExerciseIds.length * 10);
 
   // ── Build historical stats per exercise (in-memory) ──
   const histByExercise = new Map<string, { maxWeight: number; maxAvgLoad: number }>();
-  // Group sets by exercise+session for weighted avg
   const setsByExSession = new Map<string, { weight: number; reps: number }[]>();
 
   for (const set of historicalSets) {
@@ -412,13 +420,11 @@ async function detectCelebrations(
     if (!setsByExSession.has(key)) setsByExSession.set(key, []);
     setsByExSession.get(key)!.push({ weight: set.weight, reps: set.reps });
 
-    // Track max single weight
     const cur = histByExercise.get(set.exercise_id) || { maxWeight: 0, maxAvgLoad: 0 };
     if (set.weight > cur.maxWeight) cur.maxWeight = set.weight;
     histByExercise.set(set.exercise_id, cur);
   }
 
-  // Calculate max weighted_avg_load per session, keep highest per exercise
   for (const [key, sets] of setsByExSession) {
     const exerciseId = key.split("::")[0];
     const totalVol = sets.reduce((s, v) => s + v.weight * v.reps, 0);
@@ -429,7 +435,7 @@ async function detectCelebrations(
     if (avgLoad > cur.maxAvgLoad) cur.maxAvgLoad = avgLoad;
   }
 
-  // ── Build streaks per exercise from progression_logs ──
+  // ── Build streaks per exercise (current session counts as +1 since decision is "progress") ──
   const streakByExercise = new Map<string, number>();
   const logsByExercise = new Map<string, any[]>();
   for (const log of recentLogs || []) {
@@ -437,24 +443,25 @@ async function detectCelebrations(
     logsByExercise.get(log.exercise_id)!.push(log);
   }
   for (const [exId, logs] of logsByExercise) {
-    // logs already sorted desc by created_at
-    let streak = 0;
+    // Count consecutive "progress" from history, then +1 for current session
+    let historicalStreak = 0;
     for (const log of logs) {
-      if (log.decision === "progress") streak++;
+      if (log.decision === "progress") historicalStreak++;
       else break;
     }
-    if (streak >= 2) streakByExercise.set(exId, streak);
+    const totalStreak = historicalStreak + 1; // +1 = current session (already confirmed "progress")
+    if (totalStreak >= 2) streakByExercise.set(exId, totalStreak);
   }
 
-  // ── Current session stats per exercise ──
+  // ── Evaluate celebrations (only for "progress" exercises) ──
   const celebrations: Celebration[] = [];
 
   for (const exercise of exercises) {
     const info = exerciseMap.get(exercise.name);
-    if (!info) continue;
+    if (!info || decisionMap.get(info.id) !== "progress") continue;
 
     const currentMaxWeight = exercise.weight;
-    const currentAvgLoad = exercise.reps > 0 ? exercise.weight : 0; // single weight/reps pair
+    const currentAvgLoad = exercise.reps > 0 ? exercise.weight : 0;
     const hist = histByExercise.get(info.id);
 
     let bestCelebration: Celebration | null = null;
@@ -469,7 +476,7 @@ async function detectCelebrations(
       };
     }
 
-    // Priority 2: New 12-week high weighted avg load (only if no max)
+    // Priority 2: New 12-week high weighted avg load
     if (!bestCelebration && hist && currentAvgLoad > hist.maxAvgLoad && hist.maxAvgLoad > 0) {
       bestCelebration = {
         exercise_id: info.id,
