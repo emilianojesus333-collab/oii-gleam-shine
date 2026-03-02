@@ -144,7 +144,7 @@ export const AIInsightsWidget = () => {
               </p>
               <div className="absolute top-2 right-2">
                 <span className="flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-secondary-foreground"></span>
                   
                 </span>
               </div>
