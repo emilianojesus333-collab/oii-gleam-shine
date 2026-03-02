@@ -130,7 +130,7 @@ export const AIInsightsWidget = () => {
           className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] bg-white border-secondary-foreground">
 
           <div className="flex items-center gap-2 mb-2">
-            <BicepsFlexed className="h-[30px] text-black w-[86px]" />
+            <BicepsFlexed className="h-[30px] text-black w-[96px]" />
             <span className="text-xs text-white/50">​</span>
           </div>
           
