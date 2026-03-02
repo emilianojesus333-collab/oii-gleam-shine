@@ -130,8 +130,8 @@ export const AIInsightsWidget = () => {
           className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
 
           <div className="flex items-center gap-2 mb-2">
-            <BicepsFlexed className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-white/50">Avaliação</span>
+            <BicepsFlexed className="text-purple-400 w-[80px] h-[30px]" />
+            <span className="text-xs text-white/50">​</span>
           </div>
           
           {canEvaluate ?
