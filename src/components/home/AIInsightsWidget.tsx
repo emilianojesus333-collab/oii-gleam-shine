@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Brain, Target, Sparkles, ChevronRight, Lock, Calendar } from "lucide-react";
+import { Target, Sparkles, ChevronRight, Lock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface CoachingTip {
@@ -98,8 +98,8 @@ export const AIInsightsWidget = () => {
 
 
           <div className="flex items-center gap-2 mb-2">
-            <Brain className="w-[80px] h-[30px] text-sky-400" />
-            <span className="text-xs text-left text-primary">Coaching</span>
+            <Sparkles className="w-[80px] h-[30px] text-sky-400" />
+            <span className="text-xs text-left text-cyan-950">Coaching</span>
           </div>
           {topTip ?
           <>
