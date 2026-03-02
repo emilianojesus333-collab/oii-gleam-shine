@@ -358,7 +358,7 @@ const Home = () => {
                     }}
                     className="rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
 
-                      <p className="text-xl sm:text-2xl font-black text-[#b5c2d4]">
+                      <p className="text-xl sm:text-2xl font-black text-secondary-foreground">
                         {stat.value}
                       </p>
                       <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
