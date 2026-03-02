@@ -139,7 +139,7 @@ export const AIInsightsWidget = () => {
               <p className="text-sm font-semibold text-white/80 mb-1 text-left">
                 {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
               </p>
-              <p className="text-xs text-white/50 text-left">
+              <p className="text-xs text-left text-purple-400">
                 {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Disponível agora'}
               </p>
               <div className="absolute top-2 right-2">
