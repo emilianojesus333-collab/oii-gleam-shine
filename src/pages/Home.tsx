@@ -298,7 +298,7 @@ const Home = () => {
             <p className="text-2xl font-black text-black sm:text-lg">
               {todayWorkout || t("home.rest")}
             </p>
-            <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
+            <p className="mt-1 text-sm sm:text-base text-black/75">
               {!isRestDay ? t("home.todayWorkout") : t("home.recoveryDay")}
             </p>
           </motion.div>
