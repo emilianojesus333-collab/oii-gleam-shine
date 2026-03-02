@@ -142,12 +142,6 @@ export const AIInsightsWidget = () => {
               <p className="text-xs text-left text-black">
                 {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Descobre o teu nivel atual'}
               </p>
-              <div className="absolute top-2 right-2">
-                <span className="flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-secondary-foreground"></span>
-                  
-                </span>
-              </div>
             </> :
 
           <>
