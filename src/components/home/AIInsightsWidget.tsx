@@ -127,7 +127,7 @@ export const AIInsightsWidget = () => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/settings')}
-          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] bg-white border-secondary-foreground">
+          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
 
           <div className="flex items-center gap-2 mb-2">
             <BicepsFlexed className="h-[30px] text-black w-[96px]" />
