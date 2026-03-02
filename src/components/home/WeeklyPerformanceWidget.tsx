@@ -18,7 +18,7 @@ export function WeeklyPerformanceWidget() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="bg-[#111311] p-4 rounded-sm">
+      className="bg-[#111311] p-4 rounded-2xl">
 
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
