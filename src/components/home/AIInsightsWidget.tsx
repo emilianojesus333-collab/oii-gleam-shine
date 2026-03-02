@@ -84,7 +84,7 @@ export const AIInsightsWidget = () => {
       className="space-y-3">
 
       <h3 className="text-lg font-bold flex items-center gap-2 text-destructive-foreground">
-        <Sparkles className="w-4 h-4 text-primary" />
+        
         Insights IA
       </h3>
 
