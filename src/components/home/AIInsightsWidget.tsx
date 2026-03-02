@@ -130,18 +130,24 @@ export const AIInsightsWidget = () => {
           className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
 
           <div className="flex items-center gap-2 mb-2">
-            <BicepsFlexed className="h-[30px] text-black w-[96px]" />
+            <BicepsFlexed className="h-[30px] w-[96px] text-purple-400" />
             <span className="text-xs text-white/50">​</span>
           </div>
           
           {canEvaluate ?
           <>
-              <p className="text-sm font-semibold mb-1 text-left text-black">
+              <p className="text-sm font-semibold mb-1 text-left text-white">
                 {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
               </p>
-              <p className="text-xs text-left text-black">
+              <p className="text-xs text-left text-purple-400">
                 {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Descobre o teu nivel atual'}
               </p>
+              <div className="absolute top-2 right-2">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-secondary-foreground"></span>
+                  
+                </span>
+              </div>
             </> :
 
           <>
