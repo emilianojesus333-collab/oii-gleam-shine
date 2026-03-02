@@ -287,7 +287,7 @@ const Home = () => {
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-white">
+          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-white/[0.98]">
 
           <motion.div
             initial={{ opacity: 0, y: -20 }}
