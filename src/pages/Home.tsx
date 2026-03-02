@@ -85,9 +85,9 @@ const Home = () => {
       "Ganhar força": "Hoje é dia de força",
       "Melhorar resistência": "Hoje é dia de resistência",
       "Manter forma": "Hoje é dia de treino",
-      "Recomposição corporal": "Hoje é dia de intensidade",
+      "Recomposição corporal": "Hoje é dia de intensidade"
     };
-    const stimulus = userGoal ? (stimulusMap[userGoal] || "Hoje é dia de treino") : "Hoje é dia de treino";
+    const stimulus = userGoal ? stimulusMap[userGoal] || "Hoje é dia de treino" : "Hoje é dia de treino";
 
     // Get current week schedule (Mon-Sun)
     const schedule = [];
@@ -308,7 +308,7 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.4 }}
             className="text-center">
 
-            <p className="text-2xl font-black text-black sm:text-lg">
+            <p className="text-2xl font-black text-black sm:text-xl">
               {todayWorkout || "Descanso"}
             </p>
             <p className="mt-1 text-sm sm:text-base text-black/75">
