@@ -127,19 +127,19 @@ export const AIInsightsWidget = () => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/settings')}
-          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
+          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-white/[0.98]">
 
           <div className="flex items-center gap-2 mb-2">
-            <BicepsFlexed className="text-purple-400 w-[80px] h-[30px]" />
+            <BicepsFlexed className="w-[80px] h-[30px] text-black" />
             <span className="text-xs text-white/50">​</span>
           </div>
           
           {canEvaluate ?
           <>
-              <p className="text-sm font-semibold text-white/80 mb-1 text-left">
+              <p className="text-sm font-semibold mb-1 text-left text-black">
                 {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
               </p>
-              <p className="text-xs text-left text-purple-400">
+              <p className="text-xs text-left text-black">
                 {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Disponível agora'}
               </p>
               <div className="absolute top-2 right-2">
