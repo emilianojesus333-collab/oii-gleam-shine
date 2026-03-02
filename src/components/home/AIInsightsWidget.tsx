@@ -113,7 +113,7 @@ export const AIInsightsWidget = () => {
 
           <>
               <p className="text-sm font-semibold mb-1 text-white text-left">
-                Dicas Personalizadas
+                ​Criar um treino com IA    
               </p>
               <p className="text-xs text-primary">
                 Toca para gerar
