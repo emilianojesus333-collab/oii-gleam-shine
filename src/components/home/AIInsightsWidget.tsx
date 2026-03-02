@@ -127,7 +127,7 @@ export const AIInsightsWidget = () => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/settings')}
-          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-purple-500 bg-[#111311]">
+          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
 
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-purple-400" />
