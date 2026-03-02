@@ -92,7 +92,7 @@ export const AIInsightsWidget = () => {
         {/* Coaching Tip Card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center text-primary-foreground bg-[#0b1837]">
+          onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center text-primary-foreground border-black bg-cyan-950 hover:bg-cyan-800">
 
 
 
@@ -112,7 +112,7 @@ export const AIInsightsWidget = () => {
             </> :
 
           <>
-              <p className="text-sm font-semibold mb-1 text-white">
+              <p className="text-sm font-semibold mb-1 text-white text-left">
                 Dicas Personalizadas
               </p>
               <p className="text-xs text-muted-foreground">
