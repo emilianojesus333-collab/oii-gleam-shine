@@ -287,7 +287,7 @@ const Home = () => {
             damping: 15
           }}
           whileHover={{ scale: 1.02 }}
-          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-[#111311]">
+          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-white">
 
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -295,7 +295,7 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.4 }}
             className="text-center">
 
-            <p className="text-2xl font-black text-[#b5c2d4] sm:text-xl">
+            <p className="text-2xl font-black text-black sm:text-lg">
               {todayWorkout || t("home.rest")}
             </p>
             <p className="text-gray-400/70 mt-1 text-sm sm:text-base">
