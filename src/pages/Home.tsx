@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, RotateCcw, X, Brain, Target, Heart, Dumbbell, ChevronRight, Trophy } from "lucide-react";
+import { Settings, RotateCcw, X, Brain, Target, Heart, ChevronRight, Trophy } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
@@ -315,8 +315,8 @@ const Home = () => {
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate("/workout")}
               className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition-all bg-black text-sidebar-ring border-primary opacity-100">
-                <Dumbbell className="w-5 h-5" />
-                Iniciar Treino
+                
+                {t("workout.startWorkout") || "Iniciar Treino"}
               </motion.button>
             </motion.div>
           }
