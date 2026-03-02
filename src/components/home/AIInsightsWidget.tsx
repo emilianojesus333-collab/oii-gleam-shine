@@ -99,7 +99,7 @@ export const AIInsightsWidget = () => {
 
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-[80px] h-[30px] text-sky-400" />
-            <span className="text-xs text-left text-cyan-950">Coaching</span>
+            <span className="text-xs text-left text-cyan-950">​</span>
           </div>
           {topTip ?
           <>
