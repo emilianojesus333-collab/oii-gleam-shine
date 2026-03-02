@@ -136,10 +136,10 @@ export const AIInsightsWidget = () => {
           
           {canEvaluate ?
           <>
-              <p className="text-sm font-semibold text-white/80 mb-1">
+              <p className="text-sm font-semibold text-white/80 mb-1 text-left">
                 {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white/50 text-left">
                 {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Disponível agora'}
               </p>
               <div className="absolute top-2 right-2">
