@@ -64,18 +64,30 @@ const Home = () => {
   const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
   const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
-  const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions } = useMemo(() => {
+  const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions, trainingStimulus } = useMemo(() => {
     // Load schedule from user settings (database) - per-user data
     const userSchedule = settings?.onboarding_data?.schedule || {};
+    const userGoal = settings?.onboarding_data?.goal || null;
 
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
     const muscleGroups = userSchedule[todayName] || null;
 
-    // Format workout display (join muscle groups)
+    // Format workout display with bullet separator
     const workout = muscleGroups ?
-    Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups :
+    Array.isArray(muscleGroups) ? muscleGroups.join(" • ") : muscleGroups :
     null;
+
+    // Derive training stimulus from user goal
+    const stimulusMap: Record<string, string> = {
+      "Ganhar massa muscular": "Hoje é dia de volume",
+      "Perder gordura": "Hoje é dia de intensidade",
+      "Ganhar força": "Hoje é dia de força",
+      "Melhorar resistência": "Hoje é dia de resistência",
+      "Manter forma": "Hoje é dia de treino",
+      "Recomposição corporal": "Hoje é dia de intensidade",
+    };
+    const stimulus = userGoal ? (stimulusMap[userGoal] || "Hoje é dia de treino") : "Hoje é dia de treino";
 
     // Get current week schedule (Mon-Sun)
     const schedule = [];
@@ -118,7 +130,8 @@ const Home = () => {
       todayWorkout: workout,
       todayMuscleGroups: muscleGroups,
       weekSchedule: schedule,
-      aiSuggestions: suggestions
+      aiSuggestions: suggestions,
+      trainingStimulus: stimulus
     };
   }, [settings]);
 
@@ -296,10 +309,10 @@ const Home = () => {
             className="text-center">
 
             <p className="text-2xl font-black text-black sm:text-lg">
-              {todayWorkout || t("home.rest")}
+              {todayWorkout || "Descanso"}
             </p>
             <p className="mt-1 text-sm sm:text-base text-black/75">
-              {!isRestDay ? t("home.todayWorkout") : t("home.recoveryDay")}
+              {!isRestDay ? trainingStimulus : "Dia de recuperação"}
             </p>
           </motion.div>
 
