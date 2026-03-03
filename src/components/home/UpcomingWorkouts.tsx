@@ -9,7 +9,7 @@ const weekDaysMap: Record<number, string> = {
   3: "Quarta-feira",
   4: "Quinta-feira",
   5: "Sexta-feira",
-  6: "Sábado",
+  6: "Sábado"
 };
 
 const shortDaysMap: Record<number, string> = {
@@ -19,7 +19,7 @@ const shortDaysMap: Record<number, string> = {
   3: "QUA",
   4: "QUI",
   5: "SEX",
-  6: "SÁB",
+  6: "SÁB"
 };
 
 export const UpcomingWorkouts = () => {
@@ -28,22 +28,22 @@ export const UpcomingWorkouts = () => {
   const nextDays = useMemo(() => {
     const schedule = settings?.onboarding_data?.schedule || {};
     const todayIndex = new Date().getDay();
-    const result: { shortDay: string; fullDay: string; workout: string | null }[] = [];
+    const result: {shortDay: string;fullDay: string;workout: string | null;}[] = [];
 
     for (let i = 1; i <= 3; i++) {
       const dayIndex = (todayIndex + i) % 7;
       const dayName = weekDaysMap[dayIndex];
       const groups = schedule[dayName] || null;
-      const workout = groups
-        ? Array.isArray(groups)
-          ? groups.join(" • ")
-          : groups
-        : null;
+      const workout = groups ?
+      Array.isArray(groups) ?
+      groups.join(" • ") :
+      groups :
+      null;
 
       result.push({
         shortDay: shortDaysMap[dayIndex],
         fullDay: dayName,
-        workout,
+        workout
       });
     }
 
@@ -57,8 +57,8 @@ export const UpcomingWorkouts = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="space-y-3"
-    >
+      className="space-y-3">
+      
       <h2 className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">
         Próximos treinos
       </h2>
@@ -73,9 +73,9 @@ export const UpcomingWorkouts = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.55 + index * 0.08 }}
               className={`rounded-xl p-3.5 sm:p-4 bg-[#111311] ${
-                index === 0 ? "border border-blue-500/30" : ""
-              }`}
-            >
+              index === 0 ? "border border-blue-500/30" : ""}`
+              }>
+              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold text-blue-400 w-8">
@@ -84,21 +84,21 @@ export const UpcomingWorkouts = () => {
                   <div>
                     <p
                       className={`text-sm font-semibold ${
-                        isRest ? "text-muted-foreground" : "text-foreground"
-                      }`}
-                    >
+                      isRest ? "text-muted-foreground" : "text-foreground"}`
+                      }>
+                      
                       {isRest ? "Descanso" : day.workout}
                     </p>
-                    <p className="text-xs text-muted-foreground/70">
-                      {day.fullDay}
-                    </p>
+                    
+
+                    
                   </div>
                 </div>
               </div>
-            </motion.div>
-          );
+            </motion.div>);
+
         })}
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
