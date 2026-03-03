@@ -19,6 +19,7 @@ import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
 import { WeeklyProgressCard } from "@/components/home/WeeklyProgressCard";
 import { WeeklyStatsGrid } from "@/components/home/WeeklyStatsGrid";
+import { UpcomingWorkouts } from "@/components/home/UpcomingWorkouts";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -418,6 +419,9 @@ const Home = () => {
 
         {/* Favorites Widget */}
         <FavoritesWidget />
+
+        {/* Upcoming Workouts */}
+        <UpcomingWorkouts />
       </main>
 
       <BottomNav />
