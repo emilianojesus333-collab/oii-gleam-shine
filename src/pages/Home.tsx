@@ -16,6 +16,9 @@ import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { WeeklyPerformanceWidget } from "@/components/home/WeeklyPerformanceWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
+import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
+import { WeeklyProgressCard } from "@/components/home/WeeklyProgressCard";
+import { WeeklyStatsGrid } from "@/components/home/WeeklyStatsGrid";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -444,6 +447,19 @@ const Home = () => {
           </div>
         </motion.div>
 
+        {/* Today Workout Card */}
+        <TodayWorkoutCard
+          workout={todayWorkout}
+          stimulus={trainingStimulus}
+          isRestDay={isRestDay}
+        />
+
+        {/* Weekly Progress Card */}
+        <WeeklyProgressCard />
+
+        {/* Volume + Trend Grid */}
+        <WeeklyStatsGrid />
+
         {/* Weekly Performance Widget */}
         <WeeklyPerformanceWidget />
 
@@ -452,97 +468,6 @@ const Home = () => {
 
         {/* Favorites Widget */}
         <FavoritesWidget />
-
-        {/* Recent Workouts Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}>
-
-          <motion.h3
-            className="text-lg sm:text-xl font-bold text-white/70 mb-3 sm:mb-4"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.55 }}>
-
-            {t("home.upcomingWorkouts")}
-          </motion.h3>
-          
-          <div className="space-y-2 sm:space-y-3">
-        {(() => {
-            // Build full 7-day rotation from today's perspective
-            const today = new Date();
-            const todayIndex = today.getDay(); // 0=Sun, 1=Mon, ...
-            const userSchedule = settings?.onboarding_data?.schedule || {};
-
-            // Build all 7 days with their day index (0-6)
-            const allDays = Object.entries(weekDaysMap).map(([dayIdx, dayName]) => {
-              const idx = Number(dayIdx);
-              const groups = userSchedule[dayName] || null;
-              const workout = groups
-                ? Array.isArray(groups) ? groups.join(" + ") : groups
-                : null;
-              return { dayIndex: idx, fullDay: dayName, workout };
-            });
-
-            // Filter only training days (not rest/empty), exclude today
-            const trainingDays = allDays.filter(
-              d => d.workout && d.workout !== "Descanso" && d.dayIndex !== todayIndex
-            );
-
-            // Sort by day index
-            const sorted = [...trainingDays].sort((a, b) => a.dayIndex - b.dayIndex);
-
-            // Rotate: upcoming first, then past (wrap around)
-            const upcoming = sorted.filter(d => d.dayIndex > todayIndex);
-            const passed = sorted.filter(d => d.dayIndex < todayIndex);
-            const rotated = [...upcoming, ...passed];
-
-            // Take next 3
-            const nextThree = rotated.slice(0, 3);
-
-            // Temporary debug logs
-            console.log("Schedule backend:", userSchedule);
-            console.log("Sorted:", sorted);
-            console.log("Rotated:", rotated);
-            console.log("Next three:", nextThree);
-
-            return nextThree.map((item, index) => (
-              <motion.div
-                key={item.fullDay}
-                initial={{ opacity: 0, x: -40, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{
-                  delay: 0.6 + index * 0.1,
-                  duration: 0.4,
-                  type: "spring",
-                  stiffness: 100,
-                  damping: 15
-                }}
-                whileHover={{ scale: 1.02, x: 5 }}
-                className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm sm:text-base text-[#b5c2d4]">{item.workout}</p>
-                    <p className="text-xs sm:text-sm text-gray-400/70">{item.fullDay}</p>
-                  </div>
-              </motion.div>
-            ));
-          })()}
-
-            {weekSchedule.filter((d) => !d.isToday && d.workout && d.workout !== "Descanso").length === 0 &&
-            <motion.div
-              className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-4 sm:p-6 text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, type: "spring" }}>
-
-                <p className="text-gray-400/70 text-sm sm:text-base">
-                  Nenhum treino agendado para esta semana
-                </p>
-              </motion.div>
-            }
-          </div>
-        </motion.div>
       </main>
 
       <BottomNav />
