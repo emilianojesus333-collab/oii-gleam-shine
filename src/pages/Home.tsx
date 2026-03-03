@@ -291,52 +291,12 @@ const Home = () => {
         {/* Name AI Banner */}
         <NameAIBanner />
 
-        {/* Main Workout Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            delay: 0.2,
-            duration: 0.5,
-            type: "spring",
-            stiffness: 100,
-            damping: 15
-          }}
-          whileHover={{ scale: 1.02 }}
-          className="rounded-2xl p-4 sm:p-6 text-[#1b1b1d] sm:rounded-3xl bg-white/[0.98]">
-
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.4 }}
-            className="text-center">
-
-            <p className="text-2xl font-black text-black sm:text-xl">
-              {todayWorkout || "Descanso"}
-            </p>
-            <p className="mt-1 text-sm sm:text-base text-black/75">
-              {!isRestDay ? trainingStimulus : "Dia de recuperação"}
-            </p>
-          </motion.div>
-
-          {/* Single "Iniciar Treino" button */}
-          {!isRestDay &&
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mt-4 sm:mt-6">
-
-              <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => navigate("/workout")}
-              className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition-all bg-black text-sidebar-ring border-primary opacity-100">
-                
-                {t("workout.startWorkout") || "Iniciar Treino"}
-              </motion.button>
-            </motion.div>
-          }
-        </motion.div>
+        {/* Today Workout Card (blue) */}
+        <TodayWorkoutCard
+          workout={todayWorkout}
+          stimulus={trainingStimulus}
+          isRestDay={isRestDay}
+        />
 
         {/* Stats Carousel */}
         <motion.div
@@ -390,7 +350,6 @@ const Home = () => {
                   animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}>
 
-                  {/* Treino Sugerido */}
                   <motion.div
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -404,7 +363,6 @@ const Home = () => {
                     <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.suggestedExercise")}</p>
                   </motion.div>
 
-                  {/* Foco */}
                   <motion.div
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -418,7 +376,6 @@ const Home = () => {
                     <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.focusOn")}</p>
                   </motion.div>
 
-                  {/* Recovery Coach */}
                   <motion.div
                     initial={{ opacity: 0, y: 30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -446,13 +403,6 @@ const Home = () => {
               className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 1 ? 'bg-white/50' : 'bg-white/15'}`} />
           </div>
         </motion.div>
-
-        {/* Today Workout Card */}
-        <TodayWorkoutCard
-          workout={todayWorkout}
-          stimulus={trainingStimulus}
-          isRestDay={isRestDay}
-        />
 
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
