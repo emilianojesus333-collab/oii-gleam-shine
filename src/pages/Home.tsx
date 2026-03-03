@@ -407,14 +407,14 @@ const Home = () => {
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
 
+        {/* AI Insights Widget */}
+        <AIInsightsWidget />
+
         {/* Volume + Trend Grid */}
         <WeeklyStatsGrid />
 
         {/* Weekly Performance Widget */}
         <WeeklyPerformanceWidget />
-
-        {/* AI Insights Widget */}
-        <AIInsightsWidget />
 
         {/* Favorites Widget */}
         <FavoritesWidget />
