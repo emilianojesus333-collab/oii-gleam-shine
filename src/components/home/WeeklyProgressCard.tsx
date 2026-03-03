@@ -8,20 +8,20 @@ export function WeeklyProgressCard() {
     return (
       <div className="rounded-2xl p-5 animate-pulse" style={{ backgroundColor: "#111827" }}>
         <div className="h-32" />
-      </div>
-    );
+      </div>);
+
   }
 
   const { completedSessions, plannedSessions, totalSets, totalReps, totalMinutes, dailyActivity } = data;
   const planned = Math.max(plannedSessions, 1);
-  const pct = Math.min(Math.round((completedSessions / planned) * 100), 100);
+  const pct = Math.min(Math.round(completedSessions / planned * 100), 100);
 
   // Ring SVG params
   const size = 100;
   const stroke = 8;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (pct / 100) * circumference;
+  const offset = circumference - pct / 100 * circumference;
 
   const dayLabels = ["S", "T", "Q", "Q", "S", "S", "D"];
 
@@ -31,8 +31,8 @@ export function WeeklyProgressCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
       className="rounded-2xl p-5 sm:p-6"
-      style={{ backgroundColor: "#111827", border: "1px solid #1F2937" }}
-    >
+      style={{ backgroundColor: "#111827", border: "1px solid #1F2937" }}>
+      
       <h3 className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF] mb-4">
         Progresso da Semana
       </h3>
@@ -62,18 +62,18 @@ export function WeeklyProgressCard() {
 
           {/* Mini bar chart (7 days) */}
           <div className="flex items-end gap-1 pt-2">
-            {dailyActivity.map((active, i) => (
-              <div key={i} className="flex flex-col items-center gap-0.5">
+            {dailyActivity.map((active, i) =>
+            <div key={i} className="flex flex-col items-center gap-0.5">
                 <div
-                  className="w-4 rounded-sm transition-all"
-                  style={{
-                    height: active ? 16 : 6,
-                    backgroundColor: active ? "#22C55E" : "#1F2937",
-                  }}
-                />
+                className="w-4 rounded-sm transition-all"
+                style={{
+                  height: active ? 16 : 6,
+                  backgroundColor: active ? "#22C55E" : "#1F2937"
+                }} />
+              
                 <span className="text-[8px] text-[#9CA3AF]">{dayLabels[i]}</span>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -87,8 +87,8 @@ export function WeeklyProgressCard() {
               r={radius}
               fill="none"
               stroke="#1F2937"
-              strokeWidth={stroke}
-            />
+              strokeWidth={stroke} />
+            
             {/* Progress ring */}
             <motion.circle
               cx={size / 2}
@@ -101,11 +101,11 @@ export function WeeklyProgressCard() {
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }}
-            />
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }} />
+            
           </svg>
           {/* Center text */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center mr-0">
             <span className="text-lg font-black text-[#F3F4F6] leading-none">
               {completedSessions}/{plannedSessions}
             </span>
@@ -115,6 +115,6 @@ export function WeeklyProgressCard() {
           </div>
         </div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
