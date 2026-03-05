@@ -10,7 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { fitnessRecipes, FitnessRecipe, categoryLabels, searchRecipes, getRecipesByCategory } from '@/data/fitnessRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 
-export const RecipesView = () => {
+interface RecipesViewProps {
+  customTrigger?: React.ReactNode;
+}
+
+export const RecipesView = ({ customTrigger }: RecipesViewProps = {}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -32,27 +36,30 @@ export const RecipesView = () => {
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
-
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse py-[11px] mx-[2px] my-[3px] px-[9px] border-stone-950 bg-transparent" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                <ChefHat className="w-6 h-6 text-orange-400" />
+      {customTrigger ? (
+        <SheetTrigger asChild>{customTrigger}</SheetTrigger>
+      ) : (
+        <SheetTrigger asChild>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse py-[11px] mx-[2px] my-[3px] px-[9px] border-stone-950 bg-transparent" />
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                  <ChefHat className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Receitas Fitness</h3>
+                  <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas internacionais</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-white">Receitas Fitness</h3>
-                <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas internacionais</p>
-              </div>
+              <ChevronRight className="w-5 h-5 text-orange-400/70" />
             </div>
-            <ChevronRight className="w-5 h-5 text-orange-400/70" />
-          </div>
-        </motion.div>
-      </SheetTrigger>
+          </motion.div>
+        </SheetTrigger>
+      )}
 
       <SheetContent side="bottom" className="h-[90vh] max-h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10 flex flex-col overflow-hidden">
         <SheetHeader className="pb-4">
