@@ -85,49 +85,38 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
         </div>
       </div>
 
-      {/* Macro bars */}
-      <div className="grid grid-cols-2 gap-3">
-        {macroConfig.map(({ key, label, icon: Icon, color, unit }) => {
-          const value = consumed[key as keyof typeof consumed];
-          const goal = goals[key as keyof typeof goals];
-          const pct = progress[key as keyof typeof progress];
-          const isOver = value > goal;
+      {/* Macro bars - horizontal container */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border border-border/50 bg-[#111311] p-4">
+        <div className="grid grid-cols-3 divide-x divide-border/30">
+          {macroConfig.filter(m => m.key !== 'fiber').map(({ key, label, color }) => {
+            const value = consumed[key as keyof typeof consumed];
+            const goal = goals[key as keyof typeof goals];
+            const pct = progress[key as keyof typeof progress];
+            const isOver = value > goal;
 
-          return (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-3 rounded-xl border border-border/50 bg-[#111311]">
-
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${color}20` }}>
-
-                  <Icon className="w-4 h-4" style={{ color }} />
+            return (
+              <div key={key} className="flex flex-col items-center gap-2 px-3">
+                <p className="text-xs font-medium text-gray-400">{label}</p>
+                <div className="w-full h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: isOver ? 'hsl(0, 84%, 60%)' : color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(pct, 100)}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
                 </div>
-              <div className="flex-1">
-                  <p className="text-xs text-gray-400">{label}</p>
-                  <p className="text-sm font-semibold text-white">
-                    {Math.round(value)}/{Math.round(goal)}{unit}
-                  </p>
-                </div>
+                <p className="text-sm font-semibold text-white">
+                  {Math.round(value)}/{Math.round(goal)} g
+                </p>
               </div>
-              
-              <div className="h-2 rounded-full bg-muted/30 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ backgroundColor: isOver ? 'hsl(0, 84%, 60%)' : color }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(pct, 100)}%` }}
-                  transition={{ duration: 0.5 }} />
-
-              </div>
-            </motion.div>);
-
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </motion.div>
     </div>);
 
 };
