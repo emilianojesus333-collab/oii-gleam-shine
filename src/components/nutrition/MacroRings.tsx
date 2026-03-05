@@ -89,9 +89,9 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-border/50 bg-[#111311] p-4">
+        className="rounded-2xl border border-border/50 p-4 bg-[#111311]/[0.61]">
         <div className="grid grid-cols-3 divide-x divide-border/30">
-          {macroConfig.filter(m => m.key !== 'fiber').map(({ key, label, color }) => {
+          {macroConfig.filter((m) => m.key !== 'fiber').map(({ key, label, color }) => {
             const value = consumed[key as keyof typeof consumed];
             const goal = goals[key as keyof typeof goals];
             const pct = progress[key as keyof typeof progress];
@@ -106,14 +106,14 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
                     style={{ backgroundColor: isOver ? 'hsl(0, 84%, 60%)' : color }}
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(pct, 100)}%` }}
-                    transition={{ duration: 0.5 }}
-                  />
+                    transition={{ duration: 0.5 }} />
+                  
                 </div>
                 <p className="text-sm font-semibold text-white">
                   {Math.round(value)}/{Math.round(goal)} g
                 </p>
-              </div>
-            );
+              </div>);
+
           })}
         </div>
       </motion.div>
