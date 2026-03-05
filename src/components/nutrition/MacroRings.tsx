@@ -89,7 +89,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border p-4 bg-[#111311]/[0.61] border-[#465467]/0">
+        className="rounded-2xl border p-4 border-[#465467]/0 bg-[#111311]/[0.32]">
         <div className="grid grid-cols-3 divide-x divide-border/30">
           {macroConfig.filter((m) => m.key !== 'fiber').map(({ key, label, color }) => {
             const value = consumed[key as keyof typeof consumed];
