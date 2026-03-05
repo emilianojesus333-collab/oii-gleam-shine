@@ -44,9 +44,9 @@ const Nutrition = () => {
   return (
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
-      <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/25 via-emerald-600/10 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-400/15 via-transparent to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[420px] overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-600/40 via-emerald-500/20 via-60% to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-emerald-500/30 via-emerald-600/10 via-50% to-transparent" />
       </div>
 
       {/* Header */}
