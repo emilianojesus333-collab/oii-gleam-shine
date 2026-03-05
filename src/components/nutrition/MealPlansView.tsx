@@ -28,6 +28,10 @@ import { toast } from 'sonner';
 interface MealPlansViewProps {
   currentGoal: 'cut' | 'maintain' | 'bulk';
   onApplyPlan?: (plan: MealPlan) => void;
+  preSelectedPlanId?: string;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+  customTrigger?: React.ReactNode;
 }
 
 const goalConfig = {
@@ -57,8 +61,13 @@ const goalConfig = {
   }
 };
 
-export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const MealPlansView = ({ currentGoal, onApplyPlan, preSelectedPlanId, externalOpen, onExternalOpenChange, customTrigger }: MealPlansViewProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setIsOpen = (open: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(open);
+    else setInternalOpen(open);
+  };
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
 
@@ -79,22 +88,25 @@ export const MealPlansView = ({ currentGoal, onApplyPlan }: MealPlansViewProps) 
   };
 
   return (
-    <Drawer open={isOpen} onOpenChange={(open) => {setIsOpen(open);if (!open) setSelectedPlan(null);}}>
-      <DrawerTrigger asChild className="mx-[2px] my-[3px] px-[9px] py-[18px] bg-stone-950 hover:bg-stone-800 border-stone-950">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
-
-          <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <Target className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-medium">Planos Alimentares</p>
-            <p className="text-xs text-muted-foreground">Cut, Manutenção ou Bulk</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </motion.button>
-      </DrawerTrigger>
+    <Drawer open={isOpen} onOpenChange={(open) => {setIsOpen(open);if (!open) setSelectedPlan(null);else if (preSelectedPlanId) { const p = mealPlans.find(mp => mp.id === preSelectedPlanId); if (p) { setSelectedPlan(p); setSelectedDay(0); } }}}>
+      {customTrigger ? (
+        <DrawerTrigger asChild>{customTrigger}</DrawerTrigger>
+      ) : (
+        <DrawerTrigger asChild className="mx-[2px] my-[3px] px-[9px] py-[18px] bg-stone-950 hover:bg-stone-800 border-stone-950">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <Target className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-medium">Planos Alimentares</p>
+              <p className="text-xs text-muted-foreground">Cut, Manutenção ou Bulk</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </motion.button>
+        </DrawerTrigger>
+      )}
 
       <DrawerContent className="max-h-[90vh] bg-zinc-900 border-white/10">
         <DrawerHeader>

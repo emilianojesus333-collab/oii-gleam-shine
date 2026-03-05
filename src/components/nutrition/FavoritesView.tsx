@@ -9,7 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { useFavorites } from '@/hooks/useFavorites';
 import { FitnessRecipe } from '@/data/fitnessRecipes';
 
-export const FavoritesView = () => {
+interface FavoritesViewProps {
+  customTrigger?: React.ReactNode;
+}
+
+export const FavoritesView = ({ customTrigger }: FavoritesViewProps = {}) => {
   const { favorites, removeFoodFavorite, removeRecipeFavorite, totalFavorites } = useFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
 
@@ -23,31 +27,34 @@ export const FavoritesView = () => {
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-purple-500/20 border border-rose-500/30 cursor-pointer relative overflow-hidden">
-
-          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-purple-500/5 animate-pulse py-[11px] bg-stone-950 border-stone-950" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-pink-500/30 flex items-center justify-center">
-                <Heart className="w-6 h-6 text-rose-400" fill="currentColor" />
+      {customTrigger ? (
+        <SheetTrigger asChild>{customTrigger}</SheetTrigger>
+      ) : (
+        <SheetTrigger asChild>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-purple-500/20 border border-rose-500/30 cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-purple-500/5 animate-pulse py-[11px] bg-stone-950 border-stone-950" />
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-pink-500/30 flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-rose-400" fill="currentColor" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Favoritos</h3>
+                  <p className="text-xs text-rose-300/70">{totalFavorites} itens guardados</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-white">Favoritos</h3>
-                <p className="text-xs text-rose-300/70">{totalFavorites} itens guardados</p>
-              </div>
+              {totalFavorites > 0 &&
+              <div className="w-8 h-8 rounded-full bg-rose-500/30 flex items-center justify-center">
+                  <span className="text-sm font-bold text-rose-300">{totalFavorites}</span>
+                </div>
+              }
             </div>
-            {totalFavorites > 0 &&
-            <div className="w-8 h-8 rounded-full bg-rose-500/30 flex items-center justify-center">
-                <span className="text-sm font-bold text-rose-300">{totalFavorites}</span>
-              </div>
-            }
-          </div>
-        </motion.div>
-      </SheetTrigger>
+          </motion.div>
+        </SheetTrigger>
+      )}
 
       <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10 flex flex-col overflow-hidden">
         <SheetHeader className="pb-4">
