@@ -1,17 +1,15 @@
 import { Home, Dumbbell, Apple, MessageCircle, Bell } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
 
   const navItems = [
-    { icon: Home, label: t("nav.home"), path: "/home" },
-    { icon: Dumbbell, label: t("nav.workout"), path: "/workout" },
-    { icon: Apple, label: t("nav.nutrition"), path: "/nutrition" },
-    { icon: MessageCircle, label: t("nav.chat"), path: "/chat" },
+    { icon: Home, label: "Início", path: "/home" },
+    { icon: Dumbbell, label: "Treino", path: "/workout" },
+    { icon: Apple, label: "Nutrição", path: "/nutrition" },
+    { icon: MessageCircle, label: "Chat", path: "/chat" },
     { icon: Bell, label: "Alarme", path: "/alerts" },
   ];
 

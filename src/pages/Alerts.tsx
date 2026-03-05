@@ -10,10 +10,8 @@ import { SleepCard } from '@/components/alerts/SleepCard';
 import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
-import { useLanguage } from '@/hooks/useLanguage';
 
 const Alerts = () => {
-  const { t } = useLanguage();
   const {
     state,
     updateHydration,
@@ -114,8 +112,8 @@ const Alerts = () => {
               <Bell className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">{t("alerts.title")}</h1>
-              <p className="text-xs text-cyan-400">{t("alerts.subtitle")}</p>
+              <h1 className="text-2xl font-black text-white">Alertas</h1>
+              <p className="text-xs text-cyan-400">O teu assistente de treino</p>
             </div>
           </div>
           

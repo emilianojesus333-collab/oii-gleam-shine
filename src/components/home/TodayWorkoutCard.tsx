@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Dumbbell, Leaf } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface TodayWorkoutCardProps {
   workout: string | null;
@@ -11,7 +10,6 @@ interface TodayWorkoutCardProps {
 
 export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutCardProps) {
   const navigate = useNavigate();
-  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -61,7 +59,7 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
         ) : (
           <>
             <Dumbbell className="h-4 w-4" />
-            {t("workout.startWorkout") || "Iniciar Treino"}
+            Iniciar Treino
           </>
         )}
       </motion.button>

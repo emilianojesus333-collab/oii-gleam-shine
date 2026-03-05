@@ -10,10 +10,8 @@ import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 import { NutritionPlansGrid } from '@/components/nutrition/NutritionPlansGrid';
 import { MealPlan } from '@/data/mealPlans';
-import { useLanguage } from '@/hooks/useLanguage';
 
 const Nutrition = () => {
-  const { t } = useLanguage();
   const {
     profile,
     goals,
@@ -58,7 +56,7 @@ const Nutrition = () => {
               <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">{t("nutrition.title")}</h1>
+              <h1 className="text-2xl font-black text-white">Nutrição</h1>
               <p className="text-xs text-emerald-400">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
@@ -115,7 +113,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-stone-950 bg-[#111311]">
 
             <p className="text-2xl font-black text-[#a51d1d]">{Math.round(remaining.protein)}g</p>
-            <p className="text-xs text-gray-300 mt-1">{t("nutrition.protein")}</p>
+            <p className="text-xs text-gray-300 mt-1">Proteína</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -124,7 +122,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
             <p className="text-2xl font-black text-amber-500">{Math.round(remaining.carbs)}g</p>
-            <p className="text-xs text-gray-300 mt-1">{t("nutrition.carbs")}</p>
+            <p className="text-xs text-gray-300 mt-1">Carbs</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -133,7 +131,7 @@ const Nutrition = () => {
             className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border p-4 text-center bg-stone-950 border-stone-950">
 
             <p className="text-2xl font-black text-teal-600">{Math.round(remaining.fat)}g</p>
-            <p className="text-xs text-gray-300 mt-1">{t("nutrition.fat")}</p>
+            <p className="text-xs text-gray-300 mt-1">Gordura</p>
           </motion.div>
         </div>
 
@@ -141,7 +139,7 @@ const Nutrition = () => {
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
-            {t("nutrition.todayMeals")}
+            Refeições de Hoje
           </h3>
           
           <AnimatePresence>
@@ -152,8 +150,8 @@ const Nutrition = () => {
               className="text-center py-8 bg-black">
 
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-300">{t("nutrition.noMealsYet")}</p>
-                <p className="text-xs text-gray-400">{t("nutrition.useScannerHint")}</p>
+                <p className="text-sm text-gray-300">Nenhuma refeição registada</p>
+                <p className="text-xs text-gray-400">Usa o scanner IA acima para começar</p>
               </motion.div> :
 
             <div className="space-y-3">
