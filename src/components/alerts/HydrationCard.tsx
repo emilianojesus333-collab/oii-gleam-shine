@@ -9,8 +9,8 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+  DrawerTrigger } from
+'@/components/ui/drawer';
 import { Slider } from '@/components/ui/slider';
 
 interface HydrationCardProps {
@@ -21,7 +21,7 @@ interface HydrationCardProps {
 
 export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const currentMl = Math.round(settings.currentIntake * 1000);
   const goalMl = Math.round(settings.dailyGoalLiters * 1000);
   const remainingMl = Math.max(0, goalMl - currentMl);
@@ -34,14 +34,14 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
   const startAngle = -210; // degrees from 3 o'clock
   const endAngle = 30;
   const totalAngle = endAngle - startAngle; // 240 degrees
-  const circumference = (totalAngle / 360) * 2 * Math.PI * r;
-  const filledLength = (percentage / 100) * circumference;
+  const circumference = totalAngle / 360 * 2 * Math.PI * r;
+  const filledLength = percentage / 100 * circumference;
 
   const polarToCartesian = (angle: number) => {
-    const rad = (angle * Math.PI) / 180;
+    const rad = angle * Math.PI / 180;
     return {
       x: cx + r * Math.cos(rad),
-      y: cy + r * Math.sin(rad),
+      y: cy + r * Math.sin(rad)
     };
   };
 
@@ -55,8 +55,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-5 border border-cyan-500/10 bg-[#0d1117]"
-    >
+      className="rounded-2xl p-5 border-cyan-500/10 bg-[#0d1117] border-0">
+      
       {/* Settings gear */}
       <div className="flex justify-end mb-1">
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -74,8 +74,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                 <span className="font-medium">Ativar lembretes</span>
                 <Switch
                   checked={settings.enabled}
-                  onCheckedChange={(enabled) => onUpdate({ enabled })}
-                />
+                  onCheckedChange={(enabled) => onUpdate({ enabled })} />
+                
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -87,8 +87,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                   onValueChange={([v]) => onUpdate({ intervalMinutes: v })}
                   min={15}
                   max={60}
-                  step={5}
-                />
+                  step={5} />
+                
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -100,8 +100,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
                   onValueChange={([v]) => onUpdate({ dailyGoalLiters: v })}
                   min={1}
                   max={5}
-                  step={0.5}
-                />
+                  step={0.5} />
+                
               </div>
             </div>
           </DrawerContent>
@@ -130,8 +130,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
               stroke="hsl(200, 80%, 30%)"
               strokeWidth="10"
               strokeLinecap="round"
-              opacity="0.25"
-            />
+              opacity="0.25" />
+            
             
             {/* Filled arc */}
             <motion.path
@@ -144,8 +144,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: circumference - filledLength }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            />
+              transition={{ duration: 0.8, ease: 'easeOut' }} />
+            
           </svg>
           
           {/* Center text */}
@@ -159,8 +159,8 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => onAddWater(0.3)}
-          className="mt-2 px-8 py-2.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-semibold text-sm hover:bg-cyan-500/25 transition-colors shadow-lg shadow-cyan-500/10"
-        >
+          className="mt-2 px-8 py-2.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-semibold text-sm hover:bg-cyan-500/25 transition-colors shadow-lg shadow-cyan-500/10">
+          
           +300 ml
         </motion.button>
 
@@ -177,6 +177,6 @@ export const HydrationCard = ({ settings, onUpdate, onAddWater }: HydrationCardP
           </div>
         </div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
