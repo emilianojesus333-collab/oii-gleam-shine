@@ -1,15 +1,47 @@
 import { motion } from 'framer-motion';
-import { Bell, Sparkles } from 'lucide-react';
-import { useEffect, useCallback } from 'react';
+import { Bell, Dumbbell, UtensilsCrossed, Pill, BedDouble } from 'lucide-react';
+import { useEffect, useCallback, useState } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { HydrationCard } from '@/components/alerts/HydrationCard';
-import { SupplementsCard } from '@/components/alerts/SupplementsCard';
-import { SleepCard } from '@/components/alerts/SleepCard';
-import { WorkoutReminderCard } from '@/components/alerts/WorkoutReminderCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
-import { MealNotificationCard } from '@/components/alerts/MealNotificationCard';
+import { Switch } from '@/components/ui/switch';
+
+// Compact reminder row matching the mockup style
+interface ReminderRowProps {
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  subtitle: string;
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  onClick?: () => void;
+  delay?: number;
+}
+
+const ReminderRow = ({ icon, iconBg, title, subtitle, enabled, onToggle, onClick, delay = 0 }: ReminderRowProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay }}
+    onClick={onClick}
+    className="flex items-center gap-3 p-4 rounded-2xl bg-[#111827]/80 border border-[#1F2937]/60 cursor-pointer"
+  >
+    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`}>
+      {icon}
+    </div>
+    <div className="flex-1 min-w-0">
+      <h3 className="font-semibold text-white text-[15px]">{title}</h3>
+      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+    </div>
+    <Switch
+      checked={enabled}
+      onCheckedChange={onToggle}
+      onClick={(e) => e.stopPropagation()}
+    />
+  </motion.div>
+);
 
 const Alerts = () => {
   const {
@@ -36,34 +68,39 @@ const Alerts = () => {
     cancelAllNotifications,
   } = usePushNotifications();
 
-  // Enhanced notification scheduling
+  // Meal notifications local state
+  const [mealEnabled, setMealEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem('liftmate_meal_notifications_global');
+      return saved ? JSON.parse(saved) : false;
+    } catch { return false; }
+  });
+
+  const toggleMealEnabled = (v: boolean) => {
+    setMealEnabled(v);
+    localStorage.setItem('liftmate_meal_notifications_global', JSON.stringify(v));
+  };
+
+  // Notification scheduling
   const scheduleAllNotifications = useCallback(() => {
     if (permission !== 'granted') return;
-
-    // Clear existing and reschedule
     cancelAllNotifications();
 
-    // Hydration reminders
     if (state.hydration.enabled) {
       scheduleHydrationReminder(state.hydration.intervalMinutes);
     }
 
-    // Supplement reminders
     state.supplements
       .filter(s => s.enabled)
       .forEach(supplement => {
         scheduleSupplementReminder(supplement.name, supplement.time, supplement.days);
       });
 
-    // Sleep reminder
     if (state.sleep.enabled) {
       scheduleSleepReminder(state.sleep.bedtime, state.sleep.reminderMinutesBefore);
     }
 
-    // Schedule water reminders throughout the day
     scheduleWaterReminders('08:00', '22:00', 2);
-
-    // Schedule meal reminders
     scheduleMealReminders([
       { type: 'breakfast', time: '08:00' },
       { type: 'morning_snack', time: '10:30' },
@@ -72,95 +109,99 @@ const Alerts = () => {
       { type: 'dinner', time: '20:00' },
     ]);
   }, [
-    permission,
-    state.hydration.enabled,
-    state.hydration.intervalMinutes,
-    state.supplements,
-    state.sleep.enabled,
-    state.sleep.bedtime,
-    state.sleep.reminderMinutesBefore,
-    scheduleHydrationReminder,
-    scheduleSupplementReminder,
-    scheduleSleepReminder,
-    scheduleWaterReminders,
-    scheduleMealReminders,
-    cancelAllNotifications,
+    permission, state.hydration.enabled, state.hydration.intervalMinutes,
+    state.supplements, state.sleep.enabled, state.sleep.bedtime,
+    state.sleep.reminderMinutesBefore, scheduleHydrationReminder,
+    scheduleSupplementReminder, scheduleSleepReminder,
+    scheduleWaterReminders, scheduleMealReminders, cancelAllNotifications,
   ]);
 
-  // Schedule notifications when settings change
   useEffect(() => {
     scheduleAllNotifications();
   }, [scheduleAllNotifications]);
 
+  const sleepHours = getSleepHours();
+
   return (
     <div className="min-h-screen bg-black pb-32">
-      {/* Hero Background Gradient */}
-      <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/25 via-blue-600/10 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400/15 via-transparent to-transparent" />
+      {/* Background gradient */}
+      <div className="absolute inset-x-0 top-0 h-[500px] overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/15 via-cyan-600/5 via-60% to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-cyan-400/10 via-transparent to-transparent" />
       </div>
 
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 px-6 pt-12 pb-4"
+        className="relative z-10 px-6 pt-14 pb-2"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-600/20 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <Bell className="w-5 h-5 text-cyan-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-white">Alertas</h1>
-              <p className="text-xs text-cyan-400">O teu assistente de treino</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <Bell className="w-6 h-6 text-cyan-400" />
+          <div>
+            <h1 className="text-2xl font-black text-white">Alertas</h1>
+            <p className="text-sm text-gray-400">Lembretes para melhorar a tua rotina</p>
           </div>
-          
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30"
-          >
-            <Sparkles className="w-3 h-3 text-cyan-400" />
-            <span className="text-xs font-medium text-cyan-400">Pro</span>
-          </motion.div>
         </div>
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 px-6 py-4 space-y-4">
+      <div className="relative z-10 px-5 py-4 space-y-3">
         {/* Notification Permission */}
         <NotificationPermissionCard
           permission={permission}
           isSupported={isSupported}
           onRequestPermission={requestPermission}
         />
-        
-        <WorkoutReminderCard
-          settings={state.workout}
-          onUpdate={updateWorkoutReminder}
-        />
-        
+
+        {/* Hydration Block */}
         <HydrationCard
           settings={state.hydration}
           onUpdate={updateHydration}
           onAddWater={addWaterIntake}
         />
-        
-        <MealNotificationCard />
-        
-        <SupplementsCard
-          supplements={state.supplements}
-          onUpdate={updateSupplement}
-          onAdd={addSupplement}
-          onRemove={removeSupplement}
+
+        {/* Compact Reminder Cards */}
+        <ReminderRow
+          icon={<Dumbbell className="w-6 h-6 text-amber-400" />}
+          iconBg="bg-amber-500/20"
+          title="Lembrete de Treino"
+          subtitle={`Lembrete ${state.workout.minutesBefore} min antes`}
+          enabled={state.workout.enabled}
+          onToggle={(enabled) => updateWorkoutReminder({ enabled })}
+          delay={0.05}
         />
-        
-        <SleepCard
-          settings={state.sleep}
-          sleepHours={getSleepHours()}
-          onUpdate={updateSleep}
+
+        <ReminderRow
+          icon={<UtensilsCrossed className="w-6 h-6 text-green-400" />}
+          iconBg="bg-green-500/20"
+          title="Refeições"
+          subtitle="Lembretes das refeições diárias"
+          enabled={mealEnabled}
+          onToggle={toggleMealEnabled}
+          delay={0.1}
+        />
+
+        <ReminderRow
+          icon={<Pill className="w-6 h-6 text-purple-400" />}
+          iconBg="bg-purple-500/20"
+          title="Suplementos"
+          subtitle={`${state.supplements.filter(s => s.enabled).length} lembretes ativos`}
+          enabled={state.supplements.length > 0 && state.supplements.some(s => s.enabled)}
+          onToggle={(enabled) => {
+            state.supplements.forEach(s => updateSupplement(s.id, { enabled }));
+          }}
+          delay={0.15}
+        />
+
+        <ReminderRow
+          icon={<BedDouble className="w-6 h-6 text-indigo-400" />}
+          iconBg="bg-indigo-500/20"
+          title="Sono & Recuperação"
+          subtitle={`${state.sleep.bedtime} → ${state.sleep.wakeTime} · ${sleepHours.toFixed(0)}h estimadas`}
+          enabled={state.sleep.enabled}
+          onToggle={(enabled) => updateSleep({ enabled })}
+          delay={0.2}
         />
       </div>
 
