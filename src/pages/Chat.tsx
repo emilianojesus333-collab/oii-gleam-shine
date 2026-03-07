@@ -32,7 +32,7 @@ const Chat = () => {
     getCurrentConversation,
     loadConversation,
     deleteConversation,
-    clearCurrentConversation,
+    clearCurrentConversation
   } = useChatHistory();
 
   const {
@@ -43,7 +43,7 @@ const Chat = () => {
     stopRecording,
     cancelRecording,
     speakText,
-    stopSpeaking,
+    stopSpeaking
   } = useVoiceChat();
 
   const { settings: userSettings } = useUserSettings();
@@ -69,7 +69,7 @@ const Chat = () => {
 
     const apiMessages = messages.map((m) => ({
       role: m.isUser ? "user" : "assistant",
-      content: m.text,
+      content: m.text
     }));
     apiMessages.push({ role: "user", content: userMessageText });
 
@@ -88,15 +88,15 @@ const Chat = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify({ messages: apiMessages, context: formattedContext }),
+          body: JSON.stringify({ messages: apiMessages, context: formattedContext })
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        if (response.status === 429) toast.error("Limite de pedidos excedido. Tenta novamente em alguns segundos.");
-        else if (response.status === 402) toast.error("Créditos esgotados. Adiciona mais créditos na área de definições.");
-        else toast.error(errorData.error || "Erro ao comunicar com a IA");
+        if (response.status === 429) toast.error("Limite de pedidos excedido. Tenta novamente em alguns segundos.");else
+        if (response.status === 402) toast.error("Créditos esgotados. Adiciona mais créditos na área de definições.");else
+        toast.error(errorData.error || "Erro ao comunicar com a IA");
         setIsLoading(false);
         return;
       }
@@ -126,13 +126,13 @@ const Chat = () => {
           if (line.startsWith(":") || line.trim() === "") continue;
           if (!line.startsWith("data: ")) continue;
           const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") { streamDone = true; break; }
+          if (jsonStr === "[DONE]") {streamDone = true;break;}
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages((prev) => prev.map((m, i) => (i === prev.length - 1 ? { ...m, text: assistantContent } : m)));
+              setMessages((prev) => prev.map((m, i) => i === prev.length - 1 ? { ...m, text: assistantContent } : m));
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -180,7 +180,7 @@ const Chat = () => {
     let convId = currentConversationId;
     if (!convId) {
       convId = await createConversation(userMessage);
-      if (!convId) { toast.error("Erro ao criar conversa. Faz login para guardar o histórico."); return; }
+      if (!convId) {toast.error("Erro ao criar conversa. Faz login para guardar o histórico.");return;}
     } else {
       addMessage(convId, userMessage);
     }
@@ -195,11 +195,11 @@ const Chat = () => {
   return (
     <div className="flex min-h-screen flex-col bg-[#0B0F14]">
       {/* Header - minimal */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937]">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
         <button
           onClick={() => navigate(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-        >
+          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+          
           <ArrowLeft className="h-5 w-5 text-[#F3F4F6]" />
         </button>
 
@@ -210,17 +210,17 @@ const Chat = () => {
 
         <button
           onClick={() => setShowHistorySheet(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5"
-        >
+          className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
+          
           <Clock className="h-5 w-5 text-[#F3F4F6]" />
         </button>
       </header>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 bg-black">
         <div className="flex flex-col gap-4">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
+          {messages.length === 0 &&
+          <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F2937]">
                 <Activity className="h-8 w-8 text-[#F3F4F6]" />
               </div>
@@ -229,56 +229,56 @@ const Chat = () => {
                 Treino, nutrição, recuperação e estratégia personalizada.
               </p>
             </div>
-          )}
+          }
 
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
-            >
+          {messages.map((message) =>
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+            
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1F2937]" : ""}`}>
                 <p className="text-sm leading-relaxed whitespace-pre-line text-[#F3F4F6]">
-                  {message.text || (
-                    <span className="flex items-center gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <motion.span
-                          key={i}
-                          className="h-2 w-2 rounded-full bg-[#3B82F6]"
-                          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
-                        />
-                      ))}
-                    </span>
+                  {message.text ||
+                <span className="flex items-center gap-1">
+                      {[0, 1, 2].map((i) =>
+                  <motion.span
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-[#3B82F6]"
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }} />
+
                   )}
+                    </span>
+                }
                 </p>
-                {!message.isUser && message.text && (
-                  <button
-                    onClick={() => (isSpeaking ? stopSpeaking() : speakText(message.text))}
-                    className="mt-2 flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors"
-                    disabled={isTranscribing}
-                  >
-                    {isSpeaking ? (
-                      <div className="flex items-center gap-0.5 h-3.5">
-                        {[0, 1, 2].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="w-0.5 bg-white/50 rounded-full"
-                            animate={{ height: ["4px", "12px", "4px"] }}
-                            transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.15 }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <Volume2 className="h-3.5 w-3.5" />
-                    )}
+                {!message.isUser && message.text &&
+              <button
+                onClick={() => isSpeaking ? stopSpeaking() : speakText(message.text)}
+                className="mt-2 flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors"
+                disabled={isTranscribing}>
+                
+                    {isSpeaking ?
+                <div className="flex items-center gap-0.5 h-3.5">
+                        {[0, 1, 2].map((i) =>
+                  <motion.div
+                    key={i}
+                    className="w-0.5 bg-white/50 rounded-full"
+                    animate={{ height: ["4px", "12px", "4px"] }}
+                    transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.15 }} />
+
+                  )}
+                      </div> :
+
+                <Volume2 className="h-3.5 w-3.5" />
+                }
                     <span>{isSpeaking ? "A reproduzir..." : "Ouvir"}</span>
                   </button>
-                )}
+              }
               </div>
             </motion.div>
-          ))}
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -286,44 +286,44 @@ const Chat = () => {
       {/* Bottom input bar */}
       <div className="border-t border-[#1F2937] p-4 pb-8 safe-area-bottom">
         {/* Recording indicator */}
-        {isRecording && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-3 flex items-center justify-center gap-3"
-          >
+        {isRecording &&
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-3 flex items-center justify-center gap-3">
+          
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 bg-red-500 rounded-full"
-                  animate={{ height: ["8px", "20px", "8px"] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
-                />
-              ))}
+              {[...Array(5)].map((_, i) =>
+            <motion.div
+              key={i}
+              className="w-1 bg-red-500 rounded-full"
+              animate={{ height: ["8px", "20px", "8px"] }}
+              transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }} />
+
+            )}
             </div>
             <span className="text-sm text-red-400 font-medium">A gravar...</span>
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 bg-red-500 rounded-full"
-                  animate={{ height: ["8px", "20px", "8px"] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: (4 - i) * 0.1 }}
-                />
-              ))}
+              {[...Array(5)].map((_, i) =>
+            <motion.div
+              key={i}
+              className="w-1 bg-red-500 rounded-full"
+              animate={{ height: ["8px", "20px", "8px"] }}
+              transition={{ duration: 0.5, repeat: Infinity, delay: (4 - i) * 0.1 }} />
+
+            )}
             </div>
           </motion.div>
-        )}
+        }
 
-        {isTranscribing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-3 flex items-center justify-center gap-2 text-white/60">
+        {isTranscribing &&
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-3 flex items-center justify-center gap-2 text-white/60">
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
               <Loader2 className="h-4 w-4" />
             </motion.div>
             <span className="text-sm">A transcrever...</span>
           </motion.div>
-        )}
+        }
 
         {/* Text input */}
         <input
@@ -333,16 +333,16 @@ const Chat = () => {
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder={isRecording ? "A gravar..." : "Escreve uma mensagem..."}
           disabled={isLoading || isRecording}
-          className="w-full rounded-2xl bg-[#1F2937] border border-white/10 px-4 py-3 text-[#F3F4F6] placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-50 mb-3"
-        />
+          className="w-full rounded-2xl bg-[#1F2937] border border-white/10 px-4 py-3 text-[#F3F4F6] placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-50 mb-3" />
+        
 
         {/* Action buttons row */}
         <div className="flex items-center justify-between">
           {/* Left - Menu icon */}
           <button
             onClick={() => setShowCommandsSheet(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1F2937] hover:bg-[#2a3444] transition-colors"
-          >
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1F2937] hover:bg-[#2a3444] transition-colors">
+            
             <SlidersHorizontal className="h-5 w-5 text-white/60" />
           </button>
 
@@ -360,31 +360,31 @@ const Chat = () => {
               disabled={isLoading || isTranscribing}
               whileTap={{ scale: 0.9 }}
               animate={
-                isRecording
-                  ? {
-                      scale: [1, 1.1, 1],
-                      boxShadow: [
-                        "0 0 0 0 rgba(239,68,68,0.4)",
-                        "0 0 0 12px rgba(239,68,68,0)",
-                        "0 0 0 0 rgba(239,68,68,0.4)",
-                      ],
-                    }
-                  : {}
+              isRecording ?
+              {
+                scale: [1, 1.1, 1],
+                boxShadow: [
+                "0 0 0 0 rgba(239,68,68,0.4)",
+                "0 0 0 12px rgba(239,68,68,0)",
+                "0 0 0 0 rgba(239,68,68,0.4)"]
+
+              } :
+              {}
               }
               transition={isRecording ? { duration: 1.5, repeat: Infinity } : {}}
               className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${
-                isRecording
-                  ? "bg-red-500 text-white"
-                  : "bg-[#1F2937] text-white/60 hover:text-white"
-              } disabled:opacity-50`}
-            >
-              {isRecording ? (
-                <motion.div animate={{ scale: [1, 0.8, 1] }} transition={{ duration: 0.5, repeat: Infinity }}>
+              isRecording ?
+              "bg-red-500 text-white" :
+              "bg-[#1F2937] text-white/60 hover:text-white"} disabled:opacity-50`
+              }>
+              
+              {isRecording ?
+              <motion.div animate={{ scale: [1, 0.8, 1] }} transition={{ duration: 0.5, repeat: Infinity }}>
                   <MicOff className="h-5 w-5" />
-                </motion.div>
-              ) : (
-                <AudioLines className="h-5 w-5" />
-              )}
+                </motion.div> :
+
+              <AudioLines className="h-5 w-5" />
+              }
             </motion.button>
 
             <motion.button
@@ -392,15 +392,15 @@ const Chat = () => {
               disabled={!inputValue.trim() || isLoading || isRecording}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F3F4F6] text-[#0B0F14] disabled:opacity-40"
-            >
-              {isLoading ? (
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F3F4F6] text-[#0B0F14] disabled:opacity-40">
+              
+              {isLoading ?
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                   <Loader2 className="h-5 w-5" />
-                </motion.div>
-              ) : (
-                <Send className="h-5 w-5" />
-              )}
+                </motion.div> :
+
+              <Send className="h-5 w-5" />
+              }
             </motion.button>
           </div>
         </div>
@@ -414,17 +414,17 @@ const Chat = () => {
         currentConversationId={currentConversationId}
         onSelectConversation={(id) => loadConversation(id)}
         onDeleteConversation={deleteConversation}
-        onNewConversation={handleNewConversation}
-      />
+        onNewConversation={handleNewConversation} />
+      
 
       {/* Quick Commands Sheet */}
       <QuickCommandsSheet
         open={showCommandsSheet}
         onOpenChange={setShowCommandsSheet}
-        onCommand={(cmd) => handleSend(cmd)}
-      />
-    </div>
-  );
+        onCommand={(cmd) => handleSend(cmd)} />
+      
+    </div>);
+
 };
 
 export default Chat;
