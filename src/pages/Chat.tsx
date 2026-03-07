@@ -284,7 +284,7 @@ const Chat = () => {
       </div>
 
       {/* Bottom input bar */}
-      <div className="border-t border-[#1F2937] p-4 pb-8 safe-area-bottom">
+      <div className="border-t border-[#1F2937] p-4 pb-8 safe-area-bottom bg-black">
         {/* Recording indicator */}
         {isRecording &&
         <motion.div
