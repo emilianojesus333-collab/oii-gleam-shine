@@ -8,14 +8,13 @@ import { HydrationCard } from '@/components/alerts/HydrationCard';
 import { NotificationPermissionCard } from '@/components/alerts/NotificationPermissionCard';
 import { Switch } from '@/components/ui/switch';
 
-import iconWorkout from '@/assets/icon-workout.png';
-import iconMeals from '@/assets/icon-meals.png';
-import iconSupplements from '@/assets/icon-supplements.png';
-import iconSleep from '@/assets/icon-sleep.png';
+import illustWorkout from '@/assets/illust-workout.png';
+import illustMeals from '@/assets/illust-meals.png';
+import illustSupplements from '@/assets/illust-supplements.png';
+import illustSleep from '@/assets/illust-sleep.png';
 
-interface ReminderRowProps {
+interface ReminderCardProps {
   illustration: string;
-  iconBg: string;
   title: string;
   subtitle: string;
   enabled: boolean;
@@ -24,26 +23,33 @@ interface ReminderRowProps {
   delay?: number;
 }
 
-const ReminderRow = ({ illustration, iconBg, title, subtitle, enabled, onToggle, onClick, delay = 0 }: ReminderRowProps) => (
+const ReminderCard = ({ illustration, title, subtitle, enabled, onToggle, onClick, delay = 0 }: ReminderCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
     onClick={onClick}
-    className="flex items-center gap-3 p-4 rounded-2xl bg-[#111827]/80 border border-[#1F2937]/60 cursor-pointer"
+    className="relative overflow-hidden rounded-2xl bg-[#111827]/90 border border-white/[0.06] cursor-pointer h-[100px]"
   >
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg} overflow-hidden`}>
-      <img src={illustration} alt={title} className="w-8 h-8 object-contain" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <h3 className="font-semibold text-white text-[15px]">{title}</h3>
-      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
-    </div>
-    <Switch
-      checked={enabled}
-      onCheckedChange={onToggle}
-      onClick={(e) => e.stopPropagation()}
+    {/* Illustration positioned right */}
+    <img
+      src={illustration}
+      alt={title}
+      className="absolute right-0 bottom-0 h-full w-auto object-contain opacity-60 pointer-events-none"
+      style={{ maxWidth: '45%' }}
     />
+    {/* Content */}
+    <div className="relative z-10 flex items-center justify-between h-full px-5">
+      <div className="flex-1 min-w-0 pr-3">
+        <h3 className="font-bold text-white text-base">{title}</h3>
+        <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
+      </div>
+      <Switch
+        checked={enabled}
+        onCheckedChange={onToggle}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
   </motion.div>
 );
 
