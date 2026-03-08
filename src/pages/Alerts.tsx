@@ -167,9 +167,8 @@ const Alerts = () => {
 
         {/* Reminder Cards with illustrations */}
         <div className="space-y-3">
-          <ReminderRow
-            illustration={iconWorkout}
-            iconBg="bg-amber-500/20"
+          <ReminderCard
+            illustration={illustWorkout}
             title="Lembrete de Treino"
             subtitle={`Lembrete ${state.workout.minutesBefore} min antes`}
             enabled={state.workout.enabled}
@@ -177,9 +176,8 @@ const Alerts = () => {
             delay={0.05}
           />
 
-          <ReminderRow
-            illustration={iconMeals}
-            iconBg="bg-green-500/20"
+          <ReminderCard
+            illustration={illustMeals}
             title="Refeições"
             subtitle="Lembretes das refeições diárias"
             enabled={mealEnabled}
@@ -187,9 +185,8 @@ const Alerts = () => {
             delay={0.1}
           />
 
-          <ReminderRow
-            illustration={iconSupplements}
-            iconBg="bg-purple-500/20"
+          <ReminderCard
+            illustration={illustSupplements}
             title="Suplementos"
             subtitle={`${state.supplements.filter(s => s.enabled).length} lembretes ativos`}
             enabled={state.supplements.length > 0 && state.supplements.some(s => s.enabled)}
@@ -199,9 +196,8 @@ const Alerts = () => {
             delay={0.15}
           />
 
-          <ReminderRow
-            illustration={iconSleep}
-            iconBg="bg-indigo-500/20"
+          <ReminderCard
+            illustration={illustSleep}
             title="Sono & Recuperação"
             subtitle={`${state.sleep.bedtime} → ${state.sleep.wakeTime} · ${sleepHours.toFixed(0)}h estimadas`}
             enabled={state.sleep.enabled}
