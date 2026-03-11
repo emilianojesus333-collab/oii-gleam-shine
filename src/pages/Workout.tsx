@@ -193,7 +193,7 @@ const Workout = () => {
   const hasNotifiedRef = useRef(false);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isRestRunning && restRemaining > 0) {
       hasNotifiedRef.current = false;
       interval = setInterval(() => {
