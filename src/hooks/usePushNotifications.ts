@@ -11,7 +11,7 @@ interface ScheduledNotification {
   scheduledTime: number;
   tag: string;
   soundType?: NotificationSoundType;
-  timeoutId?: NodeJS.Timeout;
+  timeoutId?: ReturnType<typeof setTimeout>;
 }
 
 export const usePushNotifications = () => {
