@@ -318,6 +318,9 @@ const Workout = () => {
       history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
       localStorage.setItem(storageKey, JSON.stringify(history));
 
+      // Check fatigue and send notification if needed
+      checkFatigueNotification(result.fatigue_index);
+
       navigate(`/workout-summary/${result.session_id}`);
     } catch (err: any) {
       console.error("[Workout] Complete error:", err);

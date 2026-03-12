@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,7 +15,6 @@ serve(async (req) => {
     // ========== AUTHENTICATION CHECK ==========
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('No authorization header provided');
       return new Response(JSON.stringify({ error: 'Unauthorized - No token provided' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -33,19 +31,42 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
     if (userError || !userData.user) {
-      console.error('Authentication error:', userError?.message);
       return new Response(JSON.stringify({ error: 'Unauthorized - Invalid session' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('User authenticated:', userData.user.id);
-    // ========== END AUTHENTICATION CHECK ==========
+    const userId = userData.user.id;
+    console.log('User authenticated:', userId);
 
     const { muscleGroups, trainingType, experience, goal, equipment } = await req.json();
-    
-    console.log("Generate workout request:", { muscleGroups, trainingType, experience, goal });
+
+    // ========== FETCH FATIGUE INDEX ==========
+    const { data: settingsData } = await supabaseClient
+      .from("user_settings")
+      .select("fatigue_index")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const fatigueIndex = settingsData?.fatigue_index ?? 0;
+    console.log(`[GENERATE-WORKOUT] fatigue_index=${fatigueIndex}`);
+
+    // Determine fatigue adjustment
+    let fatigueInstruction = "";
+    let volumeModifier = "normal";
+    if (fatigueIndex >= 81) {
+      fatigueInstruction = `\n\nATENÇÃO CRÍTICA: O utilizador tem fadiga MUITO ALTA (${fatigueIndex}/100). Sugere um treino MUITO LEVE focado em mobilidade e recuperação ativa, com volume reduzido em 50%. Ou recomenda descanso completo.`;
+      volumeModifier = "very_low";
+    } else if (fatigueIndex >= 61) {
+      fatigueInstruction = `\n\nATENÇÃO: O utilizador tem fadiga ALTA (${fatigueIndex}/100). Reduz o volume total em 20%, evita exercícios muito pesados, e foca em técnica e controlo. Não progredas carga.`;
+      volumeModifier = "reduced_20";
+    } else if (fatigueIndex >= 41) {
+      fatigueInstruction = `\n\nNOTA: O utilizador tem fadiga MODERADA (${fatigueIndex}/100). Reduz ligeiramente o volume em 10% e mantém cargas moderadas.`;
+      volumeModifier = "reduced_10";
+    }
+
+    console.log("[GENERATE-WORKOUT] Request:", { muscleGroups, trainingType, experience, goal, volumeModifier });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -60,7 +81,7 @@ REGRAS:
 - Considera o objetivo (ganho de massa, perda de peso, força, etc.)
 - Inclui aquecimento e exercícios principais
 - Fornece séries, repetições e tempo de descanso para cada exercício
-- Explica brevemente a execução de cada exercício
+- Explica brevemente a execução de cada exercício${fatigueInstruction}
 
 FORMATO DE RESPOSTA (JSON válido):
 {
@@ -80,7 +101,8 @@ FORMATO DE RESPOSTA (JSON válido):
   "cooldown": "Sugestão de alongamento/cooldown",
   "estimatedDuration": 45,
   "difficulty": "Iniciante" | "Intermédio" | "Avançado",
-  "notes": "Notas adicionais sobre o treino"
+  "notes": "Notas adicionais sobre o treino",
+  "fatigue_adjustment": "${volumeModifier}"
 }`;
 
     const userPrompt = `Cria um treino personalizado com os seguintes parâmetros:
@@ -90,6 +112,7 @@ TIPO DE TREINO: ${trainingType || "Hipertrofia"}
 NÍVEL DE EXPERIÊNCIA: ${experience || "Intermédio"}
 OBJETIVO: ${goal || "Ganho de massa muscular"}
 EQUIPAMENTO DISPONÍVEL: ${equipment || "Ginásio completo"}
+ÍNDICE DE FADIGA: ${fatigueIndex}/100
 
 Cria um treino completo e eficaz. Responde APENAS com o JSON, sem texto adicional.`;
 
@@ -130,15 +153,17 @@ Cria um treino completo e eficaz. Responde APENAS com o JSON, sem texto adiciona
 
     const data = await response.json();
     let content = data.choices?.[0]?.message?.content || "";
-    
-    // Clean up the response - remove markdown code blocks if present
     content = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     
     console.log("AI response content:", content);
 
     try {
       const workout = JSON.parse(content);
-      return new Response(JSON.stringify({ workout }), {
+      return new Response(JSON.stringify({ 
+        workout,
+        fatigue_index_used: fatigueIndex,
+        fatigue_adjustment_applied: volumeModifier,
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     } catch (parseError) {
