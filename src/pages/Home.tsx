@@ -25,6 +25,7 @@ import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
+import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
