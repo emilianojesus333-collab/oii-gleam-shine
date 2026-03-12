@@ -291,6 +291,9 @@ const Home = () => {
       </motion.div>
 
       <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5">
+        {/* Fatigue Alert */}
+        <FatigueAlertCard fatigueIndex={settings?.fatigue_index} />
+
         {/* Name AI Banner */}
         <NameAIBanner />
 
