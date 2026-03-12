@@ -215,6 +215,9 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       highlights: [],
       improvements: [],
     },
+    recovery: {
+      fatigueIndex: null,
+    },
   };
 
   try {
