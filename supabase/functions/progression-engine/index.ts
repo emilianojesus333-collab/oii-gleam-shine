@@ -174,9 +174,28 @@ Deno.serve(async (req) => {
       frequencyScore * WEIGHTS.frequency
     );
 
-    // ─── Step 5: Decision + Proximity ───
+    // ─── Step 5: Decision + Proximity + Confidence ───
     let decision: "progress" | "maintain" | "deload";
     let proximity: string | null = null;
+
+    // Confidence (calculated early so fatigue overrides can modify it)
+    const trendSessions = trend.length;
+    let confidence: "low" | "medium" | "high";
+
+    if (
+      fatigueData.data_quality === "low" ||
+      trendSessions < 2
+    ) {
+      confidence = "low";
+    } else if (
+      fatigueData.data_quality === "high" &&
+      trendSessions >= 3 &&
+      (finalScore >= THRESHOLD_PROGRESS || finalScore < THRESHOLD_DELOAD)
+    ) {
+      confidence = "high";
+    } else {
+      confidence = "medium";
+    }
 
     if (finalScore >= THRESHOLD_PROGRESS) {
       decision = "progress";
