@@ -46,7 +46,8 @@ function stateChanged(prev: SubscriptionState, next: SubscriptionState): boolean
     prev.productId !== next.productId ||
     prev.subscriptionEnd !== next.subscriptionEnd ||
     prev.subscriptionStart !== next.subscriptionStart ||
-    prev.isTrialing !== next.isTrialing
+    prev.isTrialing !== next.isTrialing ||
+    prev.isDeveloper !== next.isDeveloper
   );
 }
 
