@@ -333,6 +333,8 @@ Deno.serve(async (req) => {
         volume_trend: { score: round2(volumeTrendScore), weight: WEIGHTS.volume },
         frequency: { score: frequencyScore, training_days: trainingDays, weight: WEIGHTS.frequency },
       },
+      fatigue_index_used: userFatigueIndex,
+      fatigue_adjusted: fatigueAdjusted,
       computed_at: new Date().toISOString(),
       elapsed_ms: elapsed,
       log_saved: !logError,
