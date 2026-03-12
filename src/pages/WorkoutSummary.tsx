@@ -88,7 +88,9 @@ export default function WorkoutSummary() {
         </div>
       )}
 
-      {narrative && <p className="text-sm text-muted-foreground mb-5 italic">{narrative}</p>}
+      {narrative && <p className="text-sm text-muted-foreground mb-3 italic">{narrative}</p>}
+
+      <PerformanceScoreCard score={session.performance_score} />
 
       {groupedExercises.length === 0 && progressionLogs.length === 0 ? (
         <div className="text-center py-12">

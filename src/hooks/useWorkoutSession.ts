@@ -57,7 +57,7 @@ export function useWorkoutSession(sessionId: string | undefined) {
       const [sessionRes, setsRes, logsRes] = await Promise.all([
         supabase
           .from("workout_sessions")
-          .select("id, date, day_of_week, muscle_groups, status, exercises_completed, total_exercises, completion_rate")
+          .select("id, date, day_of_week, muscle_groups, status, exercises_completed, total_exercises, completion_rate, performance_score")
           .eq("id", sessionId)
           .maybeSingle(),
         supabase
