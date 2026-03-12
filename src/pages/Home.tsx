@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, RotateCcw, X, Brain, Target, Heart, ChevronRight, Trophy } from "lucide-react";
+import { Settings, RotateCcw, X, Brain, Target, Heart, ChevronRight, Trophy, BatteryCharging } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";

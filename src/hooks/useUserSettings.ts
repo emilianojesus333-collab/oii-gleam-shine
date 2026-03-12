@@ -73,6 +73,7 @@ export const useUserSettings = (): UseUserSettingsReturn => {
           ...data,
           onboarding_data: data.onboarding_data as unknown as OnboardingData | null,
           alerts_config: data.alerts_config as unknown as Record<string, unknown> | null,
+          fatigue_index: data.fatigue_index,
         };
         setSettings(parsedSettings);
       } else {
