@@ -266,24 +266,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ─── Step 7: Confidence ───
-    const trendSessions = trend.length;
-    let confidence: "low" | "medium" | "high";
-
-    if (
-      fatigueData.data_quality === "low" ||
-      trendSessions < 2
-    ) {
-      confidence = "low";
-    } else if (
-      fatigueData.data_quality === "high" &&
-      trendSessions >= 3 &&
-      (finalScore >= THRESHOLD_PROGRESS || finalScore < THRESHOLD_DELOAD)
-    ) {
-      confidence = "high";
-    } else {
-      confidence = "medium";
-    }
+    // (Confidence already calculated in Step 5)
 
     // ─── Step 8: Upsert progression log ───
     const latestSessionId = session_id;
