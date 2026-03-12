@@ -825,6 +825,20 @@ ${ctx.challenges.active.map(c => `- ${c.type}: ${c.progress}/${c.target} ${c.com
     }
   }
 
+  // Recovery State
+  if (ctx.recovery.fatigueIndex !== null && ctx.recovery.fatigueIndex !== undefined) {
+    const fi = ctx.recovery.fatigueIndex;
+    let status = "totalmente recuperado";
+    if (fi >= 81) status = "fadiga muito alta — recomendado descanso";
+    else if (fi >= 61) status = "fadiga alta — evitar treino intenso";
+    else if (fi >= 41) status = "fadiga moderada";
+    else if (fi >= 21) status = "fadiga leve";
+
+    parts.push(`\n⚡ ESTADO DE RECUPERAÇÃO:
+- Índice de fadiga atual: ${fi} / 100
+- Estado: ${status}`);
+  }
+
   // Weekly Report
   if (ctx.weeklyReport.overallScore > 0) {
     parts.push(`\n📊 RELATÓRIO SEMANAL:
