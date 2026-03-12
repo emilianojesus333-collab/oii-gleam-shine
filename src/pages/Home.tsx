@@ -26,6 +26,7 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
+import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
