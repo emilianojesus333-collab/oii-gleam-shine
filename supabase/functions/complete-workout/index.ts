@@ -249,7 +249,18 @@ Deno.serve(async (req) => {
       supabase, userId, finalSessionId, exercises, exerciseMap, uniqueExerciseIds, decisionMap
     );
 
-    console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results, ${celebrations.length} celebrations.`);
+    // ─── Step 6: Performance Score ───
+    const performanceScore = await calculatePerformanceScore(
+      supabase, userId, finalSessionId, date, exercises, progressionResults
+    );
+
+    // Persist score on session
+    await supabase
+      .from("workout_sessions")
+      .update({ performance_score: performanceScore })
+      .eq("id", finalSessionId);
+
+    console.log(`[COMPLETE-WORKOUT] Completed. score=${performanceScore}, ${progressionResults.length} progressions, ${celebrations.length} celebrations.`);
 
     return jsonResponse({
       session_id: finalSessionId,
@@ -258,6 +269,7 @@ Deno.serve(async (req) => {
       sets_inserted: setsToInsert.length,
       progression_results: progressionResults,
       celebrations,
+      performance_score: performanceScore,
     });
   } catch (err: any) {
     console.error("[COMPLETE-WORKOUT] Error:", err);
