@@ -36,6 +36,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
+import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
