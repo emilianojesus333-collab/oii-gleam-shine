@@ -18,6 +18,7 @@ interface UserData {
 export const UserProfileCard = () => {
   const { user } = useAuth();
   const { settings, updateSettings } = useUserSettings();
+  const { isDeveloper } = useSubscriptionContext();
   const [userData, setUserData] = useState<UserData>({
     name: "",
     height: "",
