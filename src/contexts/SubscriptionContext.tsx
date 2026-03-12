@@ -159,6 +159,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
           subscriptionEnd: localData.subscriptionEnd,
           subscriptionStart: localData.subscriptionStart,
           isTrialing: localData.isTrialing,
+          isDeveloper: false,
           error: null,
         });
 
