@@ -12,6 +12,7 @@ interface SubscriptionState {
   subscriptionEnd: string | null;
   subscriptionStart: string | null;
   isTrialing: boolean;
+  isDeveloper: boolean;
   error: string | null;
 }
 
