@@ -117,6 +117,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
         subscriptionEnd: data.subscription_end || null,
         subscriptionStart: data.subscription_start || null,
         isTrialing: data.is_trialing || false,
+        isDeveloper: data.is_developer || false,
         error: null,
       } as SubscriptionState;
     } catch {
