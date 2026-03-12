@@ -27,6 +27,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
 import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
+import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -415,6 +416,9 @@ const Home = () => {
 
         {/* Fatigue Index - Estado de Recuperação */}
         <FatigueIndexCard score={settings?.fatigue_index} />
+
+        {/* Fatigue History Chart */}
+        <FatigueHistoryCard />
 
         {/* AI Insights Widget */}
         <AIInsightsWidget />
