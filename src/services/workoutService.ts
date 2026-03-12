@@ -29,6 +29,7 @@ export interface CompleteWorkoutResponse {
   sets_inserted: number;
   progression_results: ProgressionResult[];
   celebrations: CelebrationEvent[];
+  performance_score: number;
 }
 
 export interface CompleteWorkoutInput {

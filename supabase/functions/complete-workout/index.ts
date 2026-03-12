@@ -249,7 +249,18 @@ Deno.serve(async (req) => {
       supabase, userId, finalSessionId, exercises, exerciseMap, uniqueExerciseIds, decisionMap
     );
 
-    console.log(`[COMPLETE-WORKOUT] Completed. ${progressionResults.length} progression results, ${celebrations.length} celebrations.`);
+    // ─── Step 6: Performance Score ───
+    const performanceScore = await calculatePerformanceScore(
+      supabase, userId, finalSessionId, date, exercises, progressionResults
+    );
+
+    // Persist score on session
+    await supabase
+      .from("workout_sessions")
+      .update({ performance_score: performanceScore })
+      .eq("id", finalSessionId);
+
+    console.log(`[COMPLETE-WORKOUT] Completed. score=${performanceScore}, ${progressionResults.length} progressions, ${celebrations.length} celebrations.`);
 
     return jsonResponse({
       session_id: finalSessionId,
@@ -258,6 +269,7 @@ Deno.serve(async (req) => {
       sets_inserted: setsToInsert.length,
       progression_results: progressionResults,
       celebrations,
+      performance_score: performanceScore,
     });
   } catch (err: any) {
     console.error("[COMPLETE-WORKOUT] Error:", err);
@@ -398,6 +410,92 @@ async function detectCelebrations(
   }
 
   return celebrations;
+}
+
+// ─── Performance Score Calculation ───
+async function calculatePerformanceScore(
+  supabase: any,
+  userId: string,
+  sessionId: string,
+  date: string,
+  exercises: ExerciseInput[],
+  progressionResults: any[]
+): Promise<number> {
+  // 1. Completion Score (30%) — completion_rate is always 100 when finishing via this function
+  const completionScore = 100 * 0.30;
+
+  // 2. Volume Score (30%) — compare session volume to avg of last 5 sessions
+  const sessionVolume = exercises.reduce((sum, ex) => sum + ex.weight * ex.reps * ex.sets, 0);
+
+  let volumeScore = 30; // default full if no history
+  const { data: recentSessions } = await supabase
+    .from("workout_sessions")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "completed")
+    .neq("id", sessionId)
+    .order("date", { ascending: false })
+    .limit(5);
+
+  if (recentSessions && recentSessions.length > 0) {
+    const sessionIds = recentSessions.map((s: any) => s.id);
+    const { data: historicalSets } = await supabase
+      .from("workout_sets")
+      .select("weight, reps, session_id")
+      .eq("user_id", userId)
+      .eq("set_type", "working")
+      .in("session_id", sessionIds);
+
+    if (historicalSets && historicalSets.length > 0) {
+      const volBySession = new Map<string, number>();
+      for (const s of historicalSets) {
+        volBySession.set(s.session_id, (volBySession.get(s.session_id) || 0) + s.weight * s.reps);
+      }
+      const avgVolume = [...volBySession.values()].reduce((a, b) => a + b, 0) / volBySession.size;
+      if (avgVolume > 0) {
+        const ratio = Math.min(sessionVolume / avgVolume, 1);
+        volumeScore = ratio * 30;
+      }
+    }
+  }
+
+  // 3. Progression Score (30%) — based on progression-engine decisions
+  const decisionScores: Record<string, number> = { progress: 30, maintain: 18, deload: 8 };
+  const validDecisions = progressionResults.filter((r) => r.decision && !r.error);
+  let progressionScore = 18; // default maintain if no results
+  if (validDecisions.length > 0) {
+    const total = validDecisions.reduce((sum, r) => sum + (decisionScores[r.decision] ?? 18), 0);
+    progressionScore = total / validDecisions.length;
+  }
+
+  // 4. Consistency Score (10%) — sessions this week (Mon-Sun containing `date`)
+  const sessionDate = new Date(date + "T00:00:00Z");
+  const dayOfWeek = sessionDate.getUTCDay(); // 0=Sun
+  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const weekStart = new Date(sessionDate);
+  weekStart.setUTCDate(weekStart.getUTCDate() - mondayOffset);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+
+  const { count: weekCount } = await supabase
+    .from("workout_sessions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("status", "completed")
+    .gte("date", weekStart.toISOString().split("T")[0])
+    .lte("date", weekEnd.toISOString().split("T")[0]);
+
+  const sessionsThisWeek = weekCount ?? 1;
+  let consistencyScore = 0;
+  if (sessionsThisWeek >= 4) consistencyScore = 10;
+  else if (sessionsThisWeek >= 2) consistencyScore = 6;
+  else if (sessionsThisWeek >= 1) consistencyScore = 3;
+
+  const raw = completionScore + volumeScore + progressionScore + consistencyScore;
+  const score = Math.round(Math.min(Math.max(raw, 0), 100));
+
+  console.log(`[PERF-SCORE] completion=${completionScore} volume=${round2(volumeScore)} progression=${round2(progressionScore)} consistency=${consistencyScore} => ${score}`);
+  return score;
 }
 
 // ─── Utilities ───

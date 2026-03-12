@@ -482,6 +482,7 @@ export type Database = {
           exercises_completed: string[] | null
           id: string
           muscle_groups: string[] | null
+          performance_score: number | null
           status: Database["public"]["Enums"]["session_status"]
           total_exercises: number | null
           updated_at: string
@@ -496,6 +497,7 @@ export type Database = {
           exercises_completed?: string[] | null
           id?: string
           muscle_groups?: string[] | null
+          performance_score?: number | null
           status?: Database["public"]["Enums"]["session_status"]
           total_exercises?: number | null
           updated_at?: string
@@ -510,6 +512,7 @@ export type Database = {
           exercises_completed?: string[] | null
           id?: string
           muscle_groups?: string[] | null
+          performance_score?: number | null
           status?: Database["public"]["Enums"]["session_status"]
           total_exercises?: number | null
           updated_at?: string
