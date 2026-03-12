@@ -26,6 +26,7 @@ interface UserSettings {
   alerts_config: Record<string, unknown> | null;
   onboarding_data: OnboardingData | null;
   has_completed_onboarding: boolean;
+  fatigue_index: number | null;
   created_at: string;
   updated_at: string;
 }
