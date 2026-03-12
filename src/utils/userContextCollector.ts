@@ -36,7 +36,7 @@ export interface UserContext {
     daysMetGoal: number;
   };
   
-  // Workout Data
+  // Workout Data (from database)
   workout: {
     todayExercises: string[];
     todayWorkoutType: string | null;
@@ -46,6 +46,17 @@ export interface UserContext {
     currentStreak: number;
     longestStreak: number;
     mostTrainedMuscles: { muscle: string; count: number }[];
+    recentSessions: {
+      date: string;
+      muscleGroups: string[];
+      exercisesCompleted: string[];
+      completionRate: number;
+    }[];
+    recentExerciseVolume: {
+      exercise: string;
+      totalVolume: number;
+      sessions: number;
+    }[];
   };
   
   // 1RM Records
@@ -162,6 +173,8 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       currentStreak: 0,
       longestStreak: 0,
       mostTrainedMuscles: [],
+      recentSessions: [],
+      recentExerciseVolume: [],
     },
     oneRM: {
       records: [],
@@ -327,40 +340,119 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       }
     }
 
-    // 3. Workout data from localStorage
-    const workoutHistory = localStorage.getItem("liftmate_workout_history");
-    if (workoutHistory) {
-      const parsed = JSON.parse(workoutHistory);
-      context.workout.totalSessions = parsed.sessions?.length || 0;
-      
-      // This week's sessions
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      context.workout.weekSessions = parsed.sessions?.filter((s: any) => 
-        new Date(s.date) >= oneWeekAgo
-      ).length || 0;
-      
-      // Most trained muscles
-      const muscleCount: Record<string, number> = {};
-      parsed.sessions?.forEach((s: any) => {
-        s.muscleGroups?.forEach((m: string) => {
-          muscleCount[m] = (muscleCount[m] || 0) + 1;
-        });
-      });
-      context.workout.mostTrainedMuscles = Object.entries(muscleCount)
-        .map(([muscle, count]) => ({ muscle, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
-    }
+    // 3. Workout data from DATABASE (replaces localStorage)
+    if (currentUserId) {
+      try {
+        const today = getToday();
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weekAgoStr = oneWeekAgo.toISOString().split('T')[0];
 
-    // Today's exercises
-    const completedExercises = localStorage.getItem("liftmate_completed_exercises");
-    if (completedExercises) {
-      const parsed = JSON.parse(completedExercises);
-      if (parsed.date === new Date().toDateString()) {
-        context.workout.todayExercises = parsed.exercises || [];
-        context.workout.todayWorkoutType = parsed.workout || null;
-        context.workout.todayMuscleGroups = parsed.muscleGroups || [];
+        // Fetch recent sessions (last 30 days, max 50)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const { data: sessions } = await supabase
+          .from("workout_sessions")
+          .select("id, date, muscle_groups, exercises_completed, completion_rate, status, day_of_week")
+          .eq("user_id", currentUserId)
+          .eq("status", "completed")
+          .gte("date", thirtyDaysAgo.toISOString().split('T')[0])
+          .order("date", { ascending: false })
+          .limit(50);
+
+        if (sessions && sessions.length > 0) {
+          context.workout.totalSessions = sessions.length;
+          context.workout.weekSessions = sessions.filter(s => s.date >= weekAgoStr).length;
+
+          // Today's session
+          const todaySession = sessions.find(s => s.date === today);
+          if (todaySession) {
+            context.workout.todayExercises = todaySession.exercises_completed || [];
+            context.workout.todayMuscleGroups = todaySession.muscle_groups || [];
+            context.workout.todayWorkoutType = todaySession.muscle_groups?.join(" + ") || null;
+          }
+
+          // Recent sessions for context
+          context.workout.recentSessions = sessions.slice(0, 7).map(s => ({
+            date: s.date,
+            muscleGroups: s.muscle_groups || [],
+            exercisesCompleted: s.exercises_completed || [],
+            completionRate: s.completion_rate || 0,
+          }));
+
+          // Most trained muscles
+          const muscleCount: Record<string, number> = {};
+          sessions.forEach(s => {
+            (s.muscle_groups || []).forEach((m: string) => {
+              muscleCount[m] = (muscleCount[m] || 0) + 1;
+            });
+          });
+          context.workout.mostTrainedMuscles = Object.entries(muscleCount)
+            .map(([muscle, count]) => ({ muscle, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+          // Calculate streak (consecutive days with workouts, allowing 1 rest day gap)
+          let currentStreak = 0;
+          const todayDate = new Date();
+          todayDate.setHours(0, 0, 0, 0);
+          const sessionDates = new Set(sessions.map(s => s.date));
+
+          for (let i = 0; i < 30; i++) {
+            const checkDate = new Date(todayDate);
+            checkDate.setDate(checkDate.getDate() - i);
+            const dateStr = checkDate.toISOString().split("T")[0];
+
+            if (sessionDates.has(dateStr)) {
+              currentStreak++;
+            } else if (i > 0) {
+              const prevDate = new Date(todayDate);
+              prevDate.setDate(prevDate.getDate() - i + 1);
+              if (!sessionDates.has(prevDate.toISOString().split("T")[0])) {
+                break;
+              }
+            }
+          }
+          context.workout.currentStreak = currentStreak;
+
+          // Recent exercise volume (from workout_sets, last 7 days)
+          const weekSessionIds = sessions.filter(s => s.date >= weekAgoStr).map(s => s.id);
+          if (weekSessionIds.length > 0) {
+            const { data: recentSets } = await supabase
+              .from("workout_sets")
+              .select("exercise_id, weight, reps")
+              .eq("set_type", "working")
+              .in("session_id", weekSessionIds);
+
+            if (recentSets && recentSets.length > 0) {
+              const exerciseIds = [...new Set(recentSets.map(s => s.exercise_id))];
+              const { data: exerciseNames } = await supabase
+                .from("exercises")
+                .select("id, name")
+                .in("id", exerciseIds);
+
+              const nameMap = new Map((exerciseNames || []).map(e => [e.id, e.name]));
+              const volumeByExercise: Record<string, { volume: number; sessions: Set<string> }> = {};
+
+              for (const set of recentSets) {
+                const name = nameMap.get(set.exercise_id) || set.exercise_id;
+                if (!volumeByExercise[name]) volumeByExercise[name] = { volume: 0, sessions: new Set() };
+                volumeByExercise[name].volume += set.weight * set.reps;
+              }
+
+              context.workout.recentExerciseVolume = Object.entries(volumeByExercise)
+                .map(([exercise, data]) => ({
+                  exercise,
+                  totalVolume: Math.round(data.volume),
+                  sessions: data.sessions.size || 1,
+                }))
+                .sort((a, b) => b.totalVolume - a.totalVolume)
+                .slice(0, 10);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("[UserContext] Error fetching workout data from DB:", err);
       }
     }
 
@@ -616,14 +708,30 @@ ${protPercent >= 100 ? "✅ Meta de proteína atingida!" : ""}`);
   // Workout Stats
   if (ctx.workout.totalSessions > 0 || ctx.workout.currentStreak > 0) {
     parts.push(`\n📈 ESTATÍSTICAS DE TREINO:
-- Total de sessões: ${ctx.workout.totalSessions}
+- Total de sessões (30 dias): ${ctx.workout.totalSessions}
 - Sessões esta semana: ${ctx.workout.weekSessions}
-- Streak atual: ${ctx.workout.currentStreak} dias 🔥
-- Maior streak: ${ctx.workout.longestStreak} dias`);
+- Streak atual: ${ctx.workout.currentStreak} dias 🔥`);
     
     if (ctx.workout.mostTrainedMuscles.length > 0) {
       parts.push(`- Músculos mais treinados: ${ctx.workout.mostTrainedMuscles.map(m => `${m.muscle} (${m.count}x)`).join(", ")}`);
     }
+  }
+
+  // Recent Sessions
+  if (ctx.workout.recentSessions.length > 0) {
+    parts.push(`\nÚLTIMAS SESSÕES:`);
+    ctx.workout.recentSessions.slice(0, 5).forEach(s => {
+      const date = new Date(s.date + "T00:00:00").toLocaleDateString("pt-PT", { weekday: "short", day: "numeric", month: "short" });
+      parts.push(`- ${date}: ${s.muscleGroups.join("+")} - ${s.exercisesCompleted.length} exercícios (${s.completionRate}%)`);
+    });
+  }
+
+  // Recent Exercise Volume
+  if (ctx.workout.recentExerciseVolume.length > 0) {
+    parts.push(`\n📊 VOLUME RECENTE POR EXERCÍCIO (7 dias):`);
+    ctx.workout.recentExerciseVolume.slice(0, 8).forEach(e => {
+      parts.push(`- ${e.exercise}: ${e.totalVolume}kg volume total`);
+    });
   }
 
   // 1RM Records
