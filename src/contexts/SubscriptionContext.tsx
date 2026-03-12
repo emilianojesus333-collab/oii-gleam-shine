@@ -34,6 +34,7 @@ const DEFAULT_STATE: SubscriptionState = {
   subscriptionEnd: null,
   subscriptionStart: null,
   isTrialing: false,
+  isDeveloper: false,
   error: null,
 };
 
