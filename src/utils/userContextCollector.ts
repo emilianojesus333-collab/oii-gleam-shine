@@ -708,14 +708,30 @@ ${protPercent >= 100 ? "✅ Meta de proteína atingida!" : ""}`);
   // Workout Stats
   if (ctx.workout.totalSessions > 0 || ctx.workout.currentStreak > 0) {
     parts.push(`\n📈 ESTATÍSTICAS DE TREINO:
-- Total de sessões: ${ctx.workout.totalSessions}
+- Total de sessões (30 dias): ${ctx.workout.totalSessions}
 - Sessões esta semana: ${ctx.workout.weekSessions}
-- Streak atual: ${ctx.workout.currentStreak} dias 🔥
-- Maior streak: ${ctx.workout.longestStreak} dias`);
+- Streak atual: ${ctx.workout.currentStreak} dias 🔥`);
     
     if (ctx.workout.mostTrainedMuscles.length > 0) {
       parts.push(`- Músculos mais treinados: ${ctx.workout.mostTrainedMuscles.map(m => `${m.muscle} (${m.count}x)`).join(", ")}`);
     }
+  }
+
+  // Recent Sessions
+  if (ctx.workout.recentSessions.length > 0) {
+    parts.push(`\nÚLTIMAS SESSÕES:`);
+    ctx.workout.recentSessions.slice(0, 5).forEach(s => {
+      const date = new Date(s.date + "T00:00:00").toLocaleDateString("pt-PT", { weekday: "short", day: "numeric", month: "short" });
+      parts.push(`- ${date}: ${s.muscleGroups.join("+")} - ${s.exercisesCompleted.length} exercícios (${s.completionRate}%)`);
+    });
+  }
+
+  // Recent Exercise Volume
+  if (ctx.workout.recentExerciseVolume.length > 0) {
+    parts.push(`\n📊 VOLUME RECENTE POR EXERCÍCIO (7 dias):`);
+    ctx.workout.recentExerciseVolume.slice(0, 8).forEach(e => {
+      parts.push(`- ${e.exercise}: ${e.totalVolume}kg volume total`);
+    });
   }
 
   // 1RM Records
