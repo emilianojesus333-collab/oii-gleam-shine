@@ -31,6 +31,7 @@ export interface SessionData {
   exercises_completed: string[] | null;
   total_exercises: number | null;
   completion_rate: number | null;
+  performance_score: number | null;
 }
 
 export function useWorkoutSession(sessionId: string | undefined) {
