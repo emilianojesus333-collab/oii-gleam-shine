@@ -190,6 +190,27 @@ Deno.serve(async (req) => {
 
     reasoning.push(`Score final: ${finalScore} → ${decision}${proximity ? ` (${proximity})` : ""}`);
 
+    // ─── Step 5b: Fatigue Index Override ───
+    let fatigueAdjusted = false;
+    if (userFatigueIndex !== null) {
+      reasoning.push(`Fatigue Index do utilizador: ${userFatigueIndex}`);
+      if (userFatigueIndex >= 81) {
+        if (decision !== "deload") {
+          fatigueAdjusted = true;
+          decision = "deload";
+          reasoning.push(`Fadiga muito alta (${userFatigueIndex}) → forçar deload`);
+        }
+      } else if (userFatigueIndex >= 61 && decision === "progress") {
+        fatigueAdjusted = true;
+        decision = "maintain";
+        reasoning.push(`Fadiga alta (${userFatigueIndex}) → converter progress → maintain`);
+      } else if (userFatigueIndex >= 41 && decision === "progress") {
+        fatigueAdjusted = true;
+        confidence = "low";
+        reasoning.push(`Fadiga moderada (${userFatigueIndex}) → reduzir confiança da progressão`);
+      }
+    }
+
     // ─── Step 6: Calculate increment/deload ───
     let currentWeight: number | null = null;
     let suggestedWeight: number | null = null;
