@@ -260,7 +260,16 @@ Deno.serve(async (req) => {
       .update({ performance_score: performanceScore })
       .eq("id", finalSessionId);
 
-    console.log(`[COMPLETE-WORKOUT] Completed. score=${performanceScore}, ${progressionResults.length} progressions, ${celebrations.length} celebrations.`);
+    // ─── Step 7: Fatigue Index ───
+    const fatigueIndex = await calculateFatigueIndex(supabase, userId, finalSessionId);
+
+    // Persist fatigue index on user_settings
+    await supabase
+      .from("user_settings")
+      .update({ fatigue_index: fatigueIndex })
+      .eq("user_id", userId);
+
+    console.log(`[COMPLETE-WORKOUT] Completed. score=${performanceScore}, fatigue=${fatigueIndex}, ${progressionResults.length} progressions, ${celebrations.length} celebrations.`);
 
     return jsonResponse({
       session_id: finalSessionId,
@@ -270,6 +279,7 @@ Deno.serve(async (req) => {
       progression_results: progressionResults,
       celebrations,
       performance_score: performanceScore,
+      fatigue_index: fatigueIndex,
     });
   } catch (err: any) {
     console.error("[COMPLETE-WORKOUT] Error:", err);
