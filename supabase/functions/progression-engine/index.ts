@@ -92,11 +92,18 @@ Deno.serve(async (req) => {
       exercise.secondary_muscles && exercise.secondary_muscles.length >= 1;
 
     // ─── Step 2: Parallel metric calls ───
-    const [volumeData, frequencyData, fatigueData] = await Promise.all([
+    const [volumeData, frequencyData, fatigueData, userSettingsResult] = await Promise.all([
       getWeeklyVolume(supabase, userId),
       getMuscleFrequency(supabase, userId),
       getAccumulatedFatigue(supabase, userId),
+      supabase
+        .from("user_settings")
+        .select("fatigue_index")
+        .eq("user_id", userId)
+        .maybeSingle(),
     ]);
+
+    const userFatigueIndex: number | null = userSettingsResult.data?.fatigue_index ?? null;
 
     // ─── Step 3: Calculate sub-scores ───
     const reasoning: string[] = [];
