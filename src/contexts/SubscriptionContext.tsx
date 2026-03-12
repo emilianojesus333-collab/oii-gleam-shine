@@ -12,6 +12,7 @@ interface SubscriptionState {
   subscriptionEnd: string | null;
   subscriptionStart: string | null;
   isTrialing: boolean;
+  isDeveloper: boolean;
   error: string | null;
 }
 
@@ -33,6 +34,7 @@ const DEFAULT_STATE: SubscriptionState = {
   subscriptionEnd: null,
   subscriptionStart: null,
   isTrialing: false,
+  isDeveloper: false,
   error: null,
 };
 
@@ -44,7 +46,8 @@ function stateChanged(prev: SubscriptionState, next: SubscriptionState): boolean
     prev.productId !== next.productId ||
     prev.subscriptionEnd !== next.subscriptionEnd ||
     prev.subscriptionStart !== next.subscriptionStart ||
-    prev.isTrialing !== next.isTrialing
+    prev.isTrialing !== next.isTrialing ||
+    prev.isDeveloper !== next.isDeveloper
   );
 }
 
@@ -100,6 +103,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
         subscription_end: string | null;
         subscription_start: string | null;
         is_trialing: boolean;
+        is_developer?: boolean;
       }>("check-subscription", { silentOn401: silentMode });
 
       if (silentMode && !data && !error) return null;
@@ -113,6 +117,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
         subscriptionEnd: data.subscription_end || null,
         subscriptionStart: data.subscription_start || null,
         isTrialing: data.is_trialing || false,
+        isDeveloper: data.is_developer || false,
         error: null,
       } as SubscriptionState;
     } catch {
@@ -154,6 +159,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
           subscriptionEnd: localData.subscriptionEnd,
           subscriptionStart: localData.subscriptionStart,
           isTrialing: localData.isTrialing,
+          isDeveloper: false,
           error: null,
         });
 
@@ -213,12 +219,14 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
   }, []);
 
   const shouldShowPaywall = useCallback(() => {
+    if (state.isDeveloper) return false;
     if (state.isLoading || state.isTrialing || state.subscribed) return false;
     if (state.status === "active" || state.status === "canceled_but_active") return false;
     return state.status === "never_subscribed" || state.status === "expired";
-  }, [state.status, state.isTrialing, state.subscribed, state.isLoading]);
+  }, [state.status, state.isTrialing, state.subscribed, state.isLoading, state.isDeveloper]);
 
   const isSubscriptionValid = useCallback(() => {
+    if (state.isDeveloper) return true;
     if (state.isTrialing || state.subscribed) return true;
     if (state.status === "active" || state.status === "canceled_but_active") {
       if (state.subscriptionEnd) return new Date(state.subscriptionEnd) > new Date();

@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Developer emails with full access (server-side validation)
+const DEV_EMAILS = [
+  "emilianojesus333@email.com",
+  "emilianodejesusdafunseca99@gmail.com",
+];
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -94,6 +100,26 @@ serve(async (req) => {
     }
 
     logStep("User authenticated", { userId, email });
+
+    // Developer access bypass — server-side validated
+    if (DEV_EMAILS.includes(email.toLowerCase())) {
+      logStep("Developer access granted", { email });
+      return new Response(
+        JSON.stringify({
+          subscribed: true,
+          status: "active",
+          product_id: null,
+          subscription_end: null,
+          subscription_start: null,
+          is_trialing: false,
+          is_developer: true,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",

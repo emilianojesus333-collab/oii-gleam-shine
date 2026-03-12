@@ -4,6 +4,8 @@ import { User, Ruler, Weight, Calendar, Edit2, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
+import { Badge } from "@/components/ui/badge";
 
 interface UserData {
   name: string;
@@ -16,6 +18,7 @@ interface UserData {
 export const UserProfileCard = () => {
   const { user } = useAuth();
   const { settings, updateSettings } = useUserSettings();
+  const { isDeveloper } = useSubscriptionContext();
   const [userData, setUserData] = useState<UserData>({
     name: "",
     height: "",
@@ -92,7 +95,14 @@ export const UserProfileCard = () => {
             </span>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{userData.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-foreground">{userData.name}</h2>
+              {isDeveloper && (
+                <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0">
+                  Developer Access
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">
               {age ? `${age} anos` : ""}
             </p>
