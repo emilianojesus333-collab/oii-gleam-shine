@@ -92,11 +92,18 @@ Deno.serve(async (req) => {
       exercise.secondary_muscles && exercise.secondary_muscles.length >= 1;
 
     // ─── Step 2: Parallel metric calls ───
-    const [volumeData, frequencyData, fatigueData] = await Promise.all([
+    const [volumeData, frequencyData, fatigueData, userSettingsResult] = await Promise.all([
       getWeeklyVolume(supabase, userId),
       getMuscleFrequency(supabase, userId),
       getAccumulatedFatigue(supabase, userId),
+      supabase
+        .from("user_settings")
+        .select("fatigue_index")
+        .eq("user_id", userId)
+        .maybeSingle(),
     ]);
+
+    const userFatigueIndex: number | null = userSettingsResult.data?.fatigue_index ?? null;
 
     // ─── Step 3: Calculate sub-scores ───
     const reasoning: string[] = [];
@@ -182,6 +189,27 @@ Deno.serve(async (req) => {
     }
 
     reasoning.push(`Score final: ${finalScore} → ${decision}${proximity ? ` (${proximity})` : ""}`);
+
+    // ─── Step 5b: Fatigue Index Override ───
+    let fatigueAdjusted = false;
+    if (userFatigueIndex !== null) {
+      reasoning.push(`Fatigue Index do utilizador: ${userFatigueIndex}`);
+      if (userFatigueIndex >= 81) {
+        if (decision !== "deload") {
+          fatigueAdjusted = true;
+          decision = "deload";
+          reasoning.push(`Fadiga muito alta (${userFatigueIndex}) → forçar deload`);
+        }
+      } else if (userFatigueIndex >= 61 && decision === "progress") {
+        fatigueAdjusted = true;
+        decision = "maintain";
+        reasoning.push(`Fadiga alta (${userFatigueIndex}) → converter progress → maintain`);
+      } else if (userFatigueIndex >= 41 && decision === "progress") {
+        fatigueAdjusted = true;
+        confidence = "low";
+        reasoning.push(`Fadiga moderada (${userFatigueIndex}) → reduzir confiança da progressão`);
+      }
+    }
 
     // ─── Step 6: Calculate increment/deload ───
     let currentWeight: number | null = null;
@@ -269,7 +297,8 @@ Deno.serve(async (req) => {
       training_days_7d: fatigueData.training_days_7d ?? null,
       training_days_3d: fatigueData.training_days_3d ?? null,
       weights: WEIGHTS,
-    };
+      fatigue_index_used: userFatigueIndex,
+      fatigue_adjusted: fatigueAdjusted,
 
     // Use service role for upsert (RLS requires auth.uid() = user_id)
     const { error: logError } = await supabase
@@ -304,6 +333,8 @@ Deno.serve(async (req) => {
         volume_trend: { score: round2(volumeTrendScore), weight: WEIGHTS.volume },
         frequency: { score: frequencyScore, training_days: trainingDays, weight: WEIGHTS.frequency },
       },
+      fatigue_index_used: userFatigueIndex,
+      fatigue_adjusted: fatigueAdjusted,
       computed_at: new Date().toISOString(),
       elapsed_ms: elapsed,
       log_saved: !logError,
