@@ -421,6 +421,9 @@ const Home = () => {
         {/* Fatigue History Chart */}
         <FatigueHistoryCard />
 
+        {/* Performance Metrics Panel */}
+        <PerformanceMetricsPanel />
+
         {/* AI Insights Widget */}
         <AIInsightsWidget />
 
