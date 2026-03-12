@@ -218,12 +218,14 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
   }, []);
 
   const shouldShowPaywall = useCallback(() => {
+    if (state.isDeveloper) return false;
     if (state.isLoading || state.isTrialing || state.subscribed) return false;
     if (state.status === "active" || state.status === "canceled_but_active") return false;
     return state.status === "never_subscribed" || state.status === "expired";
-  }, [state.status, state.isTrialing, state.subscribed, state.isLoading]);
+  }, [state.status, state.isTrialing, state.subscribed, state.isLoading, state.isDeveloper]);
 
   const isSubscriptionValid = useCallback(() => {
+    if (state.isDeveloper) return true;
     if (state.isTrialing || state.subscribed) return true;
     if (state.status === "active" || state.status === "canceled_but_active") {
       if (state.subscriptionEnd) return new Date(state.subscriptionEnd) > new Date();

@@ -101,6 +101,26 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId, email });
 
+    // Developer access bypass — server-side validated
+    if (DEV_EMAILS.includes(email.toLowerCase())) {
+      logStep("Developer access granted", { email });
+      return new Response(
+        JSON.stringify({
+          subscribed: true,
+          status: "active",
+          product_id: null,
+          subscription_end: null,
+          subscription_start: null,
+          is_trialing: false,
+          is_developer: true,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
