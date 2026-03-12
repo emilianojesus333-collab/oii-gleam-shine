@@ -268,6 +268,9 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
 
         // AI Name from database
         context.profile.aiName = userSettings.ai_name || "LiftMate";
+
+        // Fatigue Index from database
+        context.recovery.fatigueIndex = userSettings.fatigue_index ?? null;
       }
     }
 
