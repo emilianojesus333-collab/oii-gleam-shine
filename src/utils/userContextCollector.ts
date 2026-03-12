@@ -142,6 +142,11 @@ export interface UserContext {
     highlights: string[];
     improvements: string[];
   };
+
+  // Recovery State
+  recovery: {
+    fatigueIndex: number | null;
+  };
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
