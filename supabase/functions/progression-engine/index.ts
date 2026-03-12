@@ -297,7 +297,8 @@ Deno.serve(async (req) => {
       training_days_7d: fatigueData.training_days_7d ?? null,
       training_days_3d: fatigueData.training_days_3d ?? null,
       weights: WEIGHTS,
-    };
+      fatigue_index_used: userFatigueIndex,
+      fatigue_adjusted: fatigueAdjusted,
 
     // Use service role for upsert (RLS requires auth.uid() = user_id)
     const { error: logError } = await supabase
