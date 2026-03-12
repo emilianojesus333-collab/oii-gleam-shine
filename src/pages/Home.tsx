@@ -409,6 +409,9 @@ const Home = () => {
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
 
+        {/* Fatigue Index - Estado de Recuperação */}
+        <FatigueIndexCard score={settings?.fatigue_index} />
+
         {/* AI Insights Widget */}
         <AIInsightsWidget />
 
