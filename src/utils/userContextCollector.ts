@@ -142,6 +142,11 @@ export interface UserContext {
     highlights: string[];
     improvements: string[];
   };
+
+  // Recovery State
+  recovery: {
+    fatigueIndex: number | null;
+  };
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -210,6 +215,9 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       highlights: [],
       improvements: [],
     },
+    recovery: {
+      fatigueIndex: null,
+    },
   };
 
   try {
@@ -260,6 +268,9 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
 
         // AI Name from database
         context.profile.aiName = userSettings.ai_name || "LiftMate";
+
+        // Fatigue Index from database
+        context.recovery.fatigueIndex = userSettings.fatigue_index ?? null;
       }
     }
 
@@ -812,6 +823,20 @@ ${ctx.challenges.active.map(c => `- ${c.type}: ${c.progress}/${c.target} ${c.com
     if (ctx.progressPhotos.daysSinceLastPhoto && ctx.progressPhotos.daysSinceLastPhoto >= 7) {
       parts.push(`⚠️ Lembrete: Já passaram ${ctx.progressPhotos.daysSinceLastPhoto} dias desde a última foto de progresso!`);
     }
+  }
+
+  // Recovery State
+  if (ctx.recovery.fatigueIndex !== null && ctx.recovery.fatigueIndex !== undefined) {
+    const fi = ctx.recovery.fatigueIndex;
+    let status = "totalmente recuperado";
+    if (fi >= 81) status = "fadiga muito alta — recomendado descanso";
+    else if (fi >= 61) status = "fadiga alta — evitar treino intenso";
+    else if (fi >= 41) status = "fadiga moderada";
+    else if (fi >= 21) status = "fadiga leve";
+
+    parts.push(`\n⚡ ESTADO DE RECUPERAÇÃO:
+- Índice de fadiga atual: ${fi} / 100
+- Estado: ${status}`);
   }
 
   // Weekly Report
