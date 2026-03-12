@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorkoutSession } from "@/hooks/useWorkoutSession";
+import { PerformanceScoreCard } from "@/components/workout/PerformanceScoreCard";
 
 const decisionConfig = {
   progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
