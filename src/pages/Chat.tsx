@@ -340,7 +340,7 @@ const Chat = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder={isRecording ? "A gravar..." : "Escreve uma mensagem..."}
+            placeholder={isRecording ? "A gravar..." : "Perguntar ao chat..."}
             disabled={isLoading || isRecording}
             className="flex-1 bg-transparent text-sm text-[#F3F4F6] placeholder:text-white/30 focus:outline-none disabled:opacity-50" />
           
