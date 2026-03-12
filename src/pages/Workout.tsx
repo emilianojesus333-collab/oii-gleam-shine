@@ -134,6 +134,7 @@ const Workout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
+  const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
 
   // Load today's saved exercises on mount
   useEffect(() => {
