@@ -271,6 +271,8 @@ export type Database = {
           data_quality: string | null
           decision: Database["public"]["Enums"]["progression_decision"]
           exercise_id: string
+          fatigue_adjusted: boolean
+          fatigue_index_used: number | null
           fatigue_ratio: number | null
           fatigue_score: number | null
           fatigue_status: string | null
@@ -300,6 +302,8 @@ export type Database = {
           data_quality?: string | null
           decision: Database["public"]["Enums"]["progression_decision"]
           exercise_id: string
+          fatigue_adjusted?: boolean
+          fatigue_index_used?: number | null
           fatigue_ratio?: number | null
           fatigue_score?: number | null
           fatigue_status?: string | null
@@ -329,6 +333,8 @@ export type Database = {
           data_quality?: string | null
           decision?: Database["public"]["Enums"]["progression_decision"]
           exercise_id?: string
+          fatigue_adjusted?: boolean
+          fatigue_index_used?: number | null
           fatigue_ratio?: number | null
           fatigue_score?: number | null
           fatigue_status?: string | null
