@@ -36,7 +36,7 @@ export interface UserContext {
     daysMetGoal: number;
   };
   
-  // Workout Data
+  // Workout Data (from database)
   workout: {
     todayExercises: string[];
     todayWorkoutType: string | null;
@@ -46,6 +46,17 @@ export interface UserContext {
     currentStreak: number;
     longestStreak: number;
     mostTrainedMuscles: { muscle: string; count: number }[];
+    recentSessions: {
+      date: string;
+      muscleGroups: string[];
+      exercisesCompleted: string[];
+      completionRate: number;
+    }[];
+    recentExerciseVolume: {
+      exercise: string;
+      totalVolume: number;
+      sessions: number;
+    }[];
   };
   
   // 1RM Records
