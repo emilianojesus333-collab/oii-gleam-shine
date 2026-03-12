@@ -36,6 +36,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
+import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -133,6 +134,7 @@ const Workout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
+  const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
 
   // Load today's saved exercises on mount
   useEffect(() => {
@@ -315,6 +317,9 @@ const Workout = () => {
       const todayStr = today.toISOString().split("T")[0];
       history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
       localStorage.setItem(storageKey, JSON.stringify(history));
+
+      // Check fatigue and send notification if needed
+      checkFatigueNotification(result.fatigue_index);
 
       navigate(`/workout-summary/${result.session_id}`);
     } catch (err: any) {
