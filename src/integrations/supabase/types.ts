@@ -408,6 +408,7 @@ export type Database = {
           ai_name: string | null
           alerts_config: Json | null
           created_at: string
+          fatigue_index: number | null
           has_completed_onboarding: boolean
           id: string
           onboarding_data: Json | null
@@ -418,6 +419,7 @@ export type Database = {
           ai_name?: string | null
           alerts_config?: Json | null
           created_at?: string
+          fatigue_index?: number | null
           has_completed_onboarding?: boolean
           id?: string
           onboarding_data?: Json | null
@@ -428,6 +430,7 @@ export type Database = {
           ai_name?: string | null
           alerts_config?: Json | null
           created_at?: string
+          fatigue_index?: number | null
           has_completed_onboarding?: boolean
           id?: string
           onboarding_data?: Json | null

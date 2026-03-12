@@ -30,6 +30,7 @@ export interface CompleteWorkoutResponse {
   progression_results: ProgressionResult[];
   celebrations: CelebrationEvent[];
   performance_score: number;
+  fatigue_index: number;
 }
 
 export interface CompleteWorkoutInput {

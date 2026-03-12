@@ -508,6 +508,117 @@ async function calculatePerformanceScore(
   return score;
 }
 
+// ─── Fatigue Index Calculation ───
+async function calculateFatigueIndex(
+  supabase: any,
+  userId: string,
+  currentSessionId: string
+): Promise<number> {
+  const sevenDaysAgo = getDateNDaysAgo(7);
+  const fourWeeksAgo = getDateNDaysAgo(28);
+
+  // Parallel: recent 7d sessions, historical 4w sessions, recent performance scores
+  const [recentRes, historicalRes, perfRes] = await Promise.all([
+    supabase
+      .from("workout_sessions")
+      .select("id, date")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .gte("date", sevenDaysAgo),
+    supabase
+      .from("workout_sessions")
+      .select("id, date")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .gte("date", fourWeeksAgo)
+      .lt("date", sevenDaysAgo),
+    supabase
+      .from("workout_sessions")
+      .select("performance_score")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .not("performance_score", "is", null)
+      .order("date", { ascending: false })
+      .limit(5),
+  ]);
+
+  const recentSessions = recentRes.data || [];
+  const historicalSessions = historicalRes.data || [];
+  const perfScores = perfRes.data || [];
+
+  // ─── 1. Volume Score (50%) ───
+  const recentSessionIds = recentSessions.map((s: any) => s.id);
+  const historicalSessionIds = historicalSessions.map((s: any) => s.id);
+
+  let volumeScore = 0;
+
+  if (recentSessionIds.length > 0) {
+    const [recentSetsRes, historicalSetsRes] = await Promise.all([
+      supabase
+        .from("workout_sets")
+        .select("weight, reps")
+        .eq("user_id", userId)
+        .eq("set_type", "working")
+        .in("session_id", recentSessionIds),
+      historicalSessionIds.length > 0
+        ? supabase
+            .from("workout_sets")
+            .select("weight, reps, session_id")
+            .eq("user_id", userId)
+            .eq("set_type", "working")
+            .in("session_id", historicalSessionIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+    const recentVolume = (recentSetsRes.data || []).reduce(
+      (sum: number, s: any) => sum + s.weight * s.reps, 0
+    );
+
+    const histSets = historicalSetsRes.data || [];
+    if (histSets.length > 0) {
+      // Calculate weekly average from historical weeks
+      const weekCount = Math.max(1, Math.ceil(historicalSessionIds.length > 0 ? 3 : 1));
+      const histVolume = histSets.reduce((sum: number, s: any) => sum + s.weight * s.reps, 0);
+      const avgWeeklyVolume = histVolume / weekCount;
+
+      if (avgWeeklyVolume > 0) {
+        const volumeRatio = recentVolume / avgWeeklyVolume;
+        volumeScore = Math.min(volumeRatio, 1.5) * (50 / 1.5); // normalize: 1.5 ratio = 50 pts
+      }
+    } else {
+      // No historical data, use moderate default
+      volumeScore = recentVolume > 0 ? 25 : 0;
+    }
+  }
+
+  // ─── 2. Frequency Score (30%) ───
+  const sessionsThisWeek = recentSessionIds.length;
+  let frequencyScore = 0;
+  if (sessionsThisWeek >= 5) frequencyScore = 30;
+  else if (sessionsThisWeek >= 4) frequencyScore = 24;
+  else if (sessionsThisWeek >= 3) frequencyScore = 18;
+  else if (sessionsThisWeek >= 2) frequencyScore = 12;
+  else if (sessionsThisWeek >= 1) frequencyScore = 6;
+
+  // ─── 3. Performance Score (20%) ───
+  let performanceComponent = 10; // default moderate
+  const validScores = perfScores
+    .map((s: any) => s.performance_score)
+    .filter((s: number | null) => s !== null) as number[];
+
+  if (validScores.length > 0) {
+    const avgPerf = validScores.reduce((a: number, b: number) => a + b, 0) / validScores.length;
+    performanceComponent = (avgPerf / 100) * 20;
+  }
+
+  // ─── Final ───
+  const raw = volumeScore + frequencyScore + performanceComponent;
+  const fatigueIndex = Math.round(Math.min(Math.max(raw, 0), 100));
+
+  console.log(`[FATIGUE-INDEX] volume=${round2(volumeScore)} frequency=${frequencyScore} performance=${round2(performanceComponent)} => ${fatigueIndex}`);
+  return fatigueIndex;
+}
+
 // ─── Utilities ───
 function round2(n: number) { return Math.round(n * 100) / 100; }
 function getDateNDaysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split("T")[0]; }
