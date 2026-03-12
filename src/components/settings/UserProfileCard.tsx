@@ -4,6 +4,8 @@ import { User, Ruler, Weight, Calendar, Edit2, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
+import { Badge } from "@/components/ui/badge";
 
 interface UserData {
   name: string;
