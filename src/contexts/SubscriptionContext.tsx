@@ -103,6 +103,7 @@ export const SubscriptionProvider = ({ children, enabled = true }: { children: R
         subscription_end: string | null;
         subscription_start: string | null;
         is_trialing: boolean;
+        is_developer?: boolean;
       }>("check-subscription", { silentOn401: silentMode });
 
       if (silentMode && !data && !error) return null;
