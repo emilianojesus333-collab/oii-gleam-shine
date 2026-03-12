@@ -417,6 +417,9 @@ const Home = () => {
         {/* Fatigue Index - Estado de Recuperação */}
         <FatigueIndexCard score={settings?.fatigue_index} />
 
+        {/* Fatigue History Chart */}
+        <FatigueHistoryCard />
+
         {/* AI Insights Widget */}
         <AIInsightsWidget />
 
