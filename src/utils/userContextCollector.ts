@@ -173,6 +173,8 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       currentStreak: 0,
       longestStreak: 0,
       mostTrainedMuscles: [],
+      recentSessions: [],
+      recentExerciseVolume: [],
     },
     oneRM: {
       records: [],
