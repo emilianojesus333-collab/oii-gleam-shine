@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
       completion_rate: completionRate,
       exercise_logs: exercises,
       status: "completed",
+      updated_at: new Date().toISOString(),
     };
 
     const { error: sessionError } = existingSession

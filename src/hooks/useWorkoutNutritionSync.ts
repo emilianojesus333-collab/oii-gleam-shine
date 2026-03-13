@@ -46,16 +46,16 @@ export const useWorkoutNutritionSync = (): WorkoutNutritionContext => {
     const fetchSessions = async () => {
       setLoading(true);
       const today = new Date();
-      const twoDaysAgo = new Date(today);
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const { data, error } = await supabase
         .from('workout_sessions')
         .select('id, date, status, muscle_groups, created_at, updated_at')
         .eq('user_id', user.id)
-        .gte('date', twoDaysAgo.toISOString().split('T')[0])
+        .gte('date', sevenDaysAgo.toISOString().split('T')[0])
         .order('date', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (!error && data) {
         setSessions(data as SessionRow[]);
