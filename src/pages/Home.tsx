@@ -1,16 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, RotateCcw, X, Brain, Target, Heart, ChevronRight, Trophy, BatteryCharging } from "lucide-react";
+import { Settings, RotateCcw, X } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi } from
-"@/components/ui/carousel";
-import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
@@ -30,6 +23,7 @@ import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
+import { useActiveSession } from "@/hooks/useActiveSession";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -48,33 +42,18 @@ const Home = () => {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Load user settings from database (per-user data)
   const { settings, isLoading: settingsLoading } = useUserSettings();
   const { user } = useAuth();
-
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    const onSelect = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    };
-
-    carouselApi.on("select", onSelect);
-    return () => {
-      carouselApi.off("select", onSelect);
-    };
-  }, [carouselApi]);
+  const { activeSession } = useActiveSession();
 
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
   const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
   const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
-  const { todayWorkout, todayMuscleGroups, weekSchedule, aiSuggestions, trainingStimulus } = useMemo(() => {
-    // Load schedule from user settings (database) - per-user data
+  const { todayWorkout, weekSchedule, trainingStimulus } = useMemo(() => {
     const userSchedule = settings?.onboarding_data?.schedule || {};
     const userGoal = settings?.onboarding_data?.goal || null;
 
@@ -82,12 +61,10 @@ const Home = () => {
     const todayName = weekDaysMap[today.getDay()];
     const muscleGroups = userSchedule[todayName] || null;
 
-    // Format workout display with bullet separator
-    const workout = muscleGroups ?
-    Array.isArray(muscleGroups) ? muscleGroups.join(" • ") : muscleGroups :
-    null;
+    const workout = muscleGroups
+      ? Array.isArray(muscleGroups) ? muscleGroups.join(" • ") : muscleGroups
+      : null;
 
-    // Derive training stimulus from user goal
     const stimulusMap: Record<string, string> = {
       "Ganhar massa muscular": "Hoje é dia de volume",
       "Perder gordura": "Hoje é dia de intensidade",
@@ -98,7 +75,6 @@ const Home = () => {
     };
     const stimulus = userGoal ? stimulusMap[userGoal] || "Hoje é dia de treino" : "Hoje é dia de treino";
 
-    // Get current week schedule (Mon-Sun)
     const schedule = [];
     const currentDayOfWeek = today.getDay();
     const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
@@ -109,9 +85,9 @@ const Home = () => {
       const dayIndex = date.getDay();
       const dayName = weekDaysMap[dayIndex];
       const dayGroups = userSchedule[dayName] || null;
-      const dayWorkout = dayGroups ?
-      Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups :
-      null;
+      const dayWorkout = dayGroups
+        ? Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups
+        : null;
       schedule.push({
         shortDay: shortDays[dayIndex],
         fullDay: dayName,
@@ -121,25 +97,9 @@ const Home = () => {
       });
     }
 
-    // Generate AI suggestions based on today's muscle groups
-    const { exercise, focus } = getSuggestedExercise(muscleGroups);
-    const recovery = getRecoverySuggestion(muscleGroups);
-
-    // Get all exercises for today's muscle groups
-    const allExercises = muscleGroups ? getExercisesForGroups(muscleGroups) : [];
-
-    const suggestions = {
-      exercise: exercise?.name || "Alongamentos",
-      focus: focus,
-      recovery: recovery,
-      allExercises: allExercises
-    };
-
     return {
       todayWorkout: workout,
-      todayMuscleGroups: muscleGroups,
       weekSchedule: schedule,
-      aiSuggestions: suggestions,
       trainingStimulus: stimulus
     };
   }, [settings]);
@@ -154,7 +114,6 @@ const Home = () => {
   // Light flicker animation state
   const [isFlickering, setIsFlickering] = useState(false);
 
-  // Trigger flicker every 30 seconds
   useEffect(() => {
     const flickerInterval = setInterval(() => {
       setIsFlickering(true);
@@ -169,6 +128,9 @@ const Home = () => {
   }, []);
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+  const fatigueIndex = settings?.fatigue_index ?? 0;
+  const todayStats = getTodayStats();
+  const hasActiveSession = !!activeSession && (activeSession.status === "in_progress" || activeSession.status === "planned");
 
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
@@ -187,8 +149,8 @@ const Home = () => {
           animate={{
             filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)'
           }}
-          transition={{ duration: 0.05 }} />
-
+          transition={{ duration: 0.05 }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black" />
       </div>
 
@@ -196,8 +158,8 @@ const Home = () => {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top flex items-start justify-between">
-
+        className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top flex items-start justify-between"
+      >
         <div className="flex items-center gap-2 sm:gap-3">
           <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
           <SubscriptionBadge variant="compact" />
@@ -206,8 +168,8 @@ const Home = () => {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target flex items-center justify-center">
-
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-[#1E1E1E]/50 backdrop-blur-sm touch-target flex items-center justify-center"
+          >
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
           </motion.button>
         </div>
@@ -215,36 +177,35 @@ const Home = () => {
 
       {/* Settings Modal */}
       <AnimatePresence>
-        {showSettings &&
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowSettings(false)}>
-
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          >
             <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10">
-
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10"
+            >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Configurações</h2>
                 <button
-                onClick={() => setShowSettings(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-
+                  onClick={() => setShowSettings(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary"
+                >
                   <X className="h-4 w-4 text-foreground" />
                 </button>
               </div>
-              
               <button
-              onClick={handleResetOnboarding}
-              className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80">
-
+                onClick={handleResetOnboarding}
+                className="flex w-full items-center gap-4 rounded-2xl bg-secondary p-4 transition-colors hover:bg-secondary/80"
+              >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
                   <RotateCcw className="h-6 w-6 text-primary" />
                 </div>
@@ -255,7 +216,7 @@ const Home = () => {
               </button>
             </motion.div>
           </motion.div>
-        }
+        )}
       </AnimatePresence>
 
       {/* Week Calendar */}
@@ -263,33 +224,33 @@ const Home = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4">
-
+        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4"
+      >
         <div className="flex justify-between gap-1">
-          {weekSchedule.map((item, index) =>
-          <motion.div
-            key={item.fullDay}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.15 + index * 0.03 }}
-            className="flex-col flex-1 flex items-center justify-start">
-
-              <span className="text-[10px] sm:text-xs text-gray-400/70 mb-1.5 sm:mb-2">{item.shortDay}</span>
+          {weekSchedule.map((item, index) => (
+            <motion.div
+              key={item.fullDay}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 + index * 0.03 }}
+              className="flex-col flex-1 flex items-center justify-start"
+            >
+              <span className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2">{item.shortDay}</span>
               <div
-              className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
-              item.isToday ?
-              "rounded-lg sm:rounded-xl bg-[#1E1E1E]/50" :
-              item.workout && item.workout !== "Descanso" ?
-              "rounded-lg sm:rounded-xl border border-dashed border-gray-500/40" :
-              ""}`
-              }>
-
-                <span className="text-base sm:text-lg font-semibold text-white/70">
+                className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
+                  item.isToday
+                    ? "rounded-lg sm:rounded-xl bg-muted/50"
+                    : item.workout && item.workout !== "Descanso"
+                    ? "rounded-lg sm:rounded-xl border border-dashed border-muted-foreground/40"
+                    : ""
+                }`}
+              >
+                <span className="text-base sm:text-lg font-semibold text-muted-foreground">
                   {item.date}
                 </span>
               </div>
             </motion.div>
-          )}
+          ))}
         </div>
       </motion.div>
 
@@ -310,110 +271,81 @@ const Home = () => {
           isRestDay={isRestDay}
         />
 
-        {/* Stats Carousel */}
+        {/* Quick Info Cards — 3 fixed cards replacing old carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}>
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-3 gap-2 sm:gap-3"
+        >
+          {/* Card 1: Continuar Treino / Séries hoje */}
+          {hasActiveSession ? (
+            <motion.button
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/workout")}
+              className="rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/30 p-3 sm:p-4 text-left"
+            >
+              <p className="text-xl sm:text-2xl font-black text-primary">▶</p>
+              <p className="text-[10px] sm:text-xs text-primary/80 font-semibold mt-0.5 sm:mt-1">Continuar</p>
+            </motion.button>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
+            >
+              <p className="text-xl sm:text-2xl font-black text-secondary-foreground">
+                {todayStats.totalSets}
+              </p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Séries hoje</p>
+            </motion.div>
+          )}
 
-          <Carousel className="w-full" setApi={setCarouselApi}>
-            <CarouselContent>
-              {/* State 1: Stats */}
-              <CarouselItem>
-                <motion.div
-                  className="grid grid-cols-3 gap-2 sm:gap-3"
-                  animate={{ opacity: currentSlide === 0 ? 1 : 0.3 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}>
+          {/* Card 2: Recuperação */}
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.35 }}
+            className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
+          >
+            <p className={`text-xl sm:text-2xl font-black ${
+              fatigueIndex >= 80 ? 'text-red-400' :
+              fatigueIndex >= 60 ? 'text-orange-400' :
+              fatigueIndex >= 40 ? 'text-yellow-400' :
+              'text-green-400'
+            }`}>
+              {fatigueIndex}%
+            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Recuperação</p>
+          </motion.div>
 
-                  {(() => {
-                    const todayStats = getTodayStats();
-                    return [
-                    { value: todayStats.totalSets.toString(), label: t("home.seriesDone") },
-                    { value: todayStats.totalReps.toString(), label: t("home.totalReps") },
-                    { value: todayStats.totalMinutes.toString(), label: t("home.trainingMin") }];
-
-                  })().map((stat, index) =>
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{
-                      delay: 0.3 + index * 0.1,
-                      duration: 0.4,
-                      type: "spring",
-                      stiffness: 120,
-                      damping: 12
-                    }}
-                    className="rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-[#111311]">
-
-                      <p className="text-xl sm:text-2xl font-black text-secondary-foreground">
-                        {stat.value}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{stat.label}</p>
-                    </motion.div>
-                  )}
-                </motion.div>
-              </CarouselItem>
-
-              {/* State 2: AI Suggestions */}
-              <CarouselItem>
-                <motion.div
-                  className="grid grid-cols-3 gap-2 sm:gap-3"
-                  animate={{ opacity: currentSlide === 1 ? 1 : 0.3 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 120, damping: 12 }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
-
-                    <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
-                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
-                      {aiSuggestions.exercise}
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.suggestedExercise")}</p>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.4, duration: 0.4, type: "spring", stiffness: 120, damping: 12 }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
-
-                    <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
-                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
-                      {aiSuggestions.focus}
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.focusOn")}</p>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.5, duration: 0.4, type: "spring", stiffness: 120, damping: 12 }}
-                    className="rounded-xl sm:rounded-2xl bg-[#1E1E1E]/50 p-3 sm:p-4">
-
-                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-1.5 sm:mb-2" />
-                    <p className="text-xs sm:text-sm font-bold text-white/70 leading-tight">
-                      {aiSuggestions.recovery}
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-gray-400/70 mt-0.5 sm:mt-1">{t("home.recovery")}</p>
-                  </motion.div>
-                </motion.div>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-          
-          {/* Carousel Indicators */}
-          <div className="flex justify-center gap-1 mt-2">
-            <button
-              onClick={() => carouselApi?.scrollTo(0)}
-              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 0 ? 'bg-white/50' : 'bg-white/15'}`} />
-            <button
-              onClick={() => carouselApi?.scrollTo(1)}
-              className={`w-1 h-1 rounded-full transition-opacity ${currentSlide === 1 ? 'bg-white/50' : 'bg-white/15'}`} />
-          </div>
+          {/* Card 3: Fadiga / Pronto */}
+          {fatigueIndex >= 60 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              onClick={() => navigate("/chat")}
+              className="rounded-xl sm:rounded-2xl bg-orange-500/10 border border-orange-500/20 p-3 sm:p-4 cursor-pointer"
+            >
+              <p className="text-xl sm:text-2xl font-black text-orange-400">⚠️</p>
+              <p className="text-[10px] sm:text-xs text-orange-400/80 font-semibold mt-0.5 sm:mt-1">Fadiga alta</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
+            >
+              <p className="text-xl sm:text-2xl font-black text-green-400">✓</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Pronto</p>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Weekly Progress Card */}
@@ -445,8 +377,8 @@ const Home = () => {
       </main>
 
       <BottomNav />
-    </div>);
-
+    </div>
+  );
 };
 
 export default Home;
