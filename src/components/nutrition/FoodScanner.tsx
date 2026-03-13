@@ -533,7 +533,22 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                       {isAnalyzing &&
                   <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center gap-3">
                           <Loader2 className="w-8 h-8 text-white animate-spin" />
-                          <span className="text-white text-sm">A analisar com IA...</span>
+                          <span className="text-white text-sm">{ANALYSIS_MESSAGES[analyzeStatus]}</span>
+                        </div>
+                  }
+                      {analysisFailed && !isAnalyzing &&
+                  <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center gap-3">
+                          <RotateCcw className="w-8 h-8 text-white" />
+                          <span className="text-white text-sm">Análise falhou</span>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleRetryAnalysis}
+                            className="gap-2"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Tentar novamente
+                          </Button>
                         </div>
                   }
                       <button
