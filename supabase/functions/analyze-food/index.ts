@@ -278,7 +278,8 @@ Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages,
-        max_tokens: 1000,
+        max_tokens: 600,
+        temperature: 0.2,
       }),
     });
 
