@@ -139,7 +139,7 @@ export const AIWorkoutGenerator = ({
         await supabase
           .from("workout_sessions")
           .update({
-            status: "planned" as any,
+            status: "in_progress" as any,
             total_exercises: workout.exercises.length,
             completion_rate: 0,
             muscle_groups: todayMuscleGroups,
