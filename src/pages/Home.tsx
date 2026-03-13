@@ -43,7 +43,7 @@ const Home = () => {
   // Load user settings from database (per-user data)
   const { settings, isLoading: settingsLoading } = useUserSettings();
   const { user } = useAuth();
-  const { activeSession } = useActiveSession();
+  
 
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
