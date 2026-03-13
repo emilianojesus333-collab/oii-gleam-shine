@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChefHat, Clock, Search, ChevronRight, Flame, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { AppModal } from '@/components/ui/app-modal';
 import { fitnessRecipes, FitnessRecipe, categoryLabels, searchRecipes, getRecipesByCategory } from '@/data/fitnessRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -15,6 +15,7 @@ interface RecipesViewProps {
 }
 
 export const RecipesView = ({ customTrigger }: RecipesViewProps = {}) => {
+  const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<FitnessRecipe | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -26,41 +27,36 @@ export const RecipesView = ({ customTrigger }: RecipesViewProps = {}) => {
     ? fitnessRecipes
     : getRecipesByCategory(activeCategory as FitnessRecipe['category']);
 
+  const trigger = customTrigger || (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
+      <div className="flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <ChefHat className="w-6 h-6 text-orange-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Receitas Fitness</h3>
+            <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas simples</p>
+          </div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-orange-400/70" />
+      </div>
+    </motion.div>
+  );
+
   return (
-    <Sheet>
-      {customTrigger ? (
-        <SheetTrigger asChild>{customTrigger}</SheetTrigger>
-      ) : (
-        <SheetTrigger asChild>
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/15 to-yellow-500/20 border border-orange-500/30 cursor-pointer relative overflow-hidden">
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                  <ChefHat className="w-6 h-6 text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Receitas Fitness</h3>
-                  <p className="text-xs text-orange-300/70">{fitnessRecipes.length} receitas simples</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-orange-400/70" />
-            </div>
-          </motion.div>
-        </SheetTrigger>
-      )}
+    <>
+      <div onClick={() => setOpen(true)}>{trigger}</div>
 
-      <SheetContent side="bottom" className="h-[90vh] max-h-[90vh] rounded-t-3xl bg-gradient-to-b from-zinc-900 to-black border-white/10 flex flex-col overflow-hidden">
-        <SheetHeader className="pb-4">
-          <SheetTitle className="flex items-center gap-2 text-white">
-            <ChefHat className="w-5 h-5 text-orange-500" />
-            Receitas Fitness
-          </SheetTitle>
-        </SheetHeader>
-
-        <div className="flex-1 flex flex-col min-h-0 space-y-4">
+      <AppModal
+        open={open}
+        onOpenChange={(v) => { setOpen(v); if (!v) setSelectedRecipe(null); }}
+        title={<><ChefHat className="w-5 h-5 text-orange-500" /> Receitas Fitness</>}
+      >
+        <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -92,33 +88,31 @@ export const RecipesView = ({ customTrigger }: RecipesViewProps = {}) => {
             <ScrollBar orientation="horizontal" className="opacity-20" />
           </ScrollArea>
 
-          <ScrollArea className="flex-1 min-h-0" type="scroll">
-            <AnimatePresence mode="popLayout">
-              {selectedRecipe ? (
-                <RecipeDetail
-                  recipe={selectedRecipe}
-                  onBack={() => setSelectedRecipe(null)}
-                  isFavorite={isRecipeFavorite(selectedRecipe.id)}
-                  onToggleFavorite={() => toggleRecipeFavorite(selectedRecipe)}
-                />
-              ) : (
-                <div className="grid gap-3 pr-2">
-                  {filteredRecipes.map((recipe) => (
-                    <RecipeListItem
-                      key={recipe.id}
-                      recipe={recipe}
-                      isFavorite={isRecipeFavorite(recipe.id)}
-                      onSelect={() => setSelectedRecipe(recipe)}
-                      onToggleFavorite={() => toggleRecipeFavorite(recipe)}
-                    />
-                  ))}
-                </div>
-              )}
-            </AnimatePresence>
-          </ScrollArea>
+          <AnimatePresence mode="popLayout">
+            {selectedRecipe ? (
+              <RecipeDetail
+                recipe={selectedRecipe}
+                onBack={() => setSelectedRecipe(null)}
+                isFavorite={isRecipeFavorite(selectedRecipe.id)}
+                onToggleFavorite={() => toggleRecipeFavorite(selectedRecipe)}
+              />
+            ) : (
+              <div className="grid gap-3">
+                {filteredRecipes.map((recipe) => (
+                  <RecipeListItem
+                    key={recipe.id}
+                    recipe={recipe}
+                    isFavorite={isRecipeFavorite(recipe.id)}
+                    onSelect={() => setSelectedRecipe(recipe)}
+                    onToggleFavorite={() => toggleRecipeFavorite(recipe)}
+                  />
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
         </div>
-      </SheetContent>
-    </Sheet>
+      </AppModal>
+    </>
   );
 };
 
@@ -139,7 +133,7 @@ const RecipeDetail = ({
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: -20 }}
-    className="space-y-4 pr-2"
+    className="space-y-4"
   >
     <div className="flex justify-between items-center">
       <Button variant="ghost" size="sm" onClick={onBack}>
