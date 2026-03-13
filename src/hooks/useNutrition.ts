@@ -535,24 +535,27 @@ export const useNutrition = () => {
     // Haptic feedback when adding a meal
     hapticFeedback('medium');
     
-    setState(prev => {
-      const newMeal: Meal = {
-        ...meal,
-        id: Date.now().toString(),
-      };
+    const newMeal: Meal = {
+      ...meal,
+      id: Date.now().toString(),
+    };
 
+    let logToSave: DailyLog | null = null;
+    let logsForAchievements: DailyLog[] = [];
+    let totalsForAchievements: DailyLog['totals'] = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+
+    setState(prev => {
       const existingLogIndex = prev.dailyLogs.findIndex(log => log.date === prev.currentDate);
       let updatedLogs: DailyLog[];
-      let updatedTotals: DailyLog['totals'];
       let updatedLog: DailyLog;
 
       if (existingLogIndex >= 0) {
         const updatedMeals = [...prev.dailyLogs[existingLogIndex].meals, newMeal];
-        updatedTotals = calculateTotals(updatedMeals);
+        const updatedTotals = calculateTotals(updatedMeals);
         updatedLog = { ...prev.dailyLogs[existingLogIndex], meals: updatedMeals, totals: updatedTotals };
         updatedLogs = prev.dailyLogs.map((log, i) => i === existingLogIndex ? updatedLog : log);
       } else {
-        updatedTotals = calculateTotals([newMeal]);
+        const updatedTotals = calculateTotals([newMeal]);
         updatedLog = {
           date: prev.currentDate,
           meals: [newMeal],
@@ -561,26 +564,39 @@ export const useNutrition = () => {
         updatedLogs = [...prev.dailyLogs, updatedLog];
       }
 
-      // Save to Supabase
-      saveToSupabase(updatedLog);
-
-      setTimeout(() => checkAchievements(updatedLogs, updatedTotals), 100);
+      // Capture values for side effects (executed after setState)
+      logToSave = updatedLog;
+      logsForAchievements = updatedLogs;
+      totalsForAchievements = updatedLog.totals;
 
       return { ...prev, dailyLogs: updatedLogs };
     });
+
+    // Side effects outside setState
+    if (logToSave) {
+      saveToSupabase(logToSave);
+    }
+    setTimeout(() => checkAchievements(logsForAchievements, totalsForAchievements), 100);
   }, [calculateTotals, checkAchievements, saveToSupabase]);
 
   const removeMeal = useCallback((mealId: string) => {
+    let logToSave: DailyLog | null = null;
+
     setState(prev => {
       const updatedLogs = prev.dailyLogs.map(log => {
         if (log.date !== prev.currentDate) return log;
         const updatedMeals = log.meals.filter(m => m.id !== mealId);
         const updatedLog = { ...log, meals: updatedMeals, totals: calculateTotals(updatedMeals) };
-        saveToSupabase(updatedLog);
+        logToSave = updatedLog;
         return updatedLog;
       });
       return { ...prev, dailyLogs: updatedLogs };
     });
+
+    // Side effect outside setState
+    if (logToSave) {
+      saveToSupabase(logToSave);
+    }
   }, [calculateTotals, saveToSupabase]);
 
   const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
