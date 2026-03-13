@@ -159,89 +159,122 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
       try {
-        // Compress image before analysis
         const compressedBase64 = await compressBase64Image(base64, 1024, 0.7);
         setImagePreview(compressedBase64);
+        setLastImageBase64(compressedBase64);
         await analyzeImage(compressedBase64);
       } catch (error) {
         console.error('Error compressing image:', error);
         setImagePreview(base64);
+        setLastImageBase64(base64);
         await analyzeImage(base64);
       }
     };
     reader.readAsDataURL(file);
-    // Reset input value to allow selecting the same file again
     e.target.value = '';
   };
 
-  const analyzeImage = async (imageBase64: string) => {
+  const analyzeImage = useCallback(async (imageBase64: string) => {
     setIsAnalyzing(true);
-    try {
-      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
-        body: { imageBase64 }
-      });
+    setAnalysisFailed(false);
 
-      if (error) {
-        const errorMsg = typeof error === 'object' && error !== null && 'message' in error
-          ? (error as any).message : String(error);
-        // Detect non-food error from edge function
-        if (errorMsg.includes('No food detected')) {
-          toast({
-            title: 'Sem alimentos detetados',
-            description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
-            variant: 'destructive'
-          });
-          setImagePreview(null);
-          return;
-        }
-        throw error;
-      }
+    const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
+      body: { imageBase64 }
+    });
 
-      setAnalysisResult(data);
-      if (data.mealType) {
-        setSelectedMealType(data.mealType);
-      }
-
-      toast({
-        title: 'Análise completa!',
-        description: `${data.foods.length} alimento(s) identificado(s)`
-      });
-    } catch (error) {
-      console.error('Error analyzing image:', error);
-      toast({
-        title: 'Erro na análise',
-        description: 'Não foi possível analisar a imagem. Tenta novamente.',
-        variant: 'destructive'
-      });
-    } finally {
+    if (error) {
+      const errorMsg = getErrorMessage(error);
       setIsAnalyzing(false);
+
+      if (errorMsg.includes('No food detected')) {
+        toast({
+          title: 'Sem alimentos detetados',
+          description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
+          variant: 'destructive'
+        });
+        setImagePreview(null);
+        setLastImageBase64(null);
+        return;
+      }
+
+      if (errorMsg === '__timeout__') {
+        toast({
+          title: 'Análise demorou demais',
+          description: 'A análise está a demorar mais que o esperado. Tenta novamente.',
+          variant: 'destructive'
+        });
+      } else if (errorMsg.includes('429') || errorMsg.includes('rate')) {
+        toast({
+          title: 'Muitos pedidos',
+          description: 'Muitos pedidos no momento. Tenta novamente em alguns segundos.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Erro na análise',
+          description: 'Não foi possível analisar a imagem. Tenta novamente.',
+          variant: 'destructive'
+        });
+      }
+
+      // Keep image for retry
+      setAnalysisFailed(true);
+      return;
     }
-  };
+
+    setIsAnalyzing(false);
+    setAnalysisFailed(false);
+    setAnalysisResult(data);
+    if (data.mealType) {
+      setSelectedMealType(data.mealType);
+    }
+
+    toast({
+      title: 'Análise completa!',
+      description: `${data.foods.length} alimento(s) identificado(s)`
+    });
+  }, [toast]);
+
+  const handleRetryAnalysis = useCallback(() => {
+    if (lastImageBase64) {
+      analyzeImage(lastImageBase64);
+    }
+  }, [lastImageBase64, analyzeImage]);
 
   const analyzeText = async () => {
     if (!manualInput.trim()) return;
 
     setIsAnalyzing(true);
-    try {
-      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
-        body: { mealDescription: manualInput }
-      });
+    setAnalysisFailed(false);
 
-      if (error) throw error;
+    const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
+      body: { mealDescription: manualInput }
+    });
 
-      setAnalysisResult(data);
-      if (data.mealType) {
-        setSelectedMealType(data.mealType);
-      }
-    } catch (error) {
-      console.error('Error analyzing text:', error);
-      toast({
-        title: 'Erro na análise',
-        description: 'Não foi possível analisar a descrição.',
-        variant: 'destructive'
-      });
-    } finally {
+    if (error) {
+      const errorMsg = getErrorMessage(error);
       setIsAnalyzing(false);
+
+      if (errorMsg === '__timeout__') {
+        toast({
+          title: 'Análise demorou demais',
+          description: 'Tenta novamente com uma descrição mais simples.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Erro na análise',
+          description: 'Não foi possível analisar a descrição.',
+          variant: 'destructive'
+        });
+      }
+      return;
+    }
+
+    setIsAnalyzing(false);
+    setAnalysisResult(data);
+    if (data.mealType) {
+      setSelectedMealType(data.mealType);
     }
   };
 
