@@ -432,7 +432,7 @@ export const MainWorkoutCarousel = ({
                           className="flex items-center gap-2"
                         >
                           <Save className="w-5 h-5" />
-                          Guardar Exercício
+                          {saveButtonLabel || "Guardar Exercício"}
                         </motion.div>
                       )}
                     </AnimatePresence>
