@@ -37,6 +37,11 @@ interface AnalysisResult {
   mealType?: Meal['type'];
 }
 
+// FoodDatabaseItem with a unique instance ID for safe removal
+interface SelectedFood extends FoodDatabaseItem {
+  instanceId: string;
+}
+
 export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -46,7 +51,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [selectedMealType, setSelectedMealType] = useState<Meal['type']>('lunch');
   const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFoods, setSelectedFoods] = useState<FoodDatabaseItem[]>([]);
+  const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -109,7 +114,21 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
         body: { imageBase64 }
       });
 
-      if (error) throw error;
+      if (error) {
+        const errorMsg = typeof error === 'object' && error !== null && 'message' in error
+          ? (error as any).message : String(error);
+        // Detect non-food error from edge function
+        if (errorMsg.includes('No food detected')) {
+          toast({
+            title: 'Sem alimentos detetados',
+            description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
+            variant: 'destructive'
+          });
+          setImagePreview(null);
+          return;
+        }
+        throw error;
+      }
 
       setAnalysisResult(data);
       if (data.mealType) {
@@ -160,15 +179,16 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   };
 
   const addFoodFromDatabase = (food: FoodDatabaseItem) => {
-    setSelectedFoods((prev) => [...prev, food]);
+    const instance: SelectedFood = { ...food, instanceId: crypto.randomUUID() };
+    setSelectedFoods((prev) => [...prev, instance]);
     toast({
       title: `${food.name} adicionado`,
       description: `${food.calories} kcal`
     });
   };
 
-  const removeFoodFromSelection = (foodId: string) => {
-    setSelectedFoods((prev) => prev.filter((f) => f.id !== foodId));
+  const removeFoodFromSelection = (instanceId: string) => {
+    setSelectedFoods((prev) => prev.filter((f) => f.instanceId !== instanceId));
   };
 
   const handleSaveFromDatabase = () => {
@@ -628,9 +648,9 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         </span>
                       </h4>
                       <div className="space-y-2">
-                        {selectedFoods.map((food, index) =>
+                        {selectedFoods.map((food) =>
                     <div
-                      key={`${food.id}-${index}`}
+                      key={food.instanceId}
                       className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20">
 
                             <div>
@@ -640,7 +660,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold">{Math.round(food.calories)} kcal</span>
                               <button
-                          onClick={() => removeFoodFromSelection(food.id)}
+                          onClick={() => removeFoodFromSelection(food.instanceId)}
                           className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20">
 
                                 <X className="w-3 h-3 text-destructive" />
