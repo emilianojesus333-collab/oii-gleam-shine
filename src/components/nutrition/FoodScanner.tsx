@@ -37,6 +37,11 @@ interface AnalysisResult {
   mealType?: Meal['type'];
 }
 
+// FoodDatabaseItem with a unique instance ID for safe removal
+interface SelectedFood extends FoodDatabaseItem {
+  instanceId: string;
+}
+
 export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -46,7 +51,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [selectedMealType, setSelectedMealType] = useState<Meal['type']>('lunch');
   const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFoods, setSelectedFoods] = useState<FoodDatabaseItem[]>([]);
+  const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
