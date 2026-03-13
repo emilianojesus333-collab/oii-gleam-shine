@@ -400,7 +400,7 @@ export const useNutrition = () => {
     localStorage.setItem(getStorageKey(user.id), JSON.stringify(state));
   }, [state, user]);
 
-  // Save to Supabase (debounced)
+  // Save to Supabase with error feedback
   const saveToSupabase = useCallback(async (log: DailyLog) => {
     if (!user) return;
 
@@ -421,6 +421,7 @@ export const useNutrition = () => {
       localCache.delete(`nutrition_${user.id}`);
     } catch (error) {
       console.error('Error saving to Supabase:', error);
+      toast.error('Erro ao guardar refeição. Os dados podem não estar sincronizados.');
     }
   }, [user]);
 
