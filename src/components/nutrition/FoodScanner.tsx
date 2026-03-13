@@ -42,9 +42,61 @@ interface SelectedFood extends FoodDatabaseItem {
   instanceId: string;
 }
 
+const ANALYSIS_MESSAGES = [
+  'A analisar imagem...',
+  'Identificando alimentos...',
+  'Calculando macros...',
+];
+
+const RETRY_DELAY = 1000;
+const MAX_RETRIES = 2;
+const ANALYSIS_TIMEOUT = 15000;
+
+/** Invoke with retry + timeout */
+async function invokeWithRetry<T>(
+  fnName: string,
+  options: { body: any },
+  maxRetries = MAX_RETRIES,
+): Promise<{ data: T; error: null } | { data: null; error: any }> {
+  let lastError: any = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, RETRY_DELAY));
+    }
+
+    try {
+      const result = await Promise.race([
+        invokeWithAuth<T>(fnName, options),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('__timeout__')), ANALYSIS_TIMEOUT)
+        ),
+      ]);
+      // If no error, return immediately
+      if (!result.error) return result as { data: T; error: null };
+      lastError = result.error;
+    } catch (err) {
+      lastError = err;
+    }
+
+    console.warn(`[FoodScanner] Attempt ${attempt + 1} failed:`, lastError);
+  }
+
+  return { data: null, error: lastError };
+}
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return (error as any).message;
+  }
+  return String(error);
+}
+
 export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeStatus, setAnalyzeStatus] = useState(0);
+  const [analysisFailed, setAnalysisFailed] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [manualInput, setManualInput] = useState('');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -52,9 +104,22 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
+  const [lastImageBase64, setLastImageBase64] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Progressive loading messages
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setAnalyzeStatus(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setAnalyzeStatus((prev) => Math.min(prev + 1, ANALYSIS_MESSAGES.length - 1));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isAnalyzing]);
 
   // Workout sync
   const workoutContext = useWorkoutNutritionSync();
