@@ -444,8 +444,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
         </motion.div>
       }
 
-      <Drawer open={isOpen} onOpenChange={handleOpen}>
-        <DrawerTrigger asChild className="bg-primary">
+      <Dialog open={isOpen} onOpenChange={handleOpen}>
+        <DialogTrigger asChild>
           <motion.button
             whileTap={{ scale: 0.95 }}
             className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium shadow-lg shadow-primary/25">
@@ -454,15 +454,23 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
             <span>Adicionar Refeição</span>
             <Sparkles className="w-4 h-4" />
           </motion.button>
-        </DrawerTrigger>
+        </DialogTrigger>
 
-        <DrawerContent className="max-h-[85vh] bg-zinc-900 border-white/10 flex flex-col overflow-hidden">
-          <DrawerHeader className="shrink-0 pb-2">
-            <DrawerTitle className="flex items-center gap-2 text-white">
+        <DialogContent className="
+          w-[92vw] max-w-[520px] h-[85vh] sm:h-[70vh] max-h-[80vh]
+          bg-zinc-900 border-white/[0.08]
+          rounded-[20px] sm:rounded-[20px]
+          p-0 gap-0
+          flex flex-col overflow-hidden
+          shadow-[0_30px_80px_rgba(0,0,0,0.4)]
+          [&>button]:hidden
+        ">
+          <DialogHeader className="shrink-0 px-5 pt-5 pb-2">
+            <DialogTitle className="flex items-center gap-2 text-white">
               <Utensils className="w-5 h-5" />
               Adicionar Refeição
-            </DrawerTitle>
-          </DrawerHeader>
+            </DialogTitle>
+          </DialogHeader>
 
           {/* Tab Switcher */}
           <div className="px-4 mb-3 shrink-0">
