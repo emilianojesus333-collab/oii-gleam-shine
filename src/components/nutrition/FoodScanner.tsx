@@ -114,7 +114,21 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
         body: { imageBase64 }
       });
 
-      if (error) throw error;
+      if (error) {
+        const errorMsg = typeof error === 'object' && error !== null && 'message' in error
+          ? (error as any).message : String(error);
+        // Detect non-food error from edge function
+        if (errorMsg.includes('No food detected')) {
+          toast({
+            title: 'Sem alimentos detetados',
+            description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
+            variant: 'destructive'
+          });
+          setImagePreview(null);
+          return;
+        }
+        throw error;
+      }
 
       setAnalysisResult(data);
       if (data.mealType) {
