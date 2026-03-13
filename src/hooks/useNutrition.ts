@@ -330,23 +330,28 @@ export const useNutrition = () => {
           totals: (log.totals as unknown as DailyLog['totals']) || { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
         }));
 
-        // Merge with local data (prefer remote for same dates)
-        const localLogs = state.dailyLogs.filter(
-          local => !formattedLogs.some(remote => remote.date === local.date)
-        );
-        const mergedLogs = [...formattedLogs, ...localLogs].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        // Merge with local data inside setState to avoid race conditions
+        // Cache the result after merge
+        const cacheKey2 = cacheKey;
 
-        // Cache the result
-        setCache(cacheKey, mergedLogs);
+        setState(prev => {
+          const localLogs = prev.dailyLogs.filter(
+            local => !formattedLogs.some(remote => remote.date === local.date)
+          );
+          const mergedLogs = [...formattedLogs, ...localLogs].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
 
-        setState(prev => ({
-          ...prev,
-          dailyLogs: mergedLogs,
-          loading: false,
-          synced: true,
-        }));
+          // Cache the merged result
+          setCache(cacheKey2, mergedLogs);
+
+          return {
+            ...prev,
+            dailyLogs: mergedLogs,
+            loading: false,
+            synced: true,
+          };
+        });
 
         // Fetch profile
         const { data: profile } = await supabase
@@ -395,7 +400,7 @@ export const useNutrition = () => {
     localStorage.setItem(getStorageKey(user.id), JSON.stringify(state));
   }, [state, user]);
 
-  // Save to Supabase (debounced)
+  // Save to Supabase with error feedback
   const saveToSupabase = useCallback(async (log: DailyLog) => {
     if (!user) return;
 
@@ -416,6 +421,7 @@ export const useNutrition = () => {
       localCache.delete(`nutrition_${user.id}`);
     } catch (error) {
       console.error('Error saving to Supabase:', error);
+      toast.error('Erro ao guardar refeição. Os dados podem não estar sincronizados.');
     }
   }, [user]);
 
@@ -529,24 +535,27 @@ export const useNutrition = () => {
     // Haptic feedback when adding a meal
     hapticFeedback('medium');
     
-    setState(prev => {
-      const newMeal: Meal = {
-        ...meal,
-        id: Date.now().toString(),
-      };
+    const newMeal: Meal = {
+      ...meal,
+      id: Date.now().toString(),
+    };
 
+    let logToSave: DailyLog | null = null;
+    let logsForAchievements: DailyLog[] = [];
+    let totalsForAchievements: DailyLog['totals'] = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+
+    setState(prev => {
       const existingLogIndex = prev.dailyLogs.findIndex(log => log.date === prev.currentDate);
       let updatedLogs: DailyLog[];
-      let updatedTotals: DailyLog['totals'];
       let updatedLog: DailyLog;
 
       if (existingLogIndex >= 0) {
         const updatedMeals = [...prev.dailyLogs[existingLogIndex].meals, newMeal];
-        updatedTotals = calculateTotals(updatedMeals);
+        const updatedTotals = calculateTotals(updatedMeals);
         updatedLog = { ...prev.dailyLogs[existingLogIndex], meals: updatedMeals, totals: updatedTotals };
         updatedLogs = prev.dailyLogs.map((log, i) => i === existingLogIndex ? updatedLog : log);
       } else {
-        updatedTotals = calculateTotals([newMeal]);
+        const updatedTotals = calculateTotals([newMeal]);
         updatedLog = {
           date: prev.currentDate,
           meals: [newMeal],
@@ -555,26 +564,39 @@ export const useNutrition = () => {
         updatedLogs = [...prev.dailyLogs, updatedLog];
       }
 
-      // Save to Supabase
-      saveToSupabase(updatedLog);
-
-      setTimeout(() => checkAchievements(updatedLogs, updatedTotals), 100);
+      // Capture values for side effects (executed after setState)
+      logToSave = updatedLog;
+      logsForAchievements = updatedLogs;
+      totalsForAchievements = updatedLog.totals;
 
       return { ...prev, dailyLogs: updatedLogs };
     });
+
+    // Side effects outside setState
+    if (logToSave) {
+      saveToSupabase(logToSave);
+    }
+    setTimeout(() => checkAchievements(logsForAchievements, totalsForAchievements), 100);
   }, [calculateTotals, checkAchievements, saveToSupabase]);
 
   const removeMeal = useCallback((mealId: string) => {
+    let logToSave: DailyLog | null = null;
+
     setState(prev => {
       const updatedLogs = prev.dailyLogs.map(log => {
         if (log.date !== prev.currentDate) return log;
         const updatedMeals = log.meals.filter(m => m.id !== mealId);
         const updatedLog = { ...log, meals: updatedMeals, totals: calculateTotals(updatedMeals) };
-        saveToSupabase(updatedLog);
+        logToSave = updatedLog;
         return updatedLog;
       });
       return { ...prev, dailyLogs: updatedLogs };
     });
+
+    // Side effect outside setState
+    if (logToSave) {
+      saveToSupabase(logToSave);
+    }
   }, [calculateTotals, saveToSupabase]);
 
   const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
