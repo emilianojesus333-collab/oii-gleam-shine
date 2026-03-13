@@ -145,6 +145,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setManualInput('');
     setAnalysisResult(null);
     setIsAnalyzing(false);
+    setAnalysisFailed(false);
+    setLastImageBase64(null);
     setSearchQuery('');
     setSelectedFoods([]);
   };
