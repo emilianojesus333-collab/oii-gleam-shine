@@ -8,9 +8,7 @@ import { MealCard } from '@/components/nutrition/MealCard';
 import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
 import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
-import { NutritionPlansGrid } from '@/components/nutrition/NutritionPlansGrid';
 import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSuggestions';
-import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
   const {
@@ -91,16 +89,6 @@ const Nutrition = () => {
           consumed={todayLog.totals}
           progress={progress} />
 
-
-        {/* Plans & Recipes Grid */}
-        <NutritionPlansGrid
-          currentGoal={profile.goal}
-          onApplyPlan={(plan: MealPlan) => {
-            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
-            updateProfile({ goal: plan.goal });
-            setCustomGoals({ calories: avgCalories });
-          }}
-        />
 
         {/* Post-workout suggestions */}
         <PostWorkoutSuggestions />
