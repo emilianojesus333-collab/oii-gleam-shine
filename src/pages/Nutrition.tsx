@@ -102,6 +102,9 @@ const Nutrition = () => {
           }}
         />
 
+        {/* Post-workout suggestions */}
+        <PostWorkoutSuggestions />
+
         {/* AI Scanner button */}
         <FoodScanner onMealAdded={addMeal} />
 
