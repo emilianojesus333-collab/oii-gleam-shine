@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload } from 'lucide-react';
-import { useState, useRef, useMemo } from 'react';
+import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload, RotateCcw } from 'lucide-react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { compressBase64Image } from '@/lib/imageCompression';
 import { invokeWithAuth } from '@/lib/supabaseHelpers';
 import { Button } from '@/components/ui/button';
@@ -42,9 +42,61 @@ interface SelectedFood extends FoodDatabaseItem {
   instanceId: string;
 }
 
+const ANALYSIS_MESSAGES = [
+  'A analisar imagem...',
+  'Identificando alimentos...',
+  'Calculando macros...',
+];
+
+const RETRY_DELAY = 1000;
+const MAX_RETRIES = 2;
+const ANALYSIS_TIMEOUT = 15000;
+
+/** Invoke with retry + timeout */
+async function invokeWithRetry<T>(
+  fnName: string,
+  options: { body: any },
+  maxRetries = MAX_RETRIES,
+): Promise<{ data: T; error: null } | { data: null; error: any }> {
+  let lastError: any = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, RETRY_DELAY));
+    }
+
+    try {
+      const result = await Promise.race([
+        invokeWithAuth<T>(fnName, options),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('__timeout__')), ANALYSIS_TIMEOUT)
+        ),
+      ]);
+      // If no error, return immediately
+      if (!result.error) return result as { data: T; error: null };
+      lastError = result.error;
+    } catch (err) {
+      lastError = err;
+    }
+
+    console.warn(`[FoodScanner] Attempt ${attempt + 1} failed:`, lastError);
+  }
+
+  return { data: null, error: lastError };
+}
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return (error as any).message;
+  }
+  return String(error);
+}
+
 export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeStatus, setAnalyzeStatus] = useState(0);
+  const [analysisFailed, setAnalysisFailed] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [manualInput, setManualInput] = useState('');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -52,9 +104,22 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   const [activeTab, setActiveTab] = useState<'ai' | 'search'>('ai');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
+  const [lastImageBase64, setLastImageBase64] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Progressive loading messages
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setAnalyzeStatus(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setAnalyzeStatus((prev) => Math.min(prev + 1, ANALYSIS_MESSAGES.length - 1));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isAnalyzing]);
 
   // Workout sync
   const workoutContext = useWorkoutNutritionSync();
@@ -80,6 +145,8 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setManualInput('');
     setAnalysisResult(null);
     setIsAnalyzing(false);
+    setAnalysisFailed(false);
+    setLastImageBase64(null);
     setSearchQuery('');
     setSelectedFoods([]);
   };
@@ -92,89 +159,122 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
       try {
-        // Compress image before analysis
         const compressedBase64 = await compressBase64Image(base64, 1024, 0.7);
         setImagePreview(compressedBase64);
+        setLastImageBase64(compressedBase64);
         await analyzeImage(compressedBase64);
       } catch (error) {
         console.error('Error compressing image:', error);
         setImagePreview(base64);
+        setLastImageBase64(base64);
         await analyzeImage(base64);
       }
     };
     reader.readAsDataURL(file);
-    // Reset input value to allow selecting the same file again
     e.target.value = '';
   };
 
-  const analyzeImage = async (imageBase64: string) => {
+  const analyzeImage = useCallback(async (imageBase64: string) => {
     setIsAnalyzing(true);
-    try {
-      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
-        body: { imageBase64 }
-      });
+    setAnalysisFailed(false);
 
-      if (error) {
-        const errorMsg = typeof error === 'object' && error !== null && 'message' in error
-          ? (error as any).message : String(error);
-        // Detect non-food error from edge function
-        if (errorMsg.includes('No food detected')) {
-          toast({
-            title: 'Sem alimentos detetados',
-            description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
-            variant: 'destructive'
-          });
-          setImagePreview(null);
-          return;
-        }
-        throw error;
-      }
+    const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
+      body: { imageBase64 }
+    });
 
-      setAnalysisResult(data);
-      if (data.mealType) {
-        setSelectedMealType(data.mealType);
-      }
-
-      toast({
-        title: 'Análise completa!',
-        description: `${data.foods.length} alimento(s) identificado(s)`
-      });
-    } catch (error) {
-      console.error('Error analyzing image:', error);
-      toast({
-        title: 'Erro na análise',
-        description: 'Não foi possível analisar a imagem. Tenta novamente.',
-        variant: 'destructive'
-      });
-    } finally {
+    if (error) {
+      const errorMsg = getErrorMessage(error);
       setIsAnalyzing(false);
+
+      if (errorMsg.includes('No food detected')) {
+        toast({
+          title: 'Sem alimentos detetados',
+          description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
+          variant: 'destructive'
+        });
+        setImagePreview(null);
+        setLastImageBase64(null);
+        return;
+      }
+
+      if (errorMsg === '__timeout__') {
+        toast({
+          title: 'Análise demorou demais',
+          description: 'A análise está a demorar mais que o esperado. Tenta novamente.',
+          variant: 'destructive'
+        });
+      } else if (errorMsg.includes('429') || errorMsg.includes('rate')) {
+        toast({
+          title: 'Muitos pedidos',
+          description: 'Muitos pedidos no momento. Tenta novamente em alguns segundos.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Erro na análise',
+          description: 'Não foi possível analisar a imagem. Tenta novamente.',
+          variant: 'destructive'
+        });
+      }
+
+      // Keep image for retry
+      setAnalysisFailed(true);
+      return;
     }
-  };
+
+    setIsAnalyzing(false);
+    setAnalysisFailed(false);
+    setAnalysisResult(data);
+    if (data.mealType) {
+      setSelectedMealType(data.mealType);
+    }
+
+    toast({
+      title: 'Análise completa!',
+      description: `${data.foods.length} alimento(s) identificado(s)`
+    });
+  }, [toast]);
+
+  const handleRetryAnalysis = useCallback(() => {
+    if (lastImageBase64) {
+      analyzeImage(lastImageBase64);
+    }
+  }, [lastImageBase64, analyzeImage]);
 
   const analyzeText = async () => {
     if (!manualInput.trim()) return;
 
     setIsAnalyzing(true);
-    try {
-      const { data, error } = await invokeWithAuth<AnalysisResult>('analyze-food', {
-        body: { mealDescription: manualInput }
-      });
+    setAnalysisFailed(false);
 
-      if (error) throw error;
+    const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
+      body: { mealDescription: manualInput }
+    });
 
-      setAnalysisResult(data);
-      if (data.mealType) {
-        setSelectedMealType(data.mealType);
-      }
-    } catch (error) {
-      console.error('Error analyzing text:', error);
-      toast({
-        title: 'Erro na análise',
-        description: 'Não foi possível analisar a descrição.',
-        variant: 'destructive'
-      });
-    } finally {
+    if (error) {
+      const errorMsg = getErrorMessage(error);
       setIsAnalyzing(false);
+
+      if (errorMsg === '__timeout__') {
+        toast({
+          title: 'Análise demorou demais',
+          description: 'Tenta novamente com uma descrição mais simples.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Erro na análise',
+          description: 'Não foi possível analisar a descrição.',
+          variant: 'destructive'
+        });
+      }
+      return;
+    }
+
+    setIsAnalyzing(false);
+    setAnalysisResult(data);
+    if (data.mealType) {
+      setSelectedMealType(data.mealType);
     }
   };
 
@@ -433,7 +533,22 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                       {isAnalyzing &&
                   <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center gap-3">
                           <Loader2 className="w-8 h-8 text-white animate-spin" />
-                          <span className="text-white text-sm">A analisar com IA...</span>
+                          <span className="text-white text-sm">{ANALYSIS_MESSAGES[analyzeStatus]}</span>
+                        </div>
+                  }
+                      {analysisFailed && !isAnalyzing &&
+                  <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center gap-3">
+                          <RotateCcw className="w-8 h-8 text-white" />
+                          <span className="text-white text-sm">Análise falhou</span>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleRetryAnalysis}
+                            className="gap-2"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Tentar novamente
+                          </Button>
                         </div>
                   }
                       <button
