@@ -179,15 +179,16 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
   };
 
   const addFoodFromDatabase = (food: FoodDatabaseItem) => {
-    setSelectedFoods((prev) => [...prev, food]);
+    const instance: SelectedFood = { ...food, instanceId: crypto.randomUUID() };
+    setSelectedFoods((prev) => [...prev, instance]);
     toast({
       title: `${food.name} adicionado`,
       description: `${food.calories} kcal`
     });
   };
 
-  const removeFoodFromSelection = (foodId: string) => {
-    setSelectedFoods((prev) => prev.filter((f) => f.id !== foodId));
+  const removeFoodFromSelection = (instanceId: string) => {
+    setSelectedFoods((prev) => prev.filter((f) => f.instanceId !== instanceId));
   };
 
   const handleSaveFromDatabase = () => {
