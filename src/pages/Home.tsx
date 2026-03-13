@@ -18,13 +18,9 @@ import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
-import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
-import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
-import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
-import { useActiveSession } from "@/hooks/useActiveSession";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -47,7 +43,7 @@ const Home = () => {
   // Load user settings from database (per-user data)
   const { settings, isLoading: settingsLoading } = useUserSettings();
   const { user } = useAuth();
-  const { activeSession } = useActiveSession();
+  
 
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
@@ -256,12 +252,6 @@ const Home = () => {
       </motion.div>
 
       <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5">
-        {/* Continue Workout */}
-        <ContinueWorkoutCard />
-
-        {/* Fatigue Alert */}
-        <FatigueAlertCard fatigueIndex={settings?.fatigue_index} />
-
         {/* Name AI Banner */}
         <NameAIBanner />
 
@@ -277,9 +267,6 @@ const Home = () => {
 
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
-
-        {/* Fatigue Index - Estado de Recuperação */}
-        <FatigueIndexCard score={settings?.fatigue_index} />
 
         {/* Fatigue History Chart */}
         <FatigueHistoryCard />
