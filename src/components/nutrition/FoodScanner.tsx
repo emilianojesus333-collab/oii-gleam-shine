@@ -869,7 +869,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
           {/* Footer buttons - fixed at bottom */}
           {(activeTab === 'ai' && analysisResult || activeTab === 'search' && selectedFoods.length > 0) &&
-          <DrawerFooter className="shrink-0 border-t border-white/10 bg-zinc-900">
+          <div className="shrink-0 border-t border-white/10 bg-zinc-900 px-5 py-4">
               <div className="flex gap-2">
                 <Button variant="outline" onClick={resetState} className="flex-1">
                   {activeTab === 'ai' ? 'Nova Análise' : 'Limpar'}
@@ -882,10 +882,10 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                   Adicionar
                 </Button>
               </div>
-            </DrawerFooter>
+            </div>
           }
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </div>);
 
 };
