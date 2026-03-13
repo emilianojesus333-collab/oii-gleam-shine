@@ -20,6 +20,7 @@ interface MainWorkoutCarouselProps {
   todayExercises: { name: string; focus?: string }[];
   saveExercise: () => void;
   justSaved: boolean;
+  saveButtonLabel?: string;
 }
 
 // 1RM Calculation Formulas
