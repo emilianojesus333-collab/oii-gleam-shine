@@ -12,7 +12,7 @@ export const ContinueWorkoutCard = () => {
   const planned = activeSession.planned_exercises.filter((e) => e.source === "ai");
   const completed = planned.filter((e) => e.completed).length;
   const total = planned.length;
-  const isActive = activeSession.status === "in_progress";
+  const isActive = activeSession.status === "in_progress" || activeSession.status === "planned";
 
   return (
     <motion.div
