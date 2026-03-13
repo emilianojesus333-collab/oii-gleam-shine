@@ -29,6 +29,7 @@ import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
 import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
+import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
