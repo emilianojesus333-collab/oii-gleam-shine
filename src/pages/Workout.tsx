@@ -329,14 +329,13 @@ const Workout = () => {
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
-  // isLastAIExercise moved before handleSaveClick
-
   // Button label for guided mode
   const saveButtonLabel = useMemo(() => {
     if (!isGuidedMode || allAIDone) return undefined;
-    if (isLastAIExercise) return "Concluir Treino";
+    const isLast = currentAIIndex === aiExercises.length - 1;
+    if (isLast) return "Concluir Treino";
     return "Guardar e Próximo";
-  }, [isGuidedMode, allAIDone, isLastAIExercise]);
+  }, [isGuidedMode, allAIDone, currentAIIndex, aiExercises.length]);
 
   return (
     <div className="min-h-screen bg-black pb-32">
