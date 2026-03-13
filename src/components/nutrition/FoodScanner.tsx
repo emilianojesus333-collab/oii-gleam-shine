@@ -207,6 +207,17 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setIsAnalyzing(true);
     setAnalysisFailed(false);
 
+    // Check cache first
+    const cacheKey = await hashString(imageBase64);
+    const cached = getCachedResult(cacheKey);
+    if (cached) {
+      setIsAnalyzing(false);
+      setAnalysisResult(cached);
+      if (cached.mealType) setSelectedMealType(cached.mealType as any);
+      toast({ title: 'Análise completa!', description: `${cached.foods.length} alimento(s) (cache)` });
+      return;
+    }
+
     const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
       body: { imageBase64 }
     });
