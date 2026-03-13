@@ -1,16 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, RotateCcw, X, Brain, Target, Heart, ChevronRight, Trophy, BatteryCharging } from "lucide-react";
+import { Settings, RotateCcw, X, ChevronRight } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi } from
-"@/components/ui/carousel";
-import { getSuggestedExercise, getRecoverySuggestion, getExercisesForGroups } from "@/data/exerciseDatabase";
 import { getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
 import { FavoritesWidget } from "@/components/home/FavoritesWidget";
