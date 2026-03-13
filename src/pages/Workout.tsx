@@ -144,6 +144,12 @@ const Workout = () => {
       setSelectedExercise(currentPlannedExercise.exercise_name);
       setReps(String(parseInt(currentPlannedExercise.reps) || 10));
       setSets(String(currentPlannedExercise.sets));
+      // Use AI-suggested rest time
+      const aiRest = currentPlannedExercise.rest;
+      if (aiRest && aiRest > 0) {
+        setRestTime(String(aiRest));
+        if (!isRestRunning) setRestRemaining(aiRest);
+      }
       // weight stays or gets set from progression later
     }
   }, [currentPlannedExercise?.id, isGuidedMode]);
@@ -179,8 +185,9 @@ const Workout = () => {
     return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  // Rest timer
+  // Rest timer — skip auto-calculation in guided mode (AI provides rest time)
   useEffect(() => {
+    if (isGuidedMode && currentPlannedExercise) return; // AI rest is already set
     const weightNum = parseInt(weight) || 0;
     const repsNum = parseInt(reps) || 0;
     const setsNum = parseInt(sets) || 0;
@@ -190,7 +197,7 @@ const Workout = () => {
       setRestBreakdown(breakdown);
       if (!isRestRunning) setRestRemaining(total);
     }
-  }, [weight, reps, sets, isRestRunning]);
+  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise]);
 
   const { notifyTimerEnd } = useTimerNotification();
   const hasNotifiedRef = useRef(false);
