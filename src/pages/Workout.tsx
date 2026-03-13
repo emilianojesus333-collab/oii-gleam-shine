@@ -226,6 +226,8 @@ const Workout = () => {
   const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
   const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); };
 
+  const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
+
   // --- Save handler: works for both manual and guided ---
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) { toast.error("Seleciona um exercício primeiro"); return; }
