@@ -7,6 +7,100 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/** Extract a number from a value that may be number, string like "25g", "300 kcal", etc. */
+function parseNumber(value: unknown): number {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'string') {
+    const match = value.match(/([\d.]+)/);
+    if (match) {
+      const num = parseFloat(match[1]);
+      return isNaN(num) ? 0 : num;
+    }
+  }
+  return 0;
+}
+
+interface ValidatedFood {
+  name: string;
+  portion: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  confidence?: string;
+}
+
+interface ValidatedResult {
+  foods: ValidatedFood[];
+  total: { calories: number; protein: number; carbs: number; fat: number; fiber: number };
+  tips?: string;
+  mealType?: string;
+}
+
+/** Validate and normalize the AI response into a safe schema. */
+function validateNutritionData(raw: unknown): ValidatedResult {
+  if (!raw || typeof raw !== 'object') {
+    throw new Error('Invalid nutrition schema returned by AI');
+  }
+
+  const obj = raw as Record<string, unknown>;
+
+  // Validate foods array
+  const rawFoods = Array.isArray(obj.foods) ? obj.foods : [];
+
+  const foods: ValidatedFood[] = rawFoods
+    .filter((f: unknown) => f && typeof f === 'object')
+    .map((f: any) => ({
+      name: typeof f.name === 'string' ? f.name : 'Alimento desconhecido',
+      portion: typeof f.portion === 'string' ? f.portion : '1 porção',
+      calories: parseNumber(f.calories),
+      protein: parseNumber(f.protein),
+      carbs: parseNumber(f.carbs),
+      fat: parseNumber(f.fat),
+      fiber: parseNumber(f.fiber),
+      confidence: typeof f.confidence === 'string' ? f.confidence : 'medium',
+    }));
+
+  // Check for non-food detection
+  if (foods.length === 0) {
+    throw new Error('No food detected in the image');
+  }
+
+  // Check average confidence — if all low, likely not food
+  const confidenceLevels = foods.map(f => f.confidence);
+  const allLow = confidenceLevels.every(c => c === 'low');
+  const totalCalories = foods.reduce((s, f) => s + f.calories, 0);
+  if (allLow && totalCalories < 10) {
+    throw new Error('No food detected in the image');
+  }
+
+  // Build or validate total
+  const total = {
+    calories: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).calories) : 0,
+    protein: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).protein) : 0,
+    carbs: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).carbs) : 0,
+    fat: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).fat) : 0,
+    fiber: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).fiber) : 0,
+  };
+
+  // If total is all zeros but foods have values, recalculate
+  if (total.calories === 0 && foods.length > 0) {
+    total.calories = foods.reduce((s, f) => s + f.calories, 0);
+    total.protein = foods.reduce((s, f) => s + f.protein, 0);
+    total.carbs = foods.reduce((s, f) => s + f.carbs, 0);
+    total.fat = foods.reduce((s, f) => s + f.fat, 0);
+    total.fiber = foods.reduce((s, f) => s + f.fiber, 0);
+  }
+
+  return {
+    foods,
+    total,
+    tips: typeof obj.tips === 'string' ? obj.tips : undefined,
+    mealType: typeof obj.mealType === 'string' ? obj.mealType : undefined,
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -70,7 +164,10 @@ IDENTIFICAÇÃO VISUAL:
 - Método de preparação visível (grelhado = marcas, frito = dourado brilhante)
 - Guarnições e acompanhamentos típicos
 
-IMPORTANTE: Responda APENAS em JSON válido, sem markdown ou texto adicional.
+IMPORTANTE: 
+- Se a imagem NÃO contiver alimentos, retorne: {"foods": [], "total": {"calories": 0, "protein": 0, "carbs": 0, "fat": 0, "fiber": 0}, "tips": "Nenhum alimento identificado"}
+- Todos os valores numéricos devem ser NÚMEROS, não strings (ex: 25 não "25g")
+- Responda APENAS em JSON válido, sem markdown ou texto adicional.
 
 Formato de resposta:
 {
@@ -113,6 +210,7 @@ Formato de resposta:
 3. CALCULE os macros usando tabelas nutricionais padrão
 4. CONSIDERE o método de preparação (afeta calorias: grelhado vs frito)
 5. NÃO OMITA nenhum item visível, incluindo molhos e temperos
+6. Se a imagem NÃO contiver comida, retorne foods como array vazio
 
 Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
           },
@@ -160,16 +258,18 @@ Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
     console.log('OpenAI response:', content);
 
     // Parse JSON from response
-    let nutritionData;
+    let rawData: unknown;
     try {
-      // Try to extract JSON from potential markdown code blocks
       const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
       const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      nutritionData = JSON.parse(jsonStr.trim());
+      rawData = JSON.parse(jsonStr.trim());
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('JSON parse error:', parseError, 'Raw content:', content);
       throw new Error('Failed to parse nutrition data from AI response');
     }
+
+    // Validate and normalize
+    const nutritionData = validateNutritionData(rawData);
 
     return new Response(JSON.stringify(nutritionData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
