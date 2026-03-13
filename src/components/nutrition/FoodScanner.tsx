@@ -265,6 +265,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setIsAnalyzing(false);
     setAnalysisFailed(false);
     setAnalysisResult(data);
+    setCachedResult(cacheKey, data);
     if (data.mealType) {
       setSelectedMealType(data.mealType);
     }
