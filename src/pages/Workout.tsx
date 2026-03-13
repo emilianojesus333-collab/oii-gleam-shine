@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useTimerNotification } from "@/hooks/useTimerNotification";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useActiveSession } from "@/hooks/useActiveSession";
@@ -16,6 +16,9 @@ import {
   Check,
   Loader2,
   CheckCircle2,
+  SkipForward,
+  Plus,
+  ChevronRight,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -38,12 +41,12 @@ import {
 import { toast } from "sonner";
 import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
-import { SequentialWorkoutFlow } from "@/components/workout/SequentialWorkoutFlow";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
+import { Progress } from "@/components/ui/progress";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -116,6 +119,34 @@ const Workout = () => {
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
+
+  // --- AI guided mode state ---
+  const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
+
+  const aiExercises = useMemo(() => {
+    if (!activeSession) return [];
+    return activeSession.planned_exercises.filter((e) => e.source === "ai");
+  }, [activeSession]);
+
+  const currentAIIndex = useMemo(() => {
+    const idx = aiExercises.findIndex((e) => !e.completed);
+    return idx === -1 ? aiExercises.length : idx;
+  }, [aiExercises]);
+
+  const currentPlannedExercise = aiExercises[currentAIIndex] || null;
+  const completedAICount = aiExercises.filter((e) => e.completed).length;
+  const allAIDone = currentAIIndex >= aiExercises.length;
+  const progressPercent = aiExercises.length > 0 ? Math.round((completedAICount / aiExercises.length) * 100) : 0;
+
+  // Pre-fill card when guided exercise changes
+  useEffect(() => {
+    if (currentPlannedExercise && isGuidedMode) {
+      setSelectedExercise(currentPlannedExercise.exercise_name);
+      setReps(String(parseInt(currentPlannedExercise.reps) || 10));
+      setSets(String(currentPlannedExercise.sets));
+      // weight stays or gets set from progression later
+    }
+  }, [currentPlannedExercise?.id, isGuidedMode]);
 
   // Load today's saved exercises on mount (manual flow)
   useEffect(() => {
@@ -195,10 +226,18 @@ const Workout = () => {
   const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
   const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); };
 
+  // --- Save handler: works for both manual and guided ---
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) { toast.error("Seleciona um exercício primeiro"); return; }
     if (!user) { toast.error("Faz login para guardar exercícios"); return; }
-    setShowSaveConfirm(true);
+
+    if (isGuidedMode && currentPlannedExercise && !allAIDone) {
+      // Guided mode: save and advance
+      confirmSaveExercise();
+      markExerciseCompleted(currentPlannedExercise.id);
+    } else {
+      setShowSaveConfirm(true);
+    }
   };
 
   const confirmSaveExercise = () => {
@@ -213,19 +252,24 @@ const Workout = () => {
     };
     const updatedExercises = [...savedExercises, newLog];
     setSavedExercises(updatedExercises);
-    const today = new Date();
-    const dateStr = today.toISOString().split("T")[0];
-    const muscleGroups = todayWorkout?.split(" + ") || [];
-    const session: Omit<WorkoutSession, "timestamp"> = {
-      date: dateStr,
-      dayOfWeek: weekDaysMap[today.getDay()],
-      muscleGroups,
-      exercisesCompleted: updatedExercises.map((e) => e.name),
-      exerciseLogs: updatedExercises,
-      totalExercises: todayExercises.length,
-      completionRate: Math.round((updatedExercises.length / Math.max(todayExercises.length, 1)) * 100),
-    };
-    saveWorkoutSession(session, user.id);
+
+    if (!isGuidedMode) {
+      // Manual mode: persist to localStorage
+      const today = new Date();
+      const dateStr = today.toISOString().split("T")[0];
+      const muscleGroups = todayWorkout?.split(" + ") || [];
+      const session: Omit<WorkoutSession, "timestamp"> = {
+        date: dateStr,
+        dayOfWeek: weekDaysMap[today.getDay()],
+        muscleGroups,
+        exercisesCompleted: updatedExercises.map((e) => e.name),
+        exerciseLogs: updatedExercises,
+        totalExercises: todayExercises.length,
+        completionRate: Math.round((updatedExercises.length / Math.max(todayExercises.length, 1)) * 100),
+      };
+      saveWorkoutSession(session, user.id);
+    }
+
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
     toast.success(`${selectedExercise} guardado!`);
@@ -233,25 +277,38 @@ const Workout = () => {
     setShowSaveConfirm(false);
   };
 
-  // Manual flow completion
-  const handleCompleteWorkoutManual = async () => {
-    if (!user || savedExercises.length === 0) return;
+  const handleSkipExercise = useCallback(() => {
+    if (!currentPlannedExercise) return;
+    markExerciseCompleted(currentPlannedExercise.id);
+    toast.info(`${currentPlannedExercise.exercise_name} saltado`);
+  }, [currentPlannedExercise, markExerciseCompleted]);
+
+  // --- Complete workout ---
+  const handleCompleteWorkout = async () => {
+    if (!user) return;
+    if (savedExercises.length === 0) return;
     setCompleting(true);
     try {
       const today = new Date();
       const result = await completeWorkout({
-        date: today.toISOString().split("T")[0],
-        day_of_week: weekDaysMap[today.getDay()],
-        muscle_groups: todayWorkout?.split(" + ") || [],
+        date: activeSession?.date || today.toISOString().split("T")[0],
+        day_of_week: activeSession?.day_of_week || weekDaysMap[today.getDay()],
+        muscle_groups: activeSession?.muscle_groups || todayWorkout?.split(" + ") || [],
         exercises: savedExercises.map((e) => ({
           name: e.name, weight: e.weight, reps: e.reps, sets: e.sets,
         })),
+        session_id: activeSession?.id,
       });
-      const storageKey = `liftmate_workout_history_${user.id}`;
-      const history = JSON.parse(localStorage.getItem(storageKey) || '{"sessions":[]}');
-      const todayStr = today.toISOString().split("T")[0];
-      history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
-      localStorage.setItem(storageKey, JSON.stringify(history));
+
+      // Clear localStorage for manual flow
+      if (!isGuidedMode) {
+        const storageKey = `liftmate_workout_history_${user.id}`;
+        const history = JSON.parse(localStorage.getItem(storageKey) || '{"sessions":[]}');
+        const todayStr = today.toISOString().split("T")[0];
+        history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
+        localStorage.setItem(storageKey, JSON.stringify(history));
+      }
+
       checkFatigueNotification(result.fatigue_index);
       navigate(`/workout-summary/${result.session_id}`);
     } catch (err: any) {
@@ -262,38 +319,14 @@ const Workout = () => {
     }
   };
 
-  // Sequential flow completion
-  const handleCompleteWorkoutSequential = async (exercises: { name: string; weight: number; reps: number; sets: number; source: string }[]) => {
-    if (!user || !activeSession) return;
-    setCompleting(true);
-    try {
-      const result = await completeWorkout({
-        date: activeSession.date,
-        day_of_week: activeSession.day_of_week || weekDaysMap[new Date().getDay()],
-        muscle_groups: activeSession.muscle_groups || [],
-        exercises: exercises.map((e) => ({
-          name: e.name, weight: e.weight, reps: e.reps, sets: e.sets,
-        })),
-        session_id: activeSession.id,
-      });
-      checkFatigueNotification(result.fatigue_index);
-      navigate(`/workout-summary/${result.session_id}`);
-    } catch (err: any) {
-      console.error("[Workout] Complete error:", err);
-      toast.error("Erro ao concluir treino.");
-    } finally {
-      setCompleting(false);
-    }
-  };
-
-  const handleStartSession = async () => {
-    if (activeSession) {
-      await startSession(activeSession.id);
-    }
-  };
-
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
-  const hasActiveSession = activeSession && activeSession.planned_exercises.length > 0;
+
+  // Button label for guided mode
+  const saveButtonLabel = useMemo(() => {
+    if (!isGuidedMode || allAIDone) return undefined; // use default from carousel
+    if (currentAIIndex === aiExercises.length - 1) return "Guardar Último";
+    return "Guardar e Próximo";
+  }, [isGuidedMode, allAIDone, currentAIIndex, aiExercises.length]);
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -307,7 +340,7 @@ const Workout = () => {
           <div className="w-12 h-12 rounded-2xl bg-[#1E1E1E]/50 flex items-center justify-center">
             <Dumbbell className="w-6 h-6 text-primary" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold text-destructive-foreground">
               {isRestDay ? t("workout.restDay") : todayWorkout}
             </h1>
@@ -315,6 +348,71 @@ const Workout = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Guided mode progress bar */}
+      {isGuidedMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-5 mb-5"
+        >
+          <div className="bg-[#111311] rounded-[20px] p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-400">
+                {activeSession?.muscle_groups?.join(" + ") || "Treino"}
+              </span>
+              <span className="text-sm font-bold text-primary">
+                {completedAICount}/{aiExercises.length} exercícios
+              </span>
+            </div>
+            <div className="w-full h-2.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ type: "spring", stiffness: 100 }}
+              />
+            </div>
+
+            {/* Mini exercise indicators */}
+            <div className="flex gap-1 mt-3 overflow-x-auto pb-1">
+              {aiExercises.map((ex, i) => (
+                <div
+                  key={ex.id}
+                  className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${
+                    ex.completed
+                      ? "bg-green-500/20 text-green-400"
+                      : i === currentAIIndex
+                      ? "bg-primary/20 text-primary ring-1 ring-primary/50"
+                      : "bg-[#2A2A2A]/50 text-gray-500"
+                  }`}
+                >
+                  {ex.completed ? <Check className="w-4 h-4" /> : i + 1}
+                </div>
+              ))}
+            </div>
+
+            {/* Skip button for current exercise */}
+            {currentPlannedExercise && !allAIDone && (
+              <button
+                onClick={handleSkipExercise}
+                className="mt-3 text-xs text-gray-500 flex items-center gap-1 hover:text-gray-300 transition-colors"
+              >
+                <SkipForward className="w-3 h-3" />
+                Saltar {currentPlannedExercise.exercise_name}
+              </button>
+            )}
+
+            {/* All done message */}
+            {allAIDone && (
+              <div className="mt-3 flex items-center gap-2 text-green-400">
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="text-xs font-medium">Todos os exercícios do plano concluídos!</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
 
       {isRestDay ? (
         <motion.div
@@ -328,19 +426,9 @@ const Workout = () => {
           <h3 className="text-xl font-semibold text-white/70 mb-2">{t("workout.activeRecovery")}</h3>
           <p className="text-gray-400/70 max-w-xs mx-auto">{t("workout.restImportant")}</p>
         </motion.div>
-      ) : hasActiveSession ? (
-        /* Sequential flow for AI-generated workouts */
-        <SequentialWorkoutFlow
-          session={activeSession}
-          onStart={handleStartSession}
-          onComplete={handleCompleteWorkoutSequential}
-          onMarkCompleted={markExerciseCompleted}
-          completing={completing}
-        />
       ) : (
-        /* Manual flow */
         <div className="px-5 space-y-5 bg-black">
-          {/* Fixed bottom CTA for manual flow */}
+          {/* Fixed bottom CTA */}
           {savedExercises.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -349,7 +437,7 @@ const Workout = () => {
             >
               <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={handleCompleteWorkoutManual}
+                onClick={handleCompleteWorkout}
                 disabled={completing}
                 className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-green-600/30"
               >
@@ -368,51 +456,81 @@ const Workout = () => {
             </motion.div>
           )}
 
-          {/* Training Type Selector */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-[20px] p-5 bg-[#111311]"
-          >
-            <span className="text-sm font-medium mb-4 block text-gray-400">
-              {t("workout.trainingType")}
-            </span>
-            <div className="flex gap-2">
-              {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
-                const isSelected = trainingType === type;
-                return (
-                  <motion.button
-                    key={type}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setTrainingType(type)}
-                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                      isSelected
-                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                        : "bg-[#2A2A2A]/50 text-gray-400/70 hover:bg-[#2A2A2A]/80"
-                    }`}
-                  >
-                    {type}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.div>
+          {/* Training Type Selector — hide in guided mode */}
+          {!isGuidedMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-[20px] p-5 bg-[#111311]"
+            >
+              <span className="text-sm font-medium mb-4 block text-gray-400">
+                {t("workout.trainingType")}
+              </span>
+              <div className="flex gap-2">
+                {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
+                  const isSelected = trainingType === type;
+                  return (
+                    <motion.button
+                      key={type}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setTrainingType(type)}
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                          : "bg-[#2A2A2A]/50 text-gray-400/70 hover:bg-[#2A2A2A]/80"
+                      }`}
+                    >
+                      {type}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
 
-          {/* AI Workout Generator */}
-          <AIWorkoutGenerator
-            todayMuscleGroups={todayMuscleGroups}
-            trainingType={trainingType}
-            onAddExercise={(exercise) => {
-              setSelectedExercise(exercise.name);
-              setWeight(String(exercise.weight || 30));
-              setReps(String(exercise.reps));
-              setSets(String(exercise.sets));
-            }}
-            onSessionCreated={refreshSession}
-          />
+          {/* AI Workout Generator — hide in guided mode */}
+          {!isGuidedMode && (
+            <AIWorkoutGenerator
+              todayMuscleGroups={todayMuscleGroups}
+              trainingType={trainingType}
+              onAddExercise={(exercise) => {
+                setSelectedExercise(exercise.name);
+                setWeight(String(exercise.weight || 30));
+                setReps(String(exercise.reps));
+                setSets(String(exercise.sets));
+              }}
+              onSessionCreated={refreshSession}
+            />
+          )}
 
-          {/* Main Carousel Card */}
+          {/* Guided mode: exercise label */}
+          {isGuidedMode && currentPlannedExercise && !allAIDone && (
+            <motion.div
+              key={currentPlannedExercise.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-primary/10 border border-primary/20 rounded-[20px] p-4 flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-primary font-medium">
+                  Exercício {completedAICount + 1} de {aiExercises.length}
+                </p>
+                <p className="text-base font-bold text-white">
+                  {currentPlannedExercise.exercise_name}
+                </p>
+                <p className="text-xs text-gray-400">
+                  Sugestão: {currentPlannedExercise.sets}x{currentPlannedExercise.reps} · {currentPlannedExercise.rest}s descanso
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-primary/50" />
+            </motion.div>
+          )}
+
+          {/* Main Carousel Card (Registar Exercício) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -433,6 +551,7 @@ const Workout = () => {
               todayExercises={todayExercises}
               saveExercise={handleSaveClick}
               justSaved={justSaved}
+              saveButtonLabel={saveButtonLabel}
             />
           </motion.div>
 
@@ -584,7 +703,7 @@ const Workout = () => {
 
       <BottomNav />
 
-      {/* Save Confirmation Dialog */}
+      {/* Save Confirmation Dialog (manual mode only) */}
       <AlertDialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>
         <AlertDialogContent className="bg-[#1E1E1E] border-gray-700">
           <AlertDialogHeader>

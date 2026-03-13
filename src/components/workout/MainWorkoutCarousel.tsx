@@ -20,6 +20,7 @@ interface MainWorkoutCarouselProps {
   todayExercises: { name: string; focus?: string }[];
   saveExercise: () => void;
   justSaved: boolean;
+  saveButtonLabel?: string;
 }
 
 // 1RM Calculation Formulas
@@ -76,6 +77,7 @@ export const MainWorkoutCarousel = ({
   todayExercises,
   saveExercise,
   justSaved,
+  saveButtonLabel,
 }: MainWorkoutCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -430,7 +432,7 @@ export const MainWorkoutCarousel = ({
                           className="flex items-center gap-2"
                         >
                           <Save className="w-5 h-5" />
-                          Guardar Exercício
+                          {saveButtonLabel || "Guardar Exercício"}
                         </motion.div>
                       )}
                     </AnimatePresence>
