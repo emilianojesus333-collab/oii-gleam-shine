@@ -51,6 +51,35 @@ const ANALYSIS_MESSAGES = [
 const RETRY_DELAY = 1000;
 const MAX_RETRIES = 2;
 const ANALYSIS_TIMEOUT = 15000;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+// Simple in-memory analysis cache
+const analysisCache = new Map<string, { result: AnalysisResult; timestamp: number }>();
+
+/** Generate a simple hash from a string for cache keys. */
+async function hashString(str: string): Promise<string> {
+  // Use first 200 chars + length as a fast fingerprint
+  const sample = str.slice(0, 200) + '|' + str.length;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(sample);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+function getCachedResult(key: string): AnalysisResult | null {
+  const entry = analysisCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    analysisCache.delete(key);
+    return null;
+  }
+  return entry.result;
+}
+
+function setCachedResult(key: string, result: AnalysisResult) {
+  analysisCache.set(key, { result, timestamp: Date.now() });
+}
 
 /** Invoke with retry + timeout */
 async function invokeWithRetry<T>(
@@ -178,6 +207,17 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setIsAnalyzing(true);
     setAnalysisFailed(false);
 
+    // Check cache first
+    const cacheKey = await hashString(imageBase64);
+    const cached = getCachedResult(cacheKey);
+    if (cached) {
+      setIsAnalyzing(false);
+      setAnalysisResult(cached);
+      if (cached.mealType) setSelectedMealType(cached.mealType as any);
+      toast({ title: 'Análise completa!', description: `${cached.foods.length} alimento(s) (cache)` });
+      return;
+    }
+
     const { data, error } = await invokeWithRetry<AnalysisResult>('analyze-food', {
       body: { imageBase64 }
     });
@@ -225,6 +265,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
     setIsAnalyzing(false);
     setAnalysisFailed(false);
     setAnalysisResult(data);
+    setCachedResult(cacheKey, data);
     if (data.mealType) {
       setSelectedMealType(data.mealType);
     }
