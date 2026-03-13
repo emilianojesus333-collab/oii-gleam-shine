@@ -131,7 +131,7 @@ const Home = () => {
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
   const fatigueIndex = settings?.fatigue_index ?? 0;
   const todayStats = getTodayStats();
-  const hasActiveSession = !!activeSession && (activeSession.status === "in_progress" || activeSession.status === "planned");
+  
 
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
