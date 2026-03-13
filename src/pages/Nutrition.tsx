@@ -90,16 +90,6 @@ const Nutrition = () => {
           progress={progress} />
 
 
-        {/* Plans & Recipes Grid */}
-        <NutritionPlansGrid
-          currentGoal={profile.goal}
-          onApplyPlan={(plan: MealPlan) => {
-            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
-            updateProfile({ goal: plan.goal });
-            setCustomGoals({ calories: avgCalories });
-          }}
-        />
-
         {/* Post-workout suggestions */}
         <PostWorkoutSuggestions />
 
