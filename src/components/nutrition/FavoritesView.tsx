@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ChefHat, Apple, Clock, Flame, Trash2, X } from 'lucide-react';
+import { Heart, Apple, Clock, Flame, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppModal } from '@/components/ui/app-modal';
@@ -18,24 +18,13 @@ export const FavoritesView = ({ customTrigger }: FavoritesViewProps = {}) => {
 
   const trigger = customTrigger || (
     <motion.div
-      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-purple-500/20 border border-rose-500/30 cursor-pointer relative overflow-hidden">
-      <div className="flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-pink-500/30 flex items-center justify-center">
-            <Heart className="w-6 h-6 text-rose-400" fill="currentColor" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">Favoritos</h3>
-            <p className="text-xs text-rose-300/70">{totalFavorites} itens guardados</p>
-          </div>
+      className="p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-white text-sm">Favoritos</h3>
+          <p className="text-xs text-muted-foreground">{totalFavorites} itens</p>
         </div>
-        {totalFavorites > 0 && (
-          <div className="w-8 h-8 rounded-full bg-rose-500/30 flex items-center justify-center">
-            <span className="text-sm font-bold text-rose-300">{totalFavorites}</span>
-          </div>
-        )}
       </div>
     </motion.div>
   );
@@ -43,185 +32,122 @@ export const FavoritesView = ({ customTrigger }: FavoritesViewProps = {}) => {
   return (
     <>
       <div onClick={() => setOpen(true)}>{trigger}</div>
-
       <AppModal
         open={open}
         onOpenChange={(v) => { setOpen(v); if (!v) setSelectedRecipe(null); }}
-        title={<><Heart className="w-5 h-5 text-rose-400" fill="currentColor" /> Favoritos</>}
+        title="Favoritos"
       >
-        <Tabs defaultValue="foods" className="space-y-4">
-          <TabsList className="w-full bg-muted/50">
-            <TabsTrigger value="foods" className="flex-1 gap-2">
-              <Apple className="w-4 h-4" />
+        <Tabs defaultValue="foods" className="space-y-3">
+          <TabsList className="w-full h-8 bg-muted/50">
+            <TabsTrigger value="foods" className="flex-1 text-xs">
               Alimentos ({favorites.foods.length})
             </TabsTrigger>
-            <TabsTrigger value="recipes" className="flex-1 gap-2">
-              <ChefHat className="w-4 h-4" />
+            <TabsTrigger value="recipes" className="flex-1 text-xs">
               Receitas ({favorites.recipes.length})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="foods" className="space-y-3 mt-0">
+          <TabsContent value="foods" className="space-y-1.5 mt-0">
             {favorites.foods.length === 0 ? (
-              <div className="text-center py-12">
-                <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-gray-400">Ainda não tens alimentos favoritos</p>
-                <p className="text-xs text-gray-500 mt-1">Adiciona alimentos usando o scanner IA</p>
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground">Sem alimentos favoritos</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Usa o scanner IA para adicionar</p>
               </div>
             ) : (
               favorites.foods.map((food) => (
-                <motion.div
+                <div
                   key={food.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10"
+                  className="flex items-center gap-2.5 py-2.5 px-3 bg-white/[0.03] rounded-lg border border-white/[0.06]"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                    <Apple className="w-5 h-5 text-emerald-400" />
-                  </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate text-white">{food.name}</h4>
-                    <p className="text-xs text-gray-400">{food.portion}</p>
-                    <div className="flex items-center gap-2 mt-1 text-xs">
-                      <span className="text-emerald-400">{food.calories} kcal</span>
-                      <span className="text-rose-400">{food.protein}g prot</span>
-                      <span className="text-amber-400">{food.carbs}g carbs</span>
-                    </div>
+                    <p className="text-[14px] font-semibold text-white truncate leading-tight">{food.name}</p>
+                    <p className="text-[12px] text-muted-foreground/80 mt-0.5">
+                      {food.portion} · {food.calories} kcal · {food.protein}g prot
+                    </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
+                  <button
+                    className="shrink-0 p-1 text-rose-400/60 hover:text-rose-400"
                     onClick={() => removeFoodFavorite(food.id)}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </motion.div>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))
             )}
           </TabsContent>
 
-          <TabsContent value="recipes" className="space-y-3 mt-0">
+          <TabsContent value="recipes" className="space-y-1.5 mt-0">
             <AnimatePresence mode="popLayout">
               {selectedRecipe ? (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-4"
+                  className="space-y-3"
                 >
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)} className="text-gray-300">
-                    <X className="w-4 h-4 mr-2" /> Voltar
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedRecipe(null)} className="text-xs h-7 px-2">
+                    ← Voltar
                   </Button>
-
                   <div className="text-center">
-                    <span className="text-5xl">{selectedRecipe.imageEmoji}</span>
-                    <h2 className="text-xl font-bold mt-2 text-white">{selectedRecipe.name}</h2>
-                    <p className="text-sm text-gray-400">{categoryLabels[selectedRecipe.category]}</p>
+                    <h2 className="text-base font-semibold text-white">{selectedRecipe.name}</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">{categoryLabels[selectedRecipe.category]}</p>
                   </div>
-
-                  <div className="flex justify-center gap-4 text-sm text-gray-300">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {selectedRecipe.prepTime}
-                    </div>
+                  <div className="grid grid-cols-4 gap-2 p-2.5 bg-white/5 rounded-xl border border-white/10 text-center">
+                    <div><p className="text-sm font-bold text-emerald-400">{selectedRecipe.calories}</p><p className="text-[11px] text-muted-foreground">kcal</p></div>
+                    <div><p className="text-sm font-bold text-rose-400">{selectedRecipe.protein}g</p><p className="text-[11px] text-muted-foreground">Prot</p></div>
+                    <div><p className="text-sm font-bold text-amber-400">{selectedRecipe.carbs}g</p><p className="text-[11px] text-muted-foreground">Carbs</p></div>
+                    <div><p className="text-sm font-bold text-sky-400">{selectedRecipe.fat}g</p><p className="text-[11px] text-muted-foreground">Gord</p></div>
                   </div>
-
-                  <div className="grid grid-cols-4 gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-emerald-400">{selectedRecipe.calories}</p>
-                      <p className="text-xs text-gray-400">kcal</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-rose-400">{selectedRecipe.protein}g</p>
-                      <p className="text-xs text-gray-400">Proteína</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-amber-400">{selectedRecipe.carbs}g</p>
-                      <p className="text-xs text-gray-400">Carbs</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-sky-400">{selectedRecipe.fat}g</p>
-                      <p className="text-xs text-gray-400">Gordura</p>
-                    </div>
-                  </div>
-
                   <Tabs defaultValue="ingredients">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="ingredients" className="flex-1">Ingredientes</TabsTrigger>
-                      <TabsTrigger value="steps" className="flex-1">Passos</TabsTrigger>
+                    <TabsList className="w-full h-8">
+                      <TabsTrigger value="ingredients" className="flex-1 text-xs">Ingredientes</TabsTrigger>
+                      <TabsTrigger value="steps" className="flex-1 text-xs">Passos</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="ingredients" className="space-y-2 mt-3">
+                    <TabsContent value="ingredients" className="space-y-1 mt-2">
                       {selectedRecipe.ingredients.map((ing, i) => (
-                        <div key={i} className="p-2 bg-white/5 rounded-lg text-sm border border-white/10">
-                          <span className="text-white">{ing}</span>
-                        </div>
+                        <div key={i} className="py-1.5 px-2.5 bg-white/5 rounded-lg text-xs border border-white/10 text-white">{ing}</div>
                       ))}
                     </TabsContent>
-                    <TabsContent value="steps" className="space-y-3 mt-3">
+                    <TabsContent value="steps" className="space-y-2 mt-2">
                       {selectedRecipe.instructions.map((step, i) => (
-                        <div key={i} className="flex gap-3 text-sm">
-                          <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
-                            {i + 1}
-                          </span>
+                        <div key={i} className="flex gap-2 text-xs">
+                          <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-[10px] font-bold">{i + 1}</span>
                           <p className="text-gray-300">{step}</p>
                         </div>
                       ))}
                     </TabsContent>
                   </Tabs>
-
                   {selectedRecipe.tips && (
-                    <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                      <p className="font-semibold text-sm mb-1 text-white">💡 Dica</p>
-                      <p className="text-xs text-gray-400">{selectedRecipe.tips}</p>
+                    <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                      <p className="text-xs text-muted-foreground">{selectedRecipe.tips}</p>
                     </div>
                   )}
                 </motion.div>
               ) : favorites.recipes.length === 0 ? (
-                <div className="text-center py-12">
-                  <ChefHat className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                  <p className="text-gray-400">Ainda não tens receitas favoritas</p>
-                  <p className="text-xs text-gray-500 mt-1">Explora as receitas fitness e guarda as tuas preferidas</p>
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">Sem receitas favoritas</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Explora as receitas fitness</p>
                 </div>
               ) : (
-                <div className="grid gap-3">
+                <div className="space-y-1.5">
                   {favorites.recipes.map((recipe) => (
-                    <motion.div
+                    <div
                       key={recipe.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+                      className="flex items-center gap-2.5 py-2.5 px-3 bg-white/[0.03] rounded-lg border border-white/[0.06] cursor-pointer hover:bg-white/[0.06] transition-colors"
                     >
-                      <span className="text-3xl cursor-pointer" onClick={() => setSelectedRecipe(recipe)}>
-                        {recipe.imageEmoji}
-                      </span>
-                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedRecipe(recipe)}>
-                        <h4 className="font-medium truncate text-white">{recipe.name}</h4>
-                        <p className="text-xs text-gray-400">{categoryLabels[recipe.category]}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {recipe.prepTime}
-                          </span>
-                          <span className="text-xs flex items-center gap-1">
-                            <Flame className="w-3 h-3" />
-                            {recipe.calories} kcal
-                          </span>
-                        </div>
+                      <div className="flex-1 min-w-0" onClick={() => setSelectedRecipe(recipe)}>
+                        <p className="text-[14px] font-semibold text-white truncate leading-tight">{recipe.name}</p>
+                        <p className="text-[12px] text-muted-foreground/80 mt-0.5">
+                          {categoryLabels[recipe.category]} · {recipe.prepTime} · {recipe.calories} kcal
+                        </p>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
+                      <button
+                        className="shrink-0 p-1 text-rose-400/60 hover:text-rose-400"
                         onClick={() => removeRecipeFavorite(recipe.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </motion.div>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
