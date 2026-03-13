@@ -77,6 +77,7 @@ export const MainWorkoutCarousel = ({
   todayExercises,
   saveExercise,
   justSaved,
+  saveButtonLabel,
 }: MainWorkoutCarouselProps) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [direction, setDirection] = useState(0);
