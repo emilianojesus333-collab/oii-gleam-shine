@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload } from 'lucide-react';
-import { useState, useRef, useMemo } from 'react';
+import { Camera, Loader2, Sparkles, X, Plus, Utensils, Search, Dumbbell, Zap, Clock, Upload, RotateCcw } from 'lucide-react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { compressBase64Image } from '@/lib/imageCompression';
 import { invokeWithAuth } from '@/lib/supabaseHelpers';
 import { Button } from '@/components/ui/button';
