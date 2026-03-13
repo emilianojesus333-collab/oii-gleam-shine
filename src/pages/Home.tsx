@@ -23,6 +23,7 @@ import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
+import { StatusCarousel } from "@/components/home/StatusCarousel";
 import { useActiveSession } from "@/hooks/useActiveSession";
 
 const weekDaysMap: Record<number, string> = {
