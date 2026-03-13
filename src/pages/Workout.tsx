@@ -327,7 +327,7 @@ const Workout = () => {
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
 
-  const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
+  // isLastAIExercise moved before handleSaveClick
 
   // Button label for guided mode
   const saveButtonLabel = useMemo(() => {
