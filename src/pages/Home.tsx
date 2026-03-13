@@ -23,6 +23,7 @@ import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
+import { StatusCarousel } from "@/components/home/StatusCarousel";
 import { useActiveSession } from "@/hooks/useActiveSession";
 
 const weekDaysMap: Record<number, string> = {
@@ -130,7 +131,7 @@ const Home = () => {
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
   const fatigueIndex = settings?.fatigue_index ?? 0;
   const todayStats = getTodayStats();
-  const hasActiveSession = !!activeSession && (activeSession.status === "in_progress" || activeSession.status === "planned");
+  
 
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
@@ -271,82 +272,8 @@ const Home = () => {
           isRestDay={isRestDay}
         />
 
-        {/* Quick Info Cards — 3 fixed cards replacing old carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-2 sm:gap-3"
-        >
-          {/* Card 1: Continuar Treino / Séries hoje */}
-          {hasActiveSession ? (
-            <motion.button
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/workout")}
-              className="rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/30 p-3 sm:p-4 text-left"
-            >
-              <p className="text-xl sm:text-2xl font-black text-primary">▶</p>
-              <p className="text-[10px] sm:text-xs text-primary/80 font-semibold mt-0.5 sm:mt-1">Continuar</p>
-            </motion.button>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
-            >
-              <p className="text-xl sm:text-2xl font-black text-secondary-foreground">
-                {todayStats.totalSets}
-              </p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Séries hoje</p>
-            </motion.div>
-          )}
-
-          {/* Card 2: Recuperação */}
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.35 }}
-            className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
-          >
-            <p className={`text-xl sm:text-2xl font-black ${
-              fatigueIndex >= 80 ? 'text-red-400' :
-              fatigueIndex >= 60 ? 'text-orange-400' :
-              fatigueIndex >= 40 ? 'text-yellow-400' :
-              'text-green-400'
-            }`}>
-              {fatigueIndex}%
-            </p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Recuperação</p>
-          </motion.div>
-
-          {/* Card 3: Fadiga / Pronto */}
-          {fatigueIndex >= 60 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              onClick={() => navigate("/chat")}
-              className="rounded-xl sm:rounded-2xl bg-orange-500/10 border border-orange-500/20 p-3 sm:p-4 cursor-pointer"
-            >
-              <p className="text-xl sm:text-2xl font-black text-orange-400">⚠️</p>
-              <p className="text-[10px] sm:text-xs text-orange-400/80 font-semibold mt-0.5 sm:mt-1">Fadiga alta</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="rounded-xl sm:rounded-2xl bg-card p-3 sm:p-4"
-            >
-              <p className="text-xl sm:text-2xl font-black text-green-400">✓</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">Pronto</p>
-            </motion.div>
-          )}
-        </motion.div>
+        {/* Status Carousel — 1 card visible at a time */}
+        <StatusCarousel fatigueIndex={fatigueIndex} />
 
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
