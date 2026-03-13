@@ -282,8 +282,7 @@ const Home = () => {
         {/* Weekly Performance Widget */}
         <WeeklyPerformanceWidget />
 
-        {/* Favorites Widget */}
-        <FavoritesWidget />
+
 
         {/* Upcoming Workouts */}
         <UpcomingWorkouts />
