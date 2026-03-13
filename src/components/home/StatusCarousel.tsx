@@ -26,6 +26,13 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
     return "Fadiga baixa";
   };
 
+  const getFatigueColor = () => {
+    if (fatigueIndex >= 80) return "text-red-500";
+    if (fatigueIndex >= 60) return "text-amber-500";
+    if (fatigueIndex >= 40) return "text-yellow-500";
+    return "text-emerald-500";
+  };
+
   const getFatigueDescription = () => {
     if (fatigueIndex >= 80)
       return "Recomenda-se descanso ou treino leve de mobilidade.";
@@ -48,8 +55,8 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
     slides.push(
       <div key="continue" className={cardBase}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-            <Dumbbell className="w-5 h-5 text-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <Dumbbell className="w-5 h-5 text-primary" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">Treino em andamento</p>
@@ -62,7 +69,7 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
 
         <div className="w-full h-1.5 bg-muted rounded-full mb-3 overflow-hidden">
           <div
-            className="h-full bg-foreground/60 rounded-full transition-all"
+            className="h-full bg-primary rounded-full transition-all"
             style={{
               width: `${total > 0 ? (completed / total) * 100 : 0}%`,
             }}
@@ -73,7 +80,7 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/workout")}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted text-foreground font-semibold text-sm"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
           >
             <Play className="w-4 h-4" />
             Continuar Treino
@@ -87,14 +94,14 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
   slides.push(
     <div key="recovery" className={cardBase}>
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-          <Activity className="w-5 h-5 text-foreground" />
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+          <Activity className="w-5 h-5 text-emerald-500" />
         </div>
         <p className="text-sm font-bold text-foreground">Estado de Recuperação</p>
       </div>
 
-      <p className="text-4xl font-black text-foreground mb-1">{fatigueIndex}%</p>
-      <p className="text-sm font-semibold text-muted-foreground">
+      <p className={`text-4xl font-black mb-1 ${getFatigueColor()}`}>{fatigueIndex}%</p>
+      <p className={`text-sm font-semibold ${getFatigueColor()}`}>
         {getFatigueLabel()}
       </p>
       <p className="text-xs text-muted-foreground mt-1">{getFatigueDescription()}</p>
@@ -111,14 +118,14 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
         className={`${cardBase} cursor-pointer`}
       >
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-            <AlertTriangle className="w-5 h-5 text-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
           <p className="text-sm font-bold text-foreground">Alerta de Fadiga</p>
         </div>
 
-        <p className="text-lg font-bold text-foreground mb-1">
-          ⚠ Fadiga alta — {fatigueIndex}%
+        <p className="text-lg font-bold text-red-500 mb-1">
+          Fadiga alta — {fatigueIndex}%
         </p>
         <p className="text-xs text-muted-foreground">
           Considera reduzir a intensidade ou focar em recuperação. Toca para pedir
@@ -130,13 +137,13 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
     slides.push(
       <div key="ready" className={cardBase}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-emerald-500" />
           </div>
           <p className="text-sm font-bold text-foreground">Pronto para treinar</p>
         </div>
 
-        <p className="text-lg font-bold text-foreground mb-1">✓ Tudo em ordem</p>
+        <p className="text-lg font-bold text-emerald-500 mb-1">✓ Tudo em ordem</p>
         <p className="text-xs text-muted-foreground">
           Os teus níveis de recuperação estão bons. Bom treino!
         </p>
@@ -153,7 +160,7 @@ export const StatusCarousel = ({ fatigueIndex }: StatusCarouselProps) => {
       <Carousel opts={{ align: "start", loop: false }} className="w-full">
         <CarouselContent className="-ml-3">
           {slides.map((slide, i) => (
-            <CarouselItem key={i} className="pl-3 basis-[92%]">
+            <CarouselItem key={i} className="pl-3 basis-full">
               {slide}
             </CarouselItem>
           ))}
