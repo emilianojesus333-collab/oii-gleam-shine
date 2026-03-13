@@ -330,23 +330,28 @@ export const useNutrition = () => {
           totals: (log.totals as unknown as DailyLog['totals']) || { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
         }));
 
-        // Merge with local data (prefer remote for same dates)
-        const localLogs = state.dailyLogs.filter(
-          local => !formattedLogs.some(remote => remote.date === local.date)
-        );
-        const mergedLogs = [...formattedLogs, ...localLogs].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        // Merge with local data inside setState to avoid race conditions
+        // Cache the result after merge
+        const cacheKey2 = cacheKey;
 
-        // Cache the result
-        setCache(cacheKey, mergedLogs);
+        setState(prev => {
+          const localLogs = prev.dailyLogs.filter(
+            local => !formattedLogs.some(remote => remote.date === local.date)
+          );
+          const mergedLogs = [...formattedLogs, ...localLogs].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
 
-        setState(prev => ({
-          ...prev,
-          dailyLogs: mergedLogs,
-          loading: false,
-          synced: true,
-        }));
+          // Cache the merged result
+          setCache(cacheKey2, mergedLogs);
+
+          return {
+            ...prev,
+            dailyLogs: mergedLogs,
+            loading: false,
+            synced: true,
+          };
+        });
 
         // Fetch profile
         const { data: profile } = await supabase
