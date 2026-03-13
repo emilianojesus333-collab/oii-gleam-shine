@@ -235,6 +235,12 @@ const Workout = () => {
       // Guided mode: save and advance
       confirmSaveExercise();
       markExerciseCompleted(currentPlannedExercise.id);
+
+      // If this was the last AI exercise, auto-complete the workout
+      if (isLastAIExercise) {
+        // Small delay to let state update, then complete
+        setTimeout(() => handleCompleteWorkout(), 500);
+      }
     } else {
       setShowSaveConfirm(true);
     }
