@@ -6,6 +6,7 @@ import gymBackground from "@/assets/gym-background.jpeg";
 import { toast } from "sonner";
 import { getTodayStats } from "@/data/workoutHistory";
 import { BottomNav } from "@/components/BottomNav";
+import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { WeeklyPerformanceWidget } from "@/components/home/WeeklyPerformanceWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
@@ -282,7 +283,8 @@ const Home = () => {
         {/* Weekly Performance Widget */}
         <WeeklyPerformanceWidget />
 
-
+        {/* Favorites Widget */}
+        <FavoritesWidget />
 
         {/* Upcoming Workouts */}
         <UpcomingWorkouts />
