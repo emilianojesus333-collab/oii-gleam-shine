@@ -29,6 +29,7 @@ import { FatigueIndexCard } from "@/components/workout/FatigueIndexCard";
 import { FatigueAlertCard } from "@/components/home/FatigueAlertCard";
 import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
+import { ContinueWorkoutCard } from "@/components/home/ContinueWorkoutCard";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -293,6 +294,9 @@ const Home = () => {
       </motion.div>
 
       <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5">
+        {/* Continue Workout */}
+        <ContinueWorkoutCard />
+
         {/* Fatigue Alert */}
         <FatigueAlertCard fatigueIndex={settings?.fatigue_index} />
 

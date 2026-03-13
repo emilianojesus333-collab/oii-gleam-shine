@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useTimerNotification } from "@/hooks/useTimerNotification";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useActiveSession } from "@/hooks/useActiveSession";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
@@ -14,8 +15,8 @@ import {
   Save,
   Check,
   Loader2,
-  CheckCircle2 } from
-"lucide-react";
+  CheckCircle2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,14 +25,20 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle } from
-"@/components/ui/alert-dialog";
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BottomNav } from "@/components/BottomNav";
 import { getExercisesForGroups } from "@/data/exerciseDatabase";
-import { getWorkoutHistory, saveWorkoutSession, type ExerciseLog, type WorkoutSession } from "@/data/workoutHistory";
+import {
+  getWorkoutHistory,
+  saveWorkoutSession,
+  type ExerciseLog,
+  type WorkoutSession,
+} from "@/data/workoutHistory";
 import { toast } from "sonner";
 import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
+import { SequentialWorkoutFlow } from "@/components/workout/SequentialWorkoutFlow";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -45,57 +52,15 @@ const weekDaysMap: Record<number, string> = {
   3: "Quarta-feira",
   4: "Quinta-feira",
   5: "Sexta-feira",
-  6: "Sábado"
+  6: "Sábado",
 };
 
 type TrainingType = "Força" | "Hipertrofia" | "Resistência";
 
-const trainingTypeConfig: Record<TrainingType, {icon: typeof Zap;description: string;}> = {
-  "Força": { icon: Zap, description: "Cargas altas, poucas reps" },
-  "Hipertrofia": { icon: TrendingUp, description: "Volume moderado" },
-  "Resistência": { icon: Clock, description: "Mais reps, menos descanso" }
-};
-
-// Calculate rest time based on exercise parameters with breakdown
-const calculateRestTime = (weight: number, reps: number, sets: number): {total: number;breakdown: RestBreakdown;} => {
-  const breakdown: RestBreakdown = {
-    base: 60,
-    weightBonus: 0,
-    repsAdjustment: 0,
-    setsBonus: 0,
-    repsCategory: "Hipertrofia"
-  };
-
-  // Higher weight = more rest (every 10kg adds 10 seconds)
-  breakdown.weightBonus = Math.floor(weight / 10) * 10;
-
-  // Lower reps = more rest (strength training needs more recovery)
-  if (reps <= 5) {
-    breakdown.repsAdjustment = 60;
-    breakdown.repsCategory = "Força máxima";
-  } else if (reps <= 8) {
-    breakdown.repsAdjustment = 30;
-    breakdown.repsCategory = "Força/Hipertrofia";
-  } else if (reps <= 12) {
-    breakdown.repsAdjustment = 0;
-    breakdown.repsCategory = "Hipertrofia";
-  } else {
-    breakdown.repsAdjustment = -15;
-    breakdown.repsCategory = "Resistência";
-  }
-
-  // More sets = slightly more rest
-  if (sets >= 4) {
-    breakdown.setsBonus = 15;
-  }
-
-  const total = breakdown.base + breakdown.weightBonus + breakdown.repsAdjustment + breakdown.setsBonus;
-
-  // Clamp between 30 seconds and 5 minutes
-  return {
-    total: Math.max(30, Math.min(300, total)),
-    breakdown
-  };
+const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: string }> = {
+  Força: { icon: Zap, description: "Cargas altas, poucas reps" },
+  Hipertrofia: { icon: TrendingUp, description: "Volume moderado" },
+  Resistência: { icon: Clock, description: "Mais reps, menos descanso" },
 };
 
 interface RestBreakdown {
@@ -106,9 +71,32 @@ interface RestBreakdown {
   repsCategory: string;
 }
 
+const calculateRestTime = (
+  weight: number,
+  reps: number,
+  sets: number
+): { total: number; breakdown: RestBreakdown } => {
+  const breakdown: RestBreakdown = {
+    base: 60,
+    weightBonus: 0,
+    repsAdjustment: 0,
+    setsBonus: 0,
+    repsCategory: "Hipertrofia",
+  };
+  breakdown.weightBonus = Math.floor(weight / 10) * 10;
+  if (reps <= 5) { breakdown.repsAdjustment = 60; breakdown.repsCategory = "Força máxima"; }
+  else if (reps <= 8) { breakdown.repsAdjustment = 30; breakdown.repsCategory = "Força/Hipertrofia"; }
+  else if (reps <= 12) { breakdown.repsAdjustment = 0; breakdown.repsCategory = "Hipertrofia"; }
+  else { breakdown.repsAdjustment = -15; breakdown.repsCategory = "Resistência"; }
+  if (sets >= 4) breakdown.setsBonus = 15;
+  const total = breakdown.base + breakdown.weightBonus + breakdown.repsAdjustment + breakdown.setsBonus;
+  return { total: Math.max(30, Math.min(300, total)), breakdown };
+};
+
 const Workout = () => {
   const { t } = useLanguage();
   const { settings, isLoading } = useUserSettings();
+  const { activeSession, loading: sessionLoading, refresh: refreshSession, markExerciseCompleted, startSession } = useActiveSession();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
@@ -116,18 +104,11 @@ const Workout = () => {
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
   const [restBreakdown, setRestBreakdown] = useState<RestBreakdown>({
-    base: 60,
-    weightBonus: 30,
-    repsAdjustment: 30,
-    setsBonus: 0,
-    repsCategory: "Força/Hipertrofia"
+    base: 60, weightBonus: 30, repsAdjustment: 30, setsBonus: 0, repsCategory: "Força/Hipertrofia",
   });
 
-  // Rest timer state
   const [isRestRunning, setIsRestRunning] = useState(false);
   const [restRemaining, setRestRemaining] = useState(90);
-
-  // Saved exercises state
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -136,7 +117,7 @@ const Workout = () => {
   const [completing, setCompleting] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
 
-  // Load today's saved exercises on mount
+  // Load today's saved exercises on mount (manual flow)
   useEffect(() => {
     if (!user) return;
     const history = getWorkoutHistory(user.id);
@@ -147,50 +128,39 @@ const Workout = () => {
     }
   }, [user]);
 
-  // Get today's workout from user settings (Supabase)
   const todayWorkout = useMemo(() => {
     const schedule = settings?.onboarding_data?.schedule || {};
-
     const today = new Date();
     const todayName = weekDaysMap[today.getDay()];
     const muscleGroups = schedule[todayName] || null;
-
-    // Format workout display (join muscle groups)
-    return muscleGroups ?
-    Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups :
-    null;
+    return muscleGroups
+      ? Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups
+      : null;
   }, [settings]);
 
-  // Get muscle groups as array for AI generator
   const todayMuscleGroups = useMemo(() => {
     if (!todayWorkout || todayWorkout === "Descanso") return [];
     return todayWorkout.split(" + ");
   }, [todayWorkout]);
 
-  // Get exercises for today
   const todayExercises = useMemo(() => {
     if (!todayWorkout || todayWorkout === "Descanso") return [];
-    const muscleGroups = todayWorkout.split(" + ");
-    return getExercisesForGroups(muscleGroups);
+    return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  // Auto-calculate rest time when exercise parameters change
+  // Rest timer
   useEffect(() => {
     const weightNum = parseInt(weight) || 0;
     const repsNum = parseInt(reps) || 0;
     const setsNum = parseInt(sets) || 0;
-
     if (weightNum > 0 && repsNum > 0 && setsNum > 0) {
       const { total, breakdown } = calculateRestTime(weightNum, repsNum, setsNum);
       setRestTime(String(total));
       setRestBreakdown(breakdown);
-      if (!isRestRunning) {
-        setRestRemaining(total);
-      }
+      if (!isRestRunning) setRestRemaining(total);
     }
   }, [weight, reps, sets, isRestRunning]);
 
-  // Rest timer logic
   const { notifyTimerEnd } = useTimerNotification();
   const hasNotifiedRef = useRef(false);
 
@@ -202,7 +172,6 @@ const Workout = () => {
         setRestRemaining((prev) => {
           if (prev <= 1) {
             setIsRestRunning(false);
-            // Trigger notification when timer ends
             if (!hasNotifiedRef.current) {
               hasNotifiedRef.current = true;
               notifyTimerEnd();
@@ -223,53 +192,30 @@ const Workout = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const startRestTimer = () => {
-    setRestRemaining(parseInt(restTime));
-    setIsRestRunning(true);
-  };
-
-  const resetRestTimer = () => {
-    setIsRestRunning(false);
-    setRestRemaining(parseInt(restTime));
-  };
+  const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
+  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); };
 
   const handleSaveClick = () => {
-    if (!selectedExercise.trim()) {
-      toast.error("Seleciona um exercício primeiro");
-      return;
-    }
-
-    if (!user) {
-      toast.error("Faz login para guardar exercícios");
-      return;
-    }
-
+    if (!selectedExercise.trim()) { toast.error("Seleciona um exercício primeiro"); return; }
+    if (!user) { toast.error("Faz login para guardar exercícios"); return; }
     setShowSaveConfirm(true);
   };
 
   const confirmSaveExercise = () => {
     if (!user) return;
-
-    console.log("[Workout] Saving exercise for user:", user.id);
-
     const newLog: ExerciseLog = {
       name: selectedExercise,
       weight: parseInt(weight) || 0,
       reps: parseInt(reps) || 0,
       sets: parseInt(sets) || 0,
       restTime: parseInt(restTime) || 0,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-
-    // Update local state
     const updatedExercises = [...savedExercises, newLog];
     setSavedExercises(updatedExercises);
-
-    // Save to user-specific localStorage
     const today = new Date();
     const dateStr = today.toISOString().split("T")[0];
     const muscleGroups = todayWorkout?.split(" + ") || [];
-
     const session: Omit<WorkoutSession, "timestamp"> = {
       date: dateStr,
       dayOfWeek: weekDaysMap[today.getDay()],
@@ -277,25 +223,19 @@ const Workout = () => {
       exercisesCompleted: updatedExercises.map((e) => e.name),
       exerciseLogs: updatedExercises,
       totalExercises: todayExercises.length,
-      completionRate: Math.round(updatedExercises.length / Math.max(todayExercises.length, 1) * 100)
+      completionRate: Math.round((updatedExercises.length / Math.max(todayExercises.length, 1)) * 100),
     };
-
     saveWorkoutSession(session, user.id);
-    console.log("[Workout] Exercise saved successfully:", selectedExercise);
-
-    // Show feedback
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
     toast.success(`${selectedExercise} guardado!`);
-
-    // Clear form for next exercise
     setSelectedExercise("");
     setShowSaveConfirm(false);
   };
 
-  const handleCompleteWorkout = async () => {
+  // Manual flow completion
+  const handleCompleteWorkoutManual = async () => {
     if (!user || savedExercises.length === 0) return;
-
     setCompleting(true);
     try {
       const today = new Date();
@@ -304,23 +244,15 @@ const Workout = () => {
         day_of_week: weekDaysMap[today.getDay()],
         muscle_groups: todayWorkout?.split(" + ") || [],
         exercises: savedExercises.map((e) => ({
-          name: e.name,
-          weight: e.weight,
-          reps: e.reps,
-          sets: e.sets,
+          name: e.name, weight: e.weight, reps: e.reps, sets: e.sets,
         })),
       });
-
-      // Clear localStorage only on success
       const storageKey = `liftmate_workout_history_${user.id}`;
       const history = JSON.parse(localStorage.getItem(storageKey) || '{"sessions":[]}');
       const todayStr = today.toISOString().split("T")[0];
       history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
       localStorage.setItem(storageKey, JSON.stringify(history));
-
-      // Check fatigue and send notification if needed
       checkFatigueNotification(result.fatigue_index);
-
       navigate(`/workout-summary/${result.session_id}`);
     } catch (err: any) {
       console.error("[Workout] Complete error:", err);
@@ -330,7 +262,38 @@ const Workout = () => {
     }
   };
 
+  // Sequential flow completion
+  const handleCompleteWorkoutSequential = async (exercises: { name: string; weight: number; reps: number; sets: number; source: string }[]) => {
+    if (!user || !activeSession) return;
+    setCompleting(true);
+    try {
+      const result = await completeWorkout({
+        date: activeSession.date,
+        day_of_week: activeSession.day_of_week || weekDaysMap[new Date().getDay()],
+        muscle_groups: activeSession.muscle_groups || [],
+        exercises: exercises.map((e) => ({
+          name: e.name, weight: e.weight, reps: e.reps, sets: e.sets,
+        })),
+        session_id: activeSession.id,
+      });
+      checkFatigueNotification(result.fatigue_index);
+      navigate(`/workout-summary/${result.session_id}`);
+    } catch (err: any) {
+      console.error("[Workout] Complete error:", err);
+      toast.error("Erro ao concluir treino.");
+    } finally {
+      setCompleting(false);
+    }
+  };
+
+  const handleStartSession = async () => {
+    if (activeSession) {
+      await startSession(activeSession.id);
+    }
+  };
+
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+  const hasActiveSession = activeSession && activeSession.planned_exercises.length > 0;
 
   return (
     <div className="min-h-screen bg-black pb-32">
@@ -339,190 +302,201 @@ const Workout = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3">
-
+          className="flex items-center gap-3"
+        >
           <div className="w-12 h-12 rounded-2xl bg-[#1E1E1E]/50 flex items-center justify-center">
             <Dumbbell className="w-6 h-6 text-primary" />
           </div>
           <div>
-          <h1 className="text-xl font-bold text-destructive-foreground">
+            <h1 className="text-xl font-bold text-destructive-foreground">
               {isRestDay ? t("workout.restDay") : todayWorkout}
             </h1>
-            <p className="text-sm text-gray-400/70">
-              {weekDaysMap[new Date().getDay()]}
-            </p>
+            <p className="text-sm text-gray-400/70">{weekDaysMap[new Date().getDay()]}</p>
           </div>
         </motion.div>
       </div>
 
-      {/* Fixed bottom CTA */}
-      {!isRestDay && savedExercises.length > 0 && (
+      {isRestDay ? (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-20 left-0 right-0 z-50 px-5 pb-4 pt-3 bg-gradient-to-t from-black via-black/95 to-transparent">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={handleCompleteWorkout}
-            disabled={completing}
-            className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-green-600/30">
-            {completing ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                A concluir...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="w-5 h-5" />
-                Concluir Treino ({savedExercises.length})
-              </>
-            )}
-          </motion.button>
-        </motion.div>
-      )}
-
-      {isRestDay ?
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="px-5 py-12 text-center">
-
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="px-5 py-12 text-center"
+        >
           <div className="w-20 h-20 rounded-full bg-[#1E1E1E]/50 flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-gray-400/70" />
           </div>
           <h3 className="text-xl font-semibold text-white/70 mb-2">{t("workout.activeRecovery")}</h3>
-          <p className="text-gray-400/70 max-w-xs mx-auto">
-            {t("workout.restImportant")}
-          </p>
-        </motion.div> :
+          <p className="text-gray-400/70 max-w-xs mx-auto">{t("workout.restImportant")}</p>
+        </motion.div>
+      ) : hasActiveSession ? (
+        /* Sequential flow for AI-generated workouts */
+        <SequentialWorkoutFlow
+          session={activeSession}
+          onStart={handleStartSession}
+          onComplete={handleCompleteWorkoutSequential}
+          onMarkCompleted={markExerciseCompleted}
+          completing={completing}
+        />
+      ) : (
+        /* Manual flow */
+        <div className="px-5 space-y-5 bg-black">
+          {/* Fixed bottom CTA for manual flow */}
+          {savedExercises.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="fixed bottom-20 left-0 right-0 z-50 px-5 pb-4 pt-3 bg-gradient-to-t from-black via-black/95 to-transparent"
+            >
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleCompleteWorkoutManual}
+                disabled={completing}
+                className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-green-600/30"
+              >
+                {completing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    A concluir...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    Concluir Treino ({savedExercises.length})
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
+          )}
 
-      <div className="px-5 space-y-5 bg-black">
           {/* Training Type Selector */}
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-[20px] p-5 bg-[#111311]">
-
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-[20px] p-5 bg-[#111311]"
+          >
             <span className="text-sm font-medium mb-4 block text-gray-400">
               {t("workout.trainingType")}
             </span>
             <div className="flex gap-2">
               {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
-              const isSelected = trainingType === type;
-              return (
-                <motion.button
-                  key={type}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setTrainingType(type)}
-                  className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                  isSelected ?
-                  "bg-primary text-primary-foreground shadow-lg shadow-primary/25" :
-                  "bg-[#2A2A2A]/50 text-gray-400/70 hover:bg-[#2A2A2A]/80"}`
-                  }>
-
+                const isSelected = trainingType === type;
+                return (
+                  <motion.button
+                    key={type}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setTrainingType(type)}
+                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                        : "bg-[#2A2A2A]/50 text-gray-400/70 hover:bg-[#2A2A2A]/80"
+                    }`}
+                  >
                     {type}
-                  </motion.button>);
-
-            })}
+                  </motion.button>
+                );
+              })}
             </div>
           </motion.div>
 
           {/* AI Workout Generator */}
           <AIWorkoutGenerator
-          todayMuscleGroups={todayMuscleGroups}
-          trainingType={trainingType}
-          onAddExercise={(exercise) => {
-            // Pre-fill form with the exercise data
-            setSelectedExercise(exercise.name);
-            setWeight(String(exercise.weight || 30));
-            setReps(String(exercise.reps));
-            setSets(String(exercise.sets));
-          }} />
-
+            todayMuscleGroups={todayMuscleGroups}
+            trainingType={trainingType}
+            onAddExercise={(exercise) => {
+              setSelectedExercise(exercise.name);
+              setWeight(String(exercise.weight || 30));
+              setReps(String(exercise.reps));
+              setSets(String(exercise.sets));
+            }}
+            onSessionCreated={refreshSession}
+          />
 
           {/* Main Carousel Card */}
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-[#1E1E1E]/50 rounded-[20px] overflow-hidden">
-
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-[#1E1E1E]/50 rounded-[20px] overflow-hidden"
+          >
             <MainWorkoutCarousel
-            selectedExercise={selectedExercise}
-            setSelectedExercise={setSelectedExercise}
-            weight={weight}
-            setWeight={setWeight}
-            reps={reps}
-            setReps={setReps}
-            sets={sets}
-            setSets={setSets}
-            restTime={restTime}
-            setRestTime={setRestTime}
-            todayExercises={todayExercises}
-            saveExercise={handleSaveClick}
-            justSaved={justSaved} />
-
+              selectedExercise={selectedExercise}
+              setSelectedExercise={setSelectedExercise}
+              weight={weight}
+              setWeight={setWeight}
+              reps={reps}
+              setReps={setReps}
+              sets={sets}
+              setSets={setSets}
+              restTime={restTime}
+              setRestTime={setRestTime}
+              todayExercises={todayExercises}
+              saveExercise={handleSaveClick}
+              justSaved={justSaved}
+            />
           </motion.div>
 
           {/* Saved Exercises Today */}
-          {savedExercises.length > 0 &&
-        <motion.div
-          id="saved-exercises-section"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-[#1E1E1E]/50 rounded-[20px] p-5">
-
+          {savedExercises.length > 0 && (
+            <motion.div
+              id="saved-exercises-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-[#1E1E1E]/50 rounded-[20px] p-5"
+            >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-400/70">{t("workout.savedExercisesToday")}</span>
+                <span className="text-sm font-medium text-gray-400/70">
+                  {t("workout.savedExercisesToday")}
+                </span>
                 <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
                   {savedExercises.length}
                 </span>
               </div>
-              
               <div className="space-y-2">
-                {savedExercises.map((exercise, index) =>
-            <motion.div
-              key={exercise.timestamp}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex items-center justify-between bg-[#2A2A2A]/50 rounded-xl px-4 py-3">
-
+                {savedExercises.map((exercise, index) => (
+                  <motion.div
+                    key={exercise.timestamp}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between bg-[#2A2A2A]/50 rounded-xl px-4 py-3"
+                  >
                     <div>
                       <p className="text-sm font-medium text-white/70">{exercise.name}</p>
                       <p className="text-xs text-gray-400/70">
-                        {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-primary">{exercise.weight}kg</p>
-                      <p className="text-xs text-gray-400/70">{exercise.sets}x{exercise.reps}</p>
+                      <p className="text-xs text-gray-400/70">
+                        {exercise.sets}x{exercise.reps}
+                      </p>
                     </div>
                   </motion.div>
-            )}
+                ))}
               </div>
-
             </motion.div>
-        }
+          )}
 
           {/* Rest Time Breakdown */}
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-[20px] p-5 bg-[#111311]">
-
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-[20px] p-5 bg-[#111311]"
+          >
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-gray-400/70">{t("workout.restCalculation")}</span>
               <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
                 {restBreakdown.repsCategory}
               </span>
             </div>
-            
             <div className="space-y-3">
-              {/* Base time */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-gray-500" />
@@ -530,8 +504,6 @@ const Workout = () => {
                 </div>
                 <span className="text-sm font-medium text-white/70">{restBreakdown.base}s</span>
               </div>
-              
-              {/* Weight bonus */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary" />
@@ -541,8 +513,6 @@ const Workout = () => {
                   +{restBreakdown.weightBonus}s
                 </span>
               </div>
-              
-              {/* Reps adjustment */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${restBreakdown.repsAdjustment >= 0 ? "bg-amber-500" : "bg-green-500"}`} />
@@ -552,22 +522,16 @@ const Workout = () => {
                   {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
                 </span>
               </div>
-              
-              {/* Sets bonus */}
-              {restBreakdown.setsBonus > 0 &&
-            <div className="flex items-center justify-between">
+              {restBreakdown.setsBonus > 0 && (
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-400" />
                     <span className="text-sm text-gray-400/70">{t("workout.highSets")} ({sets})</span>
                   </div>
                   <span className="text-sm font-medium text-blue-400">+{restBreakdown.setsBonus}s</span>
                 </div>
-            }
-              
-              {/* Divider */}
+              )}
               <div className="border-t border-gray-700/50 my-2" />
-              
-              {/* Total */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-white/70">{t("workout.totalRecommended")}</span>
                 <span className="text-lg font-bold text-primary">{restTime}s</span>
@@ -577,65 +541,46 @@ const Workout = () => {
 
           {/* Rest Timer */}
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20 bg-[#111311]">
-
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-br from-primary/10 via-[#1E1E1E]/50 to-[#1E1E1E]/50 rounded-[20px] p-6 border border-primary/20 bg-[#111311]"
+          >
             <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
               {t("workout.restTimer")}
             </span>
-            
-            {/* Timer Display */}
-            <motion.div
-            key={restRemaining}
-            initial={{ scale: 1.02 }}
-            animate={{ scale: 1 }}
-            className="text-center mb-6">
-
-              <span
-              className={`text-7xl font-mono font-bold tracking-tight ${
-              isRestRunning ? "text-primary" : "text-white/70"}`
-              }>
-
+            <motion.div key={restRemaining} initial={{ scale: 1.02 }} animate={{ scale: 1 }} className="text-center mb-6">
+              <span className={`text-7xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-white/70"}`}>
                 {formatRestTime(restRemaining)}
               </span>
             </motion.div>
-
-            {/* Timer Controls */}
             <div className="flex items-center gap-3">
               <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
-              className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-              isRestRunning ?
-              "bg-red-500/90 text-white" :
-              "bg-primary text-primary-foreground shadow-lg shadow-primary/30"}`
-              }>
-
-                {isRestRunning ?
-              <>
-                    <Pause className="w-5 h-5" />
-                    Pausar
-                  </> :
-
-              <>
-                    <Play className="w-5 h-5" />
-                    Iniciar Descanso
-                  </>
-              }
+                whileTap={{ scale: 0.95 }}
+                onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
+                className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+                  isRestRunning
+                    ? "bg-red-500/90 text-white"
+                    : "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                }`}
+              >
+                {isRestRunning ? (
+                  <><Pause className="w-5 h-5" /> Pausar</>
+                ) : (
+                  <><Play className="w-5 h-5" /> Iniciar Descanso</>
+                )}
               </motion.button>
               <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={resetRestTimer}
-              className="w-14 h-14 rounded-xl bg-[#2A2A2A]/50 flex items-center justify-center text-gray-400/70 hover:bg-[#2A2A2A]/80 transition-all">
-
+                whileTap={{ scale: 0.9 }}
+                onClick={resetRestTimer}
+                className="w-14 h-14 rounded-xl bg-[#2A2A2A]/50 flex items-center justify-center text-gray-400/70 hover:bg-[#2A2A2A]/80 transition-all"
+              >
                 <RotateCcw className="w-5 h-5" />
               </motion.button>
             </div>
           </motion.div>
         </div>
-      }
+      )}
 
       <BottomNav />
 
@@ -654,17 +599,14 @@ const Workout = () => {
             <AlertDialogCancel className="bg-gray-700 text-white border-none hover:bg-gray-600">
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmSaveExercise}
-              className="bg-primary text-primary-foreground hover:bg-primary/90">
-
+            <AlertDialogAction onClick={confirmSaveExercise} className="bg-primary text-primary-foreground hover:bg-primary/90">
               Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>);
-
+    </div>
+  );
 };
 
 export default Workout;

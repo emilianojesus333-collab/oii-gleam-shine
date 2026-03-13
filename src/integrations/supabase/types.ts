@@ -262,6 +262,56 @@ export type Database = {
         }
         Relationships: []
       }
+      planned_exercises: {
+        Row: {
+          completed: boolean
+          created_at: string
+          exercise_name: string
+          id: string
+          order_index: number
+          reps: string
+          rest: number
+          session_id: string
+          sets: number
+          source: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          exercise_name: string
+          id?: string
+          order_index?: number
+          reps?: string
+          rest?: number
+          session_id: string
+          sets?: number
+          source?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          exercise_name?: string
+          id?: string
+          order_index?: number
+          reps?: string
+          rest?: number
+          session_id?: string
+          sets?: number
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planned_exercises_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       progression_logs: {
         Row: {
           algorithm_version: string
@@ -609,7 +659,7 @@ export type Database = {
         | "traps"
       progression_confidence: "low" | "medium" | "high"
       progression_decision: "progress" | "maintain" | "deload"
-      session_status: "in_progress" | "completed"
+      session_status: "in_progress" | "completed" | "planned"
       set_type: "working" | "warmup" | "dropset" | "failure" | "backoff"
       subscription_status:
         | "never_subscribed"
@@ -759,7 +809,7 @@ export const Constants = {
       ],
       progression_confidence: ["low", "medium", "high"],
       progression_decision: ["progress", "maintain", "deload"],
-      session_status: ["in_progress", "completed"],
+      session_status: ["in_progress", "completed", "planned"],
       set_type: ["working", "warmup", "dropset", "failure", "backoff"],
       subscription_status: [
         "never_subscribed",

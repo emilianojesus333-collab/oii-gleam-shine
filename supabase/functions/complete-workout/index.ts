@@ -83,6 +83,22 @@ Deno.serve(async (req) => {
 
     const finalSessionId = existingSession?.id || sessionId;
 
+    // ─── Check planned_exercises for flexible completion_rate ───
+    let completionRate = 100;
+    const { data: plannedExercises } = await supabase
+      .from("planned_exercises")
+      .select("exercise_name, completed")
+      .eq("session_id", finalSessionId);
+
+    if (plannedExercises && plannedExercises.length > 0) {
+      const aiExercises = plannedExercises.filter((e: any) => true); // all are AI-sourced
+      const completedAI = aiExercises.filter((e: any) => e.completed).length;
+      // Also count exercises being submitted now that match planned names
+      const submittedNames = new Set(exerciseNames);
+      const additionalCompleted = aiExercises.filter((e: any) => !e.completed && submittedNames.has(e.exercise_name)).length;
+      completionRate = Math.round(((completedAI + additionalCompleted) / aiExercises.length) * 100);
+    }
+
     const sessionPayload = {
       id: finalSessionId,
       user_id: userId,
@@ -91,7 +107,7 @@ Deno.serve(async (req) => {
       muscle_groups: muscle_groups || [],
       exercises_completed: exerciseNames,
       total_exercises: exercises.length,
-      completion_rate: 100,
+      completion_rate: completionRate,
       exercise_logs: exercises,
       status: "completed",
     };
