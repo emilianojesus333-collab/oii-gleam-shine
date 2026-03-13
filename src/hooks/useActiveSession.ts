@@ -58,7 +58,7 @@ export function useActiveSession() {
 
     setActiveSession({
       ...session,
-      planned_exercises: (exercises || []) as PlannedExercise[],
+      planned_exercises: (exercises || []) as unknown as PlannedExercise[],
     });
     setLoading(false);
   }, [user]);
