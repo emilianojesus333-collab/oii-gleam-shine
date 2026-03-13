@@ -20,6 +20,20 @@ function parseNumber(value: unknown): number {
   return 0;
 }
 
+// Sanity limits per single food item
+const MAX_LIMITS = { calories: 1500, protein: 150, carbs: 200, fat: 120, fiber: 50 };
+
+// Vague portion normalization map
+const PORTION_NORMALIZATION: Record<string, string> = {
+  '1 porção': '100g estimado',
+  'uma porção': '100g estimado',
+  '1 prato': '250g estimado',
+  'um prato': '250g estimado',
+  '1 tigela': '300g estimado',
+  'uma tigela': '300g estimado',
+  '1 bowl': '300g estimado',
+};
+
 interface ValidatedFood {
   name: string;
   portion: string;
@@ -38,6 +52,35 @@ interface ValidatedResult {
   mealType?: string;
 }
 
+/** Clamp a macro value to its sanity limit. */
+function clampMacro(value: number, key: keyof typeof MAX_LIMITS, foodName: string): number {
+  const max = MAX_LIMITS[key];
+  if (value > max) {
+    console.warn(`[analyze-food] Clamped ${key} from ${value} to ${max} for "${foodName}"`);
+    return max;
+  }
+  return value;
+}
+
+/** Normalize vague portion strings. */
+function normalizePortion(portion: string): string {
+  const lower = portion.toLowerCase().trim();
+  return PORTION_NORMALIZATION[lower] || portion;
+}
+
+/** Ensure calorie consistency: calories ≈ P*4 + C*4 + F*9 (within 30%). */
+function ensureCalorieConsistency(food: ValidatedFood): ValidatedFood {
+  const expected = food.protein * 4 + food.carbs * 4 + food.fat * 9;
+  if (expected === 0) return food;
+  const diff = Math.abs(food.calories - expected) / expected;
+  if (diff > 0.3) {
+    const corrected = Math.round(expected);
+    console.warn(`[analyze-food] Recalculated calories for "${food.name}": ${food.calories} → ${corrected} (expected ${expected})`);
+    return { ...food, calories: corrected };
+  }
+  return food;
+}
+
 /** Validate and normalize the AI response into a safe schema. */
 function validateNutritionData(raw: unknown): ValidatedResult {
   if (!raw || typeof raw !== 'object') {
@@ -45,53 +88,46 @@ function validateNutritionData(raw: unknown): ValidatedResult {
   }
 
   const obj = raw as Record<string, unknown>;
-
-  // Validate foods array
   const rawFoods = Array.isArray(obj.foods) ? obj.foods : [];
 
-  const foods: ValidatedFood[] = rawFoods
+  let foods: ValidatedFood[] = rawFoods
     .filter((f: unknown) => f && typeof f === 'object')
-    .map((f: any) => ({
-      name: typeof f.name === 'string' ? f.name : 'Alimento desconhecido',
-      portion: typeof f.portion === 'string' ? f.portion : '1 porção',
-      calories: parseNumber(f.calories),
-      protein: parseNumber(f.protein),
-      carbs: parseNumber(f.carbs),
-      fat: parseNumber(f.fat),
-      fiber: parseNumber(f.fiber),
-      confidence: typeof f.confidence === 'string' ? f.confidence : 'medium',
-    }));
+    .map((f: any) => {
+      const name = typeof f.name === 'string' ? f.name : 'Alimento desconhecido';
+      return {
+        name,
+        portion: normalizePortion(typeof f.portion === 'string' ? f.portion : '1 porção'),
+        calories: clampMacro(parseNumber(f.calories), 'calories', name),
+        protein: clampMacro(parseNumber(f.protein), 'protein', name),
+        carbs: clampMacro(parseNumber(f.carbs), 'carbs', name),
+        fat: clampMacro(parseNumber(f.fat), 'fat', name),
+        fiber: clampMacro(parseNumber(f.fiber), 'fiber', name),
+        confidence: typeof f.confidence === 'string' ? f.confidence : 'medium',
+      };
+    });
 
-  // Check for non-food detection
   if (foods.length === 0) {
     throw new Error('No food detected in the image');
   }
 
-  // Check average confidence — if all low, likely not food
-  const confidenceLevels = foods.map(f => f.confidence);
-  const allLow = confidenceLevels.every(c => c === 'low');
-  const totalCalories = foods.reduce((s, f) => s + f.calories, 0);
-  if (allLow && totalCalories < 10) {
+  // Check average confidence
+  const allLow = foods.every(f => f.confidence === 'low');
+  const rawTotalCal = foods.reduce((s, f) => s + f.calories, 0);
+  if (allLow && rawTotalCal < 10) {
     throw new Error('No food detected in the image');
   }
 
-  // Build or validate total
-  const total = {
-    calories: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).calories) : 0,
-    protein: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).protein) : 0,
-    carbs: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).carbs) : 0,
-    fat: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).fat) : 0,
-    fiber: obj.total && typeof obj.total === 'object' ? parseNumber((obj.total as any).fiber) : 0,
-  };
+  // Ensure calorie consistency per food
+  foods = foods.map(ensureCalorieConsistency);
 
-  // If total is all zeros but foods have values, recalculate
-  if (total.calories === 0 && foods.length > 0) {
-    total.calories = foods.reduce((s, f) => s + f.calories, 0);
-    total.protein = foods.reduce((s, f) => s + f.protein, 0);
-    total.carbs = foods.reduce((s, f) => s + f.carbs, 0);
-    total.fat = foods.reduce((s, f) => s + f.fat, 0);
-    total.fiber = foods.reduce((s, f) => s + f.fiber, 0);
-  }
+  // Always recalculate totals from individual foods
+  const total = {
+    calories: foods.reduce((s, f) => s + f.calories, 0),
+    protein: foods.reduce((s, f) => s + f.protein, 0),
+    carbs: foods.reduce((s, f) => s + f.carbs, 0),
+    fat: foods.reduce((s, f) => s + f.fat, 0),
+    fiber: foods.reduce((s, f) => s + f.fiber, 0),
+  };
 
   return {
     foods,
