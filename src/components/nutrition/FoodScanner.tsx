@@ -648,9 +648,9 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                         </span>
                       </h4>
                       <div className="space-y-2">
-                        {selectedFoods.map((food, index) =>
+                        {selectedFoods.map((food) =>
                     <div
-                      key={`${food.id}-${index}`}
+                      key={food.instanceId}
                       className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20">
 
                             <div>
@@ -660,7 +660,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold">{Math.round(food.calories)} kcal</span>
                               <button
-                          onClick={() => removeFoodFromSelection(food.id)}
+                          onClick={() => removeFoodFromSelection(food.instanceId)}
                           className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20">
 
                                 <X className="w-3 h-3 text-destructive" />
