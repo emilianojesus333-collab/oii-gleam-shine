@@ -9,6 +9,7 @@ import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
 import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 import { NutritionPlansGrid } from '@/components/nutrition/NutritionPlansGrid';
+import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSuggestions';
 import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
