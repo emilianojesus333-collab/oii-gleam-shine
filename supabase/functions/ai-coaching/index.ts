@@ -49,7 +49,9 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Starting AI coaching analysis...', context);
+    console.log('Starting AI coaching analysis...');
+    console.log('Coaching context workout:', JSON.stringify(context?.workout));
+    console.log('User goals:', JSON.stringify(context?.userGoals));
 
     const userGoals = context.userGoals || {};
     
