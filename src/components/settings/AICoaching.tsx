@@ -237,9 +237,20 @@ export const AICoaching = () => {
         return;
       }
 
-      setTips(data.tips || []);
-      setSummary(data.summary || '');
-      saveCoachingData(data.tips || [], data.summary || '');
+      // Validate response structure
+      const validatedTips = Array.isArray(data.tips) 
+        ? data.tips.filter((t: any) => t && typeof t.title === 'string' && typeof t.message === 'string')
+        : [];
+      const validatedSummary = typeof data.summary === 'string' ? data.summary : '';
+
+      if (validatedTips.length === 0) {
+        toast.error('A IA não retornou dicas válidas. Tenta novamente.');
+        return;
+      }
+
+      setTips(validatedTips);
+      setSummary(validatedSummary);
+      saveCoachingData(validatedTips, validatedSummary);
 
       await sendHighPriorityNotifications(data.tips || []);
 
