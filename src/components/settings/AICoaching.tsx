@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
+import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
@@ -10,7 +10,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useAuth } from "@/hooks/useAuth";
 
 interface CoachingTip {
-  category: 'treino' | 'nutrição' | 'recuperação' | 'geral';
+  category: 'treino' | 'recuperação' | 'geral';
   title: string;
   message: string;
   priority: 'low' | 'medium' | 'high';
@@ -173,7 +173,7 @@ export const AICoaching = () => {
   };
 
   const gatherContext = () => {
-    const workoutStats = getWorkoutStats();
+    const workoutStats = getWorkoutStats(user?.id);
     const sleepHours = getSleepHours();
 
     return {
@@ -237,9 +237,20 @@ export const AICoaching = () => {
         return;
       }
 
-      setTips(data.tips || []);
-      setSummary(data.summary || '');
-      saveCoachingData(data.tips || [], data.summary || '');
+      // Validate response structure
+      const validatedTips = Array.isArray(data.tips) 
+        ? data.tips.filter((t: any) => t && typeof t.title === 'string' && typeof t.message === 'string')
+        : [];
+      const validatedSummary = typeof data.summary === 'string' ? data.summary : '';
+
+      if (validatedTips.length === 0) {
+        toast.error('A IA não retornou dicas válidas. Tenta novamente.');
+        return;
+      }
+
+      setTips(validatedTips);
+      setSummary(validatedSummary);
+      saveCoachingData(validatedTips, validatedSummary);
 
       await sendHighPriorityNotifications(data.tips || []);
 
@@ -269,7 +280,6 @@ export const AICoaching = () => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'treino':return <Dumbbell className="w-4 h-4" />;
-      case 'nutrição':return <Apple className="w-4 h-4" />;
       case 'recuperação':return <Moon className="w-4 h-4" />;
       default:return <Lightbulb className="w-4 h-4" />;
     }
@@ -278,7 +288,6 @@ export const AICoaching = () => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'treino':return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-      case 'nutrição':return 'text-green-400 bg-green-500/20 border-green-500/30';
       case 'recuperação':return 'text-purple-400 bg-purple-500/20 border-purple-500/30';
       default:return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
     }

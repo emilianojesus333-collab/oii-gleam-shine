@@ -118,7 +118,20 @@ export const PhysiqueEvaluation = () => {
 
     try {
       // Compress image before analysis
-      const compressedBase64 = await compressImage(file, 1024, 0.7);
+      let compressedBase64 = await compressImage(file, 1024, 0.7);
+      
+      // If still too large (>5MB base64 ≈ ~6.6M chars), re-compress more aggressively
+      const MAX_BASE64_LENGTH = 6_600_000;
+      if (compressedBase64.length > MAX_BASE64_LENGTH) {
+        console.log(`Image still large (${(compressedBase64.length / 1024).toFixed(0)}KB base64), re-compressing...`);
+        compressedBase64 = await compressImage(file, 800, 0.5);
+      }
+      
+      if (compressedBase64.length > MAX_BASE64_LENGTH) {
+        toast.error('A imagem é demasiado grande. Usa uma foto mais pequena.');
+        return;
+      }
+
       setPreviewImage(compressedBase64);
       await analyzePhysique(compressedBase64);
     } catch (error) {
@@ -141,6 +154,15 @@ export const PhysiqueEvaluation = () => {
 
       if (data.success === false) {
         toast.error(data.error || 'Erro na análise');
+        setPreviewImage(null);
+        return;
+      }
+
+      // Validate response structure
+      const analysis = data.analysis;
+      if (!analysis || typeof analysis.overallScore !== 'number' || !Array.isArray(analysis.strengths) || !Array.isArray(analysis.weaknesses) || !Array.isArray(analysis.recommendations)) {
+        console.error('Invalid physique analysis structure:', data);
+        toast.error('A análise retornou dados incompletos. Tenta novamente.');
         setPreviewImage(null);
         return;
       }

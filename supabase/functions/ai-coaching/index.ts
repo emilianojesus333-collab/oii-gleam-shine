@@ -49,7 +49,9 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Starting AI coaching analysis...', context);
+    console.log('Starting AI coaching analysis...');
+    console.log('Coaching context workout:', JSON.stringify(context?.workout));
+    console.log('User goals:', JSON.stringify(context?.userGoals));
 
     const userGoals = context.userGoals || {};
     
@@ -119,7 +121,7 @@ Responda SEMPRE em JSON válido com esta estrutura:
   "summary": "Resumo curto focado nos objetivos do utilizador (1-2 frases)",
   "tips": [
     {
-      "category": "treino" | "nutrição" | "recuperação" | "geral",
+      "category": "treino" | "recuperação" | "geral",
       "title": "Título curto e direto",
       "message": "Explicação prática focada no objetivo",
       "priority": "high" | "medium" | "low",

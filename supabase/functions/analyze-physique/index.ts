@@ -54,6 +54,7 @@ serve(async (req) => {
     }
 
     console.log('Starting physique analysis...');
+    console.log('Image size (base64 chars):', imageBase64.length);
 
     const systemPrompt = `Você é um personal trainer e especialista em fisiculturismo com 20 anos de experiência. 
 Analise a foto do físico do utilizador e forneça uma avaliação detalhada e construtiva.
