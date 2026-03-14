@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ChevronRight, Lock, Calendar, BicepsFlexed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CoachingTip {
   category: string;
@@ -10,25 +11,27 @@ interface CoachingTip {
   priority: string;
 }
 
-const COACHING_STORAGE_KEY = 'liftmate_ai_coaching';
-const PHYSIQUE_STORAGE_KEY = 'liftmate_physique_evaluation';
+const COACHING_STORAGE_PREFIX = 'liftmate_ai_coaching_';
+const PHYSIQUE_STORAGE_PREFIX = 'liftmate_physique_evaluation_';
 const EVALUATION_COOLDOWN_DAYS = 15;
 
 export const AIInsightsWidget = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [topTip, setTopTip] = useState<CoachingTip | null>(null);
   const [daysUntilEval, setDaysUntilEval] = useState<number | null>(null);
   const [canEvaluate, setCanEvaluate] = useState(true);
   const [lastScore, setLastScore] = useState<number | null>(null);
 
   useEffect(() => {
-    // Load coaching tips
-    const coachingData = localStorage.getItem(COACHING_STORAGE_KEY);
+    if (!user?.id) return;
+
+    // Load coaching tips using user-scoped key
+    const coachingData = localStorage.getItem(`${COACHING_STORAGE_PREFIX}${user.id}`);
     if (coachingData) {
       try {
         const data = JSON.parse(coachingData);
-        if (data.tips && data.tips.length > 0) {
-          // Get highest priority tip
+        if (data.tips && Array.isArray(data.tips) && data.tips.length > 0) {
           const highPriority = data.tips.find((t: CoachingTip) => t.priority === 'high');
           setTopTip(highPriority || data.tips[0]);
         }
@@ -37,8 +40,8 @@ export const AIInsightsWidget = () => {
       }
     }
 
-    // Load physique evaluation status
-    const physiqueData = localStorage.getItem(PHYSIQUE_STORAGE_KEY);
+    // Load physique evaluation status using user-scoped key
+    const physiqueData = localStorage.getItem(`${PHYSIQUE_STORAGE_PREFIX}${user.id}`);
     if (physiqueData) {
       try {
         const data = JSON.parse(physiqueData);
@@ -58,23 +61,14 @@ export const AIInsightsWidget = () => {
           }
         }
 
-        if (data.lastResults?.analysis?.overallScore) {
+        if (data.lastResults?.analysis?.overallScore != null && typeof data.lastResults.analysis.overallScore === 'number') {
           setLastScore(data.lastResults.analysis.overallScore);
         }
       } catch (e) {
         console.error('Error loading physique data:', e);
       }
     }
-  }, []);
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'treino':return 'from-blue-500/20 to-blue-500/5 border-blue-500/30';
-      case 'nutrição':return 'from-green-500/20 to-green-500/5 border-green-500/30';
-      case 'recuperação':return 'from-purple-500/20 to-purple-500/5 border-purple-500/30';
-      default:return 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30';
-    }
-  };
+  }, [user?.id]);
 
   return (
     <motion.div
@@ -93,9 +87,6 @@ export const AIInsightsWidget = () => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center text-primary-foreground border-black bg-cyan-950 hover:bg-cyan-800">
-
-
-
 
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-[80px] h-[30px] text-sky-400 my-0 mx-0" />

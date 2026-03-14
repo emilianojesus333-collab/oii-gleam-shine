@@ -158,6 +158,15 @@ export const PhysiqueEvaluation = () => {
         return;
       }
 
+      // Validate response structure
+      const analysis = data.analysis;
+      if (!analysis || typeof analysis.overallScore !== 'number' || !Array.isArray(analysis.strengths) || !Array.isArray(analysis.weaknesses) || !Array.isArray(analysis.recommendations)) {
+        console.error('Invalid physique analysis structure:', data);
+        toast.error('A análise retornou dados incompletos. Tenta novamente.');
+        setPreviewImage(null);
+        return;
+      }
+
       setResults(data);
       saveEvaluation(data);
       setShowResults(true);

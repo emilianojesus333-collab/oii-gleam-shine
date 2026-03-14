@@ -280,7 +280,6 @@ export const AICoaching = () => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'treino':return <Dumbbell className="w-4 h-4" />;
-      case 'nutrição':return <Apple className="w-4 h-4" />;
       case 'recuperação':return <Moon className="w-4 h-4" />;
       default:return <Lightbulb className="w-4 h-4" />;
     }
@@ -289,7 +288,6 @@ export const AICoaching = () => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'treino':return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-      case 'nutrição':return 'text-green-400 bg-green-500/20 border-green-500/30';
       case 'recuperação':return 'text-purple-400 bg-purple-500/20 border-purple-500/30';
       default:return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
     }
