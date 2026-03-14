@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Apple, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
+import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
