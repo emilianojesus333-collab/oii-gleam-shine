@@ -10,7 +10,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useAuth } from "@/hooks/useAuth";
 
 interface CoachingTip {
-  category: 'treino' | 'nutrição' | 'recuperação' | 'geral';
+  category: 'treino' | 'recuperação' | 'geral';
   title: string;
   message: string;
   priority: 'low' | 'medium' | 'high';
