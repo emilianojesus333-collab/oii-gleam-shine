@@ -121,7 +121,7 @@ Responda SEMPRE em JSON válido com esta estrutura:
   "summary": "Resumo curto focado nos objetivos do utilizador (1-2 frases)",
   "tips": [
     {
-      "category": "treino" | "nutrição" | "recuperação" | "geral",
+      "category": "treino" | "recuperação" | "geral",
       "title": "Título curto e direto",
       "message": "Explicação prática focada no objetivo",
       "priority": "high" | "medium" | "low",
