@@ -10,10 +10,9 @@ interface ExperienceStepProps {
 }
 
 const experiences = [
-  "Começando agora",
-  "Rato de academia",
-  "Consistente",
-  "Voltando ao ritmo",
+  "Iniciante",
+  "Intermédio",
+  "Avançado",
 ];
 
 export const ExperienceStep = ({
