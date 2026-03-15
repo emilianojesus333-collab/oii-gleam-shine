@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Dumbbell, Brain, Target, Check } from "lucide-react";
+import { Dumbbell, Brain, Target, Calendar, Check } from "lucide-react";
 
 const steps = [
-  { icon: Dumbbell, text: "A analisar o teu perfil..." },
-  { icon: Target, text: "A personalizar o teu plano..." },
-  { icon: Brain, text: "A preparar a tua IA..." },
+  { icon: Target, text: "A analisar o teu objetivo..." },
+  { icon: Calendar, text: "A calcular frequência de treino..." },
+  { icon: Dumbbell, text: "A montar o teu plano semanal..." },
 ];
 
 const Processing = () => {
@@ -15,7 +15,6 @@ const Processing = () => {
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    // Progress through steps
     const stepInterval = setInterval(() => {
       setCurrentStep((prev) => {
         if (prev < steps.length - 1) {
@@ -23,17 +22,15 @@ const Processing = () => {
         }
         return prev;
       });
-    }, 1200);
+    }, 1000);
 
-    // Complete after all steps
     const completeTimeout = setTimeout(() => {
       setCompleted(true);
-    }, steps.length * 1200 + 500);
+    }, steps.length * 1000 + 500);
 
-    // Navigate to paywall after completion animation
     const navigateTimeout = setTimeout(() => {
       navigate("/paywall", { replace: true });
-    }, steps.length * 1200 + 1500);
+    }, steps.length * 1000 + 1500);
 
     return () => {
       clearInterval(stepInterval);
@@ -44,16 +41,23 @@ const Processing = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      {/* Logo */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="mb-12"
+        className="mb-4"
       >
         <h1 className="text-4xl font-black text-primary">LiftMate</h1>
       </motion.div>
 
-      {/* Progress Steps */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-lg font-semibold text-foreground mb-10"
+      >
+        A analisar o teu perfil
+      </motion.p>
+
       <div className="w-full max-w-sm space-y-6">
         {steps.map((step, index) => {
           const Icon = step.icon;
@@ -64,19 +68,19 @@ const Processing = () => {
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
-              animate={{ 
-                opacity: isActive ? 1 : 0.3, 
-                x: 0 
+              animate={{
+                opacity: isActive ? 1 : 0.3,
+                x: 0,
               }}
               transition={{ delay: index * 0.2, duration: 0.4 }}
               className="flex items-center gap-4"
             >
               <motion.div
                 className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors duration-300 ${
-                  isDone 
-                    ? "bg-primary text-primary-foreground" 
-                    : isActive 
-                    ? "bg-primary/20 text-primary" 
+                  isDone
+                    ? "bg-primary text-primary-foreground"
+                    : isActive
+                    ? "bg-primary/20 text-primary"
                     : "bg-muted text-muted-foreground"
                 }`}
                 animate={isActive && !isDone ? { scale: [1, 1.1, 1] } : {}}
@@ -88,9 +92,11 @@ const Processing = () => {
                   <Icon className="h-6 w-6" />
                 )}
               </motion.div>
-              <span className={`text-lg font-medium transition-colors ${
-                isActive ? "text-foreground" : "text-muted-foreground"
-              }`}>
+              <span
+                className={`text-lg font-medium transition-colors ${
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
                 {step.text}
               </span>
             </motion.div>
@@ -98,7 +104,6 @@ const Processing = () => {
         })}
       </div>
 
-      {/* Loading indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -118,7 +123,7 @@ const Processing = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-primary font-semibold"
           >
-            Tudo pronto! ✨
+            Tudo pronto!
           </motion.p>
         )}
       </motion.div>

@@ -2,29 +2,30 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { PersonalDataStep } from "@/components/onboarding/steps/PersonalDataStep";
-import { GoalStep } from "@/components/onboarding/steps/GoalStep";
+import { IdentificationStep } from "@/components/onboarding/steps/IdentificationStep";
+import { PhysicalDataStep } from "@/components/onboarding/steps/PhysicalDataStep";
 import { ExperienceStep } from "@/components/onboarding/steps/ExperienceStep";
-import { FocusStep } from "@/components/onboarding/steps/FocusStep";
-import { CalendarStep } from "@/components/onboarding/steps/CalendarStep";
+import { FrequencyStep } from "@/components/onboarding/steps/FrequencyStep";
+import { LocationStep } from "@/components/onboarding/steps/LocationStep";
+import { GoalStep } from "@/components/onboarding/steps/GoalStep";
+import { MusclePriorityStep } from "@/components/onboarding/steps/MusclePriorityStep";
+import { LimitationsStep } from "@/components/onboarding/steps/LimitationsStep";
 import { toast } from "sonner";
 
-type Step = "personal" | "goal" | "experience" | "focus" | "calendar";
-
-interface PersonalData {
-  name: string;
-  height: string;
-  weight: string;
-  gender: string;
-  birthYear: string;
-}
+type Step = "identification" | "physical" | "experience" | "frequency" | "location" | "goal" | "muscles" | "limitations";
 
 interface OnboardingData {
-  personal: PersonalData;
-  goal: string | null;
+  name: string;
+  birthYear: string;
+  gender: string;
+  height: string;
+  weight: string;
   experience: string | null;
-  focus: string | null;
-  schedule: Record<string, string[]>;
+  frequency: string | null;
+  location: string | null;
+  goal: string | null;
+  musclePriority: string[];
+  limitations: string[];
 }
 
 const Onboarding = () => {
@@ -32,22 +33,21 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<Step>("personal");
+  const [currentStep, setCurrentStep] = useState<Step>("identification");
   const [data, setData] = useState<OnboardingData>({
-    personal: {
-      name: "",
-      height: "170",
-      weight: "",
-      gender: "",
-      birthYear: "",
-    },
-    goal: null,
+    name: "",
+    birthYear: "",
+    gender: "",
+    height: "170",
+    weight: "",
     experience: null,
-    focus: null,
-    schedule: {},
+    frequency: null,
+    location: null,
+    goal: null,
+    musclePriority: [],
+    limitations: [],
   });
 
-  // Check auth on mount - redirect to /auth if not logged in
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -55,20 +55,15 @@ const Onboarding = () => {
         navigate("/auth", { replace: true });
       } else {
         setUserId(session.user.id);
-        
-        // Check if user already completed onboarding
         const { data: settings } = await supabase
           .from("user_settings")
           .select("has_completed_onboarding")
           .eq("user_id", session.user.id)
           .maybeSingle();
-        
         if (settings?.has_completed_onboarding) {
-          // Already completed onboarding, redirect to home
           navigate("/home", { replace: true });
           return;
         }
-        
         setLoading(false);
       }
     };
@@ -87,41 +82,51 @@ const Onboarding = () => {
 
   const handleComplete = async () => {
     if (!userId || saving) return;
-    
     setSaving(true);
-    
     try {
-      // Save onboarding data to user-specific localStorage for compatibility
-      localStorage.setItem(`liftmate_onboarding_${userId}`, JSON.stringify(data));
-      
-      // Check if user_settings record exists
+      // Convert to legacy-compatible format for localStorage
+      const legacyData = {
+        personal: {
+          name: data.name,
+          height: data.height,
+          weight: data.weight,
+          gender: data.gender,
+          birthYear: data.birthYear,
+        },
+        goal: data.goal,
+        experience: data.experience,
+        frequency: data.frequency,
+        location: data.location,
+        musclePriority: data.musclePriority,
+        limitations: data.limitations,
+        focus: null,
+        schedule: {},
+      };
+
+      localStorage.setItem(`liftmate_onboarding_${userId}`, JSON.stringify(legacyData));
+
       const { data: existingSettings } = await supabase
         .from("user_settings")
         .select("id")
         .eq("user_id", userId)
         .maybeSingle();
 
-      let updateError;
+      const payload = {
+        has_completed_onboarding: true,
+        onboarding_data: JSON.parse(JSON.stringify(legacyData)),
+      };
 
+      let updateError;
       if (existingSettings) {
-        // Update existing record
         const { error } = await supabase
           .from("user_settings")
-          .update({
-            has_completed_onboarding: true,
-            onboarding_data: JSON.parse(JSON.stringify(data)),
-          })
+          .update(payload)
           .eq("user_id", userId);
         updateError = error;
       } else {
-        // Insert new record
         const { error } = await supabase
           .from("user_settings")
-          .insert([{
-            user_id: userId,
-            has_completed_onboarding: true,
-            onboarding_data: JSON.parse(JSON.stringify(data)),
-          }]);
+          .insert([{ user_id: userId, ...payload }]);
         updateError = error;
       }
 
@@ -132,7 +137,6 @@ const Onboarding = () => {
         return;
       }
 
-      // Navigate to processing page
       navigate("/processing", { replace: true });
     } catch (error) {
       console.error("Error completing onboarding:", error);
@@ -141,7 +145,7 @@ const Onboarding = () => {
     }
   };
 
-  const stepFlow: Step[] = ["personal", "goal", "experience", "focus", "calendar"];
+  const stepFlow: Step[] = ["identification", "physical", "experience", "frequency", "location", "goal", "muscles", "limitations"];
 
   const goToNextStep = () => {
     const currentIndex = stepFlow.indexOf(currentStep);
@@ -159,17 +163,25 @@ const Onboarding = () => {
     }
   };
 
-  const handleSelectGroups = (day: string, groups: string[]) => {
+  const handleToggleMuscle = (muscle: string) => {
     setData((prev) => ({
       ...prev,
-      schedule: { ...prev.schedule, [day]: groups },
+      musclePriority: prev.musclePriority.includes(muscle)
+        ? prev.musclePriority.filter((m) => m !== muscle)
+        : [...prev.musclePriority, muscle],
     }));
   };
 
-  const handleUpdatePersonal = (updates: Partial<PersonalData>) => {
+  const handleToggleLimitation = (limitation: string) => {
+    if (limitation === "__clear_all__") {
+      setData((prev) => ({ ...prev, limitations: [] }));
+      return;
+    }
     setData((prev) => ({
       ...prev,
-      personal: { ...prev.personal, ...updates },
+      limitations: prev.limitations.includes(limitation)
+        ? prev.limitations.filter((l) => l !== limitation)
+        : [...prev.limitations, limitation],
     }));
   };
 
@@ -184,21 +196,21 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background">
       <AnimatePresence mode="wait">
-        {currentStep === "personal" && (
-          <PersonalDataStep
-            key="personal"
-            personalData={data.personal}
-            onUpdate={handleUpdatePersonal}
+        {currentStep === "identification" && (
+          <IdentificationStep
+            key="identification"
+            data={{ name: data.name, birthYear: data.birthYear, gender: data.gender }}
+            onUpdate={(updates) => setData((prev) => ({ ...prev, ...updates }))}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
         )}
 
-        {currentStep === "goal" && (
-          <GoalStep
-            key="goal"
-            selectedGoal={data.goal}
-            onSelect={(goal) => setData((prev) => ({ ...prev, goal }))}
+        {currentStep === "physical" && (
+          <PhysicalDataStep
+            key="physical"
+            data={{ height: data.height, weight: data.weight }}
+            onUpdate={(updates) => setData((prev) => ({ ...prev, ...updates }))}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
@@ -214,21 +226,51 @@ const Onboarding = () => {
           />
         )}
 
-        {currentStep === "focus" && (
-          <FocusStep
-            key="focus"
-            selectedFocus={data.focus}
-            onSelect={(focus) => setData((prev) => ({ ...prev, focus }))}
+        {currentStep === "frequency" && (
+          <FrequencyStep
+            key="frequency"
+            selectedFrequency={data.frequency}
+            onSelect={(frequency) => setData((prev) => ({ ...prev, frequency }))}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
         )}
 
-        {currentStep === "calendar" && (
-          <CalendarStep
-            key="calendar"
-            schedule={data.schedule}
-            onSelectGroups={handleSelectGroups}
+        {currentStep === "location" && (
+          <LocationStep
+            key="location"
+            selectedLocation={data.location}
+            onSelect={(location) => setData((prev) => ({ ...prev, location }))}
+            onContinue={goToNextStep}
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "goal" && (
+          <GoalStep
+            key="goal"
+            selectedGoal={data.goal}
+            onSelect={(goal) => setData((prev) => ({ ...prev, goal }))}
+            onContinue={goToNextStep}
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "muscles" && (
+          <MusclePriorityStep
+            key="muscles"
+            selectedMuscles={data.musclePriority}
+            onToggle={handleToggleMuscle}
+            onContinue={goToNextStep}
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "limitations" && (
+          <LimitationsStep
+            key="limitations"
+            selectedLimitations={data.limitations}
+            onToggle={handleToggleLimitation}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />
