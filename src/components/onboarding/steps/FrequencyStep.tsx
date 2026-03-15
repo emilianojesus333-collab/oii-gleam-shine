@@ -2,51 +2,54 @@ import { OnboardingLayout } from "../OnboardingLayout";
 import { OptionCard } from "../OptionCard";
 import { motion } from "framer-motion";
 
-interface ExperienceStepProps {
-  selectedExperience: string | null;
-  onSelect: (experience: string) => void;
+interface FrequencyStepProps {
+  selectedFrequency: string | null;
+  onSelect: (frequency: string) => void;
   onContinue: () => void;
   onBack?: () => void;
 }
 
-const experiences = [
-  "Iniciante",
-  "Intermédio",
-  "Avançado",
+const frequencies = [
+  "2–3 dias",
+  "3–4 dias",
+  "4–5 dias",
+  "5+ dias",
 ];
 
-export const ExperienceStep = ({
-  selectedExperience,
+export const FrequencyStep = ({
+  selectedFrequency,
   onSelect,
   onContinue,
   onBack,
-}: ExperienceStepProps) => {
+}: FrequencyStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedExperience}>
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedFrequency}>
       <div className="flex flex-1 flex-col pt-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-xl font-bold text-foreground">Qual é o teu nível de treino?</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            Quantos dias por semana queres treinar?
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Isto ajuda a definir a intensidade do teu plano
+            Isto vai ajudar a definir o teu plano semanal
           </p>
         </motion.div>
 
         <div className="mt-8 flex flex-col gap-2.5">
-          {experiences.map((experience, index) => (
+          {frequencies.map((frequency, index) => (
             <motion.div
-              key={experience}
+              key={frequency}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.08 }}
             >
               <OptionCard
-                label={experience}
-                selected={selectedExperience === experience}
-                onClick={() => onSelect(experience)}
+                label={frequency}
+                selected={selectedFrequency === frequency}
+                onClick={() => onSelect(frequency)}
               />
             </motion.div>
           ))}
