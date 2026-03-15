@@ -555,28 +555,18 @@ const Settings = () => {
                 e.preventDefault();
                 setIsDeleting(true);
                 try {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  if (!user) throw new Error("Utilizador não encontrado");
+                  // Call edge function that deletes all data + auth user
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (!session) throw new Error("Sem sessão ativa");
 
-                  // Delete all user data from all tables
-                  await supabase.from('body_measurements').delete().eq('user_id', user.id);
-                  await supabase.from('conversations').delete().eq('user_id', user.id);
-                  await supabase.from('nutrition_logs').delete().eq('user_id', user.id);
-                  await supabase.from('nutrition_profiles').delete().eq('user_id', user.id);
-                  await supabase.from('one_rm_records').delete().eq('user_id', user.id);
-                  await supabase.from('user_settings').delete().eq('user_id', user.id);
-                  await supabase.from('user_subscriptions').delete().eq('user_id', user.id);
-                  await supabase.from('workout_sessions').delete().eq('user_id', user.id);
+                  const response = await supabase.functions.invoke("delete-account", {});
+                  
+                  if (response.error) throw response.error;
+                  const result = response.data;
+                  if (!result?.success) throw new Error("Falha ao eliminar conta");
 
-                  // Delete messages (via conversation cascade)
-                  // Sign out and delete auth user
-                  await supabase.auth.signOut();
-
-                  // Clear local storage
-                  const keysToRemove = Object.keys(localStorage).filter(
-                    (key) => key.startsWith('liftmate') || key.startsWith('gymAlerts')
-                  );
-                  keysToRemove.forEach((key) => localStorage.removeItem(key));
+                  // Clear ALL local storage
+                  localStorage.clear();
 
                   toast.success("Conta eliminada com sucesso");
                   navigate("/auth");
