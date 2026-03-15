@@ -2,51 +2,53 @@ import { OnboardingLayout } from "../OnboardingLayout";
 import { OptionCard } from "../OptionCard";
 import { motion } from "framer-motion";
 
-interface ExperienceStepProps {
-  selectedExperience: string | null;
-  onSelect: (experience: string) => void;
+interface LocationStepProps {
+  selectedLocation: string | null;
+  onSelect: (location: string) => void;
   onContinue: () => void;
   onBack?: () => void;
 }
 
-const experiences = [
-  "Iniciante",
-  "Intermédio",
-  "Avançado",
+const locations = [
+  "Ginásio completo",
+  "Casa com equipamento",
+  "Casa sem equipamento",
 ];
 
-export const ExperienceStep = ({
-  selectedExperience,
+export const LocationStep = ({
+  selectedLocation,
   onSelect,
   onContinue,
   onBack,
-}: ExperienceStepProps) => {
+}: LocationStepProps) => {
   return (
-    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedExperience}>
+    <OnboardingLayout onContinue={onContinue} onBack={onBack} showBackButton={!!onBack} buttonDisabled={!selectedLocation}>
       <div className="flex flex-1 flex-col pt-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-xl font-bold text-foreground">Qual é o teu nível de treino?</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            Onde vais treinar?
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Isto ajuda a definir a intensidade do teu plano
+            Adaptamos os exercícios ao teu espaço
           </p>
         </motion.div>
 
         <div className="mt-8 flex flex-col gap-2.5">
-          {experiences.map((experience, index) => (
+          {locations.map((location, index) => (
             <motion.div
-              key={experience}
+              key={location}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.08 }}
             >
               <OptionCard
-                label={experience}
-                selected={selectedExperience === experience}
-                onClick={() => onSelect(experience)}
+                label={location}
+                selected={selectedLocation === location}
+                onClick={() => onSelect(location)}
               />
             </motion.div>
           ))}
