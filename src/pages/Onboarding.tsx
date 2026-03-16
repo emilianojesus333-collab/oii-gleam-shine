@@ -55,6 +55,12 @@ const Onboarding = () => {
         navigate("/auth", { replace: true });
       } else {
         setUserId(session.user.id);
+        // Clear any old onboarding data from localStorage
+        const keysToRemove = Object.keys(localStorage).filter(
+          (key) => key.startsWith("liftmate_onboarding") || key.startsWith("onboarding")
+        );
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+
         const { data: settings } = await supabase
           .from("user_settings")
           .select("has_completed_onboarding")
