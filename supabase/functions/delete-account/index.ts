@@ -49,7 +49,8 @@ Deno.serve(async (req) => {
       "planned_exercises",
       "progression_logs",
       "body_measurements",
-      "messages", // will be cascade-deleted with conversations, but explicit is safer
+      "muscle_fatigue",
+      "messages",
       "conversations",
       "nutrition_logs",
       "nutrition_profiles",
