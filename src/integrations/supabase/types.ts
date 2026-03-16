@@ -151,6 +151,33 @@ export type Database = {
           },
         ]
       }
+      muscle_fatigue: {
+        Row: {
+          fatigue_pct: number
+          id: string
+          last_trained_at: string | null
+          muscle_group: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          fatigue_pct?: number
+          id?: string
+          last_trained_at?: string | null
+          muscle_group: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          fatigue_pct?: number
+          id?: string
+          last_trained_at?: string | null
+          muscle_group?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       nutrition_logs: {
         Row: {
           created_at: string
