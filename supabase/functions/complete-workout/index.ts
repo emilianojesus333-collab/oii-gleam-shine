@@ -286,6 +286,9 @@ Deno.serve(async (req) => {
       .update({ fatigue_index: fatigueIndex })
       .eq("user_id", userId);
 
+    // ─── Step 8: Muscle-specific fatigue ───
+    await updateMuscleFatigue(supabase, userId, exercises, exerciseMap, muscle_groups || []);
+
     console.log(`[COMPLETE-WORKOUT] Completed. score=${performanceScore}, fatigue=${fatigueIndex}, ${progressionResults.length} progressions, ${celebrations.length} celebrations.`);
 
     return jsonResponse({

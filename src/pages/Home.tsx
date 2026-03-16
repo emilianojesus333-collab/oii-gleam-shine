@@ -262,8 +262,8 @@ const Home = () => {
           isRestDay={isRestDay}
         />
 
-        {/* Status Carousel — 1 card visible at a time */}
-        <StatusCarousel fatigueIndex={fatigueIndex} />
+        {/* Status Carousel — muscle fatigue cards */}
+        <StatusCarousel />
 
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
