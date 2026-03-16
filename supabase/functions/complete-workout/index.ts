@@ -639,6 +639,113 @@ async function calculateFatigueIndex(
   return fatigueIndex;
 }
 
+// ─── Muscle-Specific Fatigue ───
+async function updateMuscleFatigue(
+  supabase: any,
+  userId: string,
+  exercises: ExerciseInput[],
+  exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null; user_id: string | null }>,
+  sessionMuscleGroups: string[]
+): Promise<void> {
+  // Map Portuguese muscle group names and exercise primary_muscles to our 5 groups
+  const muscleMapping: Record<string, string> = {
+    // From exercises table (English)
+    chest: "peito",
+    back: "costas",
+    shoulders: "ombros",
+    biceps: "braços",
+    triceps: "braços",
+    forearms: "braços",
+    quadriceps: "pernas",
+    hamstrings: "pernas",
+    glutes: "pernas",
+    calves: "pernas",
+    abs: "pernas",
+    traps: "costas",
+    // From session muscle_groups (Portuguese)
+    "Peito": "peito",
+    "Costas": "costas",
+    "Ombros": "ombros",
+    "Bíceps": "braços",
+    "Tríceps": "braços",
+    "Braços": "braços",
+    "Pernas": "pernas",
+    "Quadríceps": "pernas",
+    "Posteriores": "pernas",
+    "Glúteos": "pernas",
+    "Gémeos": "pernas",
+    "Abdómen": "pernas",
+    "Trapézio": "costas",
+  };
+
+  // Determine which of our 5 groups were trained and estimate intensity
+  const groupVolume = new Map<string, number>();
+
+  for (const ex of exercises) {
+    const info = exerciseMap.get(ex.name);
+    const primaryMuscle = info?.primary_muscle || "";
+    const group = muscleMapping[primaryMuscle];
+    if (group) {
+      const vol = (groupVolume.get(group) || 0) + ex.weight * ex.reps * ex.sets;
+      groupVolume.set(group, vol);
+    }
+  }
+
+  // Also add from session muscle_groups if no exercises mapped
+  for (const mg of sessionMuscleGroups) {
+    const group = muscleMapping[mg];
+    if (group && !groupVolume.has(group)) {
+      groupVolume.set(group, 0);
+    }
+  }
+
+  if (groupVolume.size === 0) return;
+
+  const now = new Date().toISOString();
+
+  for (const [group, volume] of groupVolume) {
+    // Estimate intensity: light (<3000), medium (<8000), intense (>=8000)
+    let fatigueAdd = 60; // medium default
+    if (volume > 0) {
+      if (volume >= 8000) fatigueAdd = 80;
+      else if (volume >= 3000) fatigueAdd = 60;
+      else fatigueAdd = 40;
+    }
+
+    // Get current stored value and compute current fatigue with recovery
+    const { data: existing } = await supabase
+      .from("muscle_fatigue")
+      .select("fatigue_pct, last_trained_at")
+      .eq("user_id", userId)
+      .eq("muscle_group", group)
+      .maybeSingle();
+
+    let currentFatigue = 0;
+    if (existing && existing.last_trained_at) {
+      const hoursSince = (Date.now() - new Date(existing.last_trained_at).getTime()) / (1000 * 60 * 60);
+      currentFatigue = Math.max(0, existing.fatigue_pct - hoursSince);
+    }
+
+    const newFatigue = Math.min(100, Math.round(currentFatigue + fatigueAdd));
+
+    const { error } = await supabase
+      .from("muscle_fatigue")
+      .upsert({
+        user_id: userId,
+        muscle_group: group,
+        fatigue_pct: newFatigue,
+        last_trained_at: now,
+        updated_at: now,
+      }, { onConflict: "user_id,muscle_group" });
+
+    if (error) {
+      console.error(`[MUSCLE-FATIGUE] Error updating ${group}:`, error.message);
+    }
+  }
+
+  console.log(`[MUSCLE-FATIGUE] Updated ${groupVolume.size} muscle groups`);
+}
+
 // ─── Utilities ───
 function round2(n: number) { return Math.round(n * 100) / 100; }
 function getDateNDaysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split("T")[0]; }
