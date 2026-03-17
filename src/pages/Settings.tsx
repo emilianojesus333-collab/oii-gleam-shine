@@ -12,8 +12,9 @@ import {
   FileText,
   Shield,
   Headphones,
-  Trash2 } from
-"lucide-react";
+  Trash2,
+  Droplets,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
@@ -34,30 +35,33 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle } from
-"@/components/ui/alert-dialog";
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { formatBottleSize } from "@/lib/hydration";
 
 const weekDays = [
-"Segunda-feira",
-"Terça-feira",
-"Quarta-feira",
-"Quinta-feira",
-"Sexta-feira",
-"Sábado",
-"Domingo"];
-
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado",
+  "Domingo",
+];
 
 const muscleGroups = [
-"Peito",
-"Costas",
-"Ombros",
-"Bíceps",
-"Tríceps",
-"Pernas",
-"Core",
-"Glúteos",
-"Cardio"];
+  "Peito",
+  "Costas",
+  "Ombros",
+  "Bíceps",
+  "Tríceps",
+  "Pernas",
+  "Core",
+  "Glúteos",
+  "Cardio",
+];
 
+const bottleSizeOptions = [500, 750, 1000, 1500];
 
 type Schedule = Record<string, string[] | null>;
 
@@ -69,24 +73,21 @@ const Settings = () => {
   const [aiName, setAiName] = useState("Liftmate");
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
-
-  // State for delete account dialog
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Get user settings from database (per-user data)
-  const { settings, updateSettings, updateSchedule: saveScheduleToDb, isLoading: settingsLoading } = useUserSettings();
-
-  // Get nutrition data for export
+  const { settings, updateSettings, updateSchedule: saveScheduleToDb } = useUserSettings();
   const { allLogs, goals } = useNutrition();
 
-  // Load schedule and AI name from database settings
   useEffect(() => {
     if (settings) {
       setSchedule(settings.onboarding_data?.schedule || {});
       setAiName(settings.ai_name || "Liftmate");
     }
   }, [settings]);
+
+  const currentAlertsConfig = (settings?.alerts_config as Record<string, any> | null) ?? null;
+  const currentBottleSize = Number(currentAlertsConfig?.hydration?.bottleSizeMl) || 1000;
 
   const openAiNameEditor = () => {
     setTempAiName(aiName);
@@ -99,13 +100,30 @@ const Settings = () => {
       setAiName(newName);
       setIsEditingAiName(false);
 
-      // Save to database (per-user)
       try {
         await updateSettings({ ai_name: newName });
         toast.success("Nome da IA atualizado!");
       } catch (error) {
         console.error("Error saving AI name:", error);
       }
+    }
+  };
+
+  const handleBottleSizeChange = async (bottleSizeMl: number) => {
+    try {
+      await updateSettings({
+        alerts_config: {
+          ...(currentAlertsConfig ?? {}),
+          hydration: {
+            ...(currentAlertsConfig?.hydration ?? {}),
+            bottleSizeMl,
+          },
+        },
+      });
+      toast.success(`Garrafa definida para ${formatBottleSize(bottleSizeMl)}`);
+    } catch (error) {
+      console.error("Error saving bottle size:", error);
+      toast.error("Erro ao atualizar o tamanho da garrafa");
     }
   };
 
@@ -118,7 +136,7 @@ const Settings = () => {
   const toggleMuscleGroup = (group: string) => {
     setTempSelection((prev) => {
       if (prev.includes(group)) {
-        return prev.filter((g) => g !== group);
+        return prev.filter((selectedGroup) => selectedGroup !== group);
       }
       return [...prev, group];
     });
@@ -129,11 +147,10 @@ const Settings = () => {
 
     const newSchedule = {
       ...schedule,
-      [selectedDay]: tempSelection.length > 0 ? tempSelection : null
+      [selectedDay]: tempSelection.length > 0 ? tempSelection : null,
     };
     setSchedule(newSchedule);
 
-    // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
       toast.success(`${selectedDay} atualizado!`);
@@ -150,11 +167,10 @@ const Settings = () => {
 
     const newSchedule = {
       ...schedule,
-      [selectedDay]: null
+      [selectedDay]: null,
     };
     setSchedule(newSchedule);
 
-    // Save to database (per-user)
     try {
       await saveScheduleToDb(newSchedule);
       toast.success(`${selectedDay} definido como descanso!`);
@@ -165,30 +181,28 @@ const Settings = () => {
     setSelectedDay(null);
   };
 
-
   const getWorkoutDisplay = (day: string) => {
     const groups = schedule[day];
-    if (!groups || Array.isArray(groups) && groups.length === 0) {
+    if (!groups || (Array.isArray(groups) && groups.length === 0)) {
       return "Descanso";
     }
     return Array.isArray(groups) ? groups.join(" + ") : groups;
   };
 
   return (
-    <div className="min-h-screen pb-32 bg-black">
-      {/* Header */}
-      <div className="px-5 pt-12 pb-6 bg-black">
+    <div className="min-h-screen bg-black pb-32">
+      <div className="bg-black px-5 pb-6 pt-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4">
-
+          className="flex items-center gap-4"
+        >
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center">
-
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-card"
+          >
+            <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
           <div>
             <h1 className="text-xl font-bold text-foreground">Definições</h1>
@@ -197,54 +211,95 @@ const Settings = () => {
         </motion.div>
       </div>
 
-      <div className="px-5 space-y-5 bg-black">
-        {/* User Profile Card */}
+      <div className="space-y-5 bg-black px-5">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}>
-
+          transition={{ delay: 0.1 }}
+        >
           <UserProfileCard />
         </motion.div>
 
-        {/* AI Name Editor */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.11 }}
+          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+        >
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <Droplets className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Tamanho da garrafa</h3>
+                <p className="text-xs text-muted-foreground">
+                  Escolhe a garrafa usada no registo rápido de hidratação.
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border border-border/40 bg-muted/20 px-3 py-1 text-xs font-medium text-muted-foreground">
+              {formatBottleSize(currentBottleSize)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {bottleSizeOptions.map((size) => {
+              const isSelected = currentBottleSize === size;
+              return (
+                <motion.button
+                  key={size}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleBottleSizeChange(size)}
+                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border/50 bg-muted/20 text-foreground"
+                  }`}
+                >
+                  {formatBottleSize(size)}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
-
+          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
-                <Sparkles className="w-5 h-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Nome do assistente</h3>
                 <p className="text-xs text-muted-foreground">{aiName}</p>
               </div>
             </div>
-            
+
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={openAiNameEditor}
-              className="p-2.5 rounded-xl bg-muted/30 border border-border/50">
-
-              <Edit3 className="w-4 h-4 text-muted-foreground" />
+              className="rounded-xl border border-border/50 bg-muted/30 p-2.5"
+            >
+              <Edit3 className="h-4 w-4 text-muted-foreground" />
             </motion.button>
           </div>
         </motion.div>
 
-        {/* Compact Calendar Editor */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
-
-          <div className="flex items-center justify-between mb-3">
+          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+        >
+          <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-primary" />
+              <Calendar className="h-4 w-4 text-primary" />
               <h2 className="text-sm font-semibold text-foreground">Calendário</h2>
             </div>
             <p className="text-xs text-muted-foreground">Toca para editar</p>
@@ -261,133 +316,122 @@ const Settings = () => {
                   key={fullDay}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => openDayEditor(fullDay)}
-                  className={`flex flex-col items-center p-2 rounded-lg transition-all ${
-                  isRest ?
-                  "bg-muted/20" :
-                  "bg-primary/20 border border-primary/30"}`
-                  }>
-
-                  <span className="text-[10px] text-muted-foreground mb-1">{shortDay}</span>
-                  <Dumbbell className={`w-3.5 h-3.5 ${isRest ? "text-muted-foreground/50" : "text-primary"}`} />
-                </motion.button>);
-
+                  className={`flex flex-col items-center rounded-lg p-2 transition-all ${
+                    isRest ? "bg-muted/20" : "border border-primary/30 bg-primary/20"
+                  }`}
+                >
+                  <span className="mb-1 text-[10px] text-muted-foreground">{shortDay}</span>
+                  <Dumbbell className={`h-3.5 w-3.5 ${isRest ? "text-muted-foreground/50" : "text-primary"}`} />
+                </motion.button>
+              );
             })}
           </div>
 
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-4 mt-3 pt-2 border-t border-border/20">
+          <div className="mt-3 flex items-center justify-center gap-4 border-t border-border/20 pt-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <div className="w-2 h-2 rounded-full bg-primary/50"></div>
+              <div className="h-2 w-2 rounded-full bg-primary/50"></div>
               <span>Treino</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <div className="w-2 h-2 rounded-full bg-muted/50"></div>
+              <div className="h-2 w-2 rounded-full bg-muted/50"></div>
               <span>Descanso</span>
             </div>
           </div>
         </motion.div>
 
-        {/* AI Features Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}>
-
+          transition={{ delay: 0.15 }}
+        >
           <AIFeaturesCarousel />
         </motion.div>
 
-
-
-        {/* Export Data */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}>
-
+          transition={{ delay: 0.25 }}
+        >
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
-        {/* Language Selector */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}>
-
+          transition={{ delay: 0.28 }}
+        >
           <LanguageSelector />
         </motion.div>
 
-        {/* Legal Links */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-[20px] p-4 border border-border/30 bg-[#111311]">
-
+          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+        >
           <div className="space-y-3">
             <button
               onClick={() => navigate("/terms")}
-              className="w-full flex items-center justify-between py-2">
-
+              className="flex w-full items-center justify-between py-2"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
+                  <FileText className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <span className="font-medium text-foreground">Termos de Uso</span>
               </div>
-              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </button>
-            
+
             <div className="border-t border-border/20" />
-            
+
             <button
               onClick={() => navigate("/privacy")}
-              className="w-full flex items-center justify-between py-2">
-
+              className="flex w-full items-center justify-between py-2"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
+                  <Shield className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <span className="font-medium text-foreground">Política de Privacidade</span>
               </div>
-              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </button>
-            
+
             <div className="border-t border-border/20" />
-            
+
             <button
               onClick={() => navigate("/support")}
-              className="w-full flex items-center justify-between py-2">
-
+              className="flex w-full items-center justify-between py-2"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
-                  <Headphones className="w-5 h-5 text-primary" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                  <Headphones className="h-5 w-5 text-primary" />
                 </div>
                 <span className="font-medium text-foreground">Suporte</span>
               </div>
-              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </button>
           </div>
         </motion.div>
 
-        {/* Account Actions - Logout and Delete */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-[20px] p-4 border border-border/30 space-y-4 bg-[#111311]">
-
-          {/* Logout */}
+          className="space-y-4 rounded-[20px] border border-border/30 bg-[#111311] p-4"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center">
-                <LogOut className="w-5 h-5 text-muted-foreground" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
+                <LogOut className="h-5 w-5 text-muted-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Terminar sessão</h3>
                 <p className="text-xs text-muted-foreground">Sair da conta</p>
               </div>
             </div>
-            
+
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={async () => {
@@ -400,47 +444,45 @@ const Settings = () => {
                   toast.error("Erro ao terminar sessão");
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 text-foreground font-medium text-sm border border-border/50">
-
+              className="flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground"
+            >
               Sair
             </motion.button>
           </div>
-          
+
           <div className="border-t border-border/20" />
-          
-          {/* Delete Account */}
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
-                <Trash2 className="w-5 h-5 text-destructive" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <Trash2 className="h-5 w-5 text-destructive" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Apagar conta</h3>
                 <p className="text-xs text-muted-foreground">Elimina todos os dados</p>
               </div>
             </div>
-            
+
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-medium text-sm">
-
+              className="flex items-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-medium text-destructive-foreground"
+            >
               Apagar
             </motion.button>
           </div>
         </motion.div>
       </div>
 
-      {/* Day Editor Sheet */}
       <Sheet open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold">{selectedDay}</SheetTitle>
           </SheetHeader>
-          
+
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Seleciona os grupos musculares:</p>
-            
+
             <div className="grid grid-cols-3 gap-2">
               {muscleGroups.map((group) => {
                 const isSelected = tempSelection.includes(group);
@@ -449,16 +491,16 @@ const Settings = () => {
                     key={group}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleMuscleGroup(group)}
-                    className={`py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                    isSelected ?
-                    "bg-primary text-primary-foreground" :
-                    "bg-muted/30 text-foreground border border-border/50"}`
-                    }>
-
-                    {isSelected && <Check className="w-4 h-4" />}
+                    className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border/50 bg-muted/30 text-foreground"
+                    }`}
+                  >
+                    {isSelected && <Check className="h-4 w-4" />}
                     {group}
-                  </motion.button>);
-
+                  </motion.button>
+                );
               })}
             </div>
 
@@ -466,16 +508,16 @@ const Settings = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={setRestDay}
-                className="flex-1 py-4 rounded-xl bg-muted/30 border border-border/50 font-semibold text-foreground">
-
+                className="flex-1 rounded-xl border border-border/50 bg-muted/30 py-4 font-semibold text-foreground"
+              >
                 Dia de Descanso
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={saveDay}
-                className="flex-1 py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2">
-
-                <Save className="w-5 h-5" />
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground"
+              >
+                <Save className="h-5 w-5" />
                 Guardar
               </motion.button>
             </div>
@@ -483,62 +525,60 @@ const Settings = () => {
         </SheetContent>
       </Sheet>
 
-      {/* AI Name Editor Sheet */}
       <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
           </SheetHeader>
-          
+
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
-            
+
             <Input
               value={tempAiName}
               onChange={(e) => setTempAiName(e.target.value)}
               placeholder="Ex: Coach, Buddy, Trainer..."
-              className="bg-muted/30 border-border/50"
-              maxLength={20} />
-
+              className="border-border/50 bg-muted/30"
+              maxLength={20}
+            />
 
             <div className="flex flex-wrap gap-2">
-              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) =>
-              <motion.button
-                key={suggestion}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setTempAiName(suggestion)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                tempAiName === suggestion ?
-                "bg-primary text-primary-foreground" :
-                "bg-muted/30 text-muted-foreground border border-border/50"}`
-                }>
-
+              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
+                <motion.button
+                  key={suggestion}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setTempAiName(suggestion)}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
+                    tempAiName === suggestion
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border/50 bg-muted/30 text-muted-foreground"
+                  }`}
+                >
                   {suggestion}
                 </motion.button>
-              )}
+              ))}
             </div>
 
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={saveAiName}
               disabled={!tempAiName.trim()}
-              className="w-full py-4 rounded-xl bg-primary font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50">
-
-              <Save className="w-5 h-5" />
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              <Save className="h-5 w-5" />
               Guardar
             </motion.button>
           </div>
         </SheetContent>
       </Sheet>
 
-      {/* Delete Account Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Apagar conta permanentemente?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação é irreversível. Todos os teus dados serão eliminados permanentemente, incluindo:
-              <ul className="list-disc list-inside mt-2 space-y-1">
+              <ul className="mt-2 list-inside list-disc space-y-1">
                 <li>Histórico de treinos</li>
                 <li>Registos nutricionais</li>
                 <li>Medidas corporais</li>
@@ -551,21 +591,18 @@ const Settings = () => {
             <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
-              onClick={async (e) => {
-                e.preventDefault();
+              onClick={async (event) => {
+                event.preventDefault();
                 setIsDeleting(true);
                 try {
-                  // Call edge function that deletes all data + auth user
                   const { data: { session } } = await supabase.auth.getSession();
                   if (!session) throw new Error("Sem sessão ativa");
 
                   const response = await supabase.functions.invoke("delete-account", {});
-                  
                   if (response.error) throw response.error;
                   const result = response.data;
                   if (!result?.success) throw new Error("Falha ao eliminar conta");
 
-                  // Clear ALL local storage
                   localStorage.clear();
 
                   toast.success("Conta eliminada com sucesso");
@@ -578,8 +615,8 @@ const Settings = () => {
                   setShowDeleteDialog(false);
                 }
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {isDeleting ? "A eliminar..." : "Apagar conta"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -587,8 +624,8 @@ const Settings = () => {
       </AlertDialog>
 
       <BottomNav />
-    </div>);
-
+    </div>
+  );
 };
 
 export default Settings;
