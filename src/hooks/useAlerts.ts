@@ -1,23 +1,35 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import { useTimerNotification } from './useTimerNotification';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  buildHydrationSummary,
+  estimateWorkoutIntensityFromLogs,
+  extractExerciseLogs,
+  formatBottleSize,
+  parseWeightKg,
+  roundToOneDecimal,
+  type HydrationSummary,
+  type WorkoutIntensity,
+} from '@/lib/hydration';
 
 export interface HydrationSettings {
   enabled: boolean;
   intervalMinutes: number;
   dailyGoalLiters: number;
   currentIntake: number;
+  bottleSizeMl: number;
   lastReminder: number | null;
-  lastResetDate: string | null; // Track the last date hydration was reset
+  lastResetDate: string | null;
 }
 
 export interface SupplementReminder {
   id: string;
   name: string;
-  time: string; // HH:MM format
+  time: string;
   enabled: boolean;
-  days: number[]; // 0-6, Sunday = 0
+  days: number[];
   icon: 'pill' | 'shake' | 'powder' | 'capsule';
   color: string;
 }
@@ -30,7 +42,7 @@ export interface WorkoutReminder {
 
 export interface SleepSettings {
   enabled: boolean;
-  bedtime: string; // HH:MM format
+  bedtime: string;
   wakeTime: string;
   reminderMinutesBefore: number;
 }
@@ -62,6 +74,7 @@ const defaultState: AlertsState = {
     intervalMinutes: 30,
     dailyGoalLiters: 3,
     currentIntake: 0,
+    bottleSizeMl: 1000,
     lastReminder: null,
     lastResetDate: null,
   },
@@ -93,21 +106,55 @@ const defaultState: AlertsState = {
 
 const STORAGE_KEY_PREFIX = 'gymAlerts_';
 
+const mergeWithDefaults = (rawState: Partial<AlertsState> | null | undefined): AlertsState => ({
+  ...defaultState,
+  ...rawState,
+  hydration: {
+    ...defaultState.hydration,
+    ...(rawState?.hydration ?? {}),
+  },
+  workout: {
+    ...defaultState.workout,
+    ...(rawState?.workout ?? {}),
+  },
+  sleep: {
+    ...defaultState.sleep,
+    ...(rawState?.sleep ?? {}),
+  },
+  streak: {
+    ...defaultState.streak,
+    ...(rawState?.streak ?? {}),
+  },
+  supplements: rawState?.supplements ?? defaultState.supplements,
+  quickTimers: rawState?.quickTimers ?? defaultState.quickTimers,
+});
+
 export const useAlerts = () => {
   const { user } = useAuth();
   const [state, setState] = useState<AlertsState>(defaultState);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [weightKg, setWeightKg] = useState<number | null>(null);
+  const [workoutIntensity, setWorkoutIntensity] = useState<WorkoutIntensity>('none');
+
   const [activeQuickTimer, setActiveQuickTimer] = useState<number | null>(null);
   const [quickTimerRemaining, setQuickTimerRemaining] = useState<number>(0);
   const { notifyTimerEnd } = useTimerNotification();
 
-  // Check and reset hydration if it's a new day
+  const hydrationSummary = useMemo<HydrationSummary>(
+    () =>
+      buildHydrationSummary(
+        state.hydration.currentIntake,
+        state.hydration.bottleSizeMl,
+        weightKg,
+        workoutIntensity,
+      ),
+    [state.hydration.currentIntake, state.hydration.bottleSizeMl, weightKg, workoutIntensity]
+  );
+
   const checkAndResetDailyHydration = useCallback((currentState: AlertsState): AlertsState => {
     const today = new Date().toISOString().split('T')[0];
     const lastResetDate = currentState.hydration.lastResetDate;
-    
-    // If it's a new day, reset hydration intake
+
     if (lastResetDate !== today) {
       return {
         ...currentState,
@@ -121,79 +168,127 @@ export const useAlerts = () => {
     return currentState;
   }, []);
 
-  // Load alerts from database (user_settings.alerts_config) or user-specific localStorage
+  const refreshWorkoutHydrationContext = useCallback(async () => {
+    if (!user) {
+      setWorkoutIntensity('none');
+      return;
+    }
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: sessions } = await supabase
+        .from('workout_sessions')
+        .select('exercise_logs')
+        .eq('user_id', user.id)
+        .eq('date', today)
+        .eq('status', 'completed');
+
+      setWorkoutIntensity(estimateWorkoutIntensityFromLogs(extractExerciseLogs(sessions ?? [])));
+    } catch (error) {
+      console.error('Error loading workout hydration context:', error);
+      setWorkoutIntensity('none');
+    }
+  }, [user]);
+
   useEffect(() => {
     const loadAlerts = async () => {
       if (!user) {
         setState(defaultState);
+        setWeightKg(null);
+        setWorkoutIntensity('none');
         setIsLoading(false);
         return;
       }
 
       try {
-        // Try to load from database first
         const { data: settings } = await supabase
           .from('user_settings')
-          .select('alerts_config')
+          .select('alerts_config, onboarding_data')
           .eq('user_id', user.id)
           .maybeSingle();
 
         let loadedState = defaultState;
-        
+
         if (settings?.alerts_config) {
-          const alertsConfig = settings.alerts_config as unknown as AlertsState;
-          loadedState = { ...defaultState, ...alertsConfig };
+          loadedState = mergeWithDefaults(settings.alerts_config as unknown as Partial<AlertsState>);
         } else {
-          // Fallback to user-specific localStorage
           const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
           const saved = localStorage.getItem(userKey);
           if (saved) {
-            loadedState = { ...defaultState, ...JSON.parse(saved) };
+            loadedState = mergeWithDefaults(JSON.parse(saved) as Partial<AlertsState>);
           }
         }
-        
-        // Check and reset hydration if it's a new day
-        const finalState = checkAndResetDailyHydration(loadedState);
-        setState(finalState);
+
+        const normalizedState = checkAndResetDailyHydration(loadedState);
+        const dynamicSummary = buildHydrationSummary(
+          normalizedState.hydration.currentIntake,
+          normalizedState.hydration.bottleSizeMl,
+          parseWeightKg(settings?.onboarding_data),
+          workoutIntensity,
+        );
+
+        setWeightKg(parseWeightKg(settings?.onboarding_data));
+        setState({
+          ...normalizedState,
+          hydration: {
+            ...normalizedState.hydration,
+            dailyGoalLiters: dynamicSummary.goalLiters,
+          },
+        });
       } catch (error) {
         console.error('Error loading alerts:', error);
         setState(defaultState);
       }
+
       setIsLoading(false);
     };
 
     loadAlerts();
-  }, [user, checkAndResetDailyHydration]);
+  }, [user, checkAndResetDailyHydration, workoutIntensity]);
 
-  // Persist state to database and localStorage
+  useEffect(() => {
+    refreshWorkoutHydrationContext();
+    const interval = setInterval(refreshWorkoutHydrationContext, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [refreshWorkoutHydrationContext]);
+
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      hydration: {
+        ...prev.hydration,
+        dailyGoalLiters: hydrationSummary.goalLiters,
+      },
+    }));
+  }, [hydrationSummary.goalLiters]);
+
   useEffect(() => {
     if (!user || isLoading) return;
 
     const saveAlerts = async () => {
       try {
-        // Save to user-specific localStorage as backup
         const userKey = `${STORAGE_KEY_PREFIX}${user.id}`;
         localStorage.setItem(userKey, JSON.stringify(state));
 
-        // Save to database using upsert to ensure record exists
         await supabase
           .from('user_settings')
-          .upsert({
-            user_id: user.id,
-            alerts_config: JSON.parse(JSON.stringify(state)),
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'user_id' });
+          .upsert(
+            {
+              user_id: user.id,
+              alerts_config: JSON.parse(JSON.stringify(state)),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id' }
+          );
       } catch (error) {
         console.error('Error saving alerts:', error);
       }
     };
 
-    // Debounce save
     const timeoutId = setTimeout(saveAlerts, 500);
     return () => clearTimeout(timeoutId);
   }, [state, user, isLoading]);
 
-  // Quick timer logic
   useEffect(() => {
     if (activeQuickTimer === null) return;
 
@@ -211,41 +306,81 @@ export const useAlerts = () => {
     return () => clearInterval(interval);
   }, [activeQuickTimer, notifyTimerEnd]);
 
-  // Hydration
   const updateHydration = useCallback((updates: Partial<HydrationSettings>) => {
     setState((prev) => ({
       ...prev,
-      hydration: { ...prev.hydration, ...updates },
+      hydration: {
+        ...prev.hydration,
+        ...updates,
+      },
     }));
   }, []);
 
   const addWaterIntake = useCallback((liters: number) => {
     const today = new Date().toISOString().split('T')[0];
+    const feedbackMessages: string[] = [];
+
     setState((prev) => {
-      // Check if we need to reset for a new day before adding
       const needsReset = prev.hydration.lastResetDate !== today;
       const currentIntake = needsReset ? 0 : prev.hydration.currentIntake;
-      
+      const bottleSizeMl = prev.hydration.bottleSizeMl || 1000;
+      const previousSummary = buildHydrationSummary(currentIntake, bottleSizeMl, weightKg, workoutIntensity);
+      const nextIntake = Math.max(
+        0,
+        Math.min(
+          roundToOneDecimal(currentIntake + liters),
+          Math.max(previousSummary.goalLiters * 1.5, 6)
+        )
+      );
+      const nextSummary = buildHydrationSummary(nextIntake, bottleSizeMl, weightKg, workoutIntensity);
+
+      const previousBottleCount = Math.floor(Math.round(currentIntake * 1000) / bottleSizeMl);
+      const nextBottleCount = Math.floor(Math.round(nextIntake * 1000) / bottleSizeMl);
+      const previousWholeLiters = Math.floor(currentIntake);
+      const nextWholeLiters = Math.floor(nextIntake);
+
+      if (liters > 0 && nextBottleCount > previousBottleCount) {
+        feedbackMessages.push(`${formatBottleSize(bottleSizeMl)} registado`);
+      }
+
+      if (liters > 0 && nextWholeLiters > previousWholeLiters) {
+        feedbackMessages.push(`${nextWholeLiters} L concluído`);
+      }
+
+      if (liters > 0 && previousSummary.percentage < 50 && nextSummary.percentage >= 50) {
+        feedbackMessages.push('50% da hidratação diária concluída');
+      }
+
+      if (liters > 0 && previousSummary.percentage < 100 && nextSummary.percentage >= 100) {
+        feedbackMessages.push('Meta diária de hidratação concluída');
+      }
+
       return {
         ...prev,
         hydration: {
           ...prev.hydration,
-          currentIntake: Math.min(currentIntake + liters, prev.hydration.dailyGoalLiters * 1.5),
+          currentIntake: nextIntake,
+          dailyGoalLiters: nextSummary.goalLiters,
           lastResetDate: today,
         },
       };
     });
-  }, []);
+
+    feedbackMessages.slice(0, 2).forEach((message) => toast.success(message));
+  }, [weightKg, workoutIntensity]);
 
   const resetDailyHydration = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
     setState((prev) => ({
       ...prev,
-      hydration: { ...prev.hydration, currentIntake: 0, lastResetDate: today },
+      hydration: {
+        ...prev.hydration,
+        currentIntake: 0,
+        lastResetDate: today,
+      },
     }));
   }, []);
 
-  // Supplements
   const updateSupplement = useCallback((id: string, updates: Partial<SupplementReminder>) => {
     setState((prev) => ({
       ...prev,
@@ -267,7 +402,6 @@ export const useAlerts = () => {
     }));
   }, []);
 
-  // Workout
   const updateWorkoutReminder = useCallback((updates: Partial<WorkoutReminder>) => {
     setState((prev) => ({
       ...prev,
@@ -275,7 +409,6 @@ export const useAlerts = () => {
     }));
   }, []);
 
-  // Sleep
   const updateSleep = useCallback((updates: Partial<SleepSettings>) => {
     setState((prev) => ({
       ...prev,
@@ -283,7 +416,6 @@ export const useAlerts = () => {
     }));
   }, []);
 
-  // Streak
   const recordWorkout = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
     setState((prev) => {
@@ -292,18 +424,14 @@ export const useAlerts = () => {
       const yesterdayStr = yesterday.toISOString().split('T')[0];
 
       let newStreak = prev.streak.currentStreak;
-      
+
       if (prev.streak.lastWorkoutDate === today) {
-        // Already recorded today
         return prev;
       } else if (prev.streak.lastWorkoutDate === yesterdayStr) {
-        // Consecutive day
         newStreak += 1;
       } else if (prev.streak.lastWorkoutDate === null) {
-        // First workout
         newStreak = 1;
       } else {
-        // Streak broken, start over
         newStreak = 1;
       }
 
@@ -319,7 +447,6 @@ export const useAlerts = () => {
     });
   }, []);
 
-  // Quick Timer
   const startQuickTimer = useCallback((seconds: number) => {
     setActiveQuickTimer(seconds);
     setQuickTimerRemaining(seconds);
@@ -334,40 +461,34 @@ export const useAlerts = () => {
     setState((prev) => ({ ...prev, quickTimers: timers }));
   }, []);
 
-  // Calculate sleep hours
   const getSleepHours = useCallback(() => {
     const [bedH, bedM] = state.sleep.bedtime.split(':').map(Number);
     const [wakeH, wakeM] = state.sleep.wakeTime.split(':').map(Number);
-    
+
     let bedMinutes = bedH * 60 + bedM;
     let wakeMinutes = wakeH * 60 + wakeM;
-    
+
     if (wakeMinutes < bedMinutes) {
-      wakeMinutes += 24 * 60; // Next day
+      wakeMinutes += 24 * 60;
     }
-    
+
     return (wakeMinutes - bedMinutes) / 60;
   }, [state.sleep]);
 
   return {
     state,
     isLoading,
-    // Hydration
+    hydrationSummary,
     updateHydration,
     addWaterIntake,
     resetDailyHydration,
-    // Supplements
     updateSupplement,
     addSupplement,
     removeSupplement,
-    // Workout
     updateWorkoutReminder,
-    // Sleep
     updateSleep,
     getSleepHours,
-    // Streak
     recordWorkout,
-    // Quick Timer
     startQuickTimer,
     stopQuickTimer,
     activeQuickTimer,
