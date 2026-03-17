@@ -24,8 +24,8 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="muscle-status" className={cardBase}>
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15">
-          <Activity className="h-5 w-5 text-emerald-500" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+          <Activity className="h-5 w-5 text-primary" />
         </div>
         <p className="text-sm font-bold text-foreground">Estado muscular hoje</p>
       </div>
@@ -50,8 +50,8 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="recovery-trend" className={cardBase}>
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/15">
-          <TrendingUp className="h-5 w-5 text-blue-500" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+          <TrendingUp className="h-5 w-5 text-foreground" />
         </div>
         <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
       </div>
@@ -81,8 +81,8 @@ export const StatusCarousel = () => {
           {mostRecovered.length > 0 && (
             <div className="border-t border-border/30 pt-2">
               <div className="mb-1 flex items-center gap-2">
-                <Dumbbell className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-xs font-medium text-emerald-500">Sugestão de treino hoje</span>
+                <Dumbbell className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
               </div>
               <p className="text-xs text-muted-foreground">
                 Músculos mais recuperados:{" "}
@@ -129,15 +129,15 @@ export const StatusCarousel = () => {
         className={`${cardBase} cursor-pointer`}
       >
         <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
           <p className="text-sm font-bold text-foreground">Fadiga elevada detectada</p>
         </div>
 
         <div className="mb-3 space-y-2">
           {fatigued.map((muscle) => (
-            <p key={muscle.muscle_group} className="text-sm text-red-400">
+            <p key={muscle.muscle_group} className="text-sm text-destructive">
               {getMuscleLabel(muscle.muscle_group)} com fadiga alta ({muscle.current_fatigue}%)
             </p>
           ))}

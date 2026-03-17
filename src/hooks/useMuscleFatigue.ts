@@ -43,26 +43,26 @@ function getStatusLabel(status: MuscleFatigueEntry["status"]): string {
 function getStatusColor(status: MuscleFatigueEntry["status"]): string {
   switch (status) {
     case "recovered":
-      return "text-emerald-500";
+      return "text-primary";
     case "almost_recovered":
-      return "text-blue-400";
+      return "text-chart-2";
     case "recovering":
-      return "text-amber-500";
+      return "text-chart-3";
     case "fatigued":
-      return "text-red-500";
+      return "text-destructive";
   }
 }
 
 function getStatusDotColor(status: MuscleFatigueEntry["status"]): string {
   switch (status) {
     case "recovered":
-      return "bg-emerald-500";
+      return "bg-primary";
     case "almost_recovered":
-      return "bg-blue-400";
+      return "bg-chart-2";
     case "recovering":
-      return "bg-amber-500";
+      return "bg-chart-3";
     case "fatigued":
-      return "bg-red-500";
+      return "bg-destructive";
   }
 }
 
