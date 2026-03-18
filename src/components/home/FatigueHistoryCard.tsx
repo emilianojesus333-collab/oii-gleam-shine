@@ -1,18 +1,19 @@
 import { useMemo } from "react";
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-
-const getFatigueColor = (value: number) => {
-  if (value <= 20) return "hsl(142, 71%, 45%)";
-  if (value <= 40) return "hsl(217, 91%, 60%)";
-  if (value <= 60) return "hsl(48, 96%, 53%)";
-  if (value <= 80) return "hsl(25, 95%, 53%)";
-  return "hsl(0, 84%, 60%)";
-};
 
 const getFatigueLabel = (value: number) => {
   if (value <= 20) return "Recuperado";
@@ -23,19 +24,19 @@ const getFatigueLabel = (value: number) => {
 };
 
 interface ChartDataPoint {
-  date: string;
+  xLabel: string;
   fatigue: number;
   fullDate: string;
-  color: string;
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload as ChartDataPoint;
+
   return (
     <div className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-xl">
       <p className="text-[10px] text-muted-foreground">{data.fullDate}</p>
-      <p className="text-sm font-semibold" style={{ color: data.color }}>
+      <p className="mt-1 text-sm font-semibold text-foreground">
         {data.fatigue}/100 — {getFatigueLabel(data.fatigue)}
       </p>
     </div>
@@ -71,7 +72,6 @@ export const FatigueHistoryCard = () => {
   const chartData = useMemo<ChartDataPoint[]>(() => {
     if (!fatigueHistory?.length) return [];
 
-    // Group by date, keep last value per day
     const byDate = new Map<string, { fatigue: number; date: Date }>();
 
     for (const log of fatigueHistory) {
@@ -81,15 +81,47 @@ export const FatigueHistoryCard = () => {
       byDate.set(key, { fatigue: log.fatigue_index_used, date: d });
     }
 
-    return Array.from(byDate.entries())
+    const recent = Array.from(byDate.entries())
       .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-3)
       .map(([, { fatigue, date }]) => ({
-        date: date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" }),
         fatigue,
-        fullDate: date.toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" }),
-        color: getFatigueColor(fatigue),
+        fullDate: date.toLocaleDateString("pt-PT", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
       }));
+
+    const axisLabelsByLength: Record<number, string[]> = {
+      1: ["Agora"],
+      2: ["24h", "Agora"],
+      3: ["48h", "24h", "Agora"],
+    };
+
+    const axisLabels = axisLabelsByLength[recent.length] || recent.map(() => "Agora");
+
+    return recent.map((point, index) => ({
+      ...point,
+      xLabel: axisLabels[index],
+    }));
   }, [fatigueHistory]);
+
+  const trend = useMemo(() => {
+    if (chartData.length < 2) return null;
+
+    const first = chartData[0].fatigue;
+    const last = chartData[chartData.length - 1].fatigue;
+    const difference = last - first;
+
+    if (Math.abs(difference) <= 3) {
+      return { label: "Estável", detail: "variação baixa" };
+    }
+
+    return difference < 0
+      ? { label: "A melhorar", detail: `${Math.abs(difference)} pts abaixo` }
+      : { label: "A piorar", detail: `${Math.abs(difference)} pts acima` };
+  }, [chartData]);
 
   if (isLoading) return null;
 
@@ -98,75 +130,85 @@ export const FatigueHistoryCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 p-4"
+      className="rounded-2xl border border-border/30 bg-card/70 p-4 backdrop-blur-sm"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
-          <Activity className="h-4 w-4 text-primary" />
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+            <Activity className="h-4 w-4 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Histórico de Recuperação</h3>
         </div>
-        <h3 className="text-sm font-semibold text-foreground">Histórico de Recuperação</h3>
+        {trend && (
+          <div className="rounded-full border border-border/50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            {trend.label}
+          </div>
+        )}
       </div>
 
-      {chartData.length < 3 ? (
+      {chartData.length < 2 ? (
         <div className="flex items-center justify-center py-6">
-          <p className="text-xs text-muted-foreground text-center leading-relaxed">
-            Completa alguns treinos para ver a evolução da recuperação.
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            Completa mais treinos para ver a tendência recente.
           </p>
         </div>
       ) : (
         <>
-          <div className="h-[120px] w-full">
+          <div className="h-[138px] w-full rounded-xl border border-border/30 bg-background/70 px-2 py-3">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="fatigueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
+              <LineChart data={chartData} margin={{ top: 6, right: 8, left: 8, bottom: 0 }}>
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.3} />
                 <XAxis
-                  dataKey="date"
+                  dataKey="xLabel"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
-                  interval="preserveStartEnd"
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
                 />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
-                  domain={[0, 100]}
-                  ticks={[0, 50, 100]}
+                <YAxis hide domain={[0, 100]} />
+                <ReferenceLine
+                  y={35}
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeOpacity={0.55}
+                  strokeDasharray="4 4"
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Area
+                <Line
                   type="monotone"
                   dataKey="fatigue"
-                  stroke="hsl(var(--primary))"
+                  stroke="hsl(var(--foreground))"
                   strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#fatigueGrad)"
-                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
-                  activeDot={{ fill: "hsl(var(--primary))", stroke: "hsl(var(--background))", strokeWidth: 2, r: 5 }}
+                  dot={({ cx, cy, index }) => {
+                    if (cx == null || cy == null) return null;
+                    const isFirst = index === 0;
+                    const isLast = index === chartData.length - 1;
+
+                    if (!isFirst && !isLast) return null;
+
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={isLast ? 4.5 : 3}
+                        fill={isLast ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))"}
+                        stroke="hsl(var(--background))"
+                        strokeWidth={isLast ? 2 : 1}
+                      />
+                    );
+                  }}
+                  activeDot={{
+                    r: 5,
+                    fill: "hsl(var(--foreground))",
+                    stroke: "hsl(var(--background))",
+                    strokeWidth: 2,
+                  }}
                 />
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Color legend */}
-          <div className="flex items-center justify-center gap-3 mt-2 flex-wrap">
-            {[
-              { label: "Recuperado", color: "hsl(142, 71%, 45%)" },
-              { label: "Leve", color: "hsl(217, 91%, 60%)" },
-              { label: "Moderada", color: "hsl(48, 96%, 53%)" },
-              { label: "Alta", color: "hsl(25, 95%, 53%)" },
-              { label: "Muito alta", color: "hsl(0, 84%, 60%)" },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-1">
-                <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-[9px] text-muted-foreground">{item.label}</span>
-              </div>
-            ))}
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span className="truncate">Linha pontilhada = zona ideal</span>
+            {trend && <span className="shrink-0">{trend.detail}</span>}
           </div>
         </>
       )}
