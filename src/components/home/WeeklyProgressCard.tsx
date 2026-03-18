@@ -1,120 +1,63 @@
 import { motion } from "framer-motion";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
+const barTone = {
+  rest: "bg-muted/40",
+  low: "bg-primary/35",
+  medium: "bg-primary/60",
+  high: "bg-primary",
+} as const;
+
 export function WeeklyProgressCard() {
   const { data, loading } = useWeeklyStats();
 
   if (loading || !data) {
     return (
-      <div className="rounded-2xl p-5 animate-pulse" style={{ backgroundColor: "#111827" }}>
-        <div className="h-32" />
-      </div>);
-
+      <div className="animate-pulse rounded-2xl border border-border/50 bg-card p-5 sm:p-6">
+        <div className="h-44" />
+      </div>
+    );
   }
-
-  const { completedSessions, plannedSessions, totalSets, totalReps, totalMinutes, dailyActivity } = data;
-  const planned = Math.max(plannedSessions, 1);
-  const pct = Math.min(Math.round(completedSessions / planned * 100), 100);
-
-  // Ring SVG params
-  const size = 100;
-  const stroke = 8;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - pct / 100 * circumference;
-
-  const dayLabels = ["S", "T", "Q", "Q", "S", "S", "D"];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
-      className="rounded-2xl p-5 sm:p-6"
-      style={{ backgroundColor: "#111827", border: "1px solid #1F2937" }}>
-      
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF] mb-4">
-        Progresso da Semana
-      </h3>
-
-      <div className="flex items-center gap-5">
-        {/* Left side */}
-        <div className="flex-1 space-y-3">
-          <p className="text-2xl font-black text-[#F3F4F6]">
-            {completedSessions} / {plannedSessions}
-            <span className="text-sm font-normal text-[#9CA3AF] ml-1.5">treinos</span>
-          </p>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalSets} Séries
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalReps} Reps
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalMinutes} Min
-            </div>
-          </div>
-
-          {/* Mini bar chart (7 days) */}
-          <div className="flex items-end gap-1 pt-2">
-            {dailyActivity.map((active, i) =>
-            <div key={i} className="flex flex-col items-center gap-0.5">
-                <div
-                className="w-4 rounded-sm transition-all"
-                style={{
-                  height: active ? 16 : 6,
-                  backgroundColor: active ? "#22C55E" : "#1F2937"
-                }} />
-              
-                <span className="text-[8px] text-[#9CA3AF]">{dayLabels[i]}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right side — Ring */}
-        <div className="relative flex-shrink-0">
-          <svg width={size} height={size} className="-rotate-90">
-            {/* Background ring */}
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke="#1F2937"
-              strokeWidth={stroke} />
-            
-            {/* Progress ring */}
-            <motion.circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke="#22C55E"
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              initial={{ strokeDashoffset: circumference }}
-              animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }} />
-            
-          </svg>
-          {/* Center text */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center mr-0">
-            <span className="text-lg font-black text-[#F3F4F6] leading-none">
-              {completedSessions}/{plannedSessions}
-            </span>
-            <span className="text-[10px] text-[#9CA3AF] mt-0.5">
-              {pct}%
-            </span>
-          </div>
+      className="rounded-2xl border border-border/50 bg-card p-5 sm:p-6"
+    >
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Intensidade semanal
+          </h3>
+          <p className="mt-2 text-2xl font-black tracking-tight text-foreground">Últimos 7 dias</p>
         </div>
       </div>
-    </motion.div>);
 
+      <div className="relative h-44">
+        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-2">
+          {[0, 1, 2, 3].map((line) => (
+            <div key={line} className="border-t border-border/30 border-dashed" />
+          ))}
+        </div>
+
+        <div className="relative flex h-full items-end justify-between gap-2 pt-4">
+          {data.intensityWeek.map((day, index) => (
+            <div key={`${day.label}-${index}`} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+              <div className="flex h-32 w-full items-end justify-center">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${day.value}%` }}
+                  transition={{ duration: 0.45, ease: "easeOut", delay: index * 0.04 }}
+                  className={`w-full max-w-[26px] rounded-t-xl rounded-b-md ${barTone[day.level]}`}
+                />
+              </div>
+              <span className="text-[11px] font-medium text-muted-foreground">{day.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
 }

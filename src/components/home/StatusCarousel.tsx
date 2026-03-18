@@ -1,17 +1,60 @@
 import { motion } from "framer-motion";
-import { Activity, AlertTriangle, TrendingUp, Dumbbell, Clock, Droplets } from "lucide-react";
+import { AlertTriangle, Clock3, Droplets } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import {
-  useMuscleFatigue,
-  getStatusLabel,
-  getStatusColor,
-  getStatusDotColor,
-  getMuscleLabel,
-} from "@/hooks/useMuscleFatigue";
+import { useMuscleFatigue, getStatusLabel, getMuscleLabel } from "@/hooks/useMuscleFatigue";
 
 const cardBase =
-  "flex min-h-[180px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
+  "flex h-[172px] w-full flex-col justify-between rounded-2xl border border-border/50 bg-card p-5";
+
+interface StatusSlideProps {
+  title: string;
+  value: string;
+  status: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "primary" | "destructive" | "secondary";
+  onClick?: () => void;
+}
+
+const toneClasses = {
+  primary: "bg-primary/10 text-primary",
+  destructive: "bg-destructive/10 text-destructive",
+  secondary: "bg-secondary text-foreground",
+} satisfies Record<StatusSlideProps["tone"], string>;
+
+const StatusSlide = ({ title, value, status, icon: Icon, tone, onClick }: StatusSlideProps) => {
+  const content = (
+    <div className={cardBase}>
+      <div className="flex items-center gap-3">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${toneClasses[tone]}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <p className="truncate text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          {title}
+        </p>
+      </div>
+
+      <div className="flex flex-1 items-center py-3">
+        <p className="truncate text-4xl font-black tracking-tight text-foreground">{value}</p>
+      </div>
+
+      <p className="truncate text-sm text-muted-foreground">{status}</p>
+    </div>
+  );
+
+  if (!onClick) return content;
+
+  return (
+    <motion.button
+      type="button"
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className="w-full text-left"
+    >
+      {content}
+    </motion.button>
+  );
+};
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -19,137 +62,79 @@ export const StatusCarousel = () => {
 
   if (loading) return null;
 
-  const slides: React.ReactNode[] = [];
+  const fatigueLead = [...muscles].sort((a, b) => b.current_fatigue - a.current_fatigue)[0];
+  const nextRecovered = [...muscles]
+    .filter((muscle) => muscle.current_fatigue > 0)
+    .sort((a, b) => a.hours_to_recovery - b.hours_to_recovery)[0];
 
-  slides.push(
-    <div key="muscle-status" className={cardBase}>
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-          <Activity className="h-5 w-5 text-primary" />
-        </div>
-        <p className="text-sm font-bold text-foreground">Estado muscular hoje</p>
-      </div>
+  const hydrationRatio = hydrationContext.goalLiters > 0
+    ? hydrationContext.currentIntakeLiters / hydrationContext.goalLiters
+    : 0;
 
-      <div className="flex-1 space-y-2.5">
-        {muscles.map((muscle) => (
-          <div key={muscle.muscle_group} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className={`h-2 w-2 rounded-full ${getStatusDotColor(muscle.status)}`} />
-              <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
-            </div>
-            <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
-              {getStatusLabel(muscle.status)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const hydrationStatus = hydrationRatio < 0.5
+    ? "Baixa · recuperação mais lenta"
+    : hydrationRatio < 0.8
+      ? "Adequada · recuperação normal"
+      : "Ideal · recuperação otimizada";
 
-  const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
-  slides.push(
-    <div key="recovery-trend" className={cardBase}>
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
-          <TrendingUp className="h-5 w-5 text-foreground" />
-        </div>
-        <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3">
-        {recovering.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Todos os músculos estão recuperados. Bom treino!
-          </p>
-        ) : (
-          recovering
-            .sort((a, b) => b.hours_to_recovery - a.hours_to_recovery)
-            .map((muscle) => (
-              <div key={muscle.muscle_group} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  ≈ {muscle.hours_to_recovery}h para recuperar
-                </span>
-              </div>
-            ))
-        )}
-
-        <div className="mt-auto space-y-2 pt-2">
-          {mostRecovered.length > 0 && (
-            <div className="border-t border-border/30 pt-2">
-              <div className="mb-1 flex items-center gap-2">
-                <Dumbbell className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Músculos mais recuperados:{" "}
-                <span className="font-medium text-foreground">
-                  {mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ")}
-                </span>
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-xl border border-border/40 bg-background/40 p-3">
-            <div className="flex items-start gap-2">
-              <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-foreground">Contexto de hidratação</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {hydrationContext.message}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {hydrationContext.currentIntakeLiters.toFixed(1)} / {hydrationContext.goalLiters.toFixed(1)} L · recuperação a {hydrationContext.recoveryRatePerHour}%/h
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (fatigued.length > 0) {
-    slides.push(
-      <motion.div
-        key="fatigue-alert"
-        whileTap={{ scale: 0.97 }}
-        onClick={() =>
-          navigate("/chat", {
-            state: {
-              prefill: `Os meus músculos com fadiga alta são: ${fatigued
-                .map((muscle) => `${getMuscleLabel(muscle.muscle_group)} (${muscle.current_fatigue}%)`)
-                .join(", ")}. Que treino recomendam para hoje?`,
-            },
-          })
-        }
-        className={`${cardBase} cursor-pointer`}
-      >
-        <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-          </div>
-          <p className="text-sm font-bold text-foreground">Fadiga elevada detectada</p>
-        </div>
-
-        <div className="mb-3 space-y-2">
-          {fatigued.map((muscle) => (
-            <p key={muscle.muscle_group} className="text-sm text-destructive">
-              {getMuscleLabel(muscle.muscle_group)} com fadiga alta ({muscle.current_fatigue}%)
-            </p>
-          ))}
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          Treinar novamente agora pode reduzir desempenho. Considera treinar outro grupo muscular hoje.
-        </p>
-        <p className="mt-2 text-xs font-medium text-primary">Toca para pedir conselho à IA →</p>
-      </motion.div>
-    );
-  }
+  const slides = [
+    {
+      key: "fatigue",
+      node: (
+        <StatusSlide
+          title="Fadiga"
+          value={`${Math.round(fatigueLead?.current_fatigue ?? 0)}%`}
+          status={
+            fatigueLead
+              ? `${getMuscleLabel(fatigueLead.muscle_group)} · ${getStatusLabel(fatigueLead.status)}`
+              : "Sem fadiga relevante hoje"
+          }
+          icon={AlertTriangle}
+          tone={fatigued.length > 0 ? "destructive" : "secondary"}
+          onClick={
+            fatigued.length > 0
+              ? () =>
+                  navigate("/chat", {
+                    state: {
+                      prefill: `Os meus músculos com fadiga alta são: ${fatigued
+                        .map((muscle) => `${getMuscleLabel(muscle.muscle_group)} (${muscle.current_fatigue}%)`)
+                        .join(", ")}. Que treino recomendam para hoje?`,
+                    },
+                  })
+              : undefined
+          }
+        />
+      ),
+    },
+    {
+      key: "recovery",
+      node: (
+        <StatusSlide
+          title="Recuperação"
+          value={nextRecovered ? `~${Math.ceil(nextRecovered.hours_to_recovery)}h` : "100%"}
+          status={
+            nextRecovered
+              ? `${getMuscleLabel(nextRecovered.muscle_group)} recupera primeiro`
+              : `Prontos hoje: ${mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ") || "todos"}`
+          }
+          icon={Clock3}
+          tone="primary"
+        />
+      ),
+    },
+    {
+      key: "hydration",
+      node: (
+        <StatusSlide
+          title="Hidratação"
+          value={`${hydrationContext.currentIntakeLiters.toFixed(1)}L`}
+          status={hydrationStatus}
+          icon={Droplets}
+          tone="primary"
+        />
+      ),
+    },
+  ];
 
   return (
     <motion.div
@@ -159,20 +144,19 @@ export const StatusCarousel = () => {
     >
       <Carousel opts={{ align: "start", loop: false }} className="w-full">
         <CarouselContent className="-ml-3">
-          {slides.map((slide, index) => (
-            <CarouselItem key={index} className="basis-full pl-3">
-              {slide}
+          {slides.map((slide) => (
+            <CarouselItem key={slide.key} className="basis-full pl-3">
+              {slide.node}
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
-      {slides.length > 1 && (
-        <div className="mt-3 flex justify-center gap-1.5">
-          {slides.map((_, index) => (
-            <div key={index} className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-          ))}
-        </div>
-      )}
+
+      <div className="mt-3 flex justify-center gap-1.5">
+        {slides.map((slide) => (
+          <div key={slide.key} className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+        ))}
+      </div>
     </motion.div>
   );
 };
