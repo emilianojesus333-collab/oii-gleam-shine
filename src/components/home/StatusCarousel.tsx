@@ -12,7 +12,7 @@ interface StatusSlideProps {
   title: string;
   value: string;
   status: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   tone: "primary" | "destructive" | "secondary";
   onClick?: () => void;
 }

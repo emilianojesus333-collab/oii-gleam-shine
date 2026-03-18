@@ -11,7 +11,7 @@ interface HydrationCardProps {
 }
 
 export const HydrationCard = ({
-  settings,
+  settings: _settings,
   hydrationSummary,
   onUpdate: _onUpdate,
   onAddWater,
