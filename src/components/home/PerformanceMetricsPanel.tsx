@@ -1,14 +1,7 @@
 import { motion } from "framer-motion";
-import * as RechartsPrimitive from "recharts";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Activity, TrendingUp, Dumbbell, Calendar, Heart } from "lucide-react";
 import { usePerformanceMetrics } from "@/hooks/usePerformanceMetrics";
-
-const AreaChart = RechartsPrimitive.AreaChart as any;
-const Area = RechartsPrimitive.Area as any;
-const XAxis = RechartsPrimitive.XAxis as any;
-const YAxis = RechartsPrimitive.YAxis as any;
-const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
-const Tooltip = RechartsPrimitive.Tooltip as any;
 
 const getPerformanceColor = (score: number) => {
   if (score >= 90) return "hsl(142, 71%, 45%)";

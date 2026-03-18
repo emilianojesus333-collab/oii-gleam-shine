@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Activity, AlertTriangle, Clock, Droplets } from "lucide-react";
+import { Activity, AlertTriangle, TrendingUp, Dumbbell, Clock, Droplets } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import {
@@ -11,10 +11,7 @@ import {
 } from "@/hooks/useMuscleFatigue";
 
 const cardBase =
-  "flex h-[172px] w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card p-4";
-
-const cardTitleClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground";
-const footerClass = "truncate text-xs text-muted-foreground";
+  "flex min-h-[180px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -22,81 +19,104 @@ export const StatusCarousel = () => {
 
   if (loading) return null;
 
-  const recoveredCount = muscles.filter((muscle) => getStatusLabel(muscle.status) === "Recuperado").length;
-  const recoveryQueue = [...muscles]
-    .filter((muscle) => muscle.current_fatigue > 0)
-    .sort((a, b) => b.hours_to_recovery - a.hours_to_recovery);
-  const slowestRecovery = recoveryQueue[0];
-  const topFatigued = [...fatigued].sort((a, b) => b.current_fatigue - a.current_fatigue)[0];
-
   const slides: React.ReactNode[] = [];
 
   slides.push(
     <div key="muscle-status" className={cardBase}>
-      <div className="flex items-center justify-between gap-3">
-        <p className={cardTitleClass}>Estado muscular</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-          <Activity className="h-4 w-4 text-primary" />
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+          <Activity className="h-5 w-5 text-primary" />
         </div>
+        <p className="text-sm font-bold text-foreground">Estado muscular hoje</p>
       </div>
 
-      <div className="mt-4 flex-1 space-y-2 overflow-hidden">
-        {muscles.slice(0, 5).map((muscle) => (
-          <div key={muscle.muscle_group} className="flex items-center justify-between gap-3 text-sm">
-            <div className="flex min-w-0 items-center gap-2">
-              <div className={`h-2 w-2 shrink-0 rounded-full ${getStatusDotColor(muscle.status)}`} />
-              <span className="truncate text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
+      <div className="flex-1 space-y-2.5">
+        {muscles.map((muscle) => (
+          <div key={muscle.muscle_group} className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`h-2 w-2 rounded-full ${getStatusDotColor(muscle.status)}`} />
+              <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
             </div>
-            <span className={`shrink-0 truncate text-xs font-medium ${getStatusColor(muscle.status)}`}>
+            <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
               {getStatusLabel(muscle.status)}
             </span>
           </div>
         ))}
       </div>
-
-      <p className={footerClass}>
-        {recoveredCount === muscles.length
-          ? "Todos os grupos estão recuperados hoje."
-          : `${recoveredCount}/${muscles.length} grupos com recuperação avançada.`}
-      </p>
     </div>
   );
 
+  const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
   slides.push(
     <div key="recovery-trend" className={cardBase}>
-      <div className="flex items-center justify-between gap-3">
-        <p className={cardTitleClass}>Recuperação</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary">
-          <Clock className="h-4 w-4 text-foreground" />
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+          <TrendingUp className="h-5 w-5 text-foreground" />
+        </div>
+        <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-3">
+        {recovering.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Todos os músculos estão recuperados. Bom treino!
+          </p>
+        ) : (
+          recovering
+            .sort((a, b) => b.hours_to_recovery - a.hours_to_recovery)
+            .map((muscle) => (
+              <div key={muscle.muscle_group} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  ≈ {muscle.hours_to_recovery}h para recuperar
+                </span>
+              </div>
+            ))
+        )}
+
+        <div className="mt-auto space-y-2 pt-2">
+          {mostRecovered.length > 0 && (
+            <div className="border-t border-border/30 pt-2">
+              <div className="mb-1 flex items-center gap-2">
+                <Dumbbell className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Músculos mais recuperados:{" "}
+                <span className="font-medium text-foreground">
+                  {mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ")}
+                </span>
+              </p>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-border/40 bg-background/40 p-3">
+            <div className="flex items-start gap-2">
+              <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div>
+                <p className="text-xs font-medium text-foreground">Contexto de hidratação</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {hydrationContext.message}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {hydrationContext.currentIntakeLiters.toFixed(1)} / {hydrationContext.goalLiters.toFixed(1)} L · recuperação a {hydrationContext.recoveryRatePerHour}%/h
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-1 flex-col items-center justify-center overflow-hidden text-center">
-        <p className="text-4xl font-black leading-none text-foreground">
-          {slowestRecovery ? `${Math.round(slowestRecovery.hours_to_recovery)}h` : "0h"}
-        </p>
-        <p className="mt-2 truncate text-sm text-muted-foreground">
-          {slowestRecovery
-            ? `${getMuscleLabel(slowestRecovery.muscle_group)} em recuperação total`
-            : "Recuperação equilibrada"}
-        </p>
-        <p className="mt-2 w-full truncate text-xs text-primary">
-          {mostRecovered.length > 0
-            ? `Sugestão: ${mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ")}`
-            : "Bom momento para manter o plano de treino."}
-        </p>
-      </div>
-
-      <p className={footerClass}>{hydrationContext.message}</p>
     </div>
   );
 
-  if (fatigued.length > 0 && topFatigued) {
+  if (fatigued.length > 0) {
     slides.push(
-      <motion.button
-        type="button"
+      <motion.div
         key="fatigue-alert"
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.97 }}
         onClick={() =>
           navigate("/chat", {
             state: {
@@ -106,27 +126,28 @@ export const StatusCarousel = () => {
             },
           })
         }
-        className={`${cardBase} cursor-pointer text-left`}
+        className={`${cardBase} cursor-pointer`}
       >
-        <div className="flex items-center justify-between gap-3">
-          <p className={cardTitleClass}>Fadiga</p>
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-destructive/10">
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
+          <p className="text-sm font-bold text-foreground">Fadiga elevada detectada</p>
         </div>
 
-        <div className="flex flex-1 flex-col items-center justify-center overflow-hidden text-center">
-          <p className="text-4xl font-black leading-none text-foreground">
-            {Math.round(topFatigued.current_fatigue)}%
-          </p>
-          <p className="mt-2 truncate text-sm text-muted-foreground">
-            {getMuscleLabel(topFatigued.muscle_group)} com fadiga alta
-          </p>
-          <p className="mt-2 truncate text-xs text-primary">Toque para pedir sugestão à IA</p>
+        <div className="mb-3 space-y-2">
+          {fatigued.map((muscle) => (
+            <p key={muscle.muscle_group} className="text-sm text-destructive">
+              {getMuscleLabel(muscle.muscle_group)} com fadiga alta ({muscle.current_fatigue}%)
+            </p>
+          ))}
         </div>
 
-        <p className={footerClass}>Evita repetir este grupo agora para proteger o desempenho.</p>
-      </motion.button>
+        <p className="text-xs text-muted-foreground">
+          Treinar novamente agora pode reduzir desempenho. Considera treinar outro grupo muscular hoje.
+        </p>
+        <p className="mt-2 text-xs font-medium text-primary">Toca para pedir conselho à IA →</p>
+      </motion.div>
     );
   }
 
@@ -139,7 +160,7 @@ export const StatusCarousel = () => {
       <Carousel opts={{ align: "start", loop: false }} className="w-full">
         <CarouselContent className="-ml-3">
           {slides.map((slide, index) => (
-            <CarouselItem key={index} className="basis-[84%] pl-3 sm:basis-[380px]">
+            <CarouselItem key={index} className="basis-full pl-3">
               {slide}
             </CarouselItem>
           ))}

@@ -1,12 +1,5 @@
 import { motion } from 'framer-motion';
-import * as RechartsPrimitive from 'recharts';
-
-const AreaChart = RechartsPrimitive.AreaChart as any;
-const Area = RechartsPrimitive.Area as any;
-const XAxis = RechartsPrimitive.XAxis as any;
-const YAxis = RechartsPrimitive.YAxis as any;
-const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
-const ReferenceLine = RechartsPrimitive.ReferenceLine as any;
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface WeeklyChartProps {
   data: {

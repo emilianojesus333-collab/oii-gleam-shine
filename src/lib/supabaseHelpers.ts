@@ -88,10 +88,10 @@ export async function invokeWithAuth<T = unknown>(
       Authorization: `Bearer ${session.access_token}`,
     };
 
-    const { data, error } = await supabase.functions.invoke(functionName, {
+    const { data, error } = await supabase.functions.invoke<T>(functionName, {
       body: options?.body,
       headers,
-    }) as { data: T | null; error: any };
+    });
 
     if (error) {
       // Check for 401/auth errors and handle silently if requested
