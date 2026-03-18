@@ -1,7 +1,14 @@
 import { useMemo } from "react";
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import * as RechartsPrimitive from "recharts";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
+
+const AreaChart = RechartsPrimitive.AreaChart as any;
+const Area = RechartsPrimitive.Area as any;
+const XAxis = RechartsPrimitive.XAxis as any;
+const YAxis = RechartsPrimitive.YAxis as any;
+const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
+const Tooltip = RechartsPrimitive.Tooltip as any;
 
 interface OneRMRecord {
   id: string;
