@@ -20,15 +20,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DailyLog, mealTypeLabels, mealTypeIcons, MacroGoals, Achievement } from '@/hooks/useNutrition';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import * as RechartsPrimitive from 'recharts';
+
+const AreaChart = RechartsPrimitive.AreaChart as any;
+const Area = RechartsPrimitive.Area as any;
+const XAxis = RechartsPrimitive.XAxis as any;
+const YAxis = RechartsPrimitive.YAxis as any;
+const CartesianGrid = RechartsPrimitive.CartesianGrid as any;
+const Tooltip = RechartsPrimitive.Tooltip as any;
+const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
 
 interface NutritionHistoryProps {
   allLogs: DailyLog[];

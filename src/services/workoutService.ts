@@ -56,10 +56,10 @@ export interface CompleteWorkoutInput {
 export async function completeWorkout(
   input: CompleteWorkoutInput
 ): Promise<CompleteWorkoutResponse> {
-  const { data, error } = await supabase.functions.invoke<CompleteWorkoutResponse>(
+  const { data, error } = await supabase.functions.invoke(
     "complete-workout",
     { body: input }
-  );
+  ) as { data: CompleteWorkoutResponse | null; error: any };
 
   if (error) {
     throw new Error(error.message || "Failed to complete workout");

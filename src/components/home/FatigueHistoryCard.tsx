@@ -1,16 +1,16 @@
 import { useMemo } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import * as RechartsPrimitive from "recharts";
 import { Activity } from "lucide-react";
 import { motion } from "framer-motion";
+
+const CartesianGrid = RechartsPrimitive.CartesianGrid as any;
+const Line = RechartsPrimitive.Line as any;
+const LineChart = RechartsPrimitive.LineChart as any;
+const ReferenceLine = RechartsPrimitive.ReferenceLine as any;
+const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
+const Tooltip = RechartsPrimitive.Tooltip as any;
+const XAxis = RechartsPrimitive.XAxis as any;
+const YAxis = RechartsPrimitive.YAxis as any;
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
