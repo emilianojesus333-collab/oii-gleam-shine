@@ -7,7 +7,14 @@ declare module "framer-motion" {
 }
 
 declare module "canvas-confetti" {
-  const confetti: any;
+  namespace confetti {
+    type Options = Record<string, any>;
+  }
+
+  const confetti: ((options?: confetti.Options) => void) & {
+    reset?: () => void;
+  };
+
   export default confetti;
 }
 
@@ -32,4 +39,6 @@ declare module "@supabase/supabase-js" {
     signInWithPassword(credentials: any): Promise<any>;
     signUp(credentials: any): Promise<any>;
   }
+
+  export function createClient<T = any>(url: string, key: string, options?: any): any;
 }
