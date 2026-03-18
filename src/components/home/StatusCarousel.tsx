@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import type { ComponentType } from "react";
 import { AlertTriangle, Clock3, Droplets } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
