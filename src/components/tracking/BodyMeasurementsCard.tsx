@@ -9,15 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import * as RechartsPrimitive from 'recharts';
+
+const LineChart = RechartsPrimitive.LineChart as any;
+const Line = RechartsPrimitive.Line as any;
+const XAxis = RechartsPrimitive.XAxis as any;
+const YAxis = RechartsPrimitive.YAxis as any;
+const CartesianGrid = RechartsPrimitive.CartesianGrid as any;
+const Tooltip = RechartsPrimitive.Tooltip as any;
+const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer as any;
 
 interface BodyMeasurementsCardProps {
   onNavigate?: () => void;
