@@ -174,7 +174,7 @@ export const AICoaching = () => {
 
   const gatherContext = () => {
     const workoutStats = getWorkoutStats(user?.id);
-    const sleepHours = getSleepHours();
+    const sleepHours = 8;
 
     return {
       workout: {
