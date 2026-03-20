@@ -237,11 +237,16 @@ export const useAlerts = () => {
       const currentIntake = needsReset ? 0 : prev.hydration.currentIntake;
       const bottleSizeMl = prev.hydration.bottleSizeMl || 1000;
       const previousSummary = buildHydrationSummary(currentIntake, bottleSizeMl, weightKg, workoutIntensity);
+      const goalLimit = previousSummary.goalLiters;
+      if (liters > 0 && currentIntake >= goalLimit) {
+        feedbackMessages.push('Meta atingida');
+        return prev;
+      }
       const nextIntake = Math.max(
         0,
         Math.min(
           roundToOneDecimal(currentIntake + liters),
-          Math.max(previousSummary.goalLiters * 1.5, 6)
+          goalLimit
         )
       );
       const nextSummary = buildHydrationSummary(nextIntake, bottleSizeMl, weightKg, workoutIntensity);
