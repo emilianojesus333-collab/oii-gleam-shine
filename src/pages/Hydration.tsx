@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Droplets, Plus, Minus, Settings2 } from 'lucide-react';
-import { useState } from 'react';
+import { Droplets, Plus, Minus, Settings2, Target } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
 import { formatLiters, formatBottleSize, HYDRATION_BOTTLE_SIZES } from '@/lib/hydration';
@@ -14,6 +14,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const statusConfig = {
   low: { label: 'Baixo', color: 'text-destructive', ring: 'ring-destructive/30', bg: 'bg-destructive/10' },
@@ -29,6 +30,29 @@ const impactMessages = {
 
 const weekDayLabels = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
 
+function getBodyOpacity(pct: number): number {
+  if (pct <= 30) return 0.25;
+  if (pct <= 70) return 0.5;
+  return 0.85;
+}
+
+function getBodyGlow(pct: number): string {
+  if (pct >= 80) return 'drop-shadow-[0_0_24px_hsl(var(--primary)/0.5)]';
+  if (pct >= 50) return 'drop-shadow-[0_0_12px_hsl(var(--primary)/0.25)]';
+  return '';
+}
+
+function getWeeklyInsight(history: { metGoal: boolean; intake: number }[]): string | null {
+  const metCount = history.filter((d) => d.metGoal).length;
+  const yesterdayMet = history.length >= 2 ? history[history.length - 2]?.metGoal : null;
+
+  if (metCount >= 6) return 'Excelente consistência esta semana.';
+  if (metCount >= 4) return 'Boa consistência esta semana.';
+  if (yesterdayMet === false) return 'Ontem ficaste abaixo da meta.';
+  if (metCount <= 2) return 'Tenta melhorar a consistência esta semana.';
+  return null;
+}
+
 const Hydration = () => {
   const {
     state,
@@ -43,6 +67,18 @@ const Hydration = () => {
   const { status, percentage, currentIntakeLiters, goalLiters, recoveryRatePerHour } = hydrationSummary;
   const config = statusConfig[status];
   const fillPct = Math.min(percentage, 100);
+  const goalReached = currentIntakeLiters >= goalLiters;
+  const remainingMl = Math.max(0, Math.round((goalLiters - currentIntakeLiters) * 1000));
+
+  const weeklyInsight = useMemo(() => getWeeklyInsight(weeklyHistory), [weeklyHistory]);
+
+  const handleAdd = () => {
+    if (goalReached) {
+      toast.info('Meta atingida. Ajusta a meta nas definições se precisares de mais.');
+      return;
+    }
+    addWaterIntake(0.1);
+  };
 
   const handleBottleSizeChange = (sizeMl: number) => {
     updateHydration({ bottleSizeMl: sizeMl });
@@ -112,60 +148,113 @@ const Hydration = () => {
         </div>
       </div>
 
-      {/* Main content — continuous flow, no cards */}
-      <div className="px-6 pt-6">
-        {/* Bottle visual + progress */}
-        <div className="flex flex-col items-center">
-          {/* Circular progress */}
-          <div className="relative flex h-56 w-56 items-center justify-center">
-            <svg className="absolute inset-0 -rotate-90" viewBox="0 0 224 224">
-              <circle
-                cx="112"
-                cy="112"
-                r="100"
-                fill="none"
-                strokeWidth="8"
-                className="stroke-muted/20"
-              />
-              <motion.circle
-                cx="112"
-                cy="112"
-                r="100"
-                fill="none"
-                strokeWidth="8"
-                strokeLinecap="round"
-                className="stroke-primary"
-                strokeDasharray={628}
-                animate={{ strokeDashoffset: 628 - (628 * fillPct) / 100 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              />
-            </svg>
-            <div className="flex flex-col items-center gap-1">
-              <motion.span
-                key={currentIntakeLiters}
-                initial={{ scale: 1.1, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-4xl font-black tracking-tight text-foreground"
-              >
-                {formatLiters(currentIntakeLiters)}
-              </motion.span>
-              <span className="text-sm text-muted-foreground">
-                / {formatLiters(goalLiters)} L
-              </span>
-              <span className={`mt-1 rounded-full px-3 py-0.5 text-xs font-semibold ${config.bg} ${config.color}`}>
-                {config.label}
-              </span>
-            </div>
-          </div>
+      {/* Main content */}
+      <div className="px-6 pt-4">
 
-          {/* Percentage */}
-          <p className="mt-4 text-center text-sm tabular-nums text-muted-foreground">
-            {Math.round(percentage)}% da meta diária
-          </p>
+        {/* Body silhouette with dynamic hydration visual */}
+        <div className="relative mx-auto flex h-[340px] w-full max-w-[300px] items-center justify-center">
+          {/* Human body silhouette */}
+          <motion.svg
+            viewBox="0 0 200 400"
+            className={`h-[300px] w-auto ${getBodyGlow(fillPct)}`}
+            animate={{ opacity: getBodyOpacity(fillPct) }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          >
+            {/* Simplified human silhouette */}
+            <defs>
+              <linearGradient id="bodyFill" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.9" />
+                <motion.stop
+                  offset="100%"
+                  stopColor="hsl(var(--primary))"
+                  animate={{ stopOpacity: fillPct > 80 ? 0.7 : 0.15 }}
+                  transition={{ duration: 0.8 }}
+                />
+              </linearGradient>
+              <clipPath id="bodyClip">
+                <path d="M100,10 C115,10 125,25 125,40 C125,55 115,65 100,65 C85,65 75,55 75,40 C75,25 85,10 100,10 Z M70,72 L60,75 L35,95 L30,105 L35,110 L55,100 L65,90 L65,160 L55,250 L50,330 L55,340 L70,340 L80,260 L100,210 L120,260 L130,340 L145,340 L150,330 L145,250 L135,160 L135,90 L145,100 L165,110 L170,105 L165,95 L140,75 L130,72 Z" />
+              </clipPath>
+            </defs>
+            {/* Body outline */}
+            <path
+              d="M100,10 C115,10 125,25 125,40 C125,55 115,65 100,65 C85,65 75,55 75,40 C75,25 85,10 100,10 Z M70,72 L60,75 L35,95 L30,105 L35,110 L55,100 L65,90 L65,160 L55,250 L50,330 L55,340 L70,340 L80,260 L100,210 L120,260 L130,340 L145,340 L150,330 L145,250 L135,160 L135,90 L145,100 L165,110 L170,105 L165,95 L140,75 L130,72 Z"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="1.5"
+              strokeOpacity="0.3"
+            />
+            {/* Fill level inside body */}
+            <g clipPath="url(#bodyClip)">
+              <rect x="0" y="0" width="200" height="400" fill="hsl(var(--primary))" fillOpacity="0.08" />
+              <motion.rect
+                x="0"
+                width="200"
+                height="400"
+                fill="url(#bodyFill)"
+                animate={{ y: 400 - (400 * fillPct) / 100 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </g>
+          </motion.svg>
+
+          {/* Intake display overlaid */}
+          <div className="absolute inset-0 flex flex-col items-end justify-between py-2 pr-1">
+            {/* Top — goal */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-primary tabular-nums">
+                {Math.round(goalLiters * 1000)} ml
+              </span>
+              <Target className="h-3.5 w-3.5 text-primary" />
+            </div>
+
+            {/* Middle — current percentage */}
+            <span className="text-sm font-bold text-primary/70 tabular-nums">
+              {Math.round(fillPct)}%
+            </span>
+
+            {/* Bottom — 0% */}
+            <span className="text-xs text-muted-foreground tabular-nums">0%</span>
+          </div>
+        </div>
+
+        {/* Current intake prominent display */}
+        <div className="mt-2 flex flex-col items-center gap-1">
+          <motion.span
+            key={currentIntakeLiters}
+            initial={{ scale: 1.08, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-3xl font-black tracking-tight text-foreground tabular-nums"
+          >
+            {Math.round(currentIntakeLiters * 1000)} ml
+          </motion.span>
+
+          <AnimatePresence mode="wait">
+            {goalReached ? (
+              <motion.span
+                key="done"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary"
+              >
+                Meta concluída
+              </motion.span>
+            ) : (
+              <motion.span
+                key="remaining"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-sm text-muted-foreground"
+              >
+                Faltam {remainingMl} ml
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Action buttons */}
-        <div className="mx-auto mt-8 flex max-w-xs gap-3">
+        <div className="mx-auto mt-6 flex max-w-xs gap-3">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => addWaterIntake(-0.1)}
@@ -177,21 +266,26 @@ const Hydration = () => {
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.96 }}
-            onClick={() => addWaterIntake(0.1)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_-12px_hsl(var(--primary)/0.7)] transition-opacity hover:opacity-95"
+            onClick={handleAdd}
+            disabled={goalReached}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all ${
+              goalReached
+                ? 'bg-primary/20 text-primary/60'
+                : 'bg-primary text-primary-foreground shadow-[0_12px_28px_-12px_hsl(var(--primary)/0.7)] hover:opacity-95'
+            }`}
           >
             <Plus className="h-4 w-4" />
-            + 100 ml
+            {goalReached ? 'Meta atingida' : '+ 100 ml'}
           </motion.button>
         </div>
 
         {/* Impact on recovery */}
-        <div className="mt-10">
+        <div className="mt-8">
           <p className={`text-center text-sm leading-relaxed ${config.color}`}>
             {impactMessages[status]}
           </p>
           <p className="mt-1 text-center text-xs text-muted-foreground">
-            Recuperação atual: {recoveryRatePerHour}% por hora
+            Recuperação: {recoveryRatePerHour}%/h
           </p>
         </div>
 
@@ -241,9 +335,21 @@ const Hydration = () => {
           </div>
         </div>
 
+        {/* Weekly insight */}
+        {weeklyInsight && (
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 text-center text-xs text-muted-foreground"
+          >
+            {weeklyInsight}
+          </motion.p>
+        )}
+
         {/* Workout intensity context */}
         {hydrationSummary.bonusLiters > 0 && (
-          <p className="mt-8 text-center text-xs text-muted-foreground">
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             +{formatLiters(hydrationSummary.bonusLiters)} L adicionado pela atividade de hoje
           </p>
         )}
