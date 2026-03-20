@@ -53,7 +53,7 @@ export const AICoaching = () => {
   const [tempTrainingFocus, setTempTrainingFocus] = useState<string>('');
 
   const { progress, goals, weeklyStats } = useNutrition();
-  const { state: alertsState, getSleepHours } = useAlerts();
+  const { state: alertsState } = useAlerts();
   const { permission, showNotification } = usePushNotifications();
 
   // Helper to get user-scoped storage keys
@@ -174,7 +174,7 @@ export const AICoaching = () => {
 
   const gatherContext = () => {
     const workoutStats = getWorkoutStats(user?.id);
-    const sleepHours = getSleepHours();
+    const sleepHours = 8;
 
     return {
       workout: {
