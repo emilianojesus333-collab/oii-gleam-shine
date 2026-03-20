@@ -12,7 +12,7 @@ import Chat from "./pages/Chat";
 import Workout from "./pages/Workout";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
-import Alerts from "./pages/Alerts";
+import Hydration from "./pages/Hydration";
 import Nutrition from "./pages/Nutrition";
 import Paywall from "./pages/Paywall";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -103,10 +103,19 @@ const App = () => (
               }
             />
             <Route
+              path="/hydration"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <Hydration />
+                </ProtectedRoute>
+              }
+            />
+            {/* Legacy redirect */}
+            <Route
               path="/alerts"
               element={
                 <ProtectedRoute requireSubscription>
-                  <Alerts />
+                  <Hydration />
                 </ProtectedRoute>
               }
             />

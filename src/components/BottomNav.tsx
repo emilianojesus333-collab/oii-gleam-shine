@@ -1,4 +1,4 @@
-import { Home, Dumbbell, Apple, MessageCircle, Bell, ClipboardList } from "lucide-react";
+import { Home, Dumbbell, Apple, MessageCircle, Droplets, ClipboardList } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export const BottomNav = () => {
@@ -11,7 +11,7 @@ export const BottomNav = () => {
     { icon: ClipboardList, label: "Histórico", path: "/history" },
     { icon: Apple, label: "Nutrição", path: "/nutrition" },
     { icon: MessageCircle, label: "Chat", path: "/chat" },
-    { icon: Bell, label: "Alarme", path: "/alerts" },
+    { icon: Droplets, label: "Hidratação", path: "/hydration" },
   ];
 
   if (location.pathname === '/chat') {

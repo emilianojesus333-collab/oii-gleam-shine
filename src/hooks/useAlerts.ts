@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-import { useTimerNotification } from './useTimerNotification';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -22,50 +21,11 @@ export interface HydrationSettings {
   bottleSizeMl: number;
   lastReminder: number | null;
   lastResetDate: string | null;
-}
-
-export interface SupplementReminder {
-  id: string;
-  name: string;
-  time: string;
-  enabled: boolean;
-  days: number[];
-  icon: 'pill' | 'shake' | 'powder' | 'capsule';
-  color: string;
-}
-
-export interface WorkoutReminder {
-  enabled: boolean;
-  minutesBefore: number;
-  motivationalMessage: boolean;
-}
-
-export interface SleepSettings {
-  enabled: boolean;
-  bedtime: string;
-  wakeTime: string;
-  reminderMinutesBefore: number;
-}
-
-export interface StreakData {
-  currentStreak: number;
-  longestStreak: number;
-  lastWorkoutDate: string | null;
-  totalWorkouts: number;
-}
-
-export interface QuickTimer {
-  seconds: number;
-  label: string;
+  weeklyHistory?: Record<string, number>;
 }
 
 export interface AlertsState {
   hydration: HydrationSettings;
-  supplements: SupplementReminder[];
-  workout: WorkoutReminder;
-  sleep: SleepSettings;
-  streak: StreakData;
-  quickTimers: QuickTimer[];
 }
 
 const defaultState: AlertsState = {
@@ -77,56 +37,18 @@ const defaultState: AlertsState = {
     bottleSizeMl: 1000,
     lastReminder: null,
     lastResetDate: null,
+    weeklyHistory: {},
   },
-  supplements: [],
-  workout: {
-    enabled: true,
-    minutesBefore: 60,
-    motivationalMessage: true,
-  },
-  sleep: {
-    enabled: true,
-    bedtime: '22:30',
-    wakeTime: '06:30',
-    reminderMinutesBefore: 30,
-  },
-  streak: {
-    currentStreak: 0,
-    longestStreak: 0,
-    lastWorkoutDate: null,
-    totalWorkouts: 0,
-  },
-  quickTimers: [
-    { seconds: 60, label: '1 min' },
-    { seconds: 90, label: '1:30' },
-    { seconds: 120, label: '2 min' },
-    { seconds: 180, label: '3 min' },
-  ],
 };
 
 const STORAGE_KEY_PREFIX = 'gymAlerts_';
 
 const mergeWithDefaults = (rawState: Partial<AlertsState> | null | undefined): AlertsState => ({
   ...defaultState,
-  ...rawState,
   hydration: {
     ...defaultState.hydration,
     ...(rawState?.hydration ?? {}),
   },
-  workout: {
-    ...defaultState.workout,
-    ...(rawState?.workout ?? {}),
-  },
-  sleep: {
-    ...defaultState.sleep,
-    ...(rawState?.sleep ?? {}),
-  },
-  streak: {
-    ...defaultState.streak,
-    ...(rawState?.streak ?? {}),
-  },
-  supplements: rawState?.supplements ?? defaultState.supplements,
-  quickTimers: rawState?.quickTimers ?? defaultState.quickTimers,
 });
 
 export const useAlerts = () => {
@@ -135,10 +57,6 @@ export const useAlerts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const [workoutIntensity, setWorkoutIntensity] = useState<WorkoutIntensity>('none');
-
-  const [activeQuickTimer, setActiveQuickTimer] = useState<number | null>(null);
-  const [quickTimerRemaining, setQuickTimerRemaining] = useState<number>(0);
-  const { notifyTimerEnd } = useTimerNotification();
 
   const hydrationSummary = useMemo<HydrationSummary>(
     () =>
@@ -156,12 +74,25 @@ export const useAlerts = () => {
     const lastResetDate = currentState.hydration.lastResetDate;
 
     if (lastResetDate !== today) {
+      const weeklyHistory = { ...(currentState.hydration.weeklyHistory ?? {}) };
+      if (lastResetDate && currentState.hydration.currentIntake > 0) {
+        weeklyHistory[lastResetDate] = currentState.hydration.currentIntake;
+      }
+      // Keep only last 7 days
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 8);
+      const cutoffStr = cutoff.toISOString().split('T')[0];
+      Object.keys(weeklyHistory).forEach((k) => {
+        if (k < cutoffStr) delete weeklyHistory[k];
+      });
+
       return {
         ...currentState,
         hydration: {
           ...currentState.hydration,
           currentIntake: 0,
           lastResetDate: today,
+          weeklyHistory,
         },
       };
     }
@@ -173,7 +104,6 @@ export const useAlerts = () => {
       setWorkoutIntensity('none');
       return;
     }
-
     try {
       const today = new Date().toISOString().split('T')[0];
       const { data: sessions } = await supabase
@@ -208,7 +138,6 @@ export const useAlerts = () => {
           .maybeSingle();
 
         let loadedState = defaultState;
-
         if (settings?.alerts_config) {
           loadedState = mergeWithDefaults(settings.alerts_config as unknown as Partial<AlertsState>);
         } else {
@@ -289,23 +218,6 @@ export const useAlerts = () => {
     return () => clearTimeout(timeoutId);
   }, [state, user, isLoading]);
 
-  useEffect(() => {
-    if (activeQuickTimer === null) return;
-
-    const interval = setInterval(() => {
-      setQuickTimerRemaining((prev) => {
-        if (prev <= 1) {
-          notifyTimerEnd();
-          setActiveQuickTimer(null);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [activeQuickTimer, notifyTimerEnd]);
-
   const updateHydration = useCallback((updates: Partial<HydrationSettings>) => {
     setState((prev) => ({
       ...prev,
@@ -342,15 +254,12 @@ export const useAlerts = () => {
       if (liters > 0 && nextBottleCount > previousBottleCount) {
         feedbackMessages.push(`${formatBottleSize(bottleSizeMl)} registado`);
       }
-
       if (liters > 0 && nextWholeLiters > previousWholeLiters) {
         feedbackMessages.push(`${nextWholeLiters} L concluído`);
       }
-
       if (liters > 0 && previousSummary.percentage < 50 && nextSummary.percentage >= 50) {
         feedbackMessages.push('50% da hidratação diária concluída');
       }
-
       if (liters > 0 && previousSummary.percentage < 100 && nextSummary.percentage >= 100) {
         feedbackMessages.push('Meta diária de hidratação concluída');
       }
@@ -381,118 +290,44 @@ export const useAlerts = () => {
     }));
   }, []);
 
-  const updateSupplement = useCallback((id: string, updates: Partial<SupplementReminder>) => {
-    setState((prev) => ({
-      ...prev,
-      supplements: prev.supplements.map((s) => (s.id === id ? { ...s, ...updates } : s)),
-    }));
-  }, []);
+  const weeklyHistory = useMemo(() => {
+    const history: { date: string; intake: number; goalLiters: number; metGoal: boolean }[] = [];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const weeklyData = state.hydration.weeklyHistory ?? {};
 
-  const addSupplement = useCallback((supplement: Omit<SupplementReminder, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      supplements: [...prev.supplements, { ...supplement, id: Date.now().toString() }],
-    }));
-  }, []);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
 
-  const removeSupplement = useCallback((id: string) => {
-    setState((prev) => ({
-      ...prev,
-      supplements: prev.supplements.filter((s) => s.id !== id),
-    }));
-  }, []);
-
-  const updateWorkoutReminder = useCallback((updates: Partial<WorkoutReminder>) => {
-    setState((prev) => ({
-      ...prev,
-      workout: { ...prev.workout, ...updates },
-    }));
-  }, []);
-
-  const updateSleep = useCallback((updates: Partial<SleepSettings>) => {
-    setState((prev) => ({
-      ...prev,
-      sleep: { ...prev.sleep, ...updates },
-    }));
-  }, []);
-
-  const recordWorkout = useCallback(() => {
-    const today = new Date().toISOString().split('T')[0];
-    setState((prev) => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-      let newStreak = prev.streak.currentStreak;
-
-      if (prev.streak.lastWorkoutDate === today) {
-        return prev;
-      } else if (prev.streak.lastWorkoutDate === yesterdayStr) {
-        newStreak += 1;
-      } else if (prev.streak.lastWorkoutDate === null) {
-        newStreak = 1;
+      if (dateStr === todayStr) {
+        history.push({
+          date: dateStr,
+          intake: state.hydration.currentIntake,
+          goalLiters: hydrationSummary.goalLiters,
+          metGoal: hydrationSummary.percentage >= 80,
+        });
       } else {
-        newStreak = 1;
+        const intake = weeklyData[dateStr] ?? 0;
+        history.push({
+          date: dateStr,
+          intake,
+          goalLiters: hydrationSummary.goalLiters,
+          metGoal: intake >= hydrationSummary.goalLiters * 0.8,
+        });
       }
-
-      return {
-        ...prev,
-        streak: {
-          currentStreak: newStreak,
-          longestStreak: Math.max(prev.streak.longestStreak, newStreak),
-          lastWorkoutDate: today,
-          totalWorkouts: prev.streak.totalWorkouts + 1,
-        },
-      };
-    });
-  }, []);
-
-  const startQuickTimer = useCallback((seconds: number) => {
-    setActiveQuickTimer(seconds);
-    setQuickTimerRemaining(seconds);
-  }, []);
-
-  const stopQuickTimer = useCallback(() => {
-    setActiveQuickTimer(null);
-    setQuickTimerRemaining(0);
-  }, []);
-
-  const updateQuickTimers = useCallback((timers: QuickTimer[]) => {
-    setState((prev) => ({ ...prev, quickTimers: timers }));
-  }, []);
-
-  const getSleepHours = useCallback(() => {
-    const [bedH, bedM] = state.sleep.bedtime.split(':').map(Number);
-    const [wakeH, wakeM] = state.sleep.wakeTime.split(':').map(Number);
-
-    let bedMinutes = bedH * 60 + bedM;
-    let wakeMinutes = wakeH * 60 + wakeM;
-
-    if (wakeMinutes < bedMinutes) {
-      wakeMinutes += 24 * 60;
     }
-
-    return (wakeMinutes - bedMinutes) / 60;
-  }, [state.sleep]);
+    return history;
+  }, [state.hydration.weeklyHistory, state.hydration.currentIntake, hydrationSummary.goalLiters, hydrationSummary.percentage]);
 
   return {
     state,
     isLoading,
     hydrationSummary,
+    weeklyHistory,
     updateHydration,
     addWaterIntake,
     resetDailyHydration,
-    updateSupplement,
-    addSupplement,
-    removeSupplement,
-    updateWorkoutReminder,
-    updateSleep,
-    getSleepHours,
-    recordWorkout,
-    startQuickTimer,
-    stopQuickTimer,
-    activeQuickTimer,
-    quickTimerRemaining,
-    updateQuickTimers,
   };
 };
