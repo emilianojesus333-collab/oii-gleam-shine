@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface GeneratedExercise {
   name: string;
+  category?: "main" | "accessory";
   sets: number;
   reps: string;
   rest: number;
@@ -31,9 +32,11 @@ interface GeneratedExercise {
 interface GeneratedWorkout {
   warmup: { name: string; duration: string }[];
   exercises: GeneratedExercise[];
+  stretching?: { name: string; duration: string }[];
   cooldown: string;
   estimatedDuration: number;
   difficulty: string;
+  recommendedCount?: number;
   notes?: string;
 }
 
@@ -270,6 +273,9 @@ export const AIWorkoutGenerator = ({
               <Dumbbell className="w-5 h-5 text-blue-400 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{workout.exercises.length}</p>
               <p className="text-xs text-gray-400">{t("home.exercises")}</p>
+              {workout.recommendedCount && workout.recommendedCount < workout.exercises.length && (
+                <p className="text-[10px] text-primary mt-0.5">Rec: {workout.recommendedCount}</p>
+              )}
             </div>
           </div>
 
@@ -334,7 +340,12 @@ export const AIWorkoutGenerator = ({
                   >
                     <span className="text-xs text-gray-500 w-5">{index + 1}</span>
                     <div className="flex-1">
-                      <p className="font-medium text-white">{exercise.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-white">{exercise.name}</p>
+                        {exercise.category === "accessory" && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground">Acessório</span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400">
                         {exercise.sets}x{exercise.reps} • {exercise.rest}s {t("aiWorkout.rest")}
                       </p>
@@ -375,6 +386,20 @@ export const AIWorkoutGenerator = ({
               );
             })}
           </div>
+
+          {/* Stretching */}
+          {workout.stretching && workout.stretching.length > 0 && (
+            <div className="bg-[#2A2A2A]/30 rounded-xl p-4">
+              <h4 className="text-sm font-semibold text-blue-400 mb-2">Alongamento</h4>
+              <div className="space-y-1">
+                {workout.stretching.map((s, i) => (
+                  <p key={i} className="text-sm text-gray-300">
+                    • {s.name} - {s.duration}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Cooldown */}
           {workout.cooldown && (

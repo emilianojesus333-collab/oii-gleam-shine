@@ -52,21 +52,26 @@ serve(async (req) => {
     const fatigueIndex = settingsData?.fatigue_index ?? 0;
     console.log(`[GENERATE-WORKOUT] fatigue_index=${fatigueIndex}`);
 
-    // Determine fatigue adjustment
+    // Determine fatigue adjustment and exercise range
     let fatigueInstruction = "";
     let volumeModifier = "normal";
+    let exerciseRange = { min: 8, max: 12, recommended: 10 };
+
     if (fatigueIndex >= 81) {
-      fatigueInstruction = `\n\nATENÇÃO CRÍTICA: O utilizador tem fadiga MUITO ALTA (${fatigueIndex}/100). Sugere um treino MUITO LEVE focado em mobilidade e recuperação ativa, com volume reduzido em 50%. Ou recomenda descanso completo.`;
+      fatigueInstruction = `\n\nATENÇÃO CRÍTICA: O utilizador tem fadiga MUITO ALTA (${fatigueIndex}/100). NÃO reduzir o número de exercícios abaixo de 7. Em vez disso: reduzir séries para 2 por exercício, reduzir reps em 30%, usar cargas leves. Focar em técnica e controlo.`;
       volumeModifier = "very_low";
+      exerciseRange = { min: 7, max: 9, recommended: 7 };
     } else if (fatigueIndex >= 61) {
-      fatigueInstruction = `\n\nATENÇÃO: O utilizador tem fadiga ALTA (${fatigueIndex}/100). Reduz o volume total em 20%, evita exercícios muito pesados, e foca em técnica e controlo. Não progredas carga.`;
+      fatigueInstruction = `\n\nATENÇÃO: O utilizador tem fadiga ALTA (${fatigueIndex}/100). NÃO reduzir o número de exercícios. Em vez disso: reduzir séries para 2-3 por exercício, manter reps moderadas, evitar cargas máximas.`;
       volumeModifier = "reduced_20";
+      exerciseRange = { min: 7, max: 10, recommended: 8 };
     } else if (fatigueIndex >= 41) {
-      fatigueInstruction = `\n\nNOTA: O utilizador tem fadiga MODERADA (${fatigueIndex}/100). Reduz ligeiramente o volume em 10% e mantém cargas moderadas.`;
+      fatigueInstruction = `\n\nNOTA: O utilizador tem fadiga MODERADA (${fatigueIndex}/100). Manter volume normal com ligeira redução de intensidade. Séries de 3, cargas moderadas.`;
       volumeModifier = "reduced_10";
+      exerciseRange = { min: 8, max: 11, recommended: 9 };
     }
 
-    console.log("[GENERATE-WORKOUT] Request:", { muscleGroups, trainingType, experience, goal, volumeModifier });
+    console.log("[GENERATE-WORKOUT] Request:", { muscleGroups, trainingType, experience, goal, volumeModifier, exerciseRange });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -75,13 +80,22 @@ serve(async (req) => {
 
     const systemPrompt = `És um personal trainer especialista em criar treinos personalizados.
     
-REGRAS:
-- Cria treinos eficazes e seguros
+REGRAS OBRIGATÓRIAS:
+- O treino deve ter entre ${exerciseRange.min} e ${exerciseRange.max} exercícios REAIS (categoria "main" ou "accessory")
+- Recomendado: ${exerciseRange.recommended} exercícios reais
+- Aquecimento e alongamento NÃO contam para o total de exercícios
+- NUNCA gerar menos de 7 exercícios reais (main + accessory)
 - Adapta ao nível de experiência do utilizador
 - Considera o objetivo (ganho de massa, perda de peso, força, etc.)
-- Inclui aquecimento e exercícios principais
+- Garante variedade de exercícios — não repetir padrões de movimento
+- Prioriza exercícios compostos principais + acessórios complementares
+- Mantém equilíbrio entre músculos trabalhados
 - Fornece séries, repetições e tempo de descanso para cada exercício
-- Explica brevemente a execução de cada exercício${fatigueInstruction}
+- Explica brevemente a execução de cada exercício
+
+GESTÃO DE FADIGA:
+- Se fadiga alta: NÃO reduzir número de exercícios. Em vez disso, reduzir séries e intensidade por exercício.
+- Se fadiga baixa: pode gerar até ${exerciseRange.max} exercícios.${fatigueInstruction}
 
 FORMATO DE RESPOSTA (JSON válido):
 {
@@ -91,6 +105,7 @@ FORMATO DE RESPOSTA (JSON válido):
   "exercises": [
     {
       "name": "Nome do exercício",
+      "category": "main" | "accessory",
       "sets": 3,
       "reps": "8-12",
       "rest": 90,
@@ -98,12 +113,24 @@ FORMATO DE RESPOSTA (JSON válido):
       "equipment": "Equipamento necessário"
     }
   ],
-  "cooldown": "Sugestão de alongamento/cooldown",
+  "stretching": [
+    { "name": "Nome do alongamento", "duration": "30 seg" }
+  ],
+  "cooldown": "Sugestão de cooldown",
   "estimatedDuration": 45,
   "difficulty": "Iniciante" | "Intermédio" | "Avançado",
+  "recommendedCount": ${exerciseRange.recommended},
   "notes": "Notas adicionais sobre o treino",
   "fatigue_adjustment": "${volumeModifier}"
-}`;
+}
+
+ESTRUTURA OBRIGATÓRIA DO TREINO:
+1. Aquecimento (warmup) — opcional mas recomendado
+2. Exercícios principais (main) — compostos e de alta prioridade
+3. Exercícios acessórios (accessory) — complementares e isoladores
+4. Alongamento (stretching) — opcional
+
+A soma de exercícios com category "main" + "accessory" deve ser entre ${exerciseRange.min} e ${exerciseRange.max}.`;
 
     const userPrompt = `Cria um treino personalizado com os seguintes parâmetros:
 
@@ -114,7 +141,13 @@ OBJETIVO: ${goal || "Ganho de massa muscular"}
 EQUIPAMENTO DISPONÍVEL: ${equipment || "Ginásio completo"}
 ÍNDICE DE FADIGA: ${fatigueIndex}/100
 
-Cria um treino completo e eficaz. Responde APENAS com o JSON, sem texto adicional.`;
+IMPORTANTE:
+- Gera exatamente entre ${exerciseRange.min} e ${exerciseRange.max} exercícios reais (main + accessory)
+- Recomendado: ${exerciseRange.recommended} exercícios
+- O utilizador não é obrigado a fazer todos — a lista são opções disponíveis
+- Garante variedade e equilíbrio muscular
+
+Responde APENAS com o JSON, sem texto adicional.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -159,10 +192,37 @@ Cria um treino completo e eficaz. Responde APENAS com o JSON, sem texto adiciona
 
     try {
       const workout = JSON.parse(content);
+
+      // ========== VALIDATE EXERCISE COUNT ==========
+      const realExercises = (workout.exercises || []).filter(
+        (ex: any) => ex.category === "main" || ex.category === "accessory" || !ex.category
+      );
+      
+      const totalReal = realExercises.length;
+      console.log(`[GENERATE-WORKOUT] Real exercises: ${totalReal}, range: ${exerciseRange.min}-${exerciseRange.max}`);
+
+      if (totalReal < exerciseRange.min) {
+        console.warn(`[GENERATE-WORKOUT] Below minimum (${totalReal} < ${exerciseRange.min}), returning anyway with warning`);
+      }
+
+      // Ensure all exercises have a category
+      workout.exercises = (workout.exercises || []).map((ex: any) => ({
+        ...ex,
+        category: ex.category || "main",
+      }));
+
       return new Response(JSON.stringify({ 
         workout,
         fatigue_index_used: fatigueIndex,
         fatigue_adjustment_applied: volumeModifier,
+        exercise_count: {
+          total: workout.exercises.length,
+          real: totalReal,
+          warmup: (workout.warmup || []).length,
+          stretching: (workout.stretching || []).length,
+          recommended: exerciseRange.recommended,
+          range: { min: exerciseRange.min, max: exerciseRange.max },
+        },
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
