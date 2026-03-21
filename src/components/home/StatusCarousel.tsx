@@ -11,7 +11,7 @@ import {
 } from "@/hooks/useMuscleFatigue";
 
 const cardBase =
-  "flex min-h-[180px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
+  "flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
