@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface GeneratedExercise {
   name: string;
+  category?: "main" | "accessory";
   sets: number;
   reps: string;
   rest: number;
@@ -31,9 +32,11 @@ interface GeneratedExercise {
 interface GeneratedWorkout {
   warmup: { name: string; duration: string }[];
   exercises: GeneratedExercise[];
+  stretching?: { name: string; duration: string }[];
   cooldown: string;
   estimatedDuration: number;
   difficulty: string;
+  recommendedCount?: number;
   notes?: string;
 }
 
