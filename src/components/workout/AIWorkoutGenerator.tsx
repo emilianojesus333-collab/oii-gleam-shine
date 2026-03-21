@@ -387,6 +387,20 @@ export const AIWorkoutGenerator = ({
             })}
           </div>
 
+          {/* Stretching */}
+          {workout.stretching && workout.stretching.length > 0 && (
+            <div className="bg-[#2A2A2A]/30 rounded-xl p-4">
+              <h4 className="text-sm font-semibold text-blue-400 mb-2">Alongamento</h4>
+              <div className="space-y-1">
+                {workout.stretching.map((s, i) => (
+                  <p key={i} className="text-sm text-gray-300">
+                    • {s.name} - {s.duration}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Cooldown */}
           {workout.cooldown && (
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
