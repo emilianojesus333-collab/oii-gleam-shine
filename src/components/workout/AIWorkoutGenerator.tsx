@@ -273,6 +273,9 @@ export const AIWorkoutGenerator = ({
               <Dumbbell className="w-5 h-5 text-blue-400 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{workout.exercises.length}</p>
               <p className="text-xs text-gray-400">{t("home.exercises")}</p>
+              {workout.recommendedCount && workout.recommendedCount < workout.exercises.length && (
+                <p className="text-[10px] text-primary mt-0.5">Rec: {workout.recommendedCount}</p>
+              )}
             </div>
           </div>
 
