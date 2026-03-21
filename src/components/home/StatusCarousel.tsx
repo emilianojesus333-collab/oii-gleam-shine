@@ -7,11 +7,11 @@ import {
   getStatusLabel,
   getStatusColor,
   getStatusDotColor,
-  getMuscleLabel,
-} from "@/hooks/useMuscleFatigue";
+  getMuscleLabel } from
+"@/hooks/useMuscleFatigue";
 
 const cardBase =
-  "flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
+"flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -31,17 +31,17 @@ export const StatusCarousel = () => {
       </div>
 
       <div className="flex-1 space-y-2.5">
-        {muscles.map((muscle) => (
-          <div key={muscle.muscle_group} className="flex items-center justify-between">
+        {muscles.map((muscle) =>
+        <div key={muscle.muscle_group} className="items-center justify-between gap-[5px] flex flex-row">
             <div className="flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${getStatusDotColor(muscle.status)}`} />
-              <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
+              <span className="text-foreground text-lg font-thin font-sans">{getMuscleLabel(muscle.muscle_group)}</span>
             </div>
             <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
               {getStatusLabel(muscle.status)}
             </span>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
@@ -57,15 +57,15 @@ export const StatusCarousel = () => {
       </div>
 
       <div className="flex flex-1 flex-col gap-3">
-        {recovering.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+        {recovering.length === 0 ?
+        <p className="text-sm text-muted-foreground">
             Todos os músculos estão recuperados. Bom treino!
-          </p>
-        ) : (
-          recovering
-            .sort((a, b) => b.hours_to_recovery - a.hours_to_recovery)
-            .map((muscle) => (
-              <div key={muscle.muscle_group} className="flex items-center justify-between">
+          </p> :
+
+        recovering.
+        sort((a, b) => b.hours_to_recovery - a.hours_to_recovery).
+        map((muscle) =>
+        <div key={muscle.muscle_group} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
@@ -74,12 +74,12 @@ export const StatusCarousel = () => {
                   ≈ {muscle.hours_to_recovery}h para recuperar
                 </span>
               </div>
-            ))
-        )}
+        )
+        }
 
         <div className="mt-auto space-y-2 pt-2">
-          {mostRecovered.length > 0 && (
-            <div className="border-t border-border/30 pt-2">
+          {mostRecovered.length > 0 &&
+          <div className="border-t border-border/30 pt-2">
               <div className="mb-1 flex items-center gap-2">
                 <Dumbbell className="h-3.5 w-3.5 text-primary" />
                 <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
@@ -91,7 +91,7 @@ export const StatusCarousel = () => {
                 </span>
               </p>
             </div>
-          )}
+          }
 
           <div className="rounded-xl border border-border/40 bg-background/40 p-3">
             <div className="flex items-start gap-2">
@@ -118,16 +118,16 @@ export const StatusCarousel = () => {
         key="fatigue-alert"
         whileTap={{ scale: 0.97 }}
         onClick={() =>
-          navigate("/chat", {
-            state: {
-              prefill: `Os meus músculos com fadiga alta são: ${fatigued
-                .map((muscle) => `${getMuscleLabel(muscle.muscle_group)} (${muscle.current_fatigue}%)`)
-                .join(", ")}. Que treino recomendam para hoje?`,
-            },
-          })
+        navigate("/chat", {
+          state: {
+            prefill: `Os meus músculos com fadiga alta são: ${fatigued.
+            map((muscle) => `${getMuscleLabel(muscle.muscle_group)} (${muscle.current_fatigue}%)`).
+            join(", ")}. Que treino recomendam para hoje?`
+          }
+        })
         }
-        className={`${cardBase} cursor-pointer`}
-      >
+        className={`${cardBase} cursor-pointer`}>
+        
         <div className="mb-3 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
             <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -136,11 +136,11 @@ export const StatusCarousel = () => {
         </div>
 
         <div className="mb-3 space-y-2">
-          {fatigued.map((muscle) => (
-            <p key={muscle.muscle_group} className="text-sm text-destructive">
+          {fatigued.map((muscle) =>
+          <p key={muscle.muscle_group} className="text-sm text-destructive">
               {getMuscleLabel(muscle.muscle_group)} com fadiga alta ({muscle.current_fatigue}%)
             </p>
-          ))}
+          )}
         </div>
 
         <p className="text-xs text-muted-foreground">
@@ -155,24 +155,24 @@ export const StatusCarousel = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-    >
+      transition={{ delay: 0.3 }}>
+      
       <Carousel opts={{ align: "start", loop: false }} className="w-full">
         <CarouselContent className="-ml-3">
-          {slides.map((slide, index) => (
-            <CarouselItem key={index} className="basis-full pl-3">
+          {slides.map((slide, index) =>
+          <CarouselItem key={index} className="basis-full pl-3">
               {slide}
             </CarouselItem>
-          ))}
+          )}
         </CarouselContent>
       </Carousel>
-      {slides.length > 1 && (
-        <div className="mt-3 flex justify-center gap-1.5">
-          {slides.map((_, index) => (
-            <div key={index} className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-          ))}
+      {slides.length > 1 &&
+      <div className="mt-3 flex justify-center gap-1.5">
+          {slides.map((_, index) =>
+        <div key={index} className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+        )}
         </div>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 };
