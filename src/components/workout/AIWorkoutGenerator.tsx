@@ -340,7 +340,12 @@ export const AIWorkoutGenerator = ({
                   >
                     <span className="text-xs text-gray-500 w-5">{index + 1}</span>
                     <div className="flex-1">
-                      <p className="font-medium text-white">{exercise.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-white">{exercise.name}</p>
+                        {exercise.category === "accessory" && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground">Acessório</span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400">
                         {exercise.sets}x{exercise.reps} • {exercise.rest}s {t("aiWorkout.rest")}
                       </p>
