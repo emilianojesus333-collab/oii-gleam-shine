@@ -115,7 +115,7 @@ export function calculateDynamicHydrationGoalLiters(
   return {
     baseGoalLiters,
     bonusLiters,
-    goalLiters: roundToOneDecimal(baseGoalLiters + bonusLiters),
+    goalLiters: Math.min(roundToOneDecimal(baseGoalLiters + bonusLiters), MAX_HYDRATION_GOAL_LITERS),
   };
 }
 

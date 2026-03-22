@@ -272,7 +272,14 @@ const Workout = () => {
   };
 
   const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
-  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); };
+  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); if (user) localStorage.removeItem(TIMER_STORAGE_KEY); };
+
+  const REST_PRESETS = [30, 60, 90, 120, 180, 300];
+  const handleRestPreset = (seconds: number) => {
+    setUserEditedRest(true);
+    setRestTime(String(seconds));
+    if (!isRestRunning) setRestRemaining(seconds);
+  };
 
   const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
 
