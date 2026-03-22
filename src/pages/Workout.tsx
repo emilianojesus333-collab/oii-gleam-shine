@@ -112,6 +112,7 @@ const Workout = () => {
 
   const [isRestRunning, setIsRestRunning] = useState(false);
   const [restRemaining, setRestRemaining] = useState(90);
+  const [userEditedRest, setUserEditedRest] = useState(false);
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
