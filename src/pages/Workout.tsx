@@ -145,6 +145,7 @@ const Workout = () => {
       setSelectedExercise(currentPlannedExercise.exercise_name);
       setReps(String(parseInt(currentPlannedExercise.reps) || 10));
       setSets(String(currentPlannedExercise.sets));
+      setUserEditedRest(false);
       // Use AI-suggested rest time
       const aiRest = currentPlannedExercise.rest;
       if (aiRest && aiRest > 0) {
