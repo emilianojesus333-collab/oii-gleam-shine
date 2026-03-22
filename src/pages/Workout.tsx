@@ -733,6 +733,29 @@ const Workout = () => {
             <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
               {t("workout.restTimer")}
             </span>
+
+            {/* Quick preset buttons */}
+            <div className="flex flex-wrap gap-2 mb-4 justify-center">
+              {REST_PRESETS.map((sec) => {
+                const label = sec >= 60 ? `${sec / 60}min` : `${sec}s`;
+                const isActive = parseInt(restTime) === sec;
+                return (
+                  <button
+                    key={sec}
+                    onClick={() => handleRestPreset(sec)}
+                    disabled={isRestRunning}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-primary/20 text-primary border border-primary/40"
+                        : "bg-[#2A2A2A]/50 text-gray-400 border border-transparent hover:bg-[#2A2A2A]/80"
+                    } disabled:opacity-40`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
             <motion.div key={restRemaining} initial={{ scale: 1.02 }} animate={{ scale: 1 }} className="text-center mb-6">
               <span className={`text-7xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-white/70"}`}>
                 {formatRestTime(restRemaining)}
