@@ -98,9 +98,11 @@ export function getWorkoutHydrationBonusLiters(intensity: WorkoutIntensity): num
   }
 }
 
+export const MAX_HYDRATION_GOAL_LITERS = 5;
+
 export function calculateBaseHydrationGoalLiters(weightKg: number | null): number {
   if (!weightKg) return 3;
-  return roundToOneDecimal((weightKg * 35) / 1000);
+  return Math.min(roundToOneDecimal((weightKg * 35) / 1000), MAX_HYDRATION_GOAL_LITERS);
 }
 
 export function calculateDynamicHydrationGoalLiters(
