@@ -112,6 +112,7 @@ const Workout = () => {
 
   const [isRestRunning, setIsRestRunning] = useState(false);
   const [restRemaining, setRestRemaining] = useState(90);
+  const [userEditedRest, setUserEditedRest] = useState(false);
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -144,6 +145,7 @@ const Workout = () => {
       setSelectedExercise(currentPlannedExercise.exercise_name);
       setReps(String(parseInt(currentPlannedExercise.reps) || 10));
       setSets(String(currentPlannedExercise.sets));
+      setUserEditedRest(false);
       // Use AI-suggested rest time
       const aiRest = currentPlannedExercise.rest;
       if (aiRest && aiRest > 0) {
@@ -185,9 +187,10 @@ const Workout = () => {
     return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  // Rest timer — skip auto-calculation in guided mode (AI provides rest time)
+  // Rest timer — skip auto-calculation in guided mode or if user edited manually
   useEffect(() => {
-    if (isGuidedMode && currentPlannedExercise) return; // AI rest is already set
+    if (isGuidedMode && currentPlannedExercise) return;
+    if (userEditedRest) return;
     const weightNum = parseInt(weight) || 0;
     const repsNum = parseInt(reps) || 0;
     const setsNum = parseInt(sets) || 0;
@@ -197,7 +200,46 @@ const Workout = () => {
       setRestBreakdown(breakdown);
       if (!isRestRunning) setRestRemaining(total);
     }
-  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise]);
+  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise, userEditedRest]);
+
+  // Persist timer state to localStorage
+  const TIMER_STORAGE_KEY = `liftmate_rest_timer_${user?.id}`;
+
+  // Restore timer on mount
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+      if (!saved) return;
+      const { startTime, duration, isActive } = JSON.parse(saved);
+      if (!isActive || !startTime || !duration) return;
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = duration - elapsed;
+      if (remaining > 0) {
+        setRestTime(String(duration));
+        setRestRemaining(remaining);
+        setIsRestRunning(true);
+      } else {
+        // Timer ended while away
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
+    } catch { /* ignore */ }
+  }, [user]);
+
+  // Save timer state when it changes
+  useEffect(() => {
+    if (!user) return;
+    if (isRestRunning) {
+      const startTime = Date.now() - ((parseInt(restTime) - restRemaining) * 1000);
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+        startTime,
+        duration: parseInt(restTime),
+        isActive: true,
+      }));
+    } else {
+      localStorage.removeItem(TIMER_STORAGE_KEY);
+    }
+  }, [isRestRunning, restRemaining, restTime, user]);
 
   const { notifyTimerEnd } = useTimerNotification();
   const hasNotifiedRef = useRef(false);
@@ -231,7 +273,14 @@ const Workout = () => {
   };
 
   const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
-  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); };
+  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); if (user) localStorage.removeItem(TIMER_STORAGE_KEY); };
+
+  const REST_PRESETS = [30, 60, 90, 120, 180, 300];
+  const handleRestPreset = (seconds: number) => {
+    setUserEditedRest(true);
+    setRestTime(String(seconds));
+    if (!isRestRunning) setRestRemaining(seconds);
+  };
 
   const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
 
@@ -684,6 +733,29 @@ const Workout = () => {
             <span className="text-sm font-medium text-gray-400/70 text-center block mb-4">
               {t("workout.restTimer")}
             </span>
+
+            {/* Quick preset buttons */}
+            <div className="flex flex-wrap gap-2 mb-4 justify-center">
+              {REST_PRESETS.map((sec) => {
+                const label = sec >= 60 ? `${sec / 60}min` : `${sec}s`;
+                const isActive = parseInt(restTime) === sec;
+                return (
+                  <button
+                    key={sec}
+                    onClick={() => handleRestPreset(sec)}
+                    disabled={isRestRunning}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-primary/20 text-primary border border-primary/40"
+                        : "bg-[#2A2A2A]/50 text-gray-400 border border-transparent hover:bg-[#2A2A2A]/80"
+                    } disabled:opacity-40`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
             <motion.div key={restRemaining} initial={{ scale: 1.02 }} animate={{ scale: 1 }} className="text-center mb-6">
               <span className={`text-7xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-white/70"}`}>
                 {formatRestTime(restRemaining)}
