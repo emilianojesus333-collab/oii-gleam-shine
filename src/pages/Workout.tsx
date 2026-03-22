@@ -186,9 +186,10 @@ const Workout = () => {
     return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  // Rest timer — skip auto-calculation in guided mode (AI provides rest time)
+  // Rest timer — skip auto-calculation in guided mode or if user edited manually
   useEffect(() => {
-    if (isGuidedMode && currentPlannedExercise) return; // AI rest is already set
+    if (isGuidedMode && currentPlannedExercise) return;
+    if (userEditedRest) return;
     const weightNum = parseInt(weight) || 0;
     const repsNum = parseInt(reps) || 0;
     const setsNum = parseInt(sets) || 0;
@@ -198,7 +199,46 @@ const Workout = () => {
       setRestBreakdown(breakdown);
       if (!isRestRunning) setRestRemaining(total);
     }
-  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise]);
+  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise, userEditedRest]);
+
+  // Persist timer state to localStorage
+  const TIMER_STORAGE_KEY = `liftmate_rest_timer_${user?.id}`;
+
+  // Restore timer on mount
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+      if (!saved) return;
+      const { startTime, duration, isActive } = JSON.parse(saved);
+      if (!isActive || !startTime || !duration) return;
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = duration - elapsed;
+      if (remaining > 0) {
+        setRestTime(String(duration));
+        setRestRemaining(remaining);
+        setIsRestRunning(true);
+      } else {
+        // Timer ended while away
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
+    } catch { /* ignore */ }
+  }, [user]);
+
+  // Save timer state when it changes
+  useEffect(() => {
+    if (!user) return;
+    if (isRestRunning) {
+      const startTime = Date.now() - ((parseInt(restTime) - restRemaining) * 1000);
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+        startTime,
+        duration: parseInt(restTime),
+        isActive: true,
+      }));
+    } else {
+      localStorage.removeItem(TIMER_STORAGE_KEY);
+    }
+  }, [isRestRunning, restRemaining, restTime, user]);
 
   const { notifyTimerEnd } = useTimerNotification();
   const hasNotifiedRef = useRef(false);
