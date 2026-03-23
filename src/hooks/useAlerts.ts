@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   buildHydrationSummary,
   clampHydrationGoalLiters,
+  DEFAULT_HYDRATION_GOAL_LITERS,
   estimateWorkoutIntensityFromLogs,
   extractExerciseLogs,
   formatBottleSize,
@@ -34,7 +35,8 @@ const defaultState: AlertsState = {
   hydration: {
     enabled: true,
     intervalMinutes: 30,
-    dailyGoalLiters: 3,
+    dailyGoalLiters: DEFAULT_HYDRATION_GOAL_LITERS,
+    customDailyGoalLiters: DEFAULT_HYDRATION_GOAL_LITERS,
     currentIntake: 0,
     bottleSizeMl: 1000,
     lastReminder: null,
@@ -152,13 +154,16 @@ export const useAlerts = () => {
         }
 
         const normalizedState = checkAndResetDailyHydration(loadedState);
-        const customGoalLiters = clampHydrationGoalLiters(normalizedState.hydration.customDailyGoalLiters);
-        const dynamicSummary = buildHydrationSummary(
+        const persistedGoalLiters =
+          clampHydrationGoalLiters(
+            normalizedState.hydration.customDailyGoalLiters ?? normalizedState.hydration.dailyGoalLiters
+          ) ?? DEFAULT_HYDRATION_GOAL_LITERS;
+        const hydrationSummary = buildHydrationSummary(
           normalizedState.hydration.currentIntake,
           normalizedState.hydration.bottleSizeMl,
           parseWeightKg(settings?.onboarding_data),
           workoutIntensity,
-          customGoalLiters,
+          persistedGoalLiters,
         );
 
         setWeightKg(parseWeightKg(settings?.onboarding_data));
@@ -166,8 +171,8 @@ export const useAlerts = () => {
           ...normalizedState,
           hydration: {
             ...normalizedState.hydration,
-            customDailyGoalLiters: customGoalLiters,
-            dailyGoalLiters: dynamicSummary.goalLiters,
+            customDailyGoalLiters: persistedGoalLiters,
+            dailyGoalLiters: hydrationSummary.goalLiters,
           },
         });
       } catch (error) {
@@ -225,11 +230,22 @@ export const useAlerts = () => {
   }, [state, user, isLoading]);
 
   const updateHydration = useCallback((updates: Partial<HydrationSettings>) => {
+    const normalizedCustomGoal = updates.customDailyGoalLiters !== undefined
+      ? clampHydrationGoalLiters(updates.customDailyGoalLiters) ?? DEFAULT_HYDRATION_GOAL_LITERS
+      : undefined;
+
     setState((prev) => ({
       ...prev,
       hydration: {
         ...prev.hydration,
         ...updates,
+        ...(normalizedCustomGoal !== undefined
+          ? {
+              customDailyGoalLiters: normalizedCustomGoal,
+              dailyGoalLiters: normalizedCustomGoal,
+              currentIntake: Math.min(prev.hydration.currentIntake, normalizedCustomGoal),
+            }
+          : {}),
       },
     }));
   }, []);

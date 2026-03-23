@@ -400,17 +400,27 @@ const Workout = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3"
+          className="flex items-center justify-between gap-3"
         >
-          <div className="w-12 h-12 rounded-2xl bg-[#1E1E1E]/50 flex items-center justify-center">
-            <Dumbbell className="w-6 h-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#1E1E1E]/50 flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-destructive-foreground">
+                {isRestDay ? t("workout.restDay") : todayWorkout}
+              </h1>
+              <p className="text-sm text-gray-400/70">{weekDaysMap[new Date().getDay()]}</p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-destructive-foreground">
-              {isRestDay ? t("workout.restDay") : todayWorkout}
-            </h1>
-            <p className="text-sm text-gray-400/70">{weekDaysMap[new Date().getDay()]}</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/history")}
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-border/50 bg-card/40 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+            aria-label="Abrir histórico de treinos"
+          >
+            <Clock className="h-5 w-5" />
+          </button>
         </motion.div>
       </div>
 
