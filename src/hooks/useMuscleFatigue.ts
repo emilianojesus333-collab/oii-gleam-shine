@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import {
   buildHydrationSummary,
+  clampHydrationGoalLiters,
   estimateWorkoutIntensityFromLogs,
   extractExerciseLogs,
   parseWeightKg,
@@ -135,7 +136,8 @@ export function useMuscleFatigue() {
         Number(hydrationSettings.currentIntake) || 0,
         Number(hydrationSettings.bottleSizeMl) || 1000,
         parseWeightKg(settingsResponse.data?.onboarding_data),
-        estimateWorkoutIntensityFromLogs(extractExerciseLogs(sessionsResponse.data ?? []))
+        estimateWorkoutIntensityFromLogs(extractExerciseLogs(sessionsResponse.data ?? [])),
+        clampHydrationGoalLiters(hydrationSettings.customDailyGoalLiters ?? hydrationSettings.dailyGoalLiters)
       );
 
       setRawData(fatigueResponse.data ?? []);
