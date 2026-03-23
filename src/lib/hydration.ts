@@ -1,4 +1,5 @@
 export const HYDRATION_BOTTLE_SIZES = [500, 750, 1000, 1500] as const;
+export const DEFAULT_HYDRATION_GOAL_LITERS = 3;
 
 export type WorkoutIntensity = "none" | "light" | "moderate" | "intense";
 export type HydrationStatus = "low" | "adequate" | "optimal";
@@ -109,7 +110,7 @@ export function clampHydrationGoalLiters(value: number | null | undefined): numb
 }
 
 export function calculateBaseHydrationGoalLiters(weightKg: number | null): number {
-  if (!weightKg) return 3;
+  if (!weightKg) return DEFAULT_HYDRATION_GOAL_LITERS;
   return Math.min(roundToOneDecimal((weightKg * 35) / 1000), MAX_HYDRATION_GOAL_LITERS);
 }
 
@@ -169,8 +170,9 @@ export function buildHydrationSummary(
   const safeBottleSizeMl = HYDRATION_BOTTLE_SIZES.includes(bottleSizeMl as (typeof HYDRATION_BOTTLE_SIZES)[number])
     ? bottleSizeMl
     : 1000;
-  const { baseGoalLiters, bonusLiters, goalLiters: dynamicGoalLiters } = calculateDynamicHydrationGoalLiters(weightKg, intensity);
-  const goalLiters = clampHydrationGoalLiters(customGoalLiters) ?? dynamicGoalLiters;
+  const goalLiters = clampHydrationGoalLiters(customGoalLiters) ?? DEFAULT_HYDRATION_GOAL_LITERS;
+  const baseGoalLiters = goalLiters;
+  const bonusLiters = 0;
   const safeCurrentIntake = Math.max(0, roundToOneDecimal(currentIntakeLiters));
   const percentage = goalLiters > 0 ? Math.min((safeCurrentIntake / goalLiters) * 100, 150) : 0;
   const status = getHydrationStatus(safeCurrentIntake, goalLiters);

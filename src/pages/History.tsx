@@ -98,7 +98,7 @@ export default function History() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-32">
       <div className="px-5 pt-12 pb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/home")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/workout")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold">Histórico de Treinos</h1>
