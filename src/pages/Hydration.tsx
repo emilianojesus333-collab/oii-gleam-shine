@@ -3,7 +3,7 @@ import { Droplets, Plus, Minus, Settings2, Target } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
-import { formatLiters, formatBottleSize, HYDRATION_BOTTLE_SIZES } from '@/lib/hydration';
+import { formatLiters, formatBottleSize, HYDRATION_BOTTLE_SIZES, MAX_HYDRATION_GOAL_LITERS } from '@/lib/hydration';
 import {
   Drawer,
   DrawerContent,
@@ -84,6 +84,12 @@ const Hydration = () => {
     updateHydration({ bottleSizeMl: sizeMl });
   };
 
+  const handleGoalChange = ([value]: number[]) => {
+    updateHydration({
+      customDailyGoalLiters: Math.min(value / 1000, MAX_HYDRATION_GOAL_LITERS),
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Header */}
@@ -123,6 +129,22 @@ const Hydration = () => {
                     max={60}
                     step={5}
                   />
+                </div>
+                <div>
+                  <div className="mb-3 flex items-center justify-between text-sm">
+                    <span className="font-medium text-foreground">Meta diária</span>
+                    <span className="font-medium text-foreground">{Math.round(goalLiters * 1000)} ml</span>
+                  </div>
+                  <Slider
+                    value={[Math.round(goalLiters * 1000)]}
+                    onValueChange={handleGoalChange}
+                    min={500}
+                    max={MAX_HYDRATION_GOAL_LITERS * 1000}
+                    step={100}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Ajusta livremente até {MAX_HYDRATION_GOAL_LITERS} L.
+                  </p>
                 </div>
                 <div>
                   <p className="mb-3 text-sm font-medium text-foreground">Tamanho da garrafa</p>

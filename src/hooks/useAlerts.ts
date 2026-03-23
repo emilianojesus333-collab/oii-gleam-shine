@@ -4,6 +4,7 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import {
   buildHydrationSummary,
+  clampHydrationGoalLiters,
   estimateWorkoutIntensityFromLogs,
   extractExerciseLogs,
   formatBottleSize,
@@ -17,6 +18,7 @@ export interface HydrationSettings {
   enabled: boolean;
   intervalMinutes: number;
   dailyGoalLiters: number;
+   customDailyGoalLiters?: number | null;
   currentIntake: number;
   bottleSizeMl: number;
   lastReminder: number | null;
@@ -65,8 +67,9 @@ export const useAlerts = () => {
         state.hydration.bottleSizeMl,
         weightKg,
         workoutIntensity,
+        state.hydration.customDailyGoalLiters,
       ),
-    [state.hydration.currentIntake, state.hydration.bottleSizeMl, weightKg, workoutIntensity]
+    [state.hydration.currentIntake, state.hydration.bottleSizeMl, state.hydration.customDailyGoalLiters, weightKg, workoutIntensity]
   );
 
   const checkAndResetDailyHydration = useCallback((currentState: AlertsState): AlertsState => {
@@ -149,11 +152,13 @@ export const useAlerts = () => {
         }
 
         const normalizedState = checkAndResetDailyHydration(loadedState);
+        const customGoalLiters = clampHydrationGoalLiters(normalizedState.hydration.customDailyGoalLiters);
         const dynamicSummary = buildHydrationSummary(
           normalizedState.hydration.currentIntake,
           normalizedState.hydration.bottleSizeMl,
           parseWeightKg(settings?.onboarding_data),
           workoutIntensity,
+          customGoalLiters,
         );
 
         setWeightKg(parseWeightKg(settings?.onboarding_data));
@@ -161,6 +166,7 @@ export const useAlerts = () => {
           ...normalizedState,
           hydration: {
             ...normalizedState.hydration,
+            customDailyGoalLiters: customGoalLiters,
             dailyGoalLiters: dynamicSummary.goalLiters,
           },
         });
@@ -236,7 +242,13 @@ export const useAlerts = () => {
       const needsReset = prev.hydration.lastResetDate !== today;
       const currentIntake = needsReset ? 0 : prev.hydration.currentIntake;
       const bottleSizeMl = prev.hydration.bottleSizeMl || 1000;
-      const previousSummary = buildHydrationSummary(currentIntake, bottleSizeMl, weightKg, workoutIntensity);
+      const previousSummary = buildHydrationSummary(
+        currentIntake,
+        bottleSizeMl,
+        weightKg,
+        workoutIntensity,
+        prev.hydration.customDailyGoalLiters,
+      );
       const goalLimit = previousSummary.goalLiters;
       if (liters > 0 && currentIntake >= goalLimit) {
         feedbackMessages.push('Meta atingida');
@@ -249,7 +261,13 @@ export const useAlerts = () => {
           goalLimit
         )
       );
-      const nextSummary = buildHydrationSummary(nextIntake, bottleSizeMl, weightKg, workoutIntensity);
+      const nextSummary = buildHydrationSummary(
+        nextIntake,
+        bottleSizeMl,
+        weightKg,
+        workoutIntensity,
+        prev.hydration.customDailyGoalLiters,
+      );
 
       const previousBottleCount = Math.floor(Math.round(currentIntake * 1000) / bottleSizeMl);
       const nextBottleCount = Math.floor(Math.round(nextIntake * 1000) / bottleSizeMl);
