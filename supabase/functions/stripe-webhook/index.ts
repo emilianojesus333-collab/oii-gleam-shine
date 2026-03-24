@@ -35,24 +35,46 @@ async function upsertSubscription(
     stripeSubscriptionId?: string | null;
     startDate?: string | null;
     endDate?: string | null;
+    renewalAttempts?: number;
+    lastAttemptDate?: string | null;
   }
 ) {
+  const upsertData: Record<string, unknown> = {
+    user_id: params.userId,
+    status: params.status,
+    stripe_customer_id: params.stripeCustomerId,
+    stripe_subscription_id: params.stripeSubscriptionId,
+    subscription_start_date: params.startDate,
+    subscription_end_date: params.endDate,
+  };
+
+  if (params.renewalAttempts !== undefined) {
+    upsertData.renewal_attempts = params.renewalAttempts;
+    upsertData.last_attempt_date = params.lastAttemptDate;
+  }
+
   const { error } = await supabase
     .from("user_subscriptions")
-    .upsert({
-      user_id: params.userId,
-      status: params.status,
-      stripe_customer_id: params.stripeCustomerId,
-      stripe_subscription_id: params.stripeSubscriptionId,
-      subscription_start_date: params.startDate,
-      subscription_end_date: params.endDate,
-    }, { onConflict: "user_id" });
+    .upsert(upsertData, { onConflict: "user_id" });
 
   if (error) {
     logStep("Error upserting subscription", { error: error.message });
   } else {
     logStep("Subscription upserted", { userId: params.userId, status: params.status });
   }
+}
+
+// Get current renewal attempts for a user
+async function getRenewalAttempts(
+  supabase: ReturnType<typeof createClient>,
+  userId: string
+): Promise<number> {
+  const { data } = await supabase
+    .from("user_subscriptions")
+    .select("renewal_attempts")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.renewal_attempts ?? 0;
 }
 
 serve(async (req) => {
@@ -137,6 +159,8 @@ serve(async (req) => {
           stripeSubscriptionId: subscriptionId,
           startDate,
           endDate,
+          renewalAttempts: 0,
+          lastAttemptDate: null,
         });
         break;
       }
@@ -162,11 +186,15 @@ serve(async (req) => {
 
         // Determine DB status
         let dbStatus: string = "never_subscribed";
+        let resetAttempts = false;
+
         if (subscription.status === "active" || subscription.status === "trialing") {
           dbStatus = subscription.cancel_at_period_end ? "canceled_but_active" : "active";
+          resetAttempts = true; // Successful renewal — reset counter
+        } else if (subscription.status === "past_due") {
+          dbStatus = "active"; // Still active during retry period
         } else if (
           subscription.status === "canceled" ||
-          subscription.status === "past_due" ||
           subscription.status === "unpaid"
         ) {
           const endDate = new Date(subscription.current_period_end * 1000);
@@ -185,14 +213,21 @@ serve(async (req) => {
           endDate = new Date(subscription.trial_end * 1000).toISOString();
         }
 
-        await upsertSubscription(supabaseClient, {
+        const upsertParams: Parameters<typeof upsertSubscription>[1] = {
           userId,
           status: dbStatus,
           stripeCustomerId: customerId,
           stripeSubscriptionId: subscription.id,
           startDate,
           endDate,
-        });
+        };
+
+        if (resetAttempts) {
+          upsertParams.renewalAttempts = 0;
+          upsertParams.lastAttemptDate = null;
+        }
+
+        await upsertSubscription(supabaseClient, upsertParams);
         break;
       }
 
@@ -214,6 +249,60 @@ serve(async (req) => {
           stripeCustomerId: customerId,
           stripeSubscriptionId: null,
         });
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
+        const subscriptionId = invoice.subscription as string;
+
+        logStep("Invoice payment failed", { invoiceId: invoice.id, customerId, subscriptionId, attemptCount: invoice.attempt_count });
+
+        if (!subscriptionId) {
+          logStep("No subscription on invoice, skipping");
+          break;
+        }
+
+        const userId = await findUserByCustomerId(supabaseClient, customerId);
+        if (!userId) {
+          logStep("No user found for stripe_customer_id", { customerId });
+          break;
+        }
+
+        // Get current attempts from DB
+        const currentAttempts = await getRenewalAttempts(supabaseClient, userId);
+        const newAttempts = currentAttempts + 1;
+
+        logStep("Renewal attempt tracked", { userId, attempt: newAttempts, maxAttempts: 3 });
+
+        if (newAttempts >= 3) {
+          // 3rd attempt failed — cancel the subscription in Stripe
+          logStep("Max renewal attempts reached, canceling subscription", { userId });
+          try {
+            await stripe.subscriptions.cancel(subscriptionId);
+          } catch (e) {
+            logStep("Error canceling subscription after max attempts", { error: String(e) });
+          }
+
+          await upsertSubscription(supabaseClient, {
+            userId,
+            status: "expired",
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: null,
+            renewalAttempts: newAttempts,
+            lastAttemptDate: new Date().toISOString(),
+          });
+        } else {
+          // Update attempt counter, keep subscription active during retry window
+          await supabaseClient
+            .from("user_subscriptions")
+            .update({
+              renewal_attempts: newAttempts,
+              last_attempt_date: new Date().toISOString(),
+            })
+            .eq("user_id", userId);
+        }
         break;
       }
 

@@ -526,6 +526,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          last_attempt_date: string | null
+          renewal_attempts: number
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -537,6 +539,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          last_attempt_date?: string | null
+          renewal_attempts?: number
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -548,6 +552,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          last_attempt_date?: string | null
+          renewal_attempts?: number
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
