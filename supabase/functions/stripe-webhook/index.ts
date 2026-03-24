@@ -159,6 +159,8 @@ serve(async (req) => {
           stripeSubscriptionId: subscriptionId,
           startDate,
           endDate,
+          renewalAttempts: 0,
+          lastAttemptDate: null,
         });
         break;
       }
