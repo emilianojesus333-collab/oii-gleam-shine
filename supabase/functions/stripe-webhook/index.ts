@@ -186,11 +186,15 @@ serve(async (req) => {
 
         // Determine DB status
         let dbStatus: string = "never_subscribed";
+        let resetAttempts = false;
+
         if (subscription.status === "active" || subscription.status === "trialing") {
           dbStatus = subscription.cancel_at_period_end ? "canceled_but_active" : "active";
+          resetAttempts = true; // Successful renewal — reset counter
+        } else if (subscription.status === "past_due") {
+          dbStatus = "active"; // Still active during retry period
         } else if (
           subscription.status === "canceled" ||
-          subscription.status === "past_due" ||
           subscription.status === "unpaid"
         ) {
           const endDate = new Date(subscription.current_period_end * 1000);
@@ -209,14 +213,21 @@ serve(async (req) => {
           endDate = new Date(subscription.trial_end * 1000).toISOString();
         }
 
-        await upsertSubscription(supabaseClient, {
+        const upsertParams: Parameters<typeof upsertSubscription>[1] = {
           userId,
           status: dbStatus,
           stripeCustomerId: customerId,
           stripeSubscriptionId: subscription.id,
           startDate,
           endDate,
-        });
+        };
+
+        if (resetAttempts) {
+          upsertParams.renewalAttempts = 0;
+          upsertParams.lastAttemptDate = null;
+        }
+
+        await upsertSubscription(supabaseClient, upsertParams);
         break;
       }
 
