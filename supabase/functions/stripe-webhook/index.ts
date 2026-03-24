@@ -252,6 +252,60 @@ serve(async (req) => {
         break;
       }
 
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
+        const subscriptionId = invoice.subscription as string;
+
+        logStep("Invoice payment failed", { invoiceId: invoice.id, customerId, subscriptionId, attemptCount: invoice.attempt_count });
+
+        if (!subscriptionId) {
+          logStep("No subscription on invoice, skipping");
+          break;
+        }
+
+        const userId = await findUserByCustomerId(supabaseClient, customerId);
+        if (!userId) {
+          logStep("No user found for stripe_customer_id", { customerId });
+          break;
+        }
+
+        // Get current attempts from DB
+        const currentAttempts = await getRenewalAttempts(supabaseClient, userId);
+        const newAttempts = currentAttempts + 1;
+
+        logStep("Renewal attempt tracked", { userId, attempt: newAttempts, maxAttempts: 3 });
+
+        if (newAttempts >= 3) {
+          // 3rd attempt failed — cancel the subscription in Stripe
+          logStep("Max renewal attempts reached, canceling subscription", { userId });
+          try {
+            await stripe.subscriptions.cancel(subscriptionId);
+          } catch (e) {
+            logStep("Error canceling subscription after max attempts", { error: String(e) });
+          }
+
+          await upsertSubscription(supabaseClient, {
+            userId,
+            status: "expired",
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: null,
+            renewalAttempts: newAttempts,
+            lastAttemptDate: new Date().toISOString(),
+          });
+        } else {
+          // Update attempt counter, keep subscription active during retry window
+          await supabaseClient
+            .from("user_subscriptions")
+            .update({
+              renewal_attempts: newAttempts,
+              last_attempt_date: new Date().toISOString(),
+            })
+            .eq("user_id", userId);
+        }
+        break;
+      }
+
       default:
         logStep("Unhandled event type", { type: event.type });
     }
