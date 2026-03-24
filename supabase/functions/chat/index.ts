@@ -50,8 +50,17 @@ serve(async (req) => {
     }
 
     const user = userData.user;
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    const userEmail = (user.email || '').toLowerCase();
+    logStep("User authenticated", { userId: user.id, email: userEmail });
 
+    // Developer access bypass
+    const DEV_EMAILS = [
+      "emilianojesus333@email.com",
+      "emilianodejesusdafunseca99@gmail.com",
+    ];
+    const isDeveloper = DEV_EMAILS.includes(userEmail);
+
+    if (!isDeveloper) {
     // ============= SUBSCRIPTION CHECK =============
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -101,6 +110,7 @@ serve(async (req) => {
     }
 
     logStep("Active subscription verified");
+    } // end if (!isDeveloper)
 
     // ============= PROCESS CHAT REQUEST =============
     const { messages, context } = await req.json();
