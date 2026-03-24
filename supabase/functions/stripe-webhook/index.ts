@@ -35,24 +35,46 @@ async function upsertSubscription(
     stripeSubscriptionId?: string | null;
     startDate?: string | null;
     endDate?: string | null;
+    renewalAttempts?: number;
+    lastAttemptDate?: string | null;
   }
 ) {
+  const upsertData: Record<string, unknown> = {
+    user_id: params.userId,
+    status: params.status,
+    stripe_customer_id: params.stripeCustomerId,
+    stripe_subscription_id: params.stripeSubscriptionId,
+    subscription_start_date: params.startDate,
+    subscription_end_date: params.endDate,
+  };
+
+  if (params.renewalAttempts !== undefined) {
+    upsertData.renewal_attempts = params.renewalAttempts;
+    upsertData.last_attempt_date = params.lastAttemptDate;
+  }
+
   const { error } = await supabase
     .from("user_subscriptions")
-    .upsert({
-      user_id: params.userId,
-      status: params.status,
-      stripe_customer_id: params.stripeCustomerId,
-      stripe_subscription_id: params.stripeSubscriptionId,
-      subscription_start_date: params.startDate,
-      subscription_end_date: params.endDate,
-    }, { onConflict: "user_id" });
+    .upsert(upsertData, { onConflict: "user_id" });
 
   if (error) {
     logStep("Error upserting subscription", { error: error.message });
   } else {
     logStep("Subscription upserted", { userId: params.userId, status: params.status });
   }
+}
+
+// Get current renewal attempts for a user
+async function getRenewalAttempts(
+  supabase: ReturnType<typeof createClient>,
+  userId: string
+): Promise<number> {
+  const { data } = await supabase
+    .from("user_subscriptions")
+    .select("renewal_attempts")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.renewal_attempts ?? 0;
 }
 
 serve(async (req) => {
