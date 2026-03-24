@@ -114,6 +114,7 @@ serve(async (req) => {
     }
 
     logStep("Active subscription verified");
+    } // end subscription check (skipped for developers)
 
     // ============= PROCESS CHAT REQUEST =============
     const { messages, context } = await req.json();
