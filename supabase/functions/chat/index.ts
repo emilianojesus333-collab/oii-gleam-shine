@@ -50,22 +50,9 @@ serve(async (req) => {
     }
 
     const user = userData.user;
-    const userEmail = (user.email || "").toLowerCase();
-    logStep("User authenticated", { userId: user.id, email: userEmail });
-
-    // ============= DEVELOPER ACCESS BYPASS =============
-    const DEV_EMAILS = [
-      "emilianojesus333@email.com",
-      "emilianodejesusdafonseca99@gmail.com",
-    ];
-    const isDeveloper = DEV_EMAILS.includes(userEmail);
-    
-    if (isDeveloper) {
-      logStep("Developer access granted — skipping subscription check");
-    }
+    logStep("User authenticated", { userId: user.id, email: user.email });
 
     // ============= SUBSCRIPTION CHECK =============
-    if (!isDeveloper) {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       logStep("STRIPE_SECRET_KEY not configured");
@@ -114,7 +101,6 @@ serve(async (req) => {
     }
 
     logStep("Active subscription verified");
-    } // end subscription check (skipped for developers)
 
     // ============= PROCESS CHAT REQUEST =============
     const { messages, context } = await req.json();

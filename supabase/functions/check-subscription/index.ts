@@ -10,7 +10,7 @@ const corsHeaders = {
 // Developer emails with full access (server-side validation)
 const DEV_EMAILS = [
   "emilianojesus333@email.com",
-  "emilianodejesusdafonseca99@gmail.com",
+  "emilianodejesusdafunseca99@gmail.com",
 ];
 
 const logStep = (step: string, details?: unknown) => {
