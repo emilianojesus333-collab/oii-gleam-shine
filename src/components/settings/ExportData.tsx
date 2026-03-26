@@ -19,7 +19,7 @@ import {
   DrawerFooter } from
 '@/components/ui/drawer';
 import { toast } from 'sonner';
-import { getWorkoutHistory, WorkoutSession } from '@/data/workoutHistory';
+import { supabase } from '@/integrations/supabase/client';
 import { DailyLog, MacroGoals } from '@/hooks/useNutrition';
 
 interface ExportDataProps {
