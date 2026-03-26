@@ -19,7 +19,7 @@ import {
   DrawerFooter } from
 '@/components/ui/drawer';
 import { toast } from 'sonner';
-import { getWorkoutHistory, WorkoutSession } from '@/data/workoutHistory';
+import { supabase } from '@/integrations/supabase/client';
 import { DailyLog, MacroGoals } from '@/hooks/useNutrition';
 
 interface ExportDataProps {
@@ -43,7 +43,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     });
   };
 
-  const generateWorkoutHTML = (sessions: WorkoutSession[]) => {
+  const generateWorkoutHTML = (sessions: any[]) => {
     if (sessions.length === 0) {
       return '<p>Sem histórico de treinos registado.</p>';
     }
@@ -52,10 +52,14 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     html += `<p style="color: #666;">Total de sessões: ${sessions.length}</p>`;
 
     sessions.slice(0, 30).forEach((session) => {
+      const muscleGroups = session.muscle_groups || [];
+      const exercisesCompleted = session.exercises_completed || [];
+      const exerciseLogs = (session.exercise_logs as any[]) || [];
+
       html += `
         <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 10px 0;">
-          <h3 style="margin: 0 0 10px 0;">${formatDate(session.date)} - ${session.muscleGroups.join(' + ')}</h3>
-          <p style="margin: 5px 0; color: #666;">Exercícios: ${session.exercisesCompleted.length} | Taxa: ${session.completionRate}%</p>
+          <h3 style="margin: 0 0 10px 0;">${formatDate(session.date)} - ${muscleGroups.join(' + ')}</h3>
+          <p style="margin: 5px 0; color: #666;">Exercícios: ${exercisesCompleted.length} | Taxa: ${session.completion_rate || 0}%</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
             <thead>
               <tr style="background: #e0e0e0;">
@@ -66,12 +70,12 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
               </tr>
             </thead>
             <tbody>
-              ${session.exerciseLogs?.map((log) => `
+              ${exerciseLogs.map((log: any) => `
                 <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${log.name}</td>
-                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.weight}kg</td>
-                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.reps}</td>
-                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.sets}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${log.name || log.exercise_name || '-'}</td>
+                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.weight || 0}kg</td>
+                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.reps || 0}</td>
+                  <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.sets || 0}</td>
                 </tr>
               `).join('') || '<tr><td colspan="4">Sem detalhes</td></tr>'}
             </tbody>
@@ -136,7 +140,19 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     setIsExporting(true);
 
     try {
-      const workoutHistory = getWorkoutHistory();
+      // Fetch workout sessions from database
+      const { data: { user } } = await supabase.auth.getUser();
+      let workoutSessions: any[] = [];
+      if (user) {
+        const { data } = await supabase
+          .from('workout_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'completed')
+          .order('date', { ascending: false })
+          .limit(30);
+        workoutSessions = data || [];
+      }
       const now = new Date();
       const dateStr = now.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -158,7 +174,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
       `;
 
       if (selectedType === 'workouts' || selectedType === 'both') {
-        htmlContent += generateWorkoutHTML(workoutHistory.sessions);
+        htmlContent += generateWorkoutHTML(workoutSessions);
       }
 
       if (selectedType === 'nutrition' || selectedType === 'both') {
