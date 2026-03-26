@@ -140,7 +140,19 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     setIsExporting(true);
 
     try {
-      const workoutHistory = getWorkoutHistory();
+      // Fetch workout sessions from database
+      const { data: { user } } = await supabase.auth.getUser();
+      let workoutSessions: any[] = [];
+      if (user) {
+        const { data } = await supabase
+          .from('workout_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'completed')
+          .order('date', { ascending: false })
+          .limit(30);
+        workoutSessions = data || [];
+      }
       const now = new Date();
       const dateStr = now.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
