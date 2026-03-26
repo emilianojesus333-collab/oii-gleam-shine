@@ -174,7 +174,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
       `;
 
       if (selectedType === 'workouts' || selectedType === 'both') {
-        htmlContent += generateWorkoutHTML(workoutHistory.sessions);
+        htmlContent += generateWorkoutHTML(workoutSessions);
       }
 
       if (selectedType === 'nutrition' || selectedType === 'both') {
