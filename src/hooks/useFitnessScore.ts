@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "./useAuth";
+import { usePerformanceMetrics } from "./usePerformanceMetrics";
+import { useWeeklyStats } from "./useWeeklyStats";
+import { useAlerts } from "./useAlerts";
+import { useNutrition } from "./useNutrition";
 
 export interface FitnessMetric {
   label: string;
@@ -15,102 +16,52 @@ export interface FitnessScoreData {
 }
 
 export function useFitnessScore(): FitnessScoreData {
-  const { user } = useAuth();
+  const { data: perfData, isLoading: perfLoading } = usePerformanceMetrics();
+  const { data: weeklyData, loading: weeklyLoading } = useWeeklyStats();
+  const { hydrationSummary } = useAlerts();
+  const { todayLog, goals } = useNutrition();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["fitness-score", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
+  const loading = perfLoading || weeklyLoading;
 
-      const now = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(now.getDate() - 30);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(now.getDate() - 7);
+  // --- Volume (0-10): weekly volume normalized (50k kg = 10) ---
+  const weeklyVolume = perfData?.weeklyVolume ?? 0;
+  const volume = Math.min(10, (weeklyVolume / 50000) * 10);
 
-      const [sessionsRes, progressionRes] = await Promise.all([
-        supabase
-          .from("workout_sessions")
-          .select("id, date, status, performance_score, completion_rate, exercise_logs")
-          .eq("user_id", user.id)
-          .eq("status", "completed")
-          .gte("date", thirtyDaysAgo.toISOString().split("T")[0])
-          .order("date", { ascending: true }),
-        supabase
-          .from("progression_logs")
-          .select("decision, score, created_at")
-          .eq("user_id", user.id)
-          .gte("created_at", thirtyDaysAgo.toISOString()),
-      ]);
+  // --- Frequência (0-10): sessions this week, 5+ = 10 ---
+  const frequency = Math.min(10, ((perfData?.weeklyFrequency ?? 0) / 5) * 10);
 
-      const sessions = sessionsRes.data ?? [];
-      const progressions = progressionRes.data ?? [];
+  // --- Consistência (0-10): completed/planned ratio ---
+  const completed = weeklyData?.completedSessions ?? 0;
+  const planned = weeklyData?.plannedSessions ?? 1;
+  const consistency = planned > 0 ? Math.min(10, (completed / planned) * 10) : 0;
 
-      // --- Consistency (0-10): based on training frequency ---
-      // Ideal: 4+ sessions/week over 30 days → ~17+ sessions
-      const consistency = Math.min(10, (sessions.length / 16) * 10);
+  // --- Hidratação (0-10): today's hydration percentage ---
+  const hydrationPct = hydrationSummary?.percentage ?? 0;
+  const hydration = Math.min(10, (hydrationPct / 100) * 10);
 
-      // --- Volume (0-10): based on total volume from exercise_logs ---
-      let totalVolume = 0;
-      for (const s of sessions) {
-        const logs = s.exercise_logs as any[];
-        if (Array.isArray(logs)) {
-          for (const log of logs) {
-            const sets = log.sets || log.series;
-            if (Array.isArray(sets)) {
-              for (const set of sets) {
-                totalVolume += (set.weight || 0) * (set.reps || 0);
-              }
-            }
-          }
-        }
-      }
-      // Normalize: 100k kg volume in 30 days = 10
-      const volume = Math.min(10, (totalVolume / 80000) * 10);
-
-      // --- Progress (0-10): ratio of "progress" decisions ---
-      const progressCount = progressions.filter((p) => p.decision === "progress").length;
-      const progress = progressions.length > 0
-        ? Math.min(10, (progressCount / progressions.length) * 12)
-        : 0;
-
-      // --- Endurance (0-10): average completion rate ---
-      const avgCompletion = sessions.length > 0
-        ? sessions.reduce((sum, s) => sum + (s.completion_rate ?? 100), 0) / sessions.length
-        : 0;
-      const endurance = Math.min(10, (avgCompletion / 100) * 10);
-
-      // --- Habits (0-10): training regularity (how many distinct weeks had ≥1 session) ---
-      const weeksWithTraining = new Set<string>();
-      for (const s of sessions) {
-        const d = new Date(s.date + "T00:00:00");
-        const weekStart = new Date(d);
-        weekStart.setDate(d.getDate() - d.getDay());
-        weeksWithTraining.add(weekStart.toISOString().split("T")[0]);
-      }
-      // 4+ weeks out of ~4.3 weeks = perfect
-      const habits = Math.min(10, (weeksWithTraining.size / 4) * 10);
-
-      return { consistency, volume, progress, endurance, habits };
-    },
-    enabled: !!user,
-    staleTime: 10 * 60 * 1000,
-  });
+  // --- Nutrição (0-10): today's calorie intake vs goal ---
+  const todayCalories = todayLog?.totals?.calories ?? 0;
+  const goalCalories = goals?.calories ?? 2000;
+  const nutritionRatio = goalCalories > 0 ? todayCalories / goalCalories : 0;
+  // Penalize both under and over eating: closer to 1.0 = better
+  const nutritionScore = nutritionRatio <= 1
+    ? nutritionRatio * 10
+    : Math.max(0, 10 - (nutritionRatio - 1) * 10);
+  const nutrition = Math.min(10, Math.max(0, nutritionScore));
 
   const metrics: FitnessMetric[] = [
-    { label: "Consistência", value: round(data?.consistency ?? 0), fullMark: 10 },
-    { label: "Resistência", value: round(data?.endurance ?? 0), fullMark: 10 },
-    { label: "Volume", value: round(data?.volume ?? 0), fullMark: 10 },
-    { label: "Progresso", value: round(data?.progress ?? 0), fullMark: 10 },
-    { label: "Hábitos", value: round(data?.habits ?? 0), fullMark: 10 },
+    { label: "Volume", value: round(volume), fullMark: 10 },
+    { label: "Frequência", value: round(frequency), fullMark: 10 },
+    { label: "Consistência", value: round(consistency), fullMark: 10 },
+    { label: "Hidratação", value: round(hydration), fullMark: 10 },
+    { label: "Nutrição", value: round(nutrition), fullMark: 10 },
   ];
 
-  // Total score: weighted sum out of 1000
   const totalScore = Math.round(
-    metrics.reduce((sum, m) => sum + m.value, 0) * 20 // 5 metrics * 10 max = 50, *20 = 1000
+    metrics.reduce((sum, m) => sum + m.value, 0) * 20
   );
 
-  return { metrics, totalScore, loading: isLoading };
+  return { metrics, totalScore, loading };
 }
 
 function round(v: number): number {
