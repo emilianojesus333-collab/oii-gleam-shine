@@ -23,8 +23,8 @@ export interface MuscleFatigueEntry {
 
 function getStatus(pct: number): MuscleFatigueEntry["status"] {
   if (pct <= 20) return "recovered";
-  if (pct <= 40) return "almost_recovered";
-  if (pct <= 70) return "recovering";
+  if (pct <= 50) return "almost_recovered";
+  if (pct <= 75) return "recovering";
   return "fatigued";
 }
 
@@ -46,9 +46,9 @@ function getStatusColor(status: MuscleFatigueEntry["status"]): string {
     case "recovered":
       return "text-[hsl(142,71%,45%)]";
     case "almost_recovered":
-      return "text-chart-2";
+      return "text-[hsl(45,93%,47%)]";
     case "recovering":
-      return "text-chart-3";
+      return "text-[hsl(270,60%,55%)]";
     case "fatigued":
       return "text-destructive";
   }
@@ -57,11 +57,11 @@ function getStatusColor(status: MuscleFatigueEntry["status"]): string {
 function getStatusDotColor(status: MuscleFatigueEntry["status"]): string {
   switch (status) {
     case "recovered":
-      return "bg-primary";
+      return "bg-[hsl(142,71%,45%)]";
     case "almost_recovered":
-      return "bg-chart-2";
+      return "bg-[hsl(45,93%,47%)]";
     case "recovering":
-      return "bg-chart-3";
+      return "bg-[hsl(270,60%,55%)]";
     case "fatigued":
       return "bg-destructive";
   }
