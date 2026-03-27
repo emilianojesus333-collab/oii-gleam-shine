@@ -9,6 +9,7 @@ import {
   getStatusDotColor,
   getMuscleLabel } from
 "@/hooks/useMuscleFatigue";
+import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
 "flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
