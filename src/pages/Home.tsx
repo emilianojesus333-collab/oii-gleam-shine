@@ -18,7 +18,7 @@ import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
-import { FatigueHistoryCard } from "@/components/home/FatigueHistoryCard";
+import { FitnessScoreRadar } from "@/components/home/FitnessScoreRadar";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
 
@@ -281,8 +281,8 @@ const Home = () => {
         {/* Weekly Progress Card */}
         <WeeklyProgressCard />
 
-        {/* Fatigue History Chart */}
-        <FatigueHistoryCard />
+        {/* Fitness Score Radar */}
+        <FitnessScoreRadar />
 
         {/* Performance Metrics Panel */}
         <PerformanceMetricsPanel />
