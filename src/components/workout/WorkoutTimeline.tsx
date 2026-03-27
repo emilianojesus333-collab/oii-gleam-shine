@@ -15,7 +15,6 @@ const statusConfig = {
 
 export const WorkoutTimeline = ({ todayMuscleGroups }: WorkoutTimelineProps) => {
   const { muscles } = useMuscleFatigue();
-  const { latestProgression } = useLatestProgression();
 
   // Map today's muscle groups to fatigue data
   const muscleGroupMap: Record<string, string> = {
