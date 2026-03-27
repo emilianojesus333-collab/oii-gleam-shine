@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useMuscleFatigue, getMuscleLabel } from "@/hooks/useMuscleFatigue";
-import { useLatestProgression } from "@/hooks/useLatestProgression";
+
 
 interface WorkoutTimelineProps {
   todayMuscleGroups: string[];
