@@ -40,35 +40,26 @@ export const StatusCarousel = () => {
   const displayMuscles = muscles.slice(0, 4);
 
   slides.push(
-    <div key="muscle-status" className={cardBase}>
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-          <Activity className="h-5 w-5 text-primary" />
-        </div>
-        <p className="text-sm font-bold text-foreground">Estado muscular</p>
-      </div>
-
-      <div className="flex-1 grid grid-cols-2 gap-3">
-        {displayMuscles.map((muscle) => (
-          <div
-            key={muscle.muscle_group}
-            className="rounded-2xl bg-secondary/60 p-4 flex flex-col gap-3"
-          >
-            <span className="text-base font-bold text-foreground">
-              {getMuscleLabel(muscle.muscle_group)}
-            </span>
-            <div className="h-1.5 w-full rounded-full bg-muted-foreground/20 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
-                style={{ width: `${getBarWidth(muscle)}%` }}
-              />
-            </div>
-            <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
-              {getStatusLabel(muscle.status)}
-            </span>
+    <div key="muscle-status" className="grid grid-cols-2 gap-3 min-h-[320px]">
+      {displayMuscles.map((muscle) => (
+        <div
+          key={muscle.muscle_group}
+          className="rounded-2xl border border-border/50 bg-card p-4 flex flex-col gap-3"
+        >
+          <span className="text-base font-bold text-foreground">
+            {getMuscleLabel(muscle.muscle_group)}
+          </span>
+          <div className="h-1.5 w-full rounded-full bg-muted-foreground/20 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
+              style={{ width: `${getBarWidth(muscle)}%` }}
+            />
           </div>
-        ))}
-      </div>
+          <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
+            {getStatusLabel(muscle.status)}
+          </span>
+        </div>
+      ))}
     </div>
   );
 
