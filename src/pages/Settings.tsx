@@ -170,42 +170,15 @@ const Settings = () => {
           {/* Language (inline) */}
           <LanguageSelector inline />
 
-          <div className="mx-3 border-t border-border/10" />
+        </motion.div>
 
-          {/* Calendar mini */}
-          <div className="px-3 py-3">
-            <div className="mb-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Plano semanal</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground">Toca para editar</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1.5">
-              {["S", "T", "Q", "Q", "S", "S", "D"].map((shortDay, index) => {
-                const fullDay = weekDays[index];
-                const workout = getWorkoutDisplay(fullDay);
-                const isRest = workout === "Descanso";
-                return (
-                  <motion.button
-                    key={fullDay}
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => openDayEditor(fullDay)}
-                    className={`flex flex-col items-center gap-1 rounded-xl py-2 transition-all ${
-                      isRest
-                        ? "bg-muted/15"
-                        : "bg-primary/15 ring-1 ring-inset ring-primary/25"
-                    }`}
-                  >
-                    <span className="text-[10px] font-medium text-muted-foreground">{shortDay}</span>
-                    <Dumbbell
-                      className={`h-3.5 w-3.5 ${isRest ? "text-muted-foreground/30" : "text-primary"}`}
-                    />
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
+        {/* ─── Plano Semanal (separado) ─── */}
+        <SectionLabel>Plano Semanal</SectionLabel>
+        <motion.div
+          {...anim(0.12)}
+          className="rounded-[20px] border border-border/20 bg-card/60 p-4 backdrop-blur-sm"
+        >
+          <WeeklyPlanCalendar schedule={schedule} onSaveDay={handleSaveDay} />
         </motion.div>
 
         {/* ─── Inteligência Artificial ─── */}
