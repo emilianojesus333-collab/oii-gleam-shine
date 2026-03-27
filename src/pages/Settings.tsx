@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Save,
-  Sparkles,
   LogOut,
   FileText,
   Shield,
@@ -14,13 +12,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
 import { ExportData } from "@/components/settings/ExportData";
 import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useNutrition } from "@/hooks/useNutrition";
-import { Input } from "@/components/ui/input";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
