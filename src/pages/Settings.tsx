@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Save,
-  Sparkles,
   LogOut,
   FileText,
   Shield,
@@ -14,13 +12,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
 import { ExportData } from "@/components/settings/ExportData";
 import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useNutrition } from "@/hooks/useNutrition";
-import { Input } from "@/components/ui/input";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
@@ -76,9 +74,6 @@ const SettingsRow = ({
 const Settings = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<Schedule>({});
-  const [aiName, setAiName] = useState("Liftmate");
-  const [isEditingAiName, setIsEditingAiName] = useState(false);
-  const [tempAiName, setTempAiName] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -88,28 +83,11 @@ const Settings = () => {
   useEffect(() => {
     if (settings) {
       setSchedule(settings.onboarding_data?.schedule || {});
-      setAiName(settings.ai_name || "Liftmate");
     }
   }, [settings]);
 
-  const openAiNameEditor = () => {
-    setTempAiName(aiName);
-    setIsEditingAiName(true);
-  };
 
-  const saveAiName = async () => {
-    if (tempAiName.trim()) {
-      const newName = tempAiName.trim();
-      setAiName(newName);
-      setIsEditingAiName(false);
-      try {
-        await updateSettings({ ai_name: newName });
-        toast.success("Nome da IA atualizado!");
-      } catch (error) {
-        console.error("Error saving AI name:", error);
-      }
-    }
-  };
+
 
   const handleSaveDay = async (day: string, muscles: string[] | null) => {
     const newSchedule = { ...schedule, [day]: muscles };
@@ -150,27 +128,8 @@ const Settings = () => {
           <UserProfileCard />
         </motion.div>
 
-        {/* ─── Preferências ─── */}
-        <SectionLabel>Preferências</SectionLabel>
-        <motion.div
-          {...anim(0.1)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
-        >
-          {/* AI Name */}
-          <SettingsRow
-            icon={Sparkles}
-            label="Nome do assistente"
-            sublabel={aiName}
-            iconClass="text-primary"
-            onClick={openAiNameEditor}
-          />
 
-          <div className="mx-3 border-t border-border/10" />
 
-          {/* Language (inline) */}
-          <LanguageSelector inline />
-
-        </motion.div>
 
         {/* ─── Plano Semanal (separado) ─── */}
         <SectionLabel>Plano Semanal</SectionLabel>
@@ -199,6 +158,8 @@ const Settings = () => {
           {...anim(0.25)}
           className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
         >
+          <LanguageSelector inline />
+          <div className="mx-3 border-t border-border/10" />
           <SettingsRow icon={FileText} label="Termos de Uso" onClick={() => navigate("/terms")} />
           <div className="mx-3 border-t border-border/10" />
           <SettingsRow icon={Shield} label="Política de Privacidade" onClick={() => navigate("/privacy")} />
@@ -253,48 +214,8 @@ const Settings = () => {
 
 
 
-      <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
-            <Input
-              value={tempAiName}
-              onChange={(e) => setTempAiName(e.target.value)}
-              placeholder="Ex: Coach, Buddy, Trainer..."
-              className="border-border/50 bg-muted/30"
-              maxLength={20}
-            />
-            <div className="flex flex-wrap gap-2">
-              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
-                <motion.button
-                  key={suggestion}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setTempAiName(suggestion)}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
-                    tempAiName === suggestion
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border/50 bg-muted/30 text-muted-foreground"
-                  }`}
-                >
-                  {suggestion}
-                </motion.button>
-              ))}
-            </div>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={saveAiName}
-              disabled={!tempAiName.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              <Save className="h-5 w-5" />
-              Guardar
-            </motion.button>
-          </div>
-        </SheetContent>
-      </Sheet>
+
+
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
