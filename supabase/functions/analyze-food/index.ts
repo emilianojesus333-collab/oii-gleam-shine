@@ -107,14 +107,14 @@ function validateNutritionData(raw: unknown): ValidatedResult {
     });
 
   if (foods.length === 0) {
-    throw new Error('No food detected in the image');
+    throw new Error('No food detected');
   }
 
   // Check average confidence
   const allLow = foods.every(f => f.confidence === 'low');
   const rawTotalCal = foods.reduce((s, f) => s + f.calories, 0);
   if (allLow && rawTotalCal < 10) {
-    throw new Error('No food detected in the image');
+    throw new Error('No food detected');
   }
 
   // Ensure calorie consistency per food
@@ -261,7 +261,7 @@ Seja específico nos nomes (ex: "Arroz branco cozido" não apenas "arroz").`
     } else if (mealDescription) {
       messages.push({
         role: "user",
-        content: `Analise esta refeição descrita e forneça informações nutricionais: "${mealDescription}"`
+        content: `Analise esta refeição/alimento descrito e forneça informações nutricionais detalhadas. Se for um nome simples de alimento (ex: "frango", "arroz"), assuma uma porção padrão de 100-150g e forneça os macros completos. Descrição: "${mealDescription}"`
       });
     } else {
       throw new Error('Provide imageBase64 or mealDescription');
