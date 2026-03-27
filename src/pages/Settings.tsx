@@ -220,49 +220,6 @@ const Settings = () => {
           <UserProfileCard />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.11 }}
-          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
-        >
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                <Droplets className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Tamanho da garrafa</h3>
-                <p className="text-xs text-muted-foreground">
-                  Escolhe a garrafa usada no registo rápido de hidratação.
-                </p>
-              </div>
-            </div>
-            <span className="rounded-full border border-border/40 bg-muted/20 px-3 py-1 text-xs font-medium text-muted-foreground">
-              {formatBottleSize(currentBottleSize)}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            {bottleSizeOptions.map((size) => {
-              const isSelected = currentBottleSize === size;
-              return (
-                <motion.button
-                  key={size}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleBottleSizeChange(size)}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border/50 bg-muted/20 text-foreground"
-                  }`}
-                >
-                  {formatBottleSize(size)}
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
