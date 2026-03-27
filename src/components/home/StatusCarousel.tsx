@@ -36,6 +36,9 @@ export const StatusCarousel = () => {
     return Math.max(100 - muscle.current_fatigue, 10);
   };
 
+  // Only show top 4 muscles for the 2x2 grid
+  const displayMuscles = muscles.slice(0, 4);
+
   slides.push(
     <div key="muscle-status" className={cardBase}>
       <div className="mb-4 flex items-center gap-3">
@@ -46,15 +49,15 @@ export const StatusCarousel = () => {
       </div>
 
       <div className="flex-1 grid grid-cols-2 gap-3">
-        {muscles.map((muscle) => (
+        {displayMuscles.map((muscle) => (
           <div
             key={muscle.muscle_group}
-            className="rounded-xl border border-border/40 bg-background/40 p-3 flex flex-col gap-2"
+            className="rounded-2xl bg-secondary/60 p-4 flex flex-col gap-3"
           >
-            <span className="text-sm font-semibold text-foreground">
+            <span className="text-base font-bold text-foreground">
               {getMuscleLabel(muscle.muscle_group)}
             </span>
-            <div className="h-1.5 w-full rounded-full bg-muted/50 overflow-hidden">
+            <div className="h-1.5 w-full rounded-full bg-muted-foreground/20 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
                 style={{ width: `${getBarWidth(muscle)}%` }}

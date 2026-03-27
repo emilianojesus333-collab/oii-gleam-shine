@@ -172,14 +172,14 @@ const Home = () => {
         </div>
 
         {/* Time-based greeting */}
-        <div className="mt-2">
-          <p className="text-sm text-muted-foreground">{(() => {
+        <div className="mt-3">
+          <p className="text-xs text-muted-foreground/70">{(() => {
             const hour = new Date().getHours();
             if (hour < 12) return "Bom dia,";
             if (hour < 19) return "Boa tarde,";
             return "Boa noite,";
           })()}</p>
-          <p className="text-2xl sm:text-3xl font-bold text-foreground">
+          <p className="text-lg sm:text-xl font-bold text-muted-foreground">
             {settings?.onboarding_data?.personal?.name || user?.email?.split("@")[0] || "Atleta"}
           </p>
         </div>
