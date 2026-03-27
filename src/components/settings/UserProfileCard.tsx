@@ -80,8 +80,8 @@ export const UserProfileCard = () => {
     return null;
   }
 
-  const weeklyWorkouts = stats?.completedWorkouts ?? 0;
-  const weeklyVolume = stats?.totalSets ?? 0;
+  const weeklyWorkouts = weeklyStats?.data?.completedWorkouts ?? 0;
+  const weeklyVolume = weeklyStats?.data?.totalSets ?? 0;
 
   return (
     <motion.div
