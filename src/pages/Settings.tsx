@@ -2,12 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Calendar,
   Save,
-  Check,
-  Dumbbell,
   Sparkles,
-  Edit3,
   LogOut,
   FileText,
   Shield,
@@ -27,6 +23,7 @@ import { useNutrition } from "@/hooks/useNutrition";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,28 +34,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-const weekDays = [
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-  "Domingo",
-];
-
-const muscleGroups = [
-  "Peito",
-  "Costas",
-  "Ombros",
-  "Bíceps",
-  "Tríceps",
-  "Pernas",
-  "Core",
-  "Glúteos",
-  "Cardio",
-];
 
 type Schedule = Record<string, string[] | null>;
 
@@ -101,8 +76,6 @@ const SettingsRow = ({
 const Settings = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<Schedule>({});
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [tempSelection, setTempSelection] = useState<string[]>([]);
   const [aiName, setAiName] = useState("Liftmate");
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
@@ -138,52 +111,15 @@ const Settings = () => {
     }
   };
 
-  const openDayEditor = (day: string) => {
-    const current = schedule[day];
-    setTempSelection(Array.isArray(current) ? current : []);
-    setSelectedDay(day);
-  };
-
-  const toggleMuscleGroup = (group: string) => {
-    setTempSelection((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
-    );
-  };
-
-  const saveDay = async () => {
-    if (!selectedDay) return;
-    const newSchedule = {
-      ...schedule,
-      [selectedDay]: tempSelection.length > 0 ? tempSelection : null,
-    };
+  const handleSaveDay = async (day: string, muscles: string[] | null) => {
+    const newSchedule = { ...schedule, [day]: muscles };
     setSchedule(newSchedule);
     try {
       await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} atualizado!`);
+      toast.success(`${day} atualizado!`);
     } catch (error) {
       console.error("Error saving schedule:", error);
     }
-    setSelectedDay(null);
-  };
-
-  const setRestDay = async () => {
-    if (!selectedDay) return;
-    setTempSelection([]);
-    const newSchedule = { ...schedule, [selectedDay]: null };
-    setSchedule(newSchedule);
-    try {
-      await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} definido como descanso!`);
-    } catch (error) {
-      console.error("Error saving rest day:", error);
-    }
-    setSelectedDay(null);
-  };
-
-  const getWorkoutDisplay = (day: string) => {
-    const groups = schedule[day];
-    if (!groups || (Array.isArray(groups) && groups.length === 0)) return "Descanso";
-    return Array.isArray(groups) ? groups.join(" + ") : groups;
   };
 
   const anim = (delay: number) => ({
