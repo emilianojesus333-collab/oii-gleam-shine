@@ -250,54 +250,8 @@ const Settings = () => {
         <div className="h-4" />
       </div>
 
-      {/* ─── Sheets ─── */}
-      <Sheet open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">{selectedDay}</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Seleciona os grupos musculares:</p>
-            <div className="grid grid-cols-3 gap-2">
-              {muscleGroups.map((group) => {
-                const isSelected = tempSelection.includes(group);
-                return (
-                  <motion.button
-                    key={group}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleMuscleGroup(group)}
-                    className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                      isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-border/50 bg-muted/30 text-foreground"
-                    }`}
-                  >
-                    {isSelected && <Check className="h-4 w-4" />}
-                    {group}
-                  </motion.button>
-                );
-              })}
-            </div>
-            <div className="flex gap-3 pt-4">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={setRestDay}
-                className="flex-1 rounded-xl border border-border/50 bg-muted/30 py-4 font-semibold text-foreground"
-              >
-                Dia de Descanso
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={saveDay}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground"
-              >
-                <Save className="h-5 w-5" />
-                Guardar
-              </motion.button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+
+
 
       <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
         <SheetContent side="bottom" className="rounded-t-3xl">
