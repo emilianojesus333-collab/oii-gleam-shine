@@ -13,7 +13,7 @@ import {
   Shield,
   Headphones,
   Trash2,
-  Droplets,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -37,7 +37,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatBottleSize } from "@/lib/hydration";
 
 const weekDays = [
   "Segunda-feira",
@@ -61,9 +60,43 @@ const muscleGroups = [
   "Cardio",
 ];
 
-const bottleSizeOptions = [500, 750, 1000, 1500];
-
 type Schedule = Record<string, string[] | null>;
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="px-1 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+    {children}
+  </p>
+);
+
+const SettingsRow = ({
+  icon: Icon,
+  label,
+  sublabel,
+  onClick,
+  iconClass,
+  trailing,
+}: {
+  icon: React.ElementType;
+  label: string;
+  sublabel?: string;
+  onClick?: () => void;
+  iconClass?: string;
+  trailing?: React.ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 transition-colors active:bg-muted/20"
+  >
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-muted/30">
+      <Icon className={`h-[18px] w-[18px] ${iconClass ?? "text-muted-foreground"}`} />
+    </div>
+    <div className="flex-1 text-left">
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      {sublabel && <p className="text-[11px] text-muted-foreground">{sublabel}</p>}
+    </div>
+    {trailing ?? <ChevronRight className="h-4 w-4 text-muted-foreground/50" />}
+  </button>
+);
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -86,9 +119,6 @@ const Settings = () => {
     }
   }, [settings]);
 
-  const currentAlertsConfig = (settings?.alerts_config as Record<string, any> | null) ?? null;
-  const currentBottleSize = Number(currentAlertsConfig?.hydration?.bottleSizeMl) || 1000;
-
   const openAiNameEditor = () => {
     setTempAiName(aiName);
     setIsEditingAiName(true);
@@ -99,31 +129,12 @@ const Settings = () => {
       const newName = tempAiName.trim();
       setAiName(newName);
       setIsEditingAiName(false);
-
       try {
         await updateSettings({ ai_name: newName });
         toast.success("Nome da IA atualizado!");
       } catch (error) {
         console.error("Error saving AI name:", error);
       }
-    }
-  };
-
-  const handleBottleSizeChange = async (bottleSizeMl: number) => {
-    try {
-      await updateSettings({
-        alerts_config: {
-          ...(currentAlertsConfig ?? {}),
-          hydration: {
-            ...(currentAlertsConfig?.hydration ?? {}),
-            bottleSizeMl,
-          },
-        },
-      });
-      toast.success(`Garrafa definida para ${formatBottleSize(bottleSizeMl)}`);
-    } catch (error) {
-      console.error("Error saving bottle size:", error);
-      toast.error("Erro ao atualizar o tamanho da garrafa");
     }
   };
 
@@ -134,312 +145,210 @@ const Settings = () => {
   };
 
   const toggleMuscleGroup = (group: string) => {
-    setTempSelection((prev) => {
-      if (prev.includes(group)) {
-        return prev.filter((selectedGroup) => selectedGroup !== group);
-      }
-      return [...prev, group];
-    });
+    setTempSelection((prev) =>
+      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    );
   };
 
   const saveDay = async () => {
     if (!selectedDay) return;
-
     const newSchedule = {
       ...schedule,
       [selectedDay]: tempSelection.length > 0 ? tempSelection : null,
     };
     setSchedule(newSchedule);
-
     try {
       await saveScheduleToDb(newSchedule);
       toast.success(`${selectedDay} atualizado!`);
     } catch (error) {
       console.error("Error saving schedule:", error);
     }
-
     setSelectedDay(null);
   };
 
   const setRestDay = async () => {
     if (!selectedDay) return;
     setTempSelection([]);
-
-    const newSchedule = {
-      ...schedule,
-      [selectedDay]: null,
-    };
+    const newSchedule = { ...schedule, [selectedDay]: null };
     setSchedule(newSchedule);
-
     try {
       await saveScheduleToDb(newSchedule);
       toast.success(`${selectedDay} definido como descanso!`);
     } catch (error) {
       console.error("Error saving rest day:", error);
     }
-
     setSelectedDay(null);
   };
 
   const getWorkoutDisplay = (day: string) => {
     const groups = schedule[day];
-    if (!groups || (Array.isArray(groups) && groups.length === 0)) {
-      return "Descanso";
-    }
+    if (!groups || (Array.isArray(groups) && groups.length === 0)) return "Descanso";
     return Array.isArray(groups) ? groups.join(" + ") : groups;
   };
 
+  const anim = (delay: number) => ({
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay, duration: 0.35 },
+  });
+
   return (
-    <div className="min-h-screen bg-black pb-32">
-      <div className="bg-black px-5 pb-6 pt-12">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4"
-        >
+    <div className="min-h-screen bg-background pb-32">
+      {/* Header */}
+      <div className="px-5 pb-4 pt-12">
+        <motion.div {...anim(0)} className="flex items-center gap-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-card"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-card"
           >
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Definições</h1>
-            <p className="text-sm text-muted-foreground">Personaliza o teu treino</p>
-          </div>
+          <h1 className="text-xl font-bold text-foreground">Definições</h1>
         </motion.div>
       </div>
 
-      <div className="space-y-5 bg-black px-5">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+      <div className="space-y-2 px-5">
+        {/* ─── Profile ─── */}
+        <motion.div {...anim(0.05)}>
           <UserProfileCard />
         </motion.div>
 
-
+        {/* ─── Preferências ─── */}
+        <SectionLabel>Preferências</SectionLabel>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+          {...anim(0.1)}
+          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                <Sparkles className="h-5 w-5 text-primary" />
+          {/* AI Name */}
+          <SettingsRow
+            icon={Sparkles}
+            label="Nome do assistente"
+            sublabel={aiName}
+            iconClass="text-primary"
+            onClick={openAiNameEditor}
+          />
+
+          <div className="mx-3 border-t border-border/10" />
+
+          {/* Language (inline) */}
+          <LanguageSelector inline />
+
+          <div className="mx-3 border-t border-border/10" />
+
+          {/* Calendar mini */}
+          <div className="px-3 py-3">
+            <div className="mb-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">Plano semanal</span>
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Nome do assistente</h3>
-                <p className="text-xs text-muted-foreground">{aiName}</p>
-              </div>
+              <span className="text-[11px] text-muted-foreground">Toca para editar</span>
             </div>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={openAiNameEditor}
-              className="rounded-xl border border-border/50 bg-muted/30 p-2.5"
-            >
-              <Edit3 className="h-4 w-4 text-muted-foreground" />
-            </motion.button>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold text-foreground">Calendário</h2>
-            </div>
-            <p className="text-xs text-muted-foreground">Toca para editar</p>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">
-            {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((shortDay, index) => {
-              const fullDay = weekDays[index];
-              const workout = getWorkoutDisplay(fullDay);
-              const isRest = workout === "Descanso";
-
-              return (
-                <motion.button
-                  key={fullDay}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => openDayEditor(fullDay)}
-                  className={`flex flex-col items-center rounded-lg p-2 transition-all ${
-                    isRest ? "bg-muted/20" : "border border-primary/30 bg-primary/20"
-                  }`}
-                >
-                  <span className="mb-1 text-[10px] text-muted-foreground">{shortDay}</span>
-                  <Dumbbell className={`h-3.5 w-3.5 ${isRest ? "text-muted-foreground/50" : "text-primary"}`} />
-                </motion.button>
-              );
-            })}
-          </div>
-
-          <div className="mt-3 flex items-center justify-center gap-4 border-t border-border/20 pt-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <div className="h-2 w-2 rounded-full bg-primary/50"></div>
-              <span>Treino</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <div className="h-2 w-2 rounded-full bg-muted/50"></div>
-              <span>Descanso</span>
+            <div className="grid grid-cols-7 gap-1.5">
+              {["S", "T", "Q", "Q", "S", "S", "D"].map((shortDay, index) => {
+                const fullDay = weekDays[index];
+                const workout = getWorkoutDisplay(fullDay);
+                const isRest = workout === "Descanso";
+                return (
+                  <motion.button
+                    key={fullDay}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => openDayEditor(fullDay)}
+                    className={`flex flex-col items-center gap-1 rounded-xl py-2 transition-all ${
+                      isRest
+                        ? "bg-muted/15"
+                        : "bg-primary/15 ring-1 ring-inset ring-primary/25"
+                    }`}
+                  >
+                    <span className="text-[10px] font-medium text-muted-foreground">{shortDay}</span>
+                    <Dumbbell
+                      className={`h-3.5 w-3.5 ${isRest ? "text-muted-foreground/30" : "text-primary"}`}
+                    />
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
+        {/* ─── Inteligência Artificial ─── */}
+        <SectionLabel>Inteligência Artificial</SectionLabel>
+        <motion.div {...anim(0.15)}>
           <AIFeaturesCarousel />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
+        {/* ─── Dados ─── */}
+        <SectionLabel>Dados</SectionLabel>
+        <motion.div {...anim(0.2)}>
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
+        {/* ─── Informações ─── */}
+        <SectionLabel>Informações</SectionLabel>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
+          {...anim(0.25)}
+          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
         >
-          <LanguageSelector />
+          <SettingsRow icon={FileText} label="Termos de Uso" onClick={() => navigate("/terms")} />
+          <div className="mx-3 border-t border-border/10" />
+          <SettingsRow icon={Shield} label="Política de Privacidade" onClick={() => navigate("/privacy")} />
+          <div className="mx-3 border-t border-border/10" />
+          <SettingsRow
+            icon={Headphones}
+            label="Suporte"
+            iconClass="text-primary"
+            onClick={() => navigate("/support")}
+          />
         </motion.div>
 
+        {/* ─── Conta ─── */}
+        <SectionLabel>Conta</SectionLabel>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="rounded-[20px] border border-border/30 bg-[#111311] p-4"
+          {...anim(0.3)}
+          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
         >
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate("/terms")}
-              className="flex w-full items-center justify-between py-2"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <span className="font-medium text-foreground">Termos de Uso</span>
-              </div>
-              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
-            </button>
-
-            <div className="border-t border-border/20" />
-
-            <button
-              onClick={() => navigate("/privacy")}
-              className="flex w-full items-center justify-between py-2"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
-                  <Shield className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <span className="font-medium text-foreground">Política de Privacidade</span>
-              </div>
-              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
-            </button>
-
-            <div className="border-t border-border/20" />
-
-            <button
-              onClick={() => navigate("/support")}
-              className="flex w-full items-center justify-between py-2"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                  <Headphones className="h-5 w-5 text-primary" />
-                </div>
-                <span className="font-medium text-foreground">Suporte</span>
-              </div>
-              <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
-            </button>
-          </div>
+          <SettingsRow
+            icon={LogOut}
+            label="Terminar sessão"
+            sublabel="Sair da conta"
+            onClick={async () => {
+              try {
+                await supabase.auth.signOut();
+                localStorage.removeItem("liftmate_dev_skip_subscription");
+                toast.success("Sessão terminada");
+                navigate("/auth");
+              } catch {
+                toast.error("Erro ao terminar sessão");
+              }
+            }}
+            trailing={<span className="text-xs font-medium text-muted-foreground">Sair</span>}
+          />
+          <div className="mx-3 border-t border-border/10" />
+          <SettingsRow
+            icon={Trash2}
+            label="Apagar conta"
+            sublabel="Elimina todos os dados"
+            iconClass="text-destructive"
+            onClick={() => setShowDeleteDialog(true)}
+            trailing={
+              <span className="text-xs font-medium text-destructive">Apagar</span>
+            }
+          />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="space-y-4 rounded-[20px] border border-border/30 bg-[#111311] p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/30">
-                <LogOut className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Terminar sessão</h3>
-                <p className="text-xs text-muted-foreground">Sair da conta</p>
-              </div>
-            </div>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={async () => {
-                try {
-                  await supabase.auth.signOut();
-                  localStorage.removeItem("liftmate_dev_skip_subscription");
-                  toast.success("Sessão terminada");
-                  navigate("/auth");
-                } catch (error) {
-                  toast.error("Erro ao terminar sessão");
-                }
-              }}
-              className="flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground"
-            >
-              Sair
-            </motion.button>
-          </div>
-
-          <div className="border-t border-border/20" />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                <Trash2 className="h-5 w-5 text-destructive" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Apagar conta</h3>
-                <p className="text-xs text-muted-foreground">Elimina todos os dados</p>
-              </div>
-            </div>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-medium text-destructive-foreground"
-            >
-              Apagar
-            </motion.button>
-          </div>
-        </motion.div>
+        {/* Bottom spacer */}
+        <div className="h-4" />
       </div>
 
+      {/* ─── Sheets ─── */}
       <Sheet open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold">{selectedDay}</SheetTitle>
           </SheetHeader>
-
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Seleciona os grupos musculares:</p>
-
             <div className="grid grid-cols-3 gap-2">
               {muscleGroups.map((group) => {
                 const isSelected = tempSelection.includes(group);
@@ -460,7 +369,6 @@ const Settings = () => {
                 );
               })}
             </div>
-
             <div className="flex gap-3 pt-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -487,10 +395,8 @@ const Settings = () => {
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
           </SheetHeader>
-
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
-
             <Input
               value={tempAiName}
               onChange={(e) => setTempAiName(e.target.value)}
@@ -498,7 +404,6 @@ const Settings = () => {
               className="border-border/50 bg-muted/30"
               maxLength={20}
             />
-
             <div className="flex flex-wrap gap-2">
               {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
                 <motion.button
@@ -515,7 +420,6 @@ const Settings = () => {
                 </motion.button>
               ))}
             </div>
-
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={saveAiName}
@@ -554,14 +458,11 @@ const Settings = () => {
                 try {
                   const { data: { session } } = await supabase.auth.getSession();
                   if (!session) throw new Error("Sem sessão ativa");
-
                   const response = await supabase.functions.invoke("delete-account", {});
                   if (response.error) throw response.error;
                   const result = response.data;
                   if (!result?.success) throw new Error("Falha ao eliminar conta");
-
                   localStorage.clear();
-
                   toast.success("Conta eliminada com sucesso");
                   navigate("/auth");
                 } catch (error) {
