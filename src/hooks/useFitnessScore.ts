@@ -15,8 +15,8 @@ interface FitnessScoreInput {
   completedSessions: number;
   plannedSessions: number;
   hydrationPercentage: number;
-  todayCalories: number;
-  goalCalories: number;
+  todayProtein: number;
+  goalProtein: number;
 }
 
 export function computeFitnessScore(input: FitnessScoreInput): FitnessScoreData {
