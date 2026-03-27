@@ -420,6 +420,50 @@ const Chat = () => {
         open={showCommandsSheet}
         onOpenChange={setShowCommandsSheet}
         onCommand={(cmd) => handleSend(cmd)} />
+
+      {/* AI Name Editor Sheet */}
+      <Sheet open={isEditingName} onOpenChange={setIsEditingName}>
+        <SheetContent side="bottom" className="rounded-t-3xl bg-[#0B0F14] border-[#1F2937]">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-xl font-bold text-[#F3F4F6]">Nome do assistente</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-white/40">Como queres chamar o teu assistente?</p>
+            <Input
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              placeholder="Ex: Coach, Buddy, Trainer..."
+              className="border-[#1F2937] bg-[#1F2937]/50 text-[#F3F4F6] placeholder:text-white/30"
+              maxLength={20}
+            />
+            <div className="flex flex-wrap gap-2">
+              {["Victoria", "Coach", "Buddy", "Trainer", "Atlas", "Titan"].map((s) => (
+                <motion.button
+                  key={s}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setTempName(s)}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
+                    tempName === s
+                      ? "bg-[#22C55E] text-white"
+                      : "border border-[#1F2937] bg-[#1F2937]/30 text-white/50"
+                  }`}
+                >
+                  {s}
+                </motion.button>
+              ))}
+            </div>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={saveAiName}
+              disabled={!tempName.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#22C55E] py-4 font-semibold text-white disabled:opacity-50"
+            >
+              <Check className="h-5 w-5" />
+              Guardar
+            </motion.button>
+          </div>
+        </SheetContent>
+      </Sheet>
       
     </div>);
 
