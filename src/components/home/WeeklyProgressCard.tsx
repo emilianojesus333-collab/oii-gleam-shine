@@ -6,115 +6,93 @@ export function WeeklyProgressCard() {
 
   if (loading || !data) {
     return (
-      <div className="rounded-2xl p-5 animate-pulse" style={{ backgroundColor: "#111827" }}>
-        <div className="h-32" />
-      </div>);
-
+      <div className="space-y-3">
+        <div className="h-5 w-32 rounded bg-muted-foreground/10 animate-pulse" />
+        <div className="rounded-2xl p-5 animate-pulse bg-[hsl(220,13%,12%)]">
+          <div className="h-24" />
+        </div>
+      </div>
+    );
   }
 
   const { completedSessions, plannedSessions, totalSets, totalReps, totalMinutes, dailyActivity } = data;
   const planned = Math.max(plannedSessions, 1);
-  const pct = Math.min(Math.round(completedSessions / planned * 100), 100);
+  const pct = Math.min(Math.round((completedSessions / planned) * 100), 100);
 
   // Ring SVG params
-  const size = 100;
-  const stroke = 8;
+  const size = 72;
+  const stroke = 6;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - pct / 100 * circumference;
-
-  const dayLabels = ["S", "T", "Q", "Q", "S", "S", "D"];
+  const offset = circumference - (pct / 100) * circumference;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
-      className="rounded-2xl p-5 sm:p-6"
-      style={{ backgroundColor: "#111827", border: "1px solid #1F2937" }}>
-      
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF] mb-4">
-        Progresso da Semana
-      </h3>
+      className="space-y-3"
+    >
+      <h3 className="text-base font-bold text-foreground">Esta semana</h3>
 
-      <div className="flex items-center gap-5">
-        {/* Left side */}
-        <div className="flex-1 space-y-3">
-          <p className="text-2xl font-black text-[#F3F4F6]">
-            {completedSessions} / {plannedSessions}
-            <span className="text-sm font-normal text-[#9CA3AF] ml-1.5">treinos</span>
-          </p>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalSets} Séries
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalReps} Reps
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-              {totalMinutes} Min
+      <div className="rounded-2xl bg-[hsl(220,13%,12%)] p-5 shadow-lg shadow-black/20">
+        <div className="flex items-center gap-4">
+          {/* Ring */}
+          <div className="relative flex-shrink-0">
+            <svg width={size} height={size} className="-rotate-90">
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="hsl(220,10%,20%)"
+                strokeWidth={stroke}
+              />
+              <motion.circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="hsl(195,100%,50%)"
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset: offset }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-base font-black text-foreground leading-none">
+                {completedSessions}/{plannedSessions}
+              </span>
             </div>
           </div>
 
-          {/* Mini bar chart (7 days) */}
-          <div className="flex items-end gap-1 pt-2">
-            {dailyActivity.map((active, i) =>
-            <div key={i} className="flex flex-col items-center gap-0.5">
-                <div
-                className="w-4 rounded-sm transition-all"
-                style={{
-                  height: active ? 16 : 6,
-                  backgroundColor: active ? "#22C55E" : "#1F2937"
-                }} />
-              
-                <span className="text-[8px] text-[#9CA3AF]">{dayLabels[i]}</span>
-              </div>
-            )}
+          {/* Text */}
+          <div className="flex-1 space-y-1">
+            <p className="text-base font-bold text-foreground">
+              {completedSessions} de {plannedSessions} treinos
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {totalSets} séries · {totalReps} reps · {totalMinutes} min
+            </p>
           </div>
         </div>
 
-        {/* Right side — Ring */}
-        <div className="relative flex-shrink-0">
-          <svg width={size} height={size} className="-rotate-90">
-            {/* Background ring */}
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke="#1F2937"
-              strokeWidth={stroke} />
-            
-            {/* Progress ring */}
-            <motion.circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke="#22C55E"
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              initial={{ strokeDashoffset: circumference }}
-              animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }} />
-            
-          </svg>
-          {/* Center text */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center mr-0">
-            <span className="text-lg font-black text-[#F3F4F6] leading-none">
-              {completedSessions}/{plannedSessions}
-            </span>
-            <span className="text-[10px] text-[#9CA3AF] mt-0.5">
-              {pct}%
-            </span>
-          </div>
+        {/* Day activity pills */}
+        <div className="flex items-center gap-1.5 mt-4">
+          {dailyActivity.map((active, i) => (
+            <div
+              key={i}
+              className="h-2 flex-1 rounded-full transition-all"
+              style={{
+                backgroundColor: active ? "hsl(195,100%,50%)" : "hsl(220,10%,20%)",
+              }}
+            />
+          ))}
         </div>
       </div>
-    </motion.div>);
-
+    </motion.div>
+  );
 }
