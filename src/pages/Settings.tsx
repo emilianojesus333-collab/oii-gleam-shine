@@ -2,12 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Calendar,
   Save,
-  Check,
-  Dumbbell,
   Sparkles,
-  Edit3,
   LogOut,
   FileText,
   Shield,
@@ -27,6 +23,7 @@ import { useNutrition } from "@/hooks/useNutrition";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,28 +34,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-const weekDays = [
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-  "Domingo",
-];
-
-const muscleGroups = [
-  "Peito",
-  "Costas",
-  "Ombros",
-  "Bíceps",
-  "Tríceps",
-  "Pernas",
-  "Core",
-  "Glúteos",
-  "Cardio",
-];
 
 type Schedule = Record<string, string[] | null>;
 
@@ -101,8 +76,6 @@ const SettingsRow = ({
 const Settings = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<Schedule>({});
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [tempSelection, setTempSelection] = useState<string[]>([]);
   const [aiName, setAiName] = useState("Liftmate");
   const [isEditingAiName, setIsEditingAiName] = useState(false);
   const [tempAiName, setTempAiName] = useState("");
@@ -138,52 +111,15 @@ const Settings = () => {
     }
   };
 
-  const openDayEditor = (day: string) => {
-    const current = schedule[day];
-    setTempSelection(Array.isArray(current) ? current : []);
-    setSelectedDay(day);
-  };
-
-  const toggleMuscleGroup = (group: string) => {
-    setTempSelection((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
-    );
-  };
-
-  const saveDay = async () => {
-    if (!selectedDay) return;
-    const newSchedule = {
-      ...schedule,
-      [selectedDay]: tempSelection.length > 0 ? tempSelection : null,
-    };
+  const handleSaveDay = async (day: string, muscles: string[] | null) => {
+    const newSchedule = { ...schedule, [day]: muscles };
     setSchedule(newSchedule);
     try {
       await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} atualizado!`);
+      toast.success(`${day} atualizado!`);
     } catch (error) {
       console.error("Error saving schedule:", error);
     }
-    setSelectedDay(null);
-  };
-
-  const setRestDay = async () => {
-    if (!selectedDay) return;
-    setTempSelection([]);
-    const newSchedule = { ...schedule, [selectedDay]: null };
-    setSchedule(newSchedule);
-    try {
-      await saveScheduleToDb(newSchedule);
-      toast.success(`${selectedDay} definido como descanso!`);
-    } catch (error) {
-      console.error("Error saving rest day:", error);
-    }
-    setSelectedDay(null);
-  };
-
-  const getWorkoutDisplay = (day: string) => {
-    const groups = schedule[day];
-    if (!groups || (Array.isArray(groups) && groups.length === 0)) return "Descanso";
-    return Array.isArray(groups) ? groups.join(" + ") : groups;
   };
 
   const anim = (delay: number) => ({
@@ -234,42 +170,15 @@ const Settings = () => {
           {/* Language (inline) */}
           <LanguageSelector inline />
 
-          <div className="mx-3 border-t border-border/10" />
+        </motion.div>
 
-          {/* Calendar mini */}
-          <div className="px-3 py-3">
-            <div className="mb-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Plano semanal</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground">Toca para editar</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1.5">
-              {["S", "T", "Q", "Q", "S", "S", "D"].map((shortDay, index) => {
-                const fullDay = weekDays[index];
-                const workout = getWorkoutDisplay(fullDay);
-                const isRest = workout === "Descanso";
-                return (
-                  <motion.button
-                    key={fullDay}
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => openDayEditor(fullDay)}
-                    className={`flex flex-col items-center gap-1 rounded-xl py-2 transition-all ${
-                      isRest
-                        ? "bg-muted/15"
-                        : "bg-primary/15 ring-1 ring-inset ring-primary/25"
-                    }`}
-                  >
-                    <span className="text-[10px] font-medium text-muted-foreground">{shortDay}</span>
-                    <Dumbbell
-                      className={`h-3.5 w-3.5 ${isRest ? "text-muted-foreground/30" : "text-primary"}`}
-                    />
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
+        {/* ─── Plano Semanal (separado) ─── */}
+        <SectionLabel>Plano Semanal</SectionLabel>
+        <motion.div
+          {...anim(0.12)}
+          className="rounded-[20px] border border-border/20 bg-card/60 p-4 backdrop-blur-sm"
+        >
+          <WeeklyPlanCalendar schedule={schedule} onSaveDay={handleSaveDay} />
         </motion.div>
 
         {/* ─── Inteligência Artificial ─── */}
@@ -341,54 +250,8 @@ const Settings = () => {
         <div className="h-4" />
       </div>
 
-      {/* ─── Sheets ─── */}
-      <Sheet open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">{selectedDay}</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Seleciona os grupos musculares:</p>
-            <div className="grid grid-cols-3 gap-2">
-              {muscleGroups.map((group) => {
-                const isSelected = tempSelection.includes(group);
-                return (
-                  <motion.button
-                    key={group}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleMuscleGroup(group)}
-                    className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                      isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-border/50 bg-muted/30 text-foreground"
-                    }`}
-                  >
-                    {isSelected && <Check className="h-4 w-4" />}
-                    {group}
-                  </motion.button>
-                );
-              })}
-            </div>
-            <div className="flex gap-3 pt-4">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={setRestDay}
-                className="flex-1 rounded-xl border border-border/50 bg-muted/30 py-4 font-semibold text-foreground"
-              >
-                Dia de Descanso
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={saveDay}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground"
-              >
-                <Save className="h-5 w-5" />
-                Guardar
-              </motion.button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+
+
 
       <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
         <SheetContent side="bottom" className="rounded-t-3xl">
