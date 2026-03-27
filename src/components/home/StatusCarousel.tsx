@@ -44,18 +44,18 @@ export const StatusCarousel = () => {
       {displayMuscles.map((muscle) => (
         <div
           key={muscle.muscle_group}
-          className="rounded-2xl border border-border/50 bg-card p-4 flex flex-col gap-3"
+          className="rounded-2xl bg-[hsl(220,13%,12%)] p-5 flex flex-col gap-3 shadow-lg shadow-black/20"
         >
-          <span className="text-base font-bold text-foreground">
+          <span className="text-lg font-bold text-foreground">
             {getMuscleLabel(muscle.muscle_group)}
           </span>
-          <div className="h-1.5 w-full rounded-full bg-muted-foreground/20 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-muted-foreground/15 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
               style={{ width: `${getBarWidth(muscle)}%` }}
             />
           </div>
-          <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
+          <span className={`text-sm font-semibold ${getStatusColor(muscle.status)}`}>
             {getStatusLabel(muscle.status)}
           </span>
         </div>
