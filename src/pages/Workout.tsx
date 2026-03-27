@@ -846,6 +846,20 @@ const Workout = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AnimatePresence>
+        {shareData && (
+          <WorkoutShareCard
+            open={!!shareData}
+            onClose={() => {
+              setShareData(null);
+              const sid = (window as any).__lastSessionId;
+              if (sid) navigate(`/workout-summary/${sid}`);
+            }}
+            data={shareData}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
