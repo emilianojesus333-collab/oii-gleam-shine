@@ -228,7 +228,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
       if (errorMsg.includes('No food detected')) {
         toast({
           title: 'Sem alimentos detetados',
-          description: 'Não foi possível identificar alimentos na imagem. Tenta com outra foto.',
+          description: 'Não foi possível identificar alimentos. Tenta descrever melhor ou usa a aba Pesquisar.',
           variant: 'destructive'
         });
         setImagePreview(null);
