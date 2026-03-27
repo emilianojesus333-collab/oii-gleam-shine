@@ -33,10 +33,7 @@ export const WorkoutTimeline = ({ todayMuscleGroups }: WorkoutTimelineProps) => 
   const mainMuscle = relevantMuscles[0];
   const config = mainMuscle ? statusConfig[mainMuscle.status] : statusConfig.recovered;
 
-  // Goal suggestion from progression
-  const goalText = latestProgression
-    ? `+${((latestProgression.suggested_increment_pct || 2.5))}% no próximo treino`
-    : "Mantém a consistência esta semana";
+  const goalText = "Mantém a consistência esta semana";
 
   const hoursAgo = mainMuscle?.last_trained_at
     ? Math.round((Date.now() - new Date(mainMuscle.last_trained_at).getTime()) / (1000 * 60 * 60))
