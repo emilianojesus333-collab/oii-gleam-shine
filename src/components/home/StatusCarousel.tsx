@@ -24,10 +24,10 @@ export const StatusCarousel = () => {
   const getBarColor = (status: string) => {
     switch (status) {
       case "recovered": return "bg-[hsl(142,71%,45%)]";
-      case "almost_recovered": return "bg-chart-2";
-      case "recovering": return "bg-chart-3";
+      case "almost_recovered": return "bg-[hsl(45,93%,47%)]";
+      case "recovering": return "bg-[hsl(270,60%,55%)]";
       case "fatigued": return "bg-destructive";
-      default: return "bg-primary";
+      default: return "bg-[hsl(142,71%,45%)]";
     }
   };
 
