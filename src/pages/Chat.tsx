@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines } from "lucide-react";
+import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines, Edit3, Save, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -9,6 +9,8 @@ import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { toast } from "sonner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
 
@@ -45,8 +47,27 @@ const Chat = () => {
     stopSpeaking
   } = useVoiceChat();
 
-  const { settings: userSettings } = useUserSettings();
+  const { settings: userSettings, updateSettings } = useUserSettings();
   const aiName = useMemo(() => userSettings?.ai_name || "LiftMate", [userSettings]);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
+
+  const openNameEditor = () => {
+    setTempName(aiName);
+    setIsEditingName(true);
+  };
+
+  const saveAiName = async () => {
+    if (tempName.trim()) {
+      try {
+        await updateSettings({ ai_name: tempName.trim() });
+        toast.success("Nome atualizado!");
+      } catch (e) {
+        console.error(e);
+      }
+      setIsEditingName(false);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -202,10 +223,11 @@ const Chat = () => {
           <ArrowLeft className="h-5 w-5 text-[#F3F4F6]" />
         </button>
 
-        <div className="flex items-center gap-2">
+        <button onClick={openNameEditor} className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-[#F3F4F6]" />
           <h1 className="text-base font-semibold text-[#F3F4F6]">{aiName} AI</h1>
-        </div>
+          <Edit3 className="h-3 w-3 text-white/30" />
+        </button>
 
         <div className="flex items-center gap-1">
           <button
