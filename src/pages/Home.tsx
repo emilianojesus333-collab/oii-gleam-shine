@@ -278,8 +278,6 @@ const Home = () => {
         {/* Status Carousel — muscle fatigue cards */}
         <StatusCarousel />
 
-        {/* Weekly Progress Card */}
-        <WeeklyProgressCard />
 
         {/* Fitness Score Radar */}
         <FitnessScoreRadar />
