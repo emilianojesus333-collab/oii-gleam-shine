@@ -27,10 +27,8 @@ export function computeFitnessScore(input: FitnessScoreInput): FitnessScoreData 
   const consistency = plannedSessions > 0 ? Math.min(10, (completedSessions / plannedSessions) * 10) : 0;
   const hydration = Math.min(10, (hydrationPercentage / 100) * 10);
 
-  const goal = goalCalories > 0 ? goalCalories : 2000;
-  const ratio = goal > 0 ? todayCalories / goal : 0;
-  const nutritionScore = ratio <= 1 ? ratio * 10 : Math.max(0, 10 - (ratio - 1) * 10);
-  const nutrition = Math.min(10, Math.max(0, nutritionScore));
+  const proteinGoal = goalCalories > 0 ? goalCalories : 150; // goalCalories is actually goalProtein here
+  const nutrition = Math.min(10, (todayCalories / Math.max(proteinGoal, 1)) * 10);
 
   const metrics: FitnessMetric[] = [
     { label: "Volume", value: round(volume), fullMark: 10 },
