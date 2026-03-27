@@ -76,9 +76,7 @@ const SettingsRow = ({
 const Settings = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<Schedule>({});
-  const [aiName, setAiName] = useState("Liftmate");
-  const [isEditingAiName, setIsEditingAiName] = useState(false);
-  const [tempAiName, setTempAiName] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -88,28 +86,11 @@ const Settings = () => {
   useEffect(() => {
     if (settings) {
       setSchedule(settings.onboarding_data?.schedule || {});
-      setAiName(settings.ai_name || "Liftmate");
     }
   }, [settings]);
 
-  const openAiNameEditor = () => {
-    setTempAiName(aiName);
-    setIsEditingAiName(true);
-  };
 
-  const saveAiName = async () => {
-    if (tempAiName.trim()) {
-      const newName = tempAiName.trim();
-      setAiName(newName);
-      setIsEditingAiName(false);
-      try {
-        await updateSettings({ ai_name: newName });
-        toast.success("Nome da IA atualizado!");
-      } catch (error) {
-        console.error("Error saving AI name:", error);
-      }
-    }
-  };
+
 
   const handleSaveDay = async (day: string, muscles: string[] | null) => {
     const newSchedule = { ...schedule, [day]: muscles };
@@ -236,48 +217,8 @@ const Settings = () => {
 
 
 
-      <Sheet open={isEditingAiName} onOpenChange={setIsEditingAiName}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold">Nome do assistente</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Como queres chamar o teu assistente?</p>
-            <Input
-              value={tempAiName}
-              onChange={(e) => setTempAiName(e.target.value)}
-              placeholder="Ex: Coach, Buddy, Trainer..."
-              className="border-border/50 bg-muted/30"
-              maxLength={20}
-            />
-            <div className="flex flex-wrap gap-2">
-              {["Coach", "Buddy", "Trainer", "Atlas", "Titan", "Max"].map((suggestion) => (
-                <motion.button
-                  key={suggestion}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setTempAiName(suggestion)}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
-                    tempAiName === suggestion
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border/50 bg-muted/30 text-muted-foreground"
-                  }`}
-                >
-                  {suggestion}
-                </motion.button>
-              ))}
-            </div>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={saveAiName}
-              disabled={!tempAiName.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              <Save className="h-5 w-5" />
-              Guardar
-            </motion.button>
-          </div>
-        </SheetContent>
-      </Sheet>
+
+
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
