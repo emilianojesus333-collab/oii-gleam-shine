@@ -122,6 +122,11 @@ const Workout = () => {
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
+  const [shareData, setShareData] = useState<{
+    muscleGroups: string[]; durationMin: number; totalVolume: number;
+    totalSets: number; date: string; dayOfWeek: string;
+  } | null>(null);
+  const workoutStartRef = useRef(Date.now());
 
   // --- AI guided mode state ---
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
