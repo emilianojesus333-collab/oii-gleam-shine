@@ -10,7 +10,7 @@ import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { WeeklyPerformanceWidget } from "@/components/home/WeeklyPerformanceWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
-import { WeeklyProgressCard } from "@/components/home/WeeklyProgressCard";
+
 import { WeeklyStatsGrid } from "@/components/home/WeeklyStatsGrid";
 import { UpcomingWorkouts } from "@/components/home/UpcomingWorkouts";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
@@ -278,8 +278,6 @@ const Home = () => {
         {/* Status Carousel — muscle fatigue cards */}
         <StatusCarousel />
 
-        {/* Weekly Progress Card */}
-        <WeeklyProgressCard />
 
         {/* Fitness Score Radar */}
         <FitnessScoreRadar />

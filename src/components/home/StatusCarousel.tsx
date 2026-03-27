@@ -9,6 +9,7 @@ import {
   getStatusDotColor,
   getMuscleLabel } from
 "@/hooks/useMuscleFatigue";
+import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
 "flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
@@ -16,6 +17,7 @@ const cardBase =
 export const StatusCarousel = () => {
   const navigate = useNavigate();
   const { muscles, fatigued, mostRecovered, hydrationContext, loading } = useMuscleFatigue();
+  const { data: weeklyData, loading: weeklyLoading } = useWeeklyStats();
 
   if (loading) return null;
 
@@ -32,34 +34,91 @@ export const StatusCarousel = () => {
   };
 
   const getBarWidth = (muscle: typeof muscles[0]) => {
-    // Invert fatigue to show recovery level
     return Math.max(100 - muscle.current_fatigue, 10);
   };
 
-  // Only show top 4 muscles for the 2x2 grid
   const displayMuscles = muscles.slice(0, 4);
 
+  // Weekly progress ring params
+  const completedSessions = weeklyData?.completedSessions ?? 0;
+  const plannedSessions = weeklyData?.plannedSessions ?? 0;
+  const totalSets = weeklyData?.totalSets ?? 0;
+  const totalReps = weeklyData?.totalReps ?? 0;
+  const totalMinutes = weeklyData?.totalMinutes ?? 0;
+  const dailyActivity = weeklyData?.dailyActivity ?? [false, false, false, false, false, false, false];
+  const planned = Math.max(plannedSessions, 1);
+  const pct = Math.min(Math.round((completedSessions / planned) * 100), 100);
+  const ringSize = 56;
+  const ringStroke = 5;
+  const ringRadius = (ringSize - ringStroke) / 2;
+  const circumference = 2 * Math.PI * ringRadius;
+  const offset = circumference - (pct / 100) * circumference;
+
   slides.push(
-    <div key="muscle-status" className="grid grid-cols-2 gap-2.5">
-      {displayMuscles.map((muscle) => (
-        <div
-          key={muscle.muscle_group}
-          className="rounded-xl bg-[hsl(220,13%,12%)] px-3.5 py-3 flex flex-col gap-2 shadow-lg shadow-black/20 h-[5.5rem]"
-        >
-          <span className="text-sm font-bold text-foreground">
-            {getMuscleLabel(muscle.muscle_group)}
-          </span>
-          <div className="h-1.5 w-full rounded-full bg-muted-foreground/15 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
-              style={{ width: `${getBarWidth(muscle)}%` }}
-            />
+    <div key="muscle-and-weekly" className="space-y-3">
+      {/* 2x2 Muscle Recovery Grid */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {displayMuscles.map((muscle) => (
+          <div
+            key={muscle.muscle_group}
+            className="rounded-xl bg-[hsl(220,13%,12%)] px-3.5 py-3 flex flex-col gap-2 shadow-lg shadow-black/20 h-[5.5rem]"
+          >
+            <span className="text-sm font-bold text-foreground">
+              {getMuscleLabel(muscle.muscle_group)}
+            </span>
+            <div className="h-1.5 w-full rounded-full bg-muted-foreground/15 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
+                style={{ width: `${getBarWidth(muscle)}%` }}
+              />
+            </div>
+            <span className={`text-xs font-semibold ${getStatusColor(muscle.status)}`}>
+              {getStatusLabel(muscle.status)}
+            </span>
           </div>
-          <span className={`text-xs font-semibold ${getStatusColor(muscle.status)}`}>
-            {getStatusLabel(muscle.status)}
-          </span>
+        ))}
+      </div>
+
+      {/* Weekly Progress inline */}
+      <div className="rounded-2xl bg-[hsl(220,13%,12%)] p-4 shadow-lg shadow-black/20">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-shrink-0">
+            <svg width={ringSize} height={ringSize} className="-rotate-90">
+              <circle cx={ringSize/2} cy={ringSize/2} r={ringRadius} fill="none" stroke="hsl(220,10%,20%)" strokeWidth={ringStroke} />
+              <motion.circle
+                cx={ringSize/2} cy={ringSize/2} r={ringRadius} fill="none"
+                stroke="hsl(142,71%,45%)" strokeWidth={ringStroke} strokeLinecap="round"
+                strokeDasharray={circumference}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset: offset }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-black text-foreground leading-none">
+                {completedSessions}/{plannedSessions}
+              </span>
+            </div>
+          </div>
+          <div className="flex-1 space-y-0.5">
+            <p className="text-sm font-bold text-foreground">
+              {completedSessions} de {plannedSessions} treinos
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {totalSets} séries · {totalReps} reps · {totalMinutes} min
+            </p>
+          </div>
         </div>
-      ))}
+        <div className="flex items-center gap-1.5 mt-3">
+          {dailyActivity.map((active, i) => (
+            <div
+              key={i}
+              className="h-1.5 flex-1 rounded-full transition-all"
+              style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 
