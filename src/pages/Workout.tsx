@@ -47,6 +47,8 @@ import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 import { Progress } from "@/components/ui/progress";
+import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
+// AnimatePresence imported above
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -120,6 +122,11 @@ const Workout = () => {
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
+  const [shareData, setShareData] = useState<{
+    muscleGroups: string[]; durationMin: number; totalVolume: number;
+    totalSets: number; date: string; dayOfWeek: string;
+  } | null>(null);
+  const workoutStartRef = useRef(Date.now());
 
   // --- AI guided mode state ---
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
@@ -374,7 +381,24 @@ const Workout = () => {
       }
 
       checkFatigueNotification(result.fatigue_index);
-      navigate(`/workout-summary/${result.session_id}`);
+
+      // Calculate share data
+      const durationMin = Math.round((Date.now() - workoutStartRef.current) / 60000);
+      const totalVolume = savedExercises.reduce((acc, e) => acc + (e.weight * e.reps * e.sets), 0);
+      const totalSets = savedExercises.reduce((acc, e) => acc + e.sets, 0);
+      const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
+
+      setShareData({
+        muscleGroups,
+        durationMin: durationMin || 1,
+        totalVolume,
+        totalSets,
+        date: activeSession?.date || new Date().toISOString().split("T")[0],
+        dayOfWeek: activeSession?.day_of_week || weekDaysMap[new Date().getDay()],
+      });
+
+      // Store session_id for navigation after share card closes
+      (window as any).__lastSessionId = result.session_id;
     } catch (err: any) {
       console.error("[Workout] Complete error:", err);
       toast.error("Erro ao concluir treino. Os dados não foram perdidos.");
@@ -822,6 +846,20 @@ const Workout = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AnimatePresence>
+        {shareData && (
+          <WorkoutShareCard
+            open={!!shareData}
+            onClose={() => {
+              setShareData(null);
+              const sid = (window as any).__lastSessionId;
+              if (sid) navigate(`/workout-summary/${sid}`);
+            }}
+            data={shareData}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
