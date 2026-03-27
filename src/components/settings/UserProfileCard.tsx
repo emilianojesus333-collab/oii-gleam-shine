@@ -20,7 +20,7 @@ export const UserProfileCard = () => {
   const { user } = useAuth();
   const { settings, updateSettings } = useUserSettings();
   const { isDeveloper } = useSubscriptionContext();
-  const { stats } = useWeeklyStats();
+  const weeklyStats = useWeeklyStats();
   const [userData, setUserData] = useState<UserData>({
     name: "",
     height: "",
