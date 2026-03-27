@@ -57,8 +57,8 @@ export function FitnessScoreRadar() {
     completedSessions: weeklyData?.completedSessions ?? 0,
     plannedSessions: weeklyData?.plannedSessions ?? 1,
     hydrationPercentage: hydrationSummary?.percentage ?? 0,
-    todayCalories: todayLog?.totals?.protein ?? 0,
-    goalCalories: goals?.protein ?? 150,
+    todayProtein: todayLog?.totals?.protein ?? 0,
+    goalProtein: goals?.protein ?? 150,
   });
 
   if (loading) return null;
