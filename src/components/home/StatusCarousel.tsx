@@ -21,27 +21,50 @@ export const StatusCarousel = () => {
 
   const slides: React.ReactNode[] = [];
 
+  const getBarColor = (status: string) => {
+    switch (status) {
+      case "recovered": return "bg-primary";
+      case "almost_recovered": return "bg-chart-2";
+      case "recovering": return "bg-chart-3";
+      case "fatigued": return "bg-destructive";
+      default: return "bg-primary";
+    }
+  };
+
+  const getBarWidth = (muscle: typeof muscles[0]) => {
+    // Invert fatigue to show recovery level
+    return Math.max(100 - muscle.current_fatigue, 10);
+  };
+
   slides.push(
     <div key="muscle-status" className={cardBase}>
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
           <Activity className="h-5 w-5 text-primary" />
         </div>
-        <p className="text-sm font-bold text-foreground">Estado muscular hoje</p>
+        <p className="text-sm font-bold text-foreground">Estado muscular</p>
       </div>
 
-      <div className="flex-1 space-y-2.5">
-        {muscles.map((muscle) =>
-        <div key={muscle.muscle_group} className="items-center justify-between gap-[5px] flex flex-row">
-            <div className="flex items-center gap-2">
-              <div className={`h-2 w-2 rounded-full ${getStatusDotColor(muscle.status)}`} />
-              <span className="text-foreground text-lg font-thin font-sans">{getMuscleLabel(muscle.muscle_group)}</span>
+      <div className="flex-1 grid grid-cols-2 gap-3">
+        {muscles.map((muscle) => (
+          <div
+            key={muscle.muscle_group}
+            className="rounded-xl border border-border/40 bg-background/40 p-3 flex flex-col gap-2"
+          >
+            <span className="text-sm font-semibold text-foreground">
+              {getMuscleLabel(muscle.muscle_group)}
+            </span>
+            <div className="h-1.5 w-full rounded-full bg-muted/50 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
+                style={{ width: `${getBarWidth(muscle)}%` }}
+              />
             </div>
             <span className={`text-xs font-medium ${getStatusColor(muscle.status)}`}>
               {getStatusLabel(muscle.status)}
             </span>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
