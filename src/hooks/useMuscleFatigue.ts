@@ -44,7 +44,7 @@ function getStatusLabel(status: MuscleFatigueEntry["status"]): string {
 function getStatusColor(status: MuscleFatigueEntry["status"]): string {
   switch (status) {
     case "recovered":
-      return "text-primary";
+      return "text-[hsl(142,71%,45%)]";
     case "almost_recovered":
       return "text-chart-2";
     case "recovering":
