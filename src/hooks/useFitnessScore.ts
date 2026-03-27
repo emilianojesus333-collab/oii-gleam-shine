@@ -15,22 +15,19 @@ interface FitnessScoreInput {
   completedSessions: number;
   plannedSessions: number;
   hydrationPercentage: number;
-  todayCalories: number;
-  goalCalories: number;
+  todayProtein: number;
+  goalProtein: number;
 }
 
 export function computeFitnessScore(input: FitnessScoreInput): FitnessScoreData {
-  const { weeklyVolume, weeklyFrequency, completedSessions, plannedSessions, hydrationPercentage, todayCalories, goalCalories } = input;
+  const { weeklyVolume, weeklyFrequency, completedSessions, plannedSessions, hydrationPercentage, todayProtein, goalProtein } = input;
 
   const volume = Math.min(10, (weeklyVolume / 50000) * 10);
   const frequency = Math.min(10, (weeklyFrequency / 5) * 10);
   const consistency = plannedSessions > 0 ? Math.min(10, (completedSessions / plannedSessions) * 10) : 0;
   const hydration = Math.min(10, (hydrationPercentage / 100) * 10);
 
-  const goal = goalCalories > 0 ? goalCalories : 2000;
-  const ratio = goal > 0 ? todayCalories / goal : 0;
-  const nutritionScore = ratio <= 1 ? ratio * 10 : Math.max(0, 10 - (ratio - 1) * 10);
-  const nutrition = Math.min(10, Math.max(0, nutritionScore));
+  const nutrition = Math.min(10, (todayProtein / Math.max(goalProtein, 1)) * 10);
 
   const metrics: FitnessMetric[] = [
     { label: "Volume", value: round(volume), fullMark: 10 },
