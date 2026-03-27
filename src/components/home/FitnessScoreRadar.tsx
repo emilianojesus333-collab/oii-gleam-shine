@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { useFitnessScore } from "@/hooks/useFitnessScore";
+import { computeFitnessScore } from "@/hooks/useFitnessScore";
+import { usePerformanceMetrics } from "@/hooks/usePerformanceMetrics";
+import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+import { useAlerts } from "@/hooks/useAlerts";
+import { useNutrition } from "@/hooks/useNutrition";
 
 const CustomAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
   const metric = rest.metrics?.find((m: any) => m.label === payload.value);
@@ -40,7 +44,22 @@ const CustomAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
 };
 
 export function FitnessScoreRadar() {
-  const { metrics, totalScore, loading } = useFitnessScore();
+  const { data: perfData, isLoading: perfLoading } = usePerformanceMetrics();
+  const { data: weeklyData, loading: weeklyLoading } = useWeeklyStats();
+  const { hydrationSummary } = useAlerts();
+  const { todayLog, goals } = useNutrition();
+
+  const loading = perfLoading || weeklyLoading;
+
+  const { metrics, totalScore } = computeFitnessScore({
+    weeklyVolume: perfData?.weeklyVolume ?? 0,
+    weeklyFrequency: perfData?.weeklyFrequency ?? 0,
+    completedSessions: weeklyData?.completedSessions ?? 0,
+    plannedSessions: weeklyData?.plannedSessions ?? 1,
+    hydrationPercentage: hydrationSummary?.percentage ?? 0,
+    todayCalories: todayLog?.totals?.calories ?? 0,
+    goalCalories: goals?.calories ?? 2000,
+  });
 
   if (loading) return null;
 
@@ -60,7 +79,6 @@ export function FitnessScoreRadar() {
         </div>
       ) : (
         <div className="relative">
-          {/* Central score overlay */}
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             <div className="text-center -mt-2">
               <p className="text-[10px] font-semibold text-primary tracking-wider uppercase">
@@ -70,7 +88,6 @@ export function FitnessScoreRadar() {
             </div>
           </div>
 
-          {/* Radar */}
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="60%" data={metrics}>

@@ -1,8 +1,3 @@
-import { usePerformanceMetrics } from "./usePerformanceMetrics";
-import { useWeeklyStats } from "./useWeeklyStats";
-import { useAlerts } from "./useAlerts";
-import { useNutrition } from "./useNutrition";
-
 export interface FitnessMetric {
   label: string;
   value: number; // 0–10
@@ -12,41 +7,29 @@ export interface FitnessMetric {
 export interface FitnessScoreData {
   metrics: FitnessMetric[];
   totalScore: number; // 0–1000
-  loading: boolean;
 }
 
-export function useFitnessScore(): FitnessScoreData {
-  const { data: perfData, isLoading: perfLoading } = usePerformanceMetrics();
-  const { data: weeklyData, loading: weeklyLoading } = useWeeklyStats();
-  const { hydrationSummary } = useAlerts();
-  const { todayLog, goals } = useNutrition();
+interface FitnessScoreInput {
+  weeklyVolume: number;
+  weeklyFrequency: number;
+  completedSessions: number;
+  plannedSessions: number;
+  hydrationPercentage: number;
+  todayCalories: number;
+  goalCalories: number;
+}
 
-  const loading = perfLoading || weeklyLoading;
+export function computeFitnessScore(input: FitnessScoreInput): FitnessScoreData {
+  const { weeklyVolume, weeklyFrequency, completedSessions, plannedSessions, hydrationPercentage, todayCalories, goalCalories } = input;
 
-  // --- Volume (0-10): weekly volume normalized (50k kg = 10) ---
-  const weeklyVolume = perfData?.weeklyVolume ?? 0;
   const volume = Math.min(10, (weeklyVolume / 50000) * 10);
+  const frequency = Math.min(10, (weeklyFrequency / 5) * 10);
+  const consistency = plannedSessions > 0 ? Math.min(10, (completedSessions / plannedSessions) * 10) : 0;
+  const hydration = Math.min(10, (hydrationPercentage / 100) * 10);
 
-  // --- Frequência (0-10): sessions this week, 5+ = 10 ---
-  const frequency = Math.min(10, ((perfData?.weeklyFrequency ?? 0) / 5) * 10);
-
-  // --- Consistência (0-10): completed/planned ratio ---
-  const completed = weeklyData?.completedSessions ?? 0;
-  const planned = weeklyData?.plannedSessions ?? 1;
-  const consistency = planned > 0 ? Math.min(10, (completed / planned) * 10) : 0;
-
-  // --- Hidratação (0-10): today's hydration percentage ---
-  const hydrationPct = hydrationSummary?.percentage ?? 0;
-  const hydration = Math.min(10, (hydrationPct / 100) * 10);
-
-  // --- Nutrição (0-10): today's calorie intake vs goal ---
-  const todayCalories = todayLog?.totals?.calories ?? 0;
-  const goalCalories = goals?.calories ?? 2000;
-  const nutritionRatio = goalCalories > 0 ? todayCalories / goalCalories : 0;
-  // Penalize both under and over eating: closer to 1.0 = better
-  const nutritionScore = nutritionRatio <= 1
-    ? nutritionRatio * 10
-    : Math.max(0, 10 - (nutritionRatio - 1) * 10);
+  const goal = goalCalories > 0 ? goalCalories : 2000;
+  const ratio = goal > 0 ? todayCalories / goal : 0;
+  const nutritionScore = ratio <= 1 ? ratio * 10 : Math.max(0, 10 - (ratio - 1) * 10);
   const nutrition = Math.min(10, Math.max(0, nutritionScore));
 
   const metrics: FitnessMetric[] = [
@@ -57,11 +40,9 @@ export function useFitnessScore(): FitnessScoreData {
     { label: "Nutrição", value: round(nutrition), fullMark: 10 },
   ];
 
-  const totalScore = Math.round(
-    metrics.reduce((sum, m) => sum + m.value, 0) * 20
-  );
+  const totalScore = Math.round(metrics.reduce((sum, m) => sum + m.value, 0) * 20);
 
-  return { metrics, totalScore, loading };
+  return { metrics, totalScore };
 }
 
 function round(v: number): number {
