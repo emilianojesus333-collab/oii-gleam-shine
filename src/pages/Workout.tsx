@@ -47,6 +47,8 @@ import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 import { Progress } from "@/components/ui/progress";
+import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
+import { AnimatePresence } from "framer-motion";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
