@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Ruler, Weight, Calendar, Edit2, Check, X, Dumbbell } from "lucide-react";
+import { User, Ruler, Weight, Calendar, Edit2, Check, X, Dumbbell, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { Badge } from "@/components/ui/badge";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserData {
   name: string;
@@ -30,6 +31,9 @@ export const UserProfileCard = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<UserData>(userData);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings?.onboarding_data) {
@@ -41,6 +45,46 @@ export const UserProfileCard = () => {
       }
     }
   }, [settings]);
+
+  // Load avatar
+  useEffect(() => {
+    if (!user?.id) return;
+    const { data } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(`${user.id}/avatar`);
+    // Check if file exists by appending timestamp
+    setAvatarUrl(`${data.publicUrl}?t=${Date.now()}`);
+  }, [user?.id]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 2MB.");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(`${user.id}/avatar`, file, { upsert: true });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(`${user.id}/avatar`);
+      setAvatarUrl(`${data.publicUrl}?t=${Date.now()}`);
+      toast.success("Foto de perfil atualizada!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error("Erro ao carregar foto");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const calculateAge = (birthYear: string) => {
     if (!birthYear) return null;
@@ -92,11 +136,41 @@ export const UserProfileCard = () => {
       {/* Profile Header */}
       <div className="relative px-5 pt-6 pb-5">
         <div className="flex items-start gap-4">
-          {/* Large Avatar */}
-          <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 ring-offset-2 ring-offset-[#111311]">
-            <span className="text-2xl font-bold text-primary-foreground">
-              {userData.name.charAt(0).toUpperCase()}
-            </span>
+          {/* Large Avatar with upload */}
+          <div className="relative">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploadingAvatar}
+              className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 ring-offset-2 ring-offset-[#111311] overflow-hidden relative group"
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <span className="text-2xl font-bold text-primary-foreground">
+                  {userData.name.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+            </button>
+            {isUploadingAvatar && (
+              <div className="absolute inset-0 w-[72px] h-[72px] rounded-full bg-black/50 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
           </div>
 
           {/* Name & Info */}
