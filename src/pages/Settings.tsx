@@ -150,27 +150,8 @@ const Settings = () => {
           <UserProfileCard />
         </motion.div>
 
-        {/* ─── Preferências ─── */}
-        <SectionLabel>Preferências</SectionLabel>
-        <motion.div
-          {...anim(0.1)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
-        >
-          {/* AI Name */}
-          <SettingsRow
-            icon={Sparkles}
-            label="Nome do assistente"
-            sublabel={aiName}
-            iconClass="text-primary"
-            onClick={openAiNameEditor}
-          />
 
-          <div className="mx-3 border-t border-border/10" />
 
-          {/* Language (inline) */}
-          <LanguageSelector inline />
-
-        </motion.div>
 
         {/* ─── Plano Semanal (separado) ─── */}
         <SectionLabel>Plano Semanal</SectionLabel>
@@ -199,6 +180,8 @@ const Settings = () => {
           {...anim(0.25)}
           className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
         >
+          <LanguageSelector inline />
+          <div className="mx-3 border-t border-border/10" />
           <SettingsRow icon={FileText} label="Termos de Uso" onClick={() => navigate("/terms")} />
           <div className="mx-3 border-t border-border/10" />
           <SettingsRow icon={Shield} label="Política de Privacidade" onClick={() => navigate("/privacy")} />
