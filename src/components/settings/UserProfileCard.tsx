@@ -80,7 +80,7 @@ export const UserProfileCard = () => {
     return null;
   }
 
-  const weeklyWorkouts = weeklyStats?.data?.completedWorkouts ?? 0;
+  const weeklyWorkouts = weeklyStats?.data?.completedSessions ?? 0;
   const weeklyVolume = weeklyStats?.data?.totalSets ?? 0;
 
   return (
