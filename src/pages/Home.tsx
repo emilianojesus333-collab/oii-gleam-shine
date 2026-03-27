@@ -155,13 +155,13 @@ const Home = () => {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-12 pb-3 sm:pb-4 safe-area-top flex items-start justify-between"
+        className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-12 pb-1 sm:pb-2 safe-area-top"
       >
-        <div className="flex items-center gap-2 sm:gap-3">
-          <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
-          <SubscriptionBadge variant="compact" />
-        </div>
-        <div className="gap-2 sm:gap-3 flex items-center justify-start">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
+            <SubscriptionBadge variant="compact" />
+          </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/settings")}
@@ -169,6 +169,19 @@ const Home = () => {
           >
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
           </motion.button>
+        </div>
+
+        {/* Time-based greeting */}
+        <div className="mt-2">
+          <p className="text-sm text-muted-foreground">{(() => {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Bom dia,";
+            if (hour < 19) return "Boa tarde,";
+            return "Boa noite,";
+          })()}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-foreground">
+            {settings?.onboarding_data?.personal?.name || user?.email?.split("@")[0] || "Atleta"}
+          </p>
         </div>
       </motion.header>
 
