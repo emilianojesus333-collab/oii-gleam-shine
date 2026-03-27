@@ -77,7 +77,6 @@ const Settings = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<Schedule>({});
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { settings, updateSettings, updateSchedule: saveScheduleToDb } = useUserSettings();
