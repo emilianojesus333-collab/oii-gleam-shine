@@ -1,13 +1,11 @@
 import { motion } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { Trophy } from "lucide-react";
 import { useFitnessScore } from "@/hooks/useFitnessScore";
 
 const CustomAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
   const metric = rest.metrics?.find((m: any) => m.label === payload.value);
   const val = metric?.value ?? 0;
 
-  // Push label outward
   const dx = x - cx;
   const dy = y - cy;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -46,7 +44,6 @@ export function FitnessScoreRadar() {
 
   if (loading) return null;
 
-  // If all zeros, show empty state
   const hasData = metrics.some((m) => m.value > 0);
 
   return (
@@ -54,16 +51,7 @@ export function FitnessScoreRadar() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 p-4"
     >
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-1">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
-          <Trophy className="h-4 w-4 text-primary" />
-        </div>
-        <h3 className="text-sm font-semibold text-foreground">Fitness Score</h3>
-      </div>
-
       {!hasData ? (
         <div className="flex items-center justify-center py-10">
           <p className="text-xs text-muted-foreground text-center leading-relaxed">
