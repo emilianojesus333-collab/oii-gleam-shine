@@ -50,10 +50,8 @@ import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
 import { WorkoutHero } from "@/components/workout/WorkoutHero";
 import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
 import { EditorialQuote } from "@/components/workout/EditorialQuote";
-import { PersonalRecordsCard } from "@/components/workout/PersonalRecordsCard";
-import { WeeklyStreakCard } from "@/components/workout/WeeklyStreakCard";
-import { MuscleStatusCard } from "@/components/workout/MuscleStatusCard";
-import { WeeklyActivityCard } from "@/components/workout/WeeklyActivityCard";
+import { WorkoutStatStrip } from "@/components/workout/WorkoutStatStrip";
+import { WorkoutTimeline } from "@/components/workout/WorkoutTimeline";
 import { WorkoutCTA } from "@/components/workout/WorkoutCTA";
 
 const weekDaysMap: Record<number, string> = {
@@ -431,7 +429,7 @@ const Workout = () => {
           <p className="text-muted-foreground max-w-xs mx-auto">{t("workout.restImportant")}</p>
         </motion.div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-8">
           {/* ── GUIDED MODE: Exercise Carousel ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
@@ -493,17 +491,14 @@ const Workout = () => {
             aiName={settings?.ai_name || "Victoria AI"}
           />
 
-          {/* ── NIKE/STRAVA CARDS ── */}
-          <PersonalRecordsCard
+          {/* ── STAT STRIP ── */}
+          <WorkoutStatStrip
+            todayMuscleGroups={todayMuscleGroups}
             todayExerciseNames={isGuidedMode ? aiExercises.map(e => e.exercise_name) : todayExercises.map(e => e.name)}
           />
 
-          <div className="mx-5 grid grid-cols-2 gap-3">
-            <WeeklyStreakCard />
-            <MuscleStatusCard todayMuscleGroups={todayMuscleGroups} />
-          </div>
-
-          <WeeklyActivityCard />
+          {/* ── TIMELINE ── */}
+          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
 
           {/* ── AI GENERATOR (non-guided mode) ── */}
           {!isGuidedMode && (
