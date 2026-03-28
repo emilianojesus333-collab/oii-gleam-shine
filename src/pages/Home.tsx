@@ -264,40 +264,54 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5">
-        {/* Name AI Banner */}
+      <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-0">
         <NameAIBanner />
+        <div className="h-4 sm:h-5" />
 
-        {/* Today Workout Card (blue) */}
         <TodayWorkoutCard
           workout={todayWorkout}
           stimulus={trainingStimulus}
           isRestDay={isRestDay}
         />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Status Carousel — muscle fatigue cards */}
         <StatusCarousel />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-
-        {/* Fitness Score Radar */}
         <FitnessScoreRadar />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Performance Metrics Panel */}
         <PerformanceMetricsPanel />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* AI Insights Widget */}
         <AIInsightsWidget />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Volume + Trend Grid */}
         <WeeklyStatsGrid />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Weekly Performance Widget */}
         <WeeklyPerformanceWidget />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Favorites Widget */}
         <FavoritesWidget />
+        <div className="h-6 relative flex items-center justify-center">
+          <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent" />
+        </div>
 
-        {/* Upcoming Workouts */}
         <UpcomingWorkouts />
       </main>
 
