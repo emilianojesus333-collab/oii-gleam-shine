@@ -1,4 +1,7 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useOneRMRecords } from "@/hooks/useOneRMRecords";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
@@ -8,32 +11,65 @@ interface WorkoutStatStripProps {
 }
 
 export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }: WorkoutStatStripProps) => {
+  const { user } = useAuth();
   const { records } = useOneRMRecords();
   const { data: weeklyStats } = useWeeklyStats();
+  const [maxSetPR, setMaxSetPR] = useState<{ name: string; weight: number } | null>(null);
 
-  // Find max weight used across all records for today's exercises, fallback to any record
-  const closestPR = (() => {
-    if (!records.length) return null;
-    
-    // Try to find best record for today's exercises first
-    if (todayExerciseNames.length) {
-      let best: { name: string; value: string } | null = null;
-      let maxWeight = 0;
-      for (const name of todayExerciseNames) {
-        const matches = records.filter(
-          (r) => r.exercise_name.toLowerCase() === name.toLowerCase()
-        );
-        for (const m of matches) {
-          if (m.weight_used > maxWeight) {
-            maxWeight = m.weight_used;
-            best = { name: m.exercise_name, value: `${m.weight_used}kg` };
+  // Primary source: workout_sets (real training data)
+  useEffect(() => {
+    if (!user) return;
+    const fetchMaxWeight = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("workout_sets")
+          .select("weight, exercise_id, exercises(name)")
+          .eq("user_id", user.id)
+          .eq("set_type", "working")
+          .order("weight", { ascending: false })
+          .limit(20);
+
+        if (error || !data?.length) return;
+
+        // Filter for today's exercises if available
+        if (todayExerciseNames.length) {
+          const match = data.find((s: any) =>
+            todayExerciseNames.some(
+              (n) => s.exercises?.name?.toLowerCase() === n.toLowerCase()
+            )
+          );
+          if (match && (match as any).exercises?.name) {
+            setMaxSetPR({ name: (match as any).exercises.name, weight: match.weight });
+            return;
           }
         }
+
+        // Fallback: highest weight across all sets
+        const top = data[0] as any;
+        if (top?.exercises?.name) {
+          setMaxSetPR({ name: top.exercises.name, weight: top.weight });
+        }
+      } catch (e) {
+        console.error("Error fetching max weight from sets:", e);
       }
-      if (best) return best;
+    };
+    fetchMaxWeight();
+  }, [user, todayExerciseNames.join(",")]);
+
+  // Combine sources: workout_sets first, one_rm_records as fallback
+  const closestPR = (() => {
+    if (maxSetPR) {
+      return { name: maxSetPR.name, value: `${maxSetPR.weight}kg` };
     }
-    
-    // Fallback: highest weight across all records
+    if (!records.length) return null;
+    if (todayExerciseNames.length) {
+      for (const name of todayExerciseNames) {
+        const match = records.find(
+          (r) => r.exercise_name.toLowerCase() === name.toLowerCase()
+        );
+        if (match) return { name: match.exercise_name, value: `${match.weight_used}kg` };
+      }
+    }
     const top = records.reduce((a, b) => (a.weight_used > b.weight_used ? a : b));
     return { name: top.exercise_name, value: `${top.weight_used}kg` };
   })();
