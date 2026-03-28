@@ -16,6 +16,31 @@ interface WorkoutStatStripProps {
   todayExerciseNames?: string[];
 }
 
+const normalizeExerciseName = (name: string) =>
+  name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+const namesMatch = (left: string, right: string) => {
+  const a = normalizeExerciseName(left);
+  const b = normalizeExerciseName(right);
+
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+
+  const aTokens = a.split(" ").filter((token) => token.length > 2);
+  const bTokens = b.split(" ").filter((token) => token.length > 2);
+  const sharedTokens = aTokens.filter((token) => bTokens.includes(token));
+
+  return sharedTokens.length >= Math.min(2, aTokens.length, bTokens.length);
+};
+
 export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }: WorkoutStatStripProps) => {
   const { user } = useAuth();
   const [exercisePRs, setExercisePRs] = useState<ExercisePR[]>([]);
@@ -26,7 +51,6 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
 
     const fetchPRs = async () => {
       try {
-        // Get all working sets for this user with exercise names
         const { data: sets, error } = await supabase
           .from("workout_sets")
           .select("weight, created_at, exercise_id, exercises(name)")
@@ -37,38 +61,40 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
 
         if (error) throw error;
 
-        // Also get one_rm_records as fallback
         const { data: ormRecords } = await supabase
           .from("one_rm_records")
           .select("*")
           .order("weight_used", { ascending: false });
 
         const prs: ExercisePR[] = todayExerciseNames.map((exerciseName) => {
-          // Filter sets for this exercise
           const exerciseSets = (sets || []).filter(
-            (s: any) => s.exercises?.name?.toLowerCase() === exerciseName.toLowerCase()
+            (set: any) => set.exercises?.name && namesMatch(set.exercises.name, exerciseName)
           );
 
           if (exerciseSets.length > 0) {
-            const sorted = [...exerciseSets].sort((a, b) => b.weight - a.weight);
-            const maxWeight = sorted[0].weight;
-            // Find previous max (second highest distinct weight)
-            const previousMax = sorted.length > 1
-              ? sorted.find(s => s.weight < maxWeight)?.weight ?? null
-              : null;
-            const lastDate = sorted[0].created_at;
+            const uniqueWeightsDesc = [...new Set(exerciseSets.map((set: any) => Number(set.weight)))]
+              .sort((a, b) => b - a);
 
-            return { name: exerciseName, maxWeight, previousMax, lastDate };
+            const maxWeight = uniqueWeightsDesc[0] ?? 0;
+            const previousMax = uniqueWeightsDesc[1] ?? null;
+            const latestTopSet = exerciseSets.find((set: any) => Number(set.weight) === maxWeight);
+
+            return {
+              name: exerciseName,
+              maxWeight,
+              previousMax,
+              lastDate: latestTopSet?.created_at ?? null,
+            };
           }
 
-          // Fallback to one_rm_records
-          const ormMatch = (ormRecords || []).find(
-            (r) => r.exercise_name.toLowerCase() === exerciseName.toLowerCase()
+          const ormMatch = (ormRecords || []).find((record) =>
+            namesMatch(record.exercise_name, exerciseName)
           );
+
           if (ormMatch) {
             return {
               name: exerciseName,
-              maxWeight: ormMatch.weight_used,
+              maxWeight: Number(ormMatch.weight_used),
               previousMax: null,
               lastDate: ormMatch.created_at,
             };
@@ -90,7 +116,7 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
 
   const displayPRs = exercisePRs.length > 0
     ? exercisePRs
-    : todayExerciseNames.map((n) => ({ name: n, maxWeight: 0, previousMax: null, lastDate: null }));
+    : todayExerciseNames.map((name) => ({ name, maxWeight: 0, previousMax: null, lastDate: null }));
 
   return (
     <motion.div
@@ -99,13 +125,13 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
       transition={{ delay: 0.3 }}
       className="pl-6"
     >
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         Recordes Pessoais
       </p>
 
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 pr-6 scrollbar-hide"
+        className="scrollbar-hide flex gap-3 overflow-x-auto pb-2 pr-6"
         style={{ scrollSnapType: "x mandatory" }}
       >
         {displayPRs.map((pr, i) => {
@@ -117,45 +143,36 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
 
           return (
             <motion.div
-              key={pr.name}
+              key={`${pr.name}-${i}`}
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.08 }}
-              className="flex-shrink-0 w-[160px] rounded-2xl bg-card border border-border/30 p-4 space-y-3"
+              className="w-[160px] flex-shrink-0 space-y-3 rounded-2xl border border-border/30 bg-card p-4"
               style={{ scrollSnapAlign: "start" }}
             >
-              {/* Exercise name */}
-              <p className="text-[11px] font-medium text-muted-foreground truncate leading-tight">
+              <p className="truncate text-[11px] font-medium leading-tight text-muted-foreground">
                 {pr.name}
               </p>
 
-              {/* Max weight */}
               <div className="flex items-baseline gap-1.5">
-                <Trophy className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span className="text-2xl font-black font-mono text-foreground leading-none">
+                <Trophy className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                <span className="text-2xl font-black leading-none text-foreground font-mono">
                   {hasPR ? pr.maxWeight : "—"}
                 </span>
-                {hasPR && (
-                  <span className="text-xs font-medium text-muted-foreground">kg</span>
-                )}
+                {hasPR && <span className="text-xs font-medium text-muted-foreground">kg</span>}
               </div>
 
-              {/* Trend + Date */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 {diff != null && diff !== 0 ? (
-                  <div className={`flex items-center gap-1 ${diff > 0 ? "text-emerald-400" : "text-red-400"}`}>
-                    {diff > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
+                  <div className={`flex items-center gap-1 ${diff > 0 ? "text-primary" : "text-destructive"}`}>
+                    {diff > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     <span className="text-[10px] font-bold">
                       {diff > 0 ? "+" : ""}{diff}kg
                     </span>
                   </div>
                 ) : hasPR ? (
-                  <div className="flex items-center gap-1 text-muted-foreground/50">
-                    <Minus className="w-3 h-3" />
+                  <div className="flex items-center gap-1 text-muted-foreground/60">
+                    <Minus className="h-3 w-3" />
                     <span className="text-[10px]">1º registo</span>
                   </div>
                 ) : (
@@ -163,9 +180,7 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
                 )}
 
                 {formattedDate && (
-                  <span className="text-[9px] text-muted-foreground/40">
-                    {formattedDate}
-                  </span>
+                  <span className="text-[9px] text-muted-foreground/40">{formattedDate}</span>
                 )}
               </div>
             </motion.div>
