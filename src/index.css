@@ -286,5 +286,12 @@
 
 /* Home card shadows — ambient depth between cards */
 .home-card-shadows > * {
-  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5), 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 10px 30px -4px rgba(0, 0, 0, 0.6),
+    0 4px 12px -2px rgba(0, 0, 0, 0.4),
+    0 16px 40px -8px rgba(10, 20, 40, 0.25);
+}
+
+.home-card-shadows {
+  @apply space-y-5 sm:space-y-6;
 }
