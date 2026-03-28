@@ -47,12 +47,9 @@ import { Progress } from "@/components/ui/progress";
 import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
 
 // Editorial components
-import { WorkoutHero } from "@/components/workout/WorkoutHero";
 import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
 import { EditorialQuote } from "@/components/workout/EditorialQuote";
-import { WorkoutStatStrip } from "@/components/workout/WorkoutStatStrip";
 import { WorkoutTimeline } from "@/components/workout/WorkoutTimeline";
-import { WorkoutCTA } from "@/components/workout/WorkoutCTA";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
