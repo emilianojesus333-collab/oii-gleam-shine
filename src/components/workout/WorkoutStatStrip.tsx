@@ -1,9 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { Trophy, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useOneRMRecords } from "@/hooks/useOneRMRecords";
-import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+
+interface ExercisePR {
+  name: string;
+  maxWeight: number;
+  previousMax: number | null;
+  lastDate: string | null;
+}
 
 interface WorkoutStatStripProps {
   todayMuscleGroups: string[];
@@ -12,128 +18,159 @@ interface WorkoutStatStripProps {
 
 export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }: WorkoutStatStripProps) => {
   const { user } = useAuth();
-  const { records } = useOneRMRecords();
-  const { data: weeklyStats } = useWeeklyStats();
-  const [maxSetPR, setMaxSetPR] = useState<{ name: string; weight: number } | null>(null);
+  const [exercisePRs, setExercisePRs] = useState<ExercisePR[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Primary source: workout_sets (real training data)
   useEffect(() => {
-    if (!user) return;
-    const fetchMaxWeight = async () => {
+    if (!user || !todayExerciseNames.length) return;
+
+    const fetchPRs = async () => {
       try {
-        const { data, error } = await supabase
+        // Get all working sets for this user with exercise names
+        const { data: sets, error } = await supabase
           .from("workout_sets")
-          .select("weight, exercise_id, exercises(name)")
+          .select("weight, created_at, exercise_id, exercises(name)")
           .eq("user_id", user.id)
           .eq("set_type", "working")
-          .order("weight", { ascending: false })
-          .limit(20);
+          .gt("weight", 0)
+          .order("weight", { ascending: false });
 
-        if (error || !data?.length) return;
+        if (error) throw error;
 
-        // Filter for today's exercises if available
-        if (todayExerciseNames.length) {
-          const match = data.find((s: any) =>
-            todayExerciseNames.some(
-              (n) => s.exercises?.name?.toLowerCase() === n.toLowerCase()
-            )
+        // Also get one_rm_records as fallback
+        const { data: ormRecords } = await supabase
+          .from("one_rm_records")
+          .select("*")
+          .order("weight_used", { ascending: false });
+
+        const prs: ExercisePR[] = todayExerciseNames.map((exerciseName) => {
+          // Filter sets for this exercise
+          const exerciseSets = (sets || []).filter(
+            (s: any) => s.exercises?.name?.toLowerCase() === exerciseName.toLowerCase()
           );
-          if (match && (match as any).exercises?.name) {
-            setMaxSetPR({ name: (match as any).exercises.name, weight: match.weight });
-            return;
-          }
-        }
 
-        // Fallback: highest weight across all sets
-        const top = data[0] as any;
-        if (top?.exercises?.name) {
-          setMaxSetPR({ name: top.exercises.name, weight: top.weight });
-        }
+          if (exerciseSets.length > 0) {
+            const sorted = [...exerciseSets].sort((a, b) => b.weight - a.weight);
+            const maxWeight = sorted[0].weight;
+            // Find previous max (second highest distinct weight)
+            const previousMax = sorted.length > 1
+              ? sorted.find(s => s.weight < maxWeight)?.weight ?? null
+              : null;
+            const lastDate = sorted[0].created_at;
+
+            return { name: exerciseName, maxWeight, previousMax, lastDate };
+          }
+
+          // Fallback to one_rm_records
+          const ormMatch = (ormRecords || []).find(
+            (r) => r.exercise_name.toLowerCase() === exerciseName.toLowerCase()
+          );
+          if (ormMatch) {
+            return {
+              name: exerciseName,
+              maxWeight: ormMatch.weight_used,
+              previousMax: null,
+              lastDate: ormMatch.created_at,
+            };
+          }
+
+          return { name: exerciseName, maxWeight: 0, previousMax: null, lastDate: null };
+        });
+
+        setExercisePRs(prs);
       } catch (e) {
-        console.error("Error fetching max weight from sets:", e);
+        console.error("Error fetching exercise PRs:", e);
       }
     };
-    fetchMaxWeight();
+
+    fetchPRs();
   }, [user, todayExerciseNames.join(",")]);
 
-  // Combine sources: workout_sets first, one_rm_records as fallback
-  const closestPR = (() => {
-    if (maxSetPR) {
-      return { name: maxSetPR.name, value: `${maxSetPR.weight}kg` };
-    }
-    if (!records.length) return null;
-    if (todayExerciseNames.length) {
-      for (const name of todayExerciseNames) {
-        const match = records.find(
-          (r) => r.exercise_name.toLowerCase() === name.toLowerCase()
-        );
-        if (match) return { name: match.exercise_name, value: `${match.weight_used}kg` };
-      }
-    }
-    const top = records.reduce((a, b) => (a.weight_used > b.weight_used ? a : b));
-    return { name: top.exercise_name, value: `${top.weight_used}kg` };
-  })();
+  if (!todayExerciseNames.length) return null;
 
-  // Streak calculation from weekly stats
-  const streak = (() => {
-    if (!weeklyStats?.dailyActivity) return 0;
-    // Count consecutive days backwards from today
-    const today = new Date().getDay();
-    const idx = today === 0 ? 6 : today - 1; // Mon=0
-    let count = 0;
-    for (let i = idx; i >= 0; i--) {
-      if (weeklyStats.dailyActivity[i]) count++;
-      else break;
-    }
-    return count;
-  })();
-
-  // Volume
-  const totalVolume = weeklyStats
-    ? (weeklyStats.totalSets * 50 / 1000).toFixed(1) // rough estimate
-    : "0";
-
-  const stats = [
-    {
-      label: "PR PRÓXIMO",
-      value: closestPR?.value || "—",
-      sub: closestPR?.name?.substring(0, 12) || "Sem dados",
-    },
-    {
-      label: "SEQUÊNCIA",
-      value: `${streak} ${streak === 1 ? "dia" : "dias"}`,
-      sub: streak >= 3 ? "🔥" : "",
-    },
-    {
-      label: "VOLUME",
-      value: `${totalVolume}t`,
-      sub: "esta semana",
-    },
-  ];
+  const displayPRs = exercisePRs.length > 0
+    ? exercisePRs
+    : todayExerciseNames.map((n) => ({ name: n, maxWeight: 0, previousMax: null, lastDate: null }));
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="mx-6 rounded-2xl bg-card border border-border/30 p-4"
+      className="pl-6"
     >
-      <div className="grid grid-cols-3 divide-x divide-border/30">
-        {stats.map((stat, i) => (
-          <div key={i} className="px-3 first:pl-0 last:pr-0">
-            <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground mb-1">
-              {stat.label}
-            </p>
-            <p className="text-lg font-mono font-bold text-foreground leading-none">
-              {stat.value}
-            </p>
-            {stat.sub && (
-              <p className="text-[10px] text-muted-foreground/60 mt-1 truncate">
-                {stat.sub}
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
+        Recordes Pessoais
+      </p>
+
+      <div
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto pb-2 pr-6 scrollbar-hide"
+        style={{ scrollSnapType: "x mandatory" }}
+      >
+        {displayPRs.map((pr, i) => {
+          const diff = pr.previousMax != null ? pr.maxWeight - pr.previousMax : null;
+          const hasPR = pr.maxWeight > 0;
+          const formattedDate = pr.lastDate
+            ? new Date(pr.lastDate).toLocaleDateString("pt-PT", { day: "numeric", month: "short" })
+            : null;
+
+          return (
+            <motion.div
+              key={pr.name}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 + i * 0.08 }}
+              className="flex-shrink-0 w-[160px] rounded-2xl bg-card border border-border/30 p-4 space-y-3"
+              style={{ scrollSnapAlign: "start" }}
+            >
+              {/* Exercise name */}
+              <p className="text-[11px] font-medium text-muted-foreground truncate leading-tight">
+                {pr.name}
               </p>
-            )}
-          </div>
-        ))}
+
+              {/* Max weight */}
+              <div className="flex items-baseline gap-1.5">
+                <Trophy className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                <span className="text-2xl font-black font-mono text-foreground leading-none">
+                  {hasPR ? pr.maxWeight : "—"}
+                </span>
+                {hasPR && (
+                  <span className="text-xs font-medium text-muted-foreground">kg</span>
+                )}
+              </div>
+
+              {/* Trend + Date */}
+              <div className="flex items-center justify-between">
+                {diff != null && diff !== 0 ? (
+                  <div className={`flex items-center gap-1 ${diff > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {diff > 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    <span className="text-[10px] font-bold">
+                      {diff > 0 ? "+" : ""}{diff}kg
+                    </span>
+                  </div>
+                ) : hasPR ? (
+                  <div className="flex items-center gap-1 text-muted-foreground/50">
+                    <Minus className="w-3 h-3" />
+                    <span className="text-[10px]">1º registo</span>
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground/40">Sem dados</span>
+                )}
+
+                {formattedDate && (
+                  <span className="text-[9px] text-muted-foreground/40">
+                    {formattedDate}
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
