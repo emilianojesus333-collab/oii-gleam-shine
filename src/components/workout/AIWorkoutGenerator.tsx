@@ -194,7 +194,133 @@ export const AIWorkoutGenerator = ({
     }
   };
 
-  const handleAddExercise = (exercise: GeneratedExercise, index: number) => {
+  const handleSwipeRight = useCallback(
+    (exercise: StackExercise, _index: number) => {
+      const repsNum = parseInt(exercise.reps) || 10;
+      onAddExercise({
+        name: exercise.name,
+        weight: exercise.weight || 0,
+        reps: repsNum,
+        sets: exercise.sets,
+      });
+    },
+    [onAddExercise]
+  );
+
+  const handleFinishWorkout = useCallback(async () => {
+    await handlePersistAndStart();
+  }, [handlePersistAndStart]);
+
+  const stackExercises: StackExercise[] = useMemo(() => {
+    if (!workout) return [];
+    return workout.exercises.map((ex) => ({
+      name: ex.name,
+      sets: ex.sets,
+      reps: String(ex.reps),
+      rest: ex.rest,
+      weight: 0,
+      equipment: ex.equipment,
+      category: ex.category,
+    }));
+  }, [workout]);
+
+  if (todayMuscleGroups.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-gradient-to-br from-primary/20 via-[#1E1E1E]/80 to-[#1E1E1E]/50 rounded-[20px] p-5 border border-primary/30 bg-stone-950"
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-primary" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
+          <p className="text-xs text-gray-400">
+            {todayMuscleGroups.join(" + ")} • {trainingType}
+          </p>
+        </div>
+      </div>
+
+      {!workout ? (
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={generateWorkout}
+          disabled={isGenerating}
+          className="w-full py-4 rounded-xl font-semibold shadow-lg shadow-primary/30 bg-black text-primary flex items-center justify-center gap-0 border-transparent opacity-75"
+        >
+          {isGenerating ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="w-5 h-5" />
+              </motion.div>
+              {t("aiWorkout.generating")}
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-5 h-5" />
+              {t("aiWorkout.generateFor")} {todayMuscleGroups.join(" + ")}
+            </>
+          )}
+        </motion.button>
+      ) : (
+        <div className="space-y-4">
+          {/* Workout Info */}
+          <div className="flex gap-3">
+            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
+              <Clock className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-lg font-bold text-white">{workout.estimatedDuration}'</p>
+              <p className="text-xs text-gray-400">{t("aiWorkout.duration")}</p>
+            </div>
+            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
+              <Target className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+              <p className="text-sm font-bold text-white">{workout.difficulty}</p>
+              <p className="text-xs text-gray-400">{t("aiWorkout.level")}</p>
+            </div>
+            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
+              <Dumbbell className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+              <p className="text-lg font-bold text-white">{workout.exercises.length}</p>
+              <p className="text-xs text-gray-400">{t("home.exercises")}</p>
+            </div>
+          </div>
+
+          {/* Card Stack inline */}
+          <SwipeableCardStack
+            exercises={stackExercises}
+            onSwipeRight={handleSwipeRight}
+            onFinish={handleFinishWorkout}
+            isFinishing={persistingPlan}
+          />
+
+          {/* Notes */}
+          {workout.notes && (
+            <div className="flex items-start gap-2 p-3 bg-[#2A2A2A]/30 rounded-xl">
+              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-gray-400">{workout.notes}</p>
+            </div>
+          )}
+
+          {/* Regenerate */}
+          <button
+            onClick={() => {
+              setWorkout(null);
+              generateWorkout();
+            }}
+            className="w-full py-3 rounded-xl bg-[#2A2A2A]/50 text-gray-300 font-medium flex items-center justify-center gap-2 hover:bg-[#2A2A2A]/80 transition-all"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {t("aiWorkout.regenerate")}
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+};
     const repsNum = parseInt(exercise.reps) || 10;
     onAddExercise({
       name: exercise.name,
