@@ -59,8 +59,6 @@ export const AIWorkoutGenerator = ({
   const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null);
-  const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
-  const [addedExercises, setAddedExercises] = useState<Set<number>>(new Set());
   const [persistingPlan, setPersistingPlan] = useState(false);
 
   const userProfile = useMemo(() => {
