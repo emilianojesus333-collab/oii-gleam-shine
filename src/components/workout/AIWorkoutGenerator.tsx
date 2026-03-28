@@ -81,7 +81,7 @@ export const AIWorkoutGenerator = ({
 
     setIsGenerating(true);
     setWorkout(null);
-    setAddedExercises(new Set());
+    
 
     try {
       const { data, error } = await invokeWithAuth<{
