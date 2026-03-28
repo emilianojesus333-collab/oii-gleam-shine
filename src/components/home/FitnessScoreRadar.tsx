@@ -79,14 +79,6 @@ export function FitnessScoreRadar() {
         </div>
       ) : (
         <div className="relative">
-          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-            <div className="text-center -mt-2">
-              <p className="text-[10px] font-semibold text-primary tracking-wider uppercase">
-                Fitness Score
-              </p>
-              <p className="text-3xl font-black text-foreground leading-none">{totalScore}</p>
-            </div>
-          </div>
 
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
