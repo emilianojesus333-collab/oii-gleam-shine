@@ -408,13 +408,20 @@ const Workout = () => {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      {/* ── HERO ── */}
-      <WorkoutHero
-        muscleGroups={todayMuscleGroups}
-        dayOfWeek={weekDaysMap[new Date().getDay()]}
-        isRestDay={isRestDay}
-        exerciseCount={isGuidedMode ? aiExercises.length : todayExercises.length}
-      />
+      {/* ── HEADER (old style) ── */}
+      <div className="px-6 pt-14 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+            <Zap className="w-7 h-7 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isRestDay ? t("workout.restDay") : todayMuscleGroups.join(" + ")}
+            </h1>
+            <p className="text-sm text-muted-foreground">{weekDaysMap[new Date().getDay()]}</p>
+          </div>
+        </div>
+      </div>
 
       {isRestDay ? (
         <motion.div
@@ -429,81 +436,10 @@ const Workout = () => {
           <p className="text-muted-foreground max-w-xs mx-auto">{t("workout.restImportant")}</p>
         </motion.div>
       ) : (
-        <div className="space-y-8">
-          {/* ── GUIDED MODE: Exercise Carousel ── */}
-          {isGuidedMode && aiExercises.length > 0 && (
-            <>
-              {/* Progress indicator */}
-              <div className="px-6 pt-2">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">Progresso</span>
-                  <span className="text-xs font-bold text-primary">{completedAICount}/{aiExercises.length}</span>
-                </div>
-                <div className="w-full h-1.5 bg-muted/30 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercent}%` }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                  />
-                </div>
-              </div>
-
-              <ExerciseCarousel
-                exercises={aiExercises}
-                currentIndex={currentAIIndex}
-                onSelect={(ex) => {
-                  setSelectedExercise(ex.exercise_name);
-                  setReps(String(parseInt(ex.reps) || 10));
-                  setSets(String(ex.sets));
-                  if (ex.rest > 0) {
-                    setRestTime(String(ex.rest));
-                    if (!isRestRunning) setRestRemaining(ex.rest);
-                  }
-                }}
-              />
-
-              {/* Skip button */}
-              {currentPlannedExercise && !allAIDone && (
-                <div className="px-6 -mt-4">
-                  <button
-                    onClick={handleSkipExercise}
-                    className="text-xs text-muted-foreground/50 flex items-center gap-1 hover:text-muted-foreground transition-colors"
-                  >
-                    <SkipForward className="w-3 h-3" />
-                    Saltar {currentPlannedExercise.exercise_name}
-                  </button>
-                </div>
-              )}
-
-              {allAIDone && (
-                <div className="px-6 flex items-center gap-2 text-[hsl(142,60%,45%)]">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="text-xs font-medium">Plano concluído!</span>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ── EDITORIAL QUOTE ── */}
-          <EditorialQuote
-            muscleGroups={todayMuscleGroups}
-            aiName={settings?.ai_name || "Victoria AI"}
-          />
-
-          {/* ── STAT STRIP ── */}
-          <WorkoutStatStrip
-            todayMuscleGroups={todayMuscleGroups}
-            todayExerciseNames={isGuidedMode ? aiExercises.map(e => e.exercise_name) : todayExercises.map(e => e.name)}
-          />
-
-          {/* ── TIMELINE ── */}
-          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
-
-          {/* ── AI GENERATOR (non-guided mode) ── */}
+        <div className="space-y-5">
+          {/* ── TRAINING TYPE SELECTOR ── */}
           {!isGuidedMode && (
             <div className="px-6 space-y-5">
-              {/* Training Type Selector */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -534,6 +470,7 @@ const Workout = () => {
                 </div>
               </motion.div>
 
+              {/* ── AI GENERATOR ── */}
               <AIWorkoutGenerator
                 todayMuscleGroups={todayMuscleGroups}
                 trainingType={trainingType}
@@ -548,176 +485,283 @@ const Workout = () => {
             </div>
           )}
 
+          {/* ── GUIDED MODE: Exercise Carousel ── */}
+          {isGuidedMode && aiExercises.length > 0 && (
+            <>
+              <div className="px-6 pt-2">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-muted-foreground">Progresso</span>
+                  <span className="text-xs font-bold text-primary">{completedAICount}/{aiExercises.length}</span>
+                </div>
+                <div className="w-full h-1.5 bg-muted/30 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercent}%` }}
+                    transition={{ type: "spring", stiffness: 100 }}
+                  />
+                </div>
+              </div>
+
+              <ExerciseCarousel
+                exercises={aiExercises}
+                currentIndex={currentAIIndex}
+                onSelect={(ex) => {
+                  setSelectedExercise(ex.exercise_name);
+                  setReps(String(parseInt(ex.reps) || 10));
+                  setSets(String(ex.sets));
+                  if (ex.rest > 0) {
+                    setRestTime(String(ex.rest));
+                    if (!isRestRunning) setRestRemaining(ex.rest);
+                  }
+                }}
+              />
+
+              {currentPlannedExercise && !allAIDone && (
+                <div className="px-6 -mt-4">
+                  <button
+                    onClick={handleSkipExercise}
+                    className="text-xs text-muted-foreground/50 flex items-center gap-1 hover:text-muted-foreground transition-colors"
+                  >
+                    <SkipForward className="w-3 h-3" />
+                    Saltar {currentPlannedExercise.exercise_name}
+                  </button>
+                </div>
+              )}
+
+              {allAIDone && (
+                <div className="px-6 flex items-center gap-2 text-[hsl(142,60%,45%)]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="text-xs font-medium">Plano concluído!</span>
+                </div>
+              )}
+            </>
+          )}
+
           {/* ── EXERCISE REGISTRATION CARD ── */}
-          {(isGuidedMode || showWorkoutCards) && (
-            <div className="px-6 space-y-5">
-              {/* Guided mode: current exercise label */}
-              {isGuidedMode && currentPlannedExercise && !allAIDone && (
-                <motion.div
-                  key={currentPlannedExercise.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-primary font-medium">
-                      Exercício {completedAICount + 1} de {aiExercises.length}
-                    </p>
-                    <p className="text-base font-bold text-foreground">
-                      {currentPlannedExercise.exercise_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Sugestão: {currentPlannedExercise.sets}x{currentPlannedExercise.reps} · {currentPlannedExercise.rest}s
-                    </p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-primary/50" />
-                </motion.div>
-              )}
-
-              {/* Main Carousel Card */}
+          <div className="px-6 space-y-5">
+            {/* Guided mode: current exercise label */}
+            {isGuidedMode && currentPlannedExercise && !allAIDone && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-card/50 rounded-2xl overflow-hidden border border-border/20"
+                key={currentPlannedExercise.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
               >
-                <MainWorkoutCarousel
-                  selectedExercise={selectedExercise}
-                  setSelectedExercise={setSelectedExercise}
-                  weight={weight}
-                  setWeight={setWeight}
-                  reps={reps}
-                  setReps={setReps}
-                  sets={sets}
-                  setSets={setSets}
-                  restTime={restTime}
-                  setRestTime={setRestTime}
-                  todayExercises={todayExercises}
-                  saveExercise={handleSaveClick}
-                  justSaved={justSaved}
-                  saveButtonLabel={saveButtonLabel}
-                />
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-primary font-medium">
+                    Exercício {completedAICount + 1} de {aiExercises.length}
+                  </p>
+                  <p className="text-base font-bold text-foreground">
+                    {currentPlannedExercise.exercise_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Sugestão: {currentPlannedExercise.sets}x{currentPlannedExercise.reps} · {currentPlannedExercise.rest}s
+                  </p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-primary/50" />
               </motion.div>
+            )}
 
-              {/* Saved Exercises */}
-              {savedExercises.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-card/50 rounded-2xl p-5 border border-border/20"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {t("workout.savedExercisesToday")}
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary/15 text-primary font-medium">
-                      {savedExercises.length}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    {savedExercises.map((exercise, index) => (
-                      <motion.div
-                        key={exercise.timestamp}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-center justify-between bg-muted/20 rounded-xl px-4 py-3"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-foreground/70">{exercise.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-primary">{exercise.weight}kg</p>
-                          <p className="text-xs text-muted-foreground">{exercise.sets}x{exercise.reps}</p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+            {/* Main Carousel Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-card/50 rounded-2xl overflow-hidden border border-border/20"
+            >
+              <MainWorkoutCarousel
+                selectedExercise={selectedExercise}
+                setSelectedExercise={setSelectedExercise}
+                weight={weight}
+                setWeight={setWeight}
+                reps={reps}
+                setReps={setReps}
+                sets={sets}
+                setSets={setSets}
+                restTime={restTime}
+                setRestTime={setRestTime}
+                todayExercises={todayExercises}
+                saveExercise={handleSaveClick}
+                justSaved={justSaved}
+                saveButtonLabel={saveButtonLabel}
+              />
+            </motion.div>
 
-              {/* Rest Timer — compact */}
+            {/* Saved Exercises */}
+            {savedExercises.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-card/50 rounded-2xl p-5 border border-border/20"
               >
-                <span className="text-sm font-medium text-muted-foreground text-center block mb-3">
-                  {t("workout.restTimer")}
-                </span>
-
-                <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
-                  {REST_PRESETS.map((sec) => {
-                    const label = sec >= 60 ? `${sec / 60}min` : `${sec}s`;
-                    const isActive = parseInt(restTime) === sec;
-                    return (
-                      <button
-                        key={sec}
-                        onClick={() => handleRestPreset(sec)}
-                        disabled={isRestRunning}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                          isActive
-                            ? "bg-primary/20 text-primary border border-primary/40"
-                            : "bg-muted/20 text-muted-foreground border border-transparent hover:bg-muted/40"
-                        } disabled:opacity-40`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="text-center mb-4">
-                  <span className={`text-5xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-foreground/70"}`}>
-                    {formatRestTime(restRemaining)}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("workout.savedExercisesToday")}
+                  </span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-primary/15 text-primary font-medium">
+                    {savedExercises.length}
                   </span>
                 </div>
-
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
-                    className={`flex-1 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all text-sm ${
-                      isRestRunning
-                        ? "bg-destructive text-destructive-foreground"
-                        : "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    }`}
-                  >
-                    {isRestRunning ? (
-                      <><Pause className="w-4 h-4" /> Pausar</>
-                    ) : (
-                      <><Play className="w-4 h-4" /> Iniciar Descanso</>
-                    )}
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={resetRestTimer}
-                    className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-all"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </motion.button>
+                <div className="space-y-2">
+                  {savedExercises.map((exercise, index) => (
+                    <motion.div
+                      key={exercise.timestamp}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex items-center justify-between bg-muted/20 rounded-xl px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-foreground/70">{exercise.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-primary">{exercise.weight}kg</p>
+                        <p className="text-xs text-muted-foreground">{exercise.sets}x{exercise.reps}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-            </div>
-          )}
+            )}
 
-          {/* ── CTA ── */}
-          <WorkoutCTA
-            onStart={() => {
-              setShowWorkoutCards(true);
-              if (activeSession?.id) startSession(activeSession.id);
-            }}
-            onComplete={handleCompleteWorkout}
-            hasStarted={isGuidedMode || showWorkoutCards}
-            isCompleting={completing}
-            savedCount={savedExercises.length}
+            {/* Rest Calculation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl p-5 bg-card border border-border/20"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-foreground">Cálculo do Descanso</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-primary/15 text-primary font-medium">
+                  {restBreakdown.repsCategory}
+                </span>
+              </div>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                    <span className="text-muted-foreground">Tempo base</span>
+                  </div>
+                  <span className="font-medium text-foreground">{restBreakdown.base}s</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Peso ({weight}kg)</span>
+                  </div>
+                  <span className="font-medium text-primary">+{restBreakdown.weightBonus}s</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span className="text-muted-foreground">Repetições ({reps})</span>
+                  </div>
+                  <span className="font-medium text-amber-400">
+                    {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
+                  </span>
+                </div>
+                <div className="border-t border-border/30 pt-2.5 flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Total recomendado</span>
+                  <span className="font-bold text-lg text-primary">{parseInt(restTime)}s</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Rest Timer */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-card/50 rounded-2xl p-5 border border-border/20"
+            >
+              <span className="text-sm font-medium text-muted-foreground text-center block mb-3">
+                {t("workout.restTimer")}
+              </span>
+
+              <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
+                {REST_PRESETS.map((sec) => {
+                  const label = sec >= 60 ? `${sec / 60}min` : `${sec}s`;
+                  const isActive = parseInt(restTime) === sec;
+                  return (
+                    <button
+                      key={sec}
+                      onClick={() => handleRestPreset(sec)}
+                      disabled={isRestRunning}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-primary/20 text-primary border border-primary/40"
+                          : "bg-muted/20 text-muted-foreground border border-transparent hover:bg-muted/40"
+                      } disabled:opacity-40`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="text-center mb-4">
+                <span className={`text-5xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-foreground/70"}`}>
+                  {formatRestTime(restRemaining)}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
+                  className={`flex-1 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all text-sm ${
+                    isRestRunning
+                      ? "bg-destructive text-destructive-foreground"
+                      : "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                  }`}
+                >
+                  {isRestRunning ? (
+                    <><Pause className="w-4 h-4" /> Pausar</>
+                  ) : (
+                    <><Play className="w-4 h-4" /> Iniciar Descanso</>
+                  )}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={resetRestTimer}
+                  className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-all"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* ── Complete Workout Button ── */}
+            {savedExercises.length > 0 && !isGuidedMode && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleCompleteWorkout}
+                disabled={completing}
+                className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
+              >
+                {completing ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
+                ) : (
+                  <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
+                )}
+              </motion.button>
+            )}
+          </div>
+
+          {/* ── EDITORIAL QUOTE (after timer) ── */}
+          <EditorialQuote
+            muscleGroups={todayMuscleGroups}
+            aiName={settings?.ai_name || "Victoria AI"}
           />
+
+          {/* ── TIMELINE (after quote) ── */}
+          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
         </div>
       )}
 
