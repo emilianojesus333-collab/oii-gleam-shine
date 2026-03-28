@@ -121,6 +121,7 @@ const Workout = () => {
   // --- Card Stack State (guided mode) ---
   const [cardIndex, setCardIndex] = useState(0);
   const [draftExercises, setDraftExercises] = useState<DraftExercise[]>([]);
+  const [showAllExercises, setShowAllExercises] = useState(false);
   const DRAFT_STORAGE_KEY = `liftmate_draft_session_${user?.id}`;
 
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
