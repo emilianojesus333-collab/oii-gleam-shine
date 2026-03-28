@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ExerciseCardStack } from "@/components/workout/ExerciseCardStack";
 import { CompletedExercisesEditor, type DraftExercise } from "@/components/workout/CompletedExercisesEditor";
 
@@ -121,6 +122,7 @@ const Workout = () => {
   // --- Card Stack State (guided mode) ---
   const [cardIndex, setCardIndex] = useState(0);
   const [draftExercises, setDraftExercises] = useState<DraftExercise[]>([]);
+  const [showAllExercises, setShowAllExercises] = useState(false);
   const DRAFT_STORAGE_KEY = `liftmate_draft_session_${user?.id}`;
 
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
@@ -522,7 +524,10 @@ const Workout = () => {
                 onSwipeRight={handleSwipeRight}
                 onSwipeLeft={handleSwipeLeft}
                 onUndo={handleUndo}
+                onFinalize={handleCompleteWorkout}
+                onShowAll={() => setShowAllExercises(true)}
                 canUndo={draftExercises.length > 0}
+                completing={completing}
               />
 
               {/* Live editor for completed exercises */}
@@ -531,26 +536,6 @@ const Workout = () => {
                 onUpdate={handleDraftUpdate}
                 onRemove={handleDraftRemove}
               />
-
-              {/* Finalize button */}
-              {draftExercises.length > 0 && (
-                <div className="px-6">
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleCompleteWorkout}
-                    disabled={completing}
-                    className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
-                  >
-                    {completing ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
-                    ) : (
-                      <><Check className="w-4 h-4" /> Finalizar Treino ({draftExercises.length} exercícios)</>
-                    )}
-                  </motion.button>
-                </div>
-              )}
             </>
           )}
 
@@ -816,6 +801,51 @@ const Workout = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* Show All Exercises Sheet */}
+      <Sheet open={showAllExercises} onOpenChange={setShowAllExercises}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[70vh] overflow-y-auto">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-lg font-bold">Todos os Exercícios</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-2 pb-6">
+            {aiExercises.map((exercise, i) => {
+              const isDone = i < cardIndex;
+              const isCurrent = i === cardIndex;
+              return (
+                <div
+                  key={exercise.id}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                    isDone
+                      ? "bg-[hsl(142,60%,45%)]/10 border border-[hsl(142,60%,45%)]/20"
+                      : isCurrent
+                      ? "bg-primary/10 border border-primary/30"
+                      : "bg-muted/20 border border-transparent"
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                    isDone
+                      ? "bg-[hsl(142,60%,45%)]/20 text-[hsl(142,60%,45%)]"
+                      : isCurrent
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted/30 text-muted-foreground"
+                  }`}>
+                    {isDone ? <Check className="w-4 h-4" /> : i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium ${isDone ? "text-foreground/50 line-through" : "text-foreground"}`}>
+                      {exercise.exercise_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {exercise.sets}×{exercise.reps} · {exercise.rest}s descanso
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
