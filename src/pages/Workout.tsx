@@ -466,9 +466,9 @@ const Workout = () => {
         </motion.div>
       ) : (
         <div className="space-y-5">
-          {/* ── NON-GUIDED: Training Type + AI Generator ── */}
-          {!isGuidedMode && (
-            <div className="px-6 space-y-5">
+          {/* ── Training Type + AI Generator (always visible) ── */}
+          <div className="px-6 space-y-5">
+            {!isGuidedMode && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -498,23 +498,23 @@ const Workout = () => {
                   })}
                 </div>
               </motion.div>
+            )}
 
-              <AIWorkoutGenerator
-                todayMuscleGroups={todayMuscleGroups}
-                trainingType={trainingType}
-                onAddExercise={(exercise) => {
-                  setSelectedExercise(exercise.name);
-                  setWeight(String(exercise.weight || 30));
-                  setReps(String(exercise.reps));
-                  setSets(String(exercise.sets));
-                }}
-                onSessionCreated={refreshSession}
-              />
-            </div>
-          )}
+            <AIWorkoutGenerator
+              todayMuscleGroups={todayMuscleGroups}
+              trainingType={trainingType}
+              onAddExercise={(exercise) => {
+                setSelectedExercise(exercise.name);
+                setWeight(String(exercise.weight || 30));
+                setReps(String(exercise.reps));
+                setSets(String(exercise.sets));
+              }}
+              onSessionCreated={refreshSession}
+            />
+          </div>
 
           {/* ══════════════════════════════════════════════ */}
-          {/* ── GUIDED MODE: CARD STACK SYSTEM ── */}
+          {/* ── GUIDED MODE: CARD STACK (inline below AI card) ── */}
           {/* ══════════════════════════════════════════════ */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
