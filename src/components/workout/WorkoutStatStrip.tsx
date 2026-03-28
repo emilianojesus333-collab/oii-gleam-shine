@@ -11,16 +11,31 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
   const { records } = useOneRMRecords();
   const { data: weeklyStats } = useWeeklyStats();
 
-  // Find closest PR for today's exercises
+  // Find max weight used across all records for today's exercises, fallback to any record
   const closestPR = (() => {
-    if (!records.length || !todayExerciseNames.length) return null;
-    for (const name of todayExerciseNames) {
-      const match = records.find(
-        (r) => r.exercise_name.toLowerCase() === name.toLowerCase()
-      );
-      if (match) return { name: match.exercise_name, value: `${match.calculated_1rm}kg` };
+    if (!records.length) return null;
+    
+    // Try to find best record for today's exercises first
+    if (todayExerciseNames.length) {
+      let best: { name: string; value: string } | null = null;
+      let maxWeight = 0;
+      for (const name of todayExerciseNames) {
+        const matches = records.filter(
+          (r) => r.exercise_name.toLowerCase() === name.toLowerCase()
+        );
+        for (const m of matches) {
+          if (m.weight_used > maxWeight) {
+            maxWeight = m.weight_used;
+            best = { name: m.exercise_name, value: `${m.weight_used}kg` };
+          }
+        }
+      }
+      if (best) return best;
     }
-    return records[0] ? { name: records[0].exercise_name, value: `${records[0].calculated_1rm}kg` } : null;
+    
+    // Fallback: highest weight across all records
+    const top = records.reduce((a, b) => (a.weight_used > b.weight_used ? a : b));
+    return { name: top.exercise_name, value: `${top.weight_used}kg` };
   })();
 
   // Streak calculation from weekly stats
