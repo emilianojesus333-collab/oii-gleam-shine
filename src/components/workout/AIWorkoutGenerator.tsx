@@ -1,23 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Dumbbell,
   Clock,
   RotateCcw,
-  ChevronDown,
-  ChevronUp,
   Target,
   Zap,
   AlertCircle,
-  Plus,
-  Play,
 } from "lucide-react";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
+import { SwipeableCardStack, type StackExercise } from "./SwipeableCardStack";
 
 interface GeneratedExercise {
   name: string;
