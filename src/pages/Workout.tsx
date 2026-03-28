@@ -493,14 +493,17 @@ const Workout = () => {
             aiName={settings?.ai_name || "Victoria AI"}
           />
 
-          {/* ── STAT STRIP ── */}
-          <WorkoutStatStrip
-            todayMuscleGroups={todayMuscleGroups}
+          {/* ── NIKE/STRAVA CARDS ── */}
+          <PersonalRecordsCard
             todayExerciseNames={isGuidedMode ? aiExercises.map(e => e.exercise_name) : todayExercises.map(e => e.name)}
           />
 
-          {/* ── TIMELINE ── */}
-          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
+          <div className="mx-5 grid grid-cols-2 gap-3">
+            <WeeklyStreakCard />
+            <MuscleStatusCard todayMuscleGroups={todayMuscleGroups} />
+          </div>
+
+          <WeeklyActivityCard />
 
           {/* ── AI GENERATOR (non-guided mode) ── */}
           {!isGuidedMode && (
