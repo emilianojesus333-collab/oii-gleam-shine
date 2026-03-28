@@ -321,7 +321,6 @@ export const AIWorkoutGenerator = ({
     </motion.div>
   );
 };
-    const repsNum = parseInt(exercise.reps) || 10;
     onAddExercise({
       name: exercise.name,
       weight: 0,
