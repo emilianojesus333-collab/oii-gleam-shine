@@ -50,8 +50,10 @@ import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
 import { WorkoutHero } from "@/components/workout/WorkoutHero";
 import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
 import { EditorialQuote } from "@/components/workout/EditorialQuote";
-import { WorkoutStatStrip } from "@/components/workout/WorkoutStatStrip";
-import { WorkoutTimeline } from "@/components/workout/WorkoutTimeline";
+import { PersonalRecordsCard } from "@/components/workout/PersonalRecordsCard";
+import { WeeklyStreakCard } from "@/components/workout/WeeklyStreakCard";
+import { MuscleStatusCard } from "@/components/workout/MuscleStatusCard";
+import { WeeklyActivityCard } from "@/components/workout/WeeklyActivityCard";
 import { WorkoutCTA } from "@/components/workout/WorkoutCTA";
 
 const weekDaysMap: Record<number, string> = {
@@ -491,14 +493,17 @@ const Workout = () => {
             aiName={settings?.ai_name || "Victoria AI"}
           />
 
-          {/* ── STAT STRIP ── */}
-          <WorkoutStatStrip
-            todayMuscleGroups={todayMuscleGroups}
+          {/* ── NIKE/STRAVA CARDS ── */}
+          <PersonalRecordsCard
             todayExerciseNames={isGuidedMode ? aiExercises.map(e => e.exercise_name) : todayExercises.map(e => e.name)}
           />
 
-          {/* ── TIMELINE ── */}
-          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
+          <div className="mx-5 grid grid-cols-2 gap-3">
+            <WeeklyStreakCard />
+            <MuscleStatusCard todayMuscleGroups={todayMuscleGroups} />
+          </div>
+
+          <WeeklyActivityCard />
 
           {/* ── AI GENERATOR (non-guided mode) ── */}
           {!isGuidedMode && (
