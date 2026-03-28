@@ -431,7 +431,7 @@ const Workout = () => {
           <p className="text-muted-foreground max-w-xs mx-auto">{t("workout.restImportant")}</p>
         </motion.div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-10">
           {/* ── GUIDED MODE: Exercise Carousel ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
