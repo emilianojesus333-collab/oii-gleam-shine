@@ -296,6 +296,15 @@ export const ExerciseCardStack = ({
           />
         ))}
       </div>
+
+      {/* Show all exercises link */}
+      <button
+        onClick={onShowAll}
+        className="w-full flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ListChecks className="w-3.5 h-3.5" />
+        Mostrar Exercícios
+      </button>
     </div>
   );
 };

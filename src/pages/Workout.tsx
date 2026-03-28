@@ -522,7 +522,10 @@ const Workout = () => {
                 onSwipeRight={handleSwipeRight}
                 onSwipeLeft={handleSwipeLeft}
                 onUndo={handleUndo}
+                onFinalize={handleCompleteWorkout}
+                onShowAll={() => setShowAllExercises(true)}
                 canUndo={draftExercises.length > 0}
+                completing={completing}
               />
 
               {/* Live editor for completed exercises */}
@@ -531,26 +534,6 @@ const Workout = () => {
                 onUpdate={handleDraftUpdate}
                 onRemove={handleDraftRemove}
               />
-
-              {/* Finalize button */}
-              {draftExercises.length > 0 && (
-                <div className="px-6">
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleCompleteWorkout}
-                    disabled={completing}
-                    className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
-                  >
-                    {completing ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
-                    ) : (
-                      <><Check className="w-4 h-4" /> Finalizar Treino ({draftExercises.length} exercícios)</>
-                    )}
-                  </motion.button>
-                </div>
-              )}
             </>
           )}
 
