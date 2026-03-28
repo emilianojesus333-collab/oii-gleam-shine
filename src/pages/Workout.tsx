@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ExerciseCardStack } from "@/components/workout/ExerciseCardStack";
 import { CompletedExercisesEditor, type DraftExercise } from "@/components/workout/CompletedExercisesEditor";
 
