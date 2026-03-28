@@ -8,8 +8,11 @@ interface ExerciseCardStackProps {
   onSwipeRight: (exercise: PlannedExercise, index: number) => void;
   onSwipeLeft: (exercise: PlannedExercise, index: number) => void;
   onUndo: () => void;
+  onFinalize: () => void;
+  onShowAll: () => void;
   currentIndex: number;
   canUndo: boolean;
+  completing?: boolean;
 }
 
 const SWIPE_THRESHOLD = 100;
@@ -156,8 +159,11 @@ export const ExerciseCardStack = ({
   onSwipeRight,
   onSwipeLeft,
   onUndo,
+  onFinalize,
+  onShowAll,
   currentIndex,
   canUndo,
+  completing = false,
 }: ExerciseCardStackProps) => {
   const visibleExercises = exercises.slice(currentIndex, currentIndex + CARD_STACK_SIZE);
   const allDone = currentIndex >= exercises.length;
