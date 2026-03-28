@@ -13,8 +13,6 @@ import {
   Clock,
   Check,
   Loader2,
-  CheckCircle2,
-  SkipForward,
   ChevronRight,
 } from "lucide-react";
 import {
