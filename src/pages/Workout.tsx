@@ -128,7 +128,6 @@ const Workout = () => {
     totalSets: number; date: string; dayOfWeek: string;
   } | null>(null);
   const workoutStartRef = useRef(Date.now());
-  const [showWorkoutCards, setShowWorkoutCards] = useState(false);
 
   // --- AI guided mode state ---
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
