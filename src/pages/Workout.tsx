@@ -13,8 +13,6 @@ import {
   Clock,
   Check,
   Loader2,
-  CheckCircle2,
-  SkipForward,
   ChevronRight,
 } from "lucide-react";
 import {
@@ -47,7 +45,7 @@ import { Progress } from "@/components/ui/progress";
 import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
 
 // Editorial components
-import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
+import { ExerciseCardStack } from "@/components/workout/ExerciseCardStack";
 import { EditorialQuote } from "@/components/workout/EditorialQuote";
 import { WorkoutTimeline } from "@/components/workout/WorkoutTimeline";
 
@@ -481,7 +479,7 @@ const Workout = () => {
             </div>
           )}
 
-          {/* ── GUIDED MODE: Exercise Carousel ── */}
+          {/* ── GUIDED MODE: Card Stack ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
               <div className="px-6 pt-2">
@@ -499,10 +497,12 @@ const Workout = () => {
                 </div>
               </div>
 
-              <ExerciseCarousel
+              <ExerciseCardStack
                 exercises={aiExercises}
                 currentIndex={currentAIIndex}
-                onSelect={(ex) => {
+                completedCount={completedAICount}
+                onSwipeRight={(ex) => {
+                  // Pre-fill form
                   setSelectedExercise(ex.exercise_name);
                   setReps(String(parseInt(ex.reps) || 10));
                   setSets(String(ex.sets));
@@ -510,27 +510,17 @@ const Workout = () => {
                     setRestTime(String(ex.rest));
                     if (!isRestRunning) setRestRemaining(ex.rest);
                   }
+                  // Save + mark completed
+                  handleSaveClick();
+                  markExerciseCompleted(ex.id);
                 }}
+                onSwipeLeft={(ex) => {
+                  // Undo - skip for now (mark as completed undone)
+                  toast.info(`${ex.exercise_name} desfeito`);
+                }}
+                onFinish={handleCompleteWorkout}
+                isCompleting={completing}
               />
-
-              {currentPlannedExercise && !allAIDone && (
-                <div className="px-6 -mt-4">
-                  <button
-                    onClick={handleSkipExercise}
-                    className="text-xs text-muted-foreground/50 flex items-center gap-1 hover:text-muted-foreground transition-colors"
-                  >
-                    <SkipForward className="w-3 h-3" />
-                    Saltar {currentPlannedExercise.exercise_name}
-                  </button>
-                </div>
-              )}
-
-              {allAIDone && (
-                <div className="px-6 flex items-center gap-2 text-[hsl(142,60%,45%)]">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="text-xs font-medium">Plano concluído!</span>
-                </div>
-              )}
             </>
           )}
 
