@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence, PanInfo } from "framer-motion";
-import { Check, Undo2, Dumbbell } from "lucide-react";
+import { Check, Undo2, Dumbbell, Loader2, ListChecks } from "lucide-react";
 import type { PlannedExercise } from "@/hooks/useActiveSession";
 
 interface ExerciseCardStackProps {
@@ -184,19 +184,52 @@ export const ExerciseCardStack = ({
 
   if (allDone) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="mx-6 rounded-3xl bg-gradient-to-br from-[hsl(142,60%,25%)] to-[hsl(142,40%,18%)] border border-[hsl(142,50%,30%)] p-8 text-center"
-      >
-        <div className="w-16 h-16 rounded-full bg-[hsl(142,60%,40%)]/20 flex items-center justify-center mx-auto mb-4">
-          <Check className="w-8 h-8 text-[hsl(142,60%,45%)]" />
+      <div className="px-6 space-y-4">
+        {/* Progress - completed */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">Progresso</span>
+          <span className="text-xs font-bold text-[hsl(142,60%,45%)]">{exercises.length}/{exercises.length}</span>
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Exercícios Concluídos!</h3>
-        <p className="text-sm text-white/60">
-          Revê os exercícios abaixo e clica em "Finalizar Treino"
-        </p>
-      </motion.div>
+        <div className="w-full h-1.5 bg-muted/30 rounded-full overflow-hidden">
+          <div className="h-full bg-[hsl(142,60%,45%)] rounded-full w-full" />
+        </div>
+
+        {/* Finalize card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-3xl bg-gradient-to-br from-[hsl(142,60%,25%)] to-[hsl(142,40%,18%)] border border-[hsl(142,50%,30%)] p-8 text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-[hsl(142,60%,40%)]/20 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-[hsl(142,60%,45%)]" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Exercícios Concluídos!</h3>
+          <p className="text-sm text-white/60 mb-6">
+            Revê os exercícios acima e clica para finalizar
+          </p>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={onFinalize}
+            disabled={completing}
+            className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
+          >
+            {completing ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
+            ) : (
+              <><Check className="w-4 h-4" /> Finalizar Treino</>
+            )}
+          </motion.button>
+        </motion.div>
+
+        {/* Show all link */}
+        <button
+          onClick={onShowAll}
+          className="w-full flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ListChecks className="w-3.5 h-3.5" />
+          Mostrar Exercícios
+        </button>
+      </div>
     );
   }
 
