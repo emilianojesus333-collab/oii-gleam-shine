@@ -801,6 +801,51 @@ const Workout = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* Show All Exercises Sheet */}
+      <Sheet open={showAllExercises} onOpenChange={setShowAllExercises}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[70vh] overflow-y-auto">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-lg font-bold">Todos os Exercícios</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-2 pb-6">
+            {aiExercises.map((exercise, i) => {
+              const isDone = i < cardIndex;
+              const isCurrent = i === cardIndex;
+              return (
+                <div
+                  key={exercise.id}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                    isDone
+                      ? "bg-[hsl(142,60%,45%)]/10 border border-[hsl(142,60%,45%)]/20"
+                      : isCurrent
+                      ? "bg-primary/10 border border-primary/30"
+                      : "bg-muted/20 border border-transparent"
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                    isDone
+                      ? "bg-[hsl(142,60%,45%)]/20 text-[hsl(142,60%,45%)]"
+                      : isCurrent
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted/30 text-muted-foreground"
+                  }`}>
+                    {isDone ? <Check className="w-4 h-4" /> : i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium ${isDone ? "text-foreground/50 line-through" : "text-foreground"}`}>
+                      {exercise.exercise_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {exercise.sets}×{exercise.reps} · {exercise.rest}s descanso
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
