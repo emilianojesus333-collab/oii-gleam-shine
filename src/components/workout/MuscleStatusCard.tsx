@@ -57,10 +57,9 @@ export function MuscleStatusCard({ todayMuscleGroups }: MuscleStatusCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 }}
-      className="rounded-2xl p-5 relative flex flex-col justify-between min-h-[200px]"
+      className="rounded-2xl p-5 relative flex flex-col justify-between min-h-[210px] bg-card/95 border border-border/10"
       style={{
-        background: "linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card)/0.8) 100%)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.3), 0 12px 24px -8px rgba(0,0,0,0.25)",
       }}
     >
       <h3 className="text-base font-bold text-foreground">Estado Muscular</h3>
