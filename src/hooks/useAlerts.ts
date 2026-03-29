@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +59,7 @@ export const useAlerts = () => {
   const { user } = useAuth();
   const [state, setState] = useState<AlertsState>(defaultState);
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedRef = useRef(false);
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const [workoutIntensity, setWorkoutIntensity] = useState<WorkoutIntensity>('none');
 
@@ -179,12 +180,12 @@ export const useAlerts = () => {
         console.error('Error loading alerts:', error);
         setState(defaultState);
       }
-
+      hasLoadedRef.current = true;
       setIsLoading(false);
     };
 
     loadAlerts();
-  }, [user, checkAndResetDailyHydration, workoutIntensity]);
+  }, [user, checkAndResetDailyHydration]);
 
   useEffect(() => {
     refreshWorkoutHydrationContext();
@@ -203,7 +204,7 @@ export const useAlerts = () => {
   }, [hydrationSummary.goalLiters]);
 
   useEffect(() => {
-    if (!user || isLoading) return;
+    if (!user || isLoading || !hasLoadedRef.current) return;
 
     const saveAlerts = async () => {
       try {

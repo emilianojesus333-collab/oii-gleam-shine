@@ -83,16 +83,16 @@ const SwipeableCard = ({
       transition={{ type: "spring", stiffness: 280, damping: 26 }}
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
     >
-      <div className="relative h-full rounded-2xl overflow-hidden bg-card border border-border shadow-[0_8px_30px_-8px_hsl(var(--foreground)/0.15)]">
-        {/* Subtle internal lighting */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+      <div className="relative h-full rounded-2xl overflow-hidden bg-[#1E293B] border border-white/[0.06] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)]">
+        {/* Very subtle internal gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
 
         {/* Swipe indicators */}
         {isTop && (
           <>
             <motion.div
               style={{ opacity: rightOpacity }}
-              className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[hsl(142,50%,30%)] rounded-lg px-3 py-1.5"
+              className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[#22C55E]/90 rounded-lg px-3 py-1.5"
             >
               <Check className="w-4 h-4 text-primary-foreground" />
               <span className="text-xs font-bold text-primary-foreground tracking-wide">FEITO</span>
@@ -125,8 +125,8 @@ const SwipeableCard = ({
                 <p className="text-xl font-bold text-foreground">{exercise.rest}s</p>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Dumbbell className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-[#3B82F6]" />
             </div>
           </div>
 
@@ -161,9 +161,9 @@ const FinishCard = ({
     animate={{ scale: 1, opacity: 1 }}
     className="absolute inset-0"
   >
-    <div className="relative h-full rounded-2xl overflow-hidden bg-card border border-border shadow-[0_8px_30px_-8px_hsl(var(--foreground)/0.15)] flex flex-col items-center justify-center p-8 text-center gap-5">
-      <div className="w-16 h-16 rounded-full bg-[hsl(142,50%,30%)]/20 flex items-center justify-center">
-        <Trophy className="w-8 h-8 text-[hsl(142,50%,50%)]" />
+    <div className="relative h-full rounded-2xl overflow-hidden bg-[#1E293B] border border-white/[0.06] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] flex flex-col items-center justify-center p-8 text-center gap-5">
+      <div className="w-16 h-16 rounded-full bg-[#3B82F6]/15 flex items-center justify-center">
+        <Trophy className="w-8 h-8 text-[#3B82F6]" />
       </div>
       <div>
         <h2 className="text-2xl font-black text-foreground mb-1">Treino Completo!</h2>
@@ -173,7 +173,7 @@ const FinishCard = ({
         whileTap={{ scale: 0.97 }}
         onClick={onFinish}
         disabled={isCompleting}
-        className="w-full py-3.5 rounded-xl bg-[hsl(142,50%,35%)] text-primary-foreground font-bold text-base shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full py-3.5 rounded-xl bg-[#3B82F6] text-white font-bold text-base shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {isCompleting ? "A concluir..." : "Finalizar Treino"}
         {!isCompleting && <ChevronRight className="w-5 h-5" />}
@@ -229,9 +229,9 @@ export const ExerciseCardStack = ({
             key={i}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i < currentIndex
-                ? "w-1.5 bg-[hsl(142,50%,40%)]"
+                ? "w-1.5 bg-[#3B82F6]"
                 : i === currentIndex
-                  ? "w-6 bg-primary"
+                  ? "w-6 bg-[#3B82F6]"
                   : "w-1.5 bg-muted-foreground/20"
             }`}
           />
@@ -247,7 +247,7 @@ export const ExerciseCardStack = ({
               Mostrar exercícios ({exercises.length})
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-card border-border rounded-t-2xl max-h-[60vh]">
+          <SheetContent side="bottom" className="bg-[#1E293B] border-white/[0.06] rounded-t-2xl max-h-[60vh]">
             <SheetHeader>
               <SheetTitle className="text-foreground">Exercícios do Plano</SheetTitle>
             </SheetHeader>
@@ -257,26 +257,26 @@ export const ExerciseCardStack = ({
                   key={ex.id}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 ${
                     ex.completed
-                      ? "bg-[hsl(142,40%,15%)] border border-[hsl(142,50%,25%)]"
+                      ? "bg-[#22C55E]/10 border border-[#22C55E]/20"
                       : i === currentIndex
-                        ? "bg-primary/10 border border-primary/30"
-                        : "bg-muted/20"
+                        ? "bg-[#3B82F6]/10 border border-[#3B82F6]/20"
+                        : "bg-white/[0.03]"
                   }`}
                 >
                   <span className={`text-sm font-mono font-bold ${
-                    ex.completed ? "text-[hsl(142,50%,40%)]" : i === currentIndex ? "text-primary" : "text-muted-foreground/40"
+                    ex.completed ? "text-[#22C55E]" : i === currentIndex ? "text-[#3B82F6]" : "text-muted-foreground/40"
                   }`}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${ex.completed ? "text-[hsl(142,50%,60%)] line-through" : "text-foreground"}`}>
+                    <p className={`text-sm font-medium ${ex.completed ? "text-[#22C55E]/80 line-through" : "text-foreground"}`}>
                       {ex.exercise_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {ex.sets}×{ex.reps} · {ex.rest}s
                     </p>
                   </div>
-                  {ex.completed && <Check className="w-4 h-4 text-[hsl(142,50%,40%)]" />}
+                  {ex.completed && <Check className="w-4 h-4 text-[#22C55E]" />}
                 </div>
               ))}
             </div>
