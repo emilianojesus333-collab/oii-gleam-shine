@@ -180,12 +180,12 @@ export const useAlerts = () => {
         console.error('Error loading alerts:', error);
         setState(defaultState);
       }
-
+      hasLoadedRef.current = true;
       setIsLoading(false);
     };
 
     loadAlerts();
-  }, [user, checkAndResetDailyHydration, workoutIntensity]);
+  }, [user, checkAndResetDailyHydration]);
 
   useEffect(() => {
     refreshWorkoutHydrationContext();
@@ -204,7 +204,7 @@ export const useAlerts = () => {
   }, [hydrationSummary.goalLiters]);
 
   useEffect(() => {
-    if (!user || isLoading) return;
+    if (!user || isLoading || !hasLoadedRef.current) return;
 
     const saveAlerts = async () => {
       try {
