@@ -15,7 +15,17 @@ interface ExerciseCardStackProps {
 }
 
 const SWIPE_THRESHOLD = 100;
-const MAX_VISIBLE = 6;
+const MAX_VISIBLE = 4;
+
+// Horizontal offset pattern: 0, +12, -12, +20
+const getStackTransform = (index: number) => {
+  const offsets = [0, 12, -12, 20];
+  const scales = [1, 0.96, 0.92, 0.88];
+  return {
+    x: offsets[index] ?? (index % 2 === 0 ? 20 : -20),
+    scale: scales[index] ?? Math.max(0.84, 1 - index * 0.04),
+  };
+};
 
 const SwipeableCard = ({
   exercise,
@@ -33,7 +43,7 @@ const SwipeableCard = ({
   isTop: boolean;
 }) => {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
   const rightOpacity = useTransform(x, [0, 80], [0, 1]);
   const leftOpacity = useTransform(x, [-80, 0], [1, 0]);
 
@@ -45,6 +55,8 @@ const SwipeableCard = ({
     }
   };
 
+  const { x: offsetX, scale } = getStackTransform(index);
+
   return (
     <motion.div
       style={{
@@ -54,78 +66,76 @@ const SwipeableCard = ({
       }}
       drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.9}
+      dragElastic={0.7}
       onDragEnd={isTop ? handleDragEnd : undefined}
-      initial={{ scale: 1 - index * 0.04, y: index * 14, opacity: index > MAX_VISIBLE ? 0 : 1 }}
+      initial={{ x: offsetX, scale, opacity: index >= MAX_VISIBLE ? 0 : 1 }}
       animate={{
-        scale: 1 - index * 0.04,
-        y: index * 14,
-        opacity: index > MAX_VISIBLE ? 0 : 1,
+        x: isTop ? 0 : offsetX,
+        scale,
+        opacity: index >= MAX_VISIBLE ? 0 : 1,
       }}
       exit={{
         x: 300,
         opacity: 0,
-        rotate: 15,
-        transition: { type: "spring", stiffness: 200, damping: 20 },
+        rotate: 8,
+        transition: { type: "spring", stiffness: 200, damping: 22 },
       }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      transition={{ type: "spring", stiffness: 280, damping: 26 }}
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
     >
-      {/* Card body */}
-      <div className="relative h-full rounded-3xl overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.85)] to-[hsl(270,60%,35%)] border border-white/10 shadow-[0_20px_60px_-10px_hsl(var(--primary)/0.5)]">
-        {/* Glass overlay pattern */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/10 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl pointer-events-none" />
+      <div className="relative h-full rounded-2xl overflow-hidden bg-card border border-border shadow-[0_8px_30px_-8px_hsl(var(--foreground)/0.15)]">
+        {/* Subtle internal lighting */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-        {/* Swipe indicators (only on top card) */}
+        {/* Swipe indicators */}
         {isTop && (
           <>
             <motion.div
               style={{ opacity: rightOpacity }}
-              className="absolute top-6 right-6 z-10 flex items-center gap-1.5 bg-[hsl(142,60%,40%)]/90 rounded-xl px-3 py-1.5"
+              className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[hsl(142,50%,30%)] rounded-lg px-3 py-1.5"
             >
-              <Check className="w-4 h-4 text-white" />
-              <span className="text-xs font-bold text-white">FEITO</span>
+              <Check className="w-4 h-4 text-primary-foreground" />
+              <span className="text-xs font-bold text-primary-foreground tracking-wide">FEITO</span>
             </motion.div>
             <motion.div
               style={{ opacity: leftOpacity }}
-              className="absolute top-6 left-6 z-10 flex items-center gap-1.5 bg-destructive/90 rounded-xl px-3 py-1.5"
+              className="absolute top-5 left-5 z-10 flex items-center gap-1.5 bg-destructive rounded-lg px-3 py-1.5"
             >
-              <RotateCcw className="w-4 h-4 text-white" />
-              <span className="text-xs font-bold text-white">DESFAZER</span>
+              <RotateCcw className="w-4 h-4 text-destructive-foreground" />
+              <span className="text-xs font-bold text-destructive-foreground tracking-wide">DESFAZER</span>
             </motion.div>
           </>
         )}
 
         {/* Content */}
-        <div className="relative z-[1] h-full flex flex-col justify-between p-6">
+        <div className="relative z-[1] h-full flex flex-col justify-between p-5">
           {/* Top meta */}
           <div className="flex items-center justify-between">
-            <div className="flex gap-4">
+            <div className="flex gap-5">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/50 font-medium">Séries</p>
-                <p className="text-xl font-bold text-white">{exercise.sets}</p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Séries</p>
+                <p className="text-xl font-bold text-foreground">{exercise.sets}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/50 font-medium">Reps</p>
-                <p className="text-xl font-bold text-white">{exercise.reps}</p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Reps</p>
+                <p className="text-xl font-bold text-foreground">{exercise.reps}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/50 font-medium">Descanso</p>
-                <p className="text-xl font-bold text-white">{exercise.rest}s</p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Descanso</p>
+                <p className="text-xl font-bold text-foreground">{exercise.rest}s</p>
               </div>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
-              <Dumbbell className="w-7 h-7 text-white/80" />
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-primary" />
             </div>
           </div>
 
           {/* Exercise name */}
           <div>
-            <h2 className="text-3xl font-black text-white leading-tight tracking-tight">
+            <h2 className="text-2xl font-black text-foreground leading-tight tracking-tight">
               {exercise.exercise_name}
             </h2>
-            <p className="text-sm text-white/60 mt-2 line-clamp-2">
+            <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2">
               {exercise.source === "ai"
                 ? "Gerado pela Victoria AI · Controla a fase excêntrica"
                 : "Exercício personalizado"}
@@ -147,23 +157,23 @@ const FinishCard = ({
   isCompleting: boolean;
 }) => (
   <motion.div
-    initial={{ scale: 0.9, opacity: 0 }}
+    initial={{ scale: 0.95, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     className="absolute inset-0"
   >
-    <div className="relative h-full rounded-3xl overflow-hidden bg-gradient-to-br from-[hsl(142,50%,25%)] to-[hsl(142,40%,18%)] border border-[hsl(142,50%,30%)]/30 shadow-[0_20px_60px_-10px_hsl(142,60%,30%,0.4)] flex flex-col items-center justify-center p-8 text-center gap-5">
-      <div className="w-20 h-20 rounded-full bg-[hsl(142,60%,40%)]/20 flex items-center justify-center">
-        <Trophy className="w-10 h-10 text-[hsl(142,60%,50%)]" />
+    <div className="relative h-full rounded-2xl overflow-hidden bg-card border border-border shadow-[0_8px_30px_-8px_hsl(var(--foreground)/0.15)] flex flex-col items-center justify-center p-8 text-center gap-5">
+      <div className="w-16 h-16 rounded-full bg-[hsl(142,50%,30%)]/20 flex items-center justify-center">
+        <Trophy className="w-8 h-8 text-[hsl(142,50%,50%)]" />
       </div>
       <div>
-        <h2 className="text-2xl font-black text-white mb-1">Treino Completo!</h2>
-        <p className="text-sm text-white/60">{completedCount} exercícios concluídos</p>
+        <h2 className="text-2xl font-black text-foreground mb-1">Treino Completo!</h2>
+        <p className="text-sm text-muted-foreground">{completedCount} exercícios concluídos</p>
       </div>
       <motion.button
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.97 }}
         onClick={onFinish}
         disabled={isCompleting}
-        className="w-full py-4 rounded-2xl bg-[hsl(142,60%,40%)] text-white font-bold text-base shadow-lg shadow-[hsl(142,60%,40%)]/30 disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full py-3.5 rounded-xl bg-[hsl(142,50%,35%)] text-primary-foreground font-bold text-base shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {isCompleting ? "A concluir..." : "Finalizar Treino"}
         {!isCompleting && <ChevronRight className="w-5 h-5" />}
@@ -197,7 +207,7 @@ export const ExerciseCardStack = ({
               isCompleting={isCompleting}
             />
           ) : (
-            remaining.slice(0, MAX_VISIBLE + 1).map((ex, stackIdx) => (
+            remaining.slice(0, MAX_VISIBLE).map((ex, stackIdx) => (
               <SwipeableCard
                 key={ex.id}
                 exercise={ex}
@@ -219,7 +229,7 @@ export const ExerciseCardStack = ({
             key={i}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i < currentIndex
-                ? "w-1.5 bg-[hsl(142,60%,40%)]"
+                ? "w-1.5 bg-[hsl(142,50%,40%)]"
                 : i === currentIndex
                   ? "w-6 bg-primary"
                   : "w-1.5 bg-muted-foreground/20"
@@ -228,7 +238,7 @@ export const ExerciseCardStack = ({
         ))}
       </div>
 
-      {/* Subtle list link */}
+      {/* Exercise list link */}
       {!allDone && (
         <Sheet>
           <SheetTrigger asChild>
@@ -237,7 +247,7 @@ export const ExerciseCardStack = ({
               Mostrar exercícios ({exercises.length})
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-card border-border rounded-t-3xl max-h-[60vh]">
+          <SheetContent side="bottom" className="bg-card border-border rounded-t-2xl max-h-[60vh]">
             <SheetHeader>
               <SheetTitle className="text-foreground">Exercícios do Plano</SheetTitle>
             </SheetHeader>
@@ -254,19 +264,19 @@ export const ExerciseCardStack = ({
                   }`}
                 >
                   <span className={`text-sm font-mono font-bold ${
-                    ex.completed ? "text-[hsl(142,60%,40%)]" : i === currentIndex ? "text-primary" : "text-muted-foreground/40"
+                    ex.completed ? "text-[hsl(142,50%,40%)]" : i === currentIndex ? "text-primary" : "text-muted-foreground/40"
                   }`}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${ex.completed ? "text-[hsl(142,50%,70%)] line-through" : "text-foreground"}`}>
+                    <p className={`text-sm font-medium ${ex.completed ? "text-[hsl(142,50%,60%)] line-through" : "text-foreground"}`}>
                       {ex.exercise_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {ex.sets}×{ex.reps} · {ex.rest}s
                     </p>
                   </div>
-                  {ex.completed && <Check className="w-4 h-4 text-[hsl(142,60%,40%)]" />}
+                  {ex.completed && <Check className="w-4 h-4 text-[hsl(142,50%,40%)]" />}
                 </div>
               ))}
             </div>
