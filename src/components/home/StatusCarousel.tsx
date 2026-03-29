@@ -25,11 +25,11 @@ export const StatusCarousel = () => {
 
   const getBarColor = (status: string) => {
     switch (status) {
-      case "recovered": return "bg-[hsl(142,71%,45%)]";
-      case "almost_recovered": return "bg-[hsl(45,93%,47%)]";
-      case "recovering": return "bg-[hsl(270,60%,55%)]";
-      case "fatigued": return "bg-destructive";
-      default: return "bg-[hsl(142,71%,45%)]";
+      case "recovered":return "bg-[hsl(142,71%,45%)]";
+      case "almost_recovered":return "bg-[hsl(45,93%,47%)]";
+      case "recovering":return "bg-[hsl(270,60%,55%)]";
+      case "fatigued":return "bg-destructive";
+      default:return "bg-[hsl(142,71%,45%)]";
     }
   };
 
@@ -47,52 +47,52 @@ export const StatusCarousel = () => {
   const totalMinutes = weeklyData?.totalMinutes ?? 0;
   const dailyActivity = weeklyData?.dailyActivity ?? [false, false, false, false, false, false, false];
   const planned = Math.max(plannedSessions, 1);
-  const pct = Math.min(Math.round((completedSessions / planned) * 100), 100);
+  const pct = Math.min(Math.round(completedSessions / planned * 100), 100);
   const ringSize = 56;
   const ringStroke = 5;
   const ringRadius = (ringSize - ringStroke) / 2;
   const circumference = 2 * Math.PI * ringRadius;
-  const offset = circumference - (pct / 100) * circumference;
+  const offset = circumference - pct / 100 * circumference;
 
   slides.push(
     <div key="muscle-and-weekly" className="space-y-3">
       {/* 2x2 Muscle Recovery Grid */}
       <div className="grid grid-cols-2 gap-2.5">
-        {displayMuscles.map((muscle) => (
-          <div
-            key={muscle.muscle_group}
-            className="rounded-xl bg-[hsl(220,13%,12%)] px-3.5 py-3 flex flex-col gap-2 shadow-lg shadow-black/20 h-[5.5rem]"
-          >
+        {displayMuscles.map((muscle) =>
+        <div
+          key={muscle.muscle_group}
+          className="rounded-xl bg-[hsl(220,13%,12%)] px-3.5 py-3 flex flex-col gap-2 shadow-lg shadow-black/20 h-[5.5rem]">
+          
             <span className="text-sm font-bold text-foreground">
               {getMuscleLabel(muscle.muscle_group)}
             </span>
             <div className="h-1.5 w-full rounded-full bg-muted-foreground/15 overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
-                style={{ width: `${getBarWidth(muscle)}%` }}
-              />
+              className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
+              style={{ width: `${getBarWidth(muscle)}%` }} />
+            
             </div>
             <span className={`text-xs font-semibold ${getStatusColor(muscle.status)}`}>
               {getStatusLabel(muscle.status)}
             </span>
           </div>
-        ))}
+        )}
       </div>
 
       {/* Weekly Progress inline */}
-      <div className="rounded-2xl bg-[hsl(220,13%,12%)] p-4 shadow-lg shadow-black/20">
+      <div className="rounded-2xl p-4 shadow-lg shadow-black/20 bg-[#380439]/[0.43]">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg width={ringSize} height={ringSize} className="-rotate-90">
-              <circle cx={ringSize/2} cy={ringSize/2} r={ringRadius} fill="none" stroke="hsl(220,10%,20%)" strokeWidth={ringStroke} />
+              <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="hsl(220,10%,20%)" strokeWidth={ringStroke} />
               <motion.circle
-                cx={ringSize/2} cy={ringSize/2} r={ringRadius} fill="none"
+                cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none"
                 stroke="hsl(142,71%,45%)" strokeWidth={ringStroke} strokeLinecap="round"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }}
-              />
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }} />
+              
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xs font-black text-foreground leading-none">
@@ -110,13 +110,13 @@ export const StatusCarousel = () => {
           </div>
         </div>
         <div className="flex items-center gap-1.5 mt-3">
-          {dailyActivity.map((active, i) => (
-            <div
-              key={i}
-              className="h-1.5 flex-1 rounded-full transition-all"
-              style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }}
-            />
-          ))}
+          {dailyActivity.map((active, i) =>
+          <div
+            key={i}
+            className="h-1.5 flex-1 rounded-full transition-all"
+            style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }} />
+
+          )}
         </div>
       </div>
     </div>
