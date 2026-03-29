@@ -17,7 +17,6 @@ interface ExerciseCardStackProps {
 const SWIPE_THRESHOLD = 100;
 const MAX_VISIBLE = 4;
 
-// Horizontal offset pattern: 0, +12, -12, +20
 const getStackTransform = (index: number) => {
   const offsets = [0, 12, -12, 20];
   const scales = [1, 0.96, 0.92, 0.88];
@@ -83,9 +82,17 @@ const SwipeableCard = ({
       transition={{ type: "spring", stiffness: 280, damping: 26 }}
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
     >
-      <div className="relative h-full rounded-2xl overflow-hidden bg-[#1E293B] border border-white/[0.06] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)]">
-        {/* Very subtle internal gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
+      <div
+        className="relative h-full rounded-2xl overflow-hidden border border-white/[0.05]"
+        style={{
+          backgroundColor: '#1A1A2E',
+          boxShadow: isTop
+            ? '0 10px 28px -6px rgba(0,0,0,0.4), 0 0 20px -4px rgba(124,58,237,0.08)'
+            : '0 6px 18px -6px rgba(0,0,0,0.3)',
+        }}
+      >
+        {/* Very subtle top-left lighting — barely visible */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-transparent pointer-events-none" />
 
         {/* Swipe indicators */}
         {isTop && (
@@ -94,15 +101,15 @@ const SwipeableCard = ({
               style={{ opacity: rightOpacity }}
               className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[#22C55E]/90 rounded-lg px-3 py-1.5"
             >
-              <Check className="w-4 h-4 text-primary-foreground" />
-              <span className="text-xs font-bold text-primary-foreground tracking-wide">FEITO</span>
+              <Check className="w-4 h-4 text-white" />
+              <span className="text-xs font-bold text-white tracking-wide">FEITO</span>
             </motion.div>
             <motion.div
               style={{ opacity: leftOpacity }}
-              className="absolute top-5 left-5 z-10 flex items-center gap-1.5 bg-destructive rounded-lg px-3 py-1.5"
+              className="absolute top-5 left-5 z-10 flex items-center gap-1.5 bg-red-500/90 rounded-lg px-3 py-1.5"
             >
-              <RotateCcw className="w-4 h-4 text-destructive-foreground" />
-              <span className="text-xs font-bold text-destructive-foreground tracking-wide">DESFAZER</span>
+              <RotateCcw className="w-4 h-4 text-white" />
+              <span className="text-xs font-bold text-white tracking-wide">DESFAZER</span>
             </motion.div>
           </>
         )}
@@ -113,29 +120,29 @@ const SwipeableCard = ({
           <div className="flex items-center justify-between">
             <div className="flex gap-5">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Séries</p>
-                <p className="text-xl font-bold text-foreground">{exercise.sets}</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-medium">Séries</p>
+                <p className="text-xl font-bold text-[#E5E7EB]">{exercise.sets}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Reps</p>
-                <p className="text-xl font-bold text-foreground">{exercise.reps}</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-medium">Reps</p>
+                <p className="text-xl font-bold text-[#E5E7EB]">{exercise.reps}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Descanso</p>
-                <p className="text-xl font-bold text-foreground">{exercise.rest}s</p>
+                <p className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-medium">Descanso</p>
+                <p className="text-xl font-bold text-[#E5E7EB]">{exercise.rest}s</p>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center">
-              <Dumbbell className="w-6 h-6 text-[#3B82F6]" />
+            <div className="w-12 h-12 rounded-xl bg-[#7C3AED]/10 flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-[#7C3AED]" />
             </div>
           </div>
 
           {/* Exercise name */}
           <div>
-            <h2 className="text-2xl font-black text-foreground leading-tight tracking-tight">
+            <h2 className="text-2xl font-black text-[#E5E7EB] leading-tight tracking-tight">
               {exercise.exercise_name}
             </h2>
-            <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2">
+            <p className="text-sm text-[#9CA3AF] mt-1.5 line-clamp-2">
               {exercise.source === "ai"
                 ? "Gerado pela Victoria AI · Controla a fase excêntrica"
                 : "Exercício personalizado"}
@@ -161,19 +168,26 @@ const FinishCard = ({
     animate={{ scale: 1, opacity: 1 }}
     className="absolute inset-0"
   >
-    <div className="relative h-full rounded-2xl overflow-hidden bg-[#1E293B] border border-white/[0.06] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] flex flex-col items-center justify-center p-8 text-center gap-5">
-      <div className="w-16 h-16 rounded-full bg-[#3B82F6]/15 flex items-center justify-center">
-        <Trophy className="w-8 h-8 text-[#3B82F6]" />
+    <div
+      className="relative h-full rounded-2xl overflow-hidden border border-white/[0.05] flex flex-col items-center justify-center p-8 text-center gap-5"
+      style={{
+        backgroundColor: '#1A1A2E',
+        boxShadow: '0 10px 28px -6px rgba(0,0,0,0.4)',
+      }}
+    >
+      <div className="w-16 h-16 rounded-full bg-[#7C3AED]/12 flex items-center justify-center">
+        <Trophy className="w-8 h-8 text-[#7C3AED]" />
       </div>
       <div>
-        <h2 className="text-2xl font-black text-foreground mb-1">Treino Completo!</h2>
-        <p className="text-sm text-muted-foreground">{completedCount} exercícios concluídos</p>
+        <h2 className="text-2xl font-black text-[#E5E7EB] mb-1">Treino Completo!</h2>
+        <p className="text-sm text-[#9CA3AF]">{completedCount} exercícios concluídos</p>
       </div>
       <motion.button
         whileTap={{ scale: 0.97 }}
         onClick={onFinish}
         disabled={isCompleting}
-        className="w-full py-3.5 rounded-xl bg-[#3B82F6] text-white font-bold text-base shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full py-3.5 rounded-xl bg-[#7C3AED] text-white font-bold text-base disabled:opacity-50 flex items-center justify-center gap-2"
+        style={{ boxShadow: '0 4px 14px -3px rgba(124,58,237,0.3)' }}
       >
         {isCompleting ? "A concluir..." : "Finalizar Treino"}
         {!isCompleting && <ChevronRight className="w-5 h-5" />}
@@ -229,10 +243,10 @@ export const ExerciseCardStack = ({
             key={i}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i < currentIndex
-                ? "w-1.5 bg-[#3B82F6]"
+                ? "w-1.5 bg-[#7C3AED]"
                 : i === currentIndex
-                  ? "w-6 bg-[#3B82F6]"
-                  : "w-1.5 bg-muted-foreground/20"
+                  ? "w-6 bg-[#7C3AED]"
+                  : "w-1.5 bg-white/10"
             }`}
           />
         ))}
@@ -242,14 +256,18 @@ export const ExerciseCardStack = ({
       {!allDone && (
         <Sheet>
           <SheetTrigger asChild>
-            <button className="flex items-center gap-1.5 mx-auto text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+            <button className="flex items-center gap-1.5 mx-auto text-xs text-[#9CA3AF]/50 hover:text-[#9CA3AF] transition-colors">
               <List className="w-3.5 h-3.5" />
               Mostrar exercícios ({exercises.length})
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-[#1E293B] border-white/[0.06] rounded-t-2xl max-h-[60vh]">
+          <SheetContent
+            side="bottom"
+            className="rounded-t-2xl max-h-[60vh] border-white/[0.05]"
+            style={{ backgroundColor: '#1A1A2E' }}
+          >
             <SheetHeader>
-              <SheetTitle className="text-foreground">Exercícios do Plano</SheetTitle>
+              <SheetTitle className="text-[#E5E7EB]">Exercícios do Plano</SheetTitle>
             </SheetHeader>
             <div className="space-y-2 mt-4 overflow-y-auto">
               {exercises.map((ex, i) => (
@@ -257,22 +275,22 @@ export const ExerciseCardStack = ({
                   key={ex.id}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 ${
                     ex.completed
-                      ? "bg-[#22C55E]/10 border border-[#22C55E]/20"
+                      ? "bg-[#22C55E]/8 border border-[#22C55E]/15"
                       : i === currentIndex
-                        ? "bg-[#3B82F6]/10 border border-[#3B82F6]/20"
-                        : "bg-white/[0.03]"
+                        ? "bg-[#7C3AED]/8 border border-[#7C3AED]/15"
+                        : "bg-white/[0.02]"
                   }`}
                 >
                   <span className={`text-sm font-mono font-bold ${
-                    ex.completed ? "text-[#22C55E]" : i === currentIndex ? "text-[#3B82F6]" : "text-muted-foreground/40"
+                    ex.completed ? "text-[#22C55E]" : i === currentIndex ? "text-[#7C3AED]" : "text-[#9CA3AF]/40"
                   }`}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${ex.completed ? "text-[#22C55E]/80 line-through" : "text-foreground"}`}>
+                    <p className={`text-sm font-medium ${ex.completed ? "text-[#22C55E]/70 line-through" : "text-[#E5E7EB]"}`}>
                       {ex.exercise_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[#9CA3AF]">
                       {ex.sets}×{ex.reps} · {ex.rest}s
                     </p>
                   </div>
