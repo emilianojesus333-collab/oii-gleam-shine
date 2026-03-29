@@ -257,26 +257,26 @@ export const ExerciseCardStack = ({
                   key={ex.id}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 ${
                     ex.completed
-                      ? "bg-[hsl(142,40%,15%)] border border-[hsl(142,50%,25%)]"
+                      ? "bg-[#22C55E]/10 border border-[#22C55E]/20"
                       : i === currentIndex
-                        ? "bg-primary/10 border border-primary/30"
-                        : "bg-muted/20"
+                        ? "bg-[#3B82F6]/10 border border-[#3B82F6]/20"
+                        : "bg-white/[0.03]"
                   }`}
                 >
                   <span className={`text-sm font-mono font-bold ${
-                    ex.completed ? "text-[hsl(142,50%,40%)]" : i === currentIndex ? "text-primary" : "text-muted-foreground/40"
+                    ex.completed ? "text-[#22C55E]" : i === currentIndex ? "text-[#3B82F6]" : "text-muted-foreground/40"
                   }`}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${ex.completed ? "text-[hsl(142,50%,60%)] line-through" : "text-foreground"}`}>
+                    <p className={`text-sm font-medium ${ex.completed ? "text-[#22C55E]/80 line-through" : "text-foreground"}`}>
                       {ex.exercise_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {ex.sets}×{ex.reps} · {ex.rest}s
                     </p>
                   </div>
-                  {ex.completed && <Check className="w-4 h-4 text-[hsl(142,50%,40%)]" />}
+                  {ex.completed && <Check className="w-4 h-4 text-[#22C55E]" />}
                 </div>
               ))}
             </div>
