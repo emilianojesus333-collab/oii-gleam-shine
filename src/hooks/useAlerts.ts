@@ -59,6 +59,7 @@ export const useAlerts = () => {
   const { user } = useAuth();
   const [state, setState] = useState<AlertsState>(defaultState);
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedRef = useRef(false);
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const [workoutIntensity, setWorkoutIntensity] = useState<WorkoutIntensity>('none');
 

@@ -394,9 +394,9 @@ export const useNutrition = () => {
     syncWithSupabase();
   }, [user]);
 
-  // Persist to user-specific localStorage (backup)
+  // Persist to user-specific localStorage (backup) — only after sync
   useEffect(() => {
-    if (!user) return;
+    if (!user || !state.synced) return;
     localStorage.setItem(getStorageKey(user.id), JSON.stringify(state));
   }, [state, user]);
 

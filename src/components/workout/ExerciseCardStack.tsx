@@ -92,7 +92,7 @@ const SwipeableCard = ({
           <>
             <motion.div
               style={{ opacity: rightOpacity }}
-              className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[hsl(142,50%,30%)] rounded-lg px-3 py-1.5"
+              className="absolute top-5 right-5 z-10 flex items-center gap-1.5 bg-[#22C55E]/90 rounded-lg px-3 py-1.5"
             >
               <Check className="w-4 h-4 text-primary-foreground" />
               <span className="text-xs font-bold text-primary-foreground tracking-wide">FEITO</span>
@@ -229,9 +229,9 @@ export const ExerciseCardStack = ({
             key={i}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i < currentIndex
-                ? "w-1.5 bg-[hsl(142,50%,40%)]"
+                ? "w-1.5 bg-[#3B82F6]"
                 : i === currentIndex
-                  ? "w-6 bg-primary"
+                  ? "w-6 bg-[#3B82F6]"
                   : "w-1.5 bg-muted-foreground/20"
             }`}
           />
