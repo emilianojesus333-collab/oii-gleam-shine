@@ -201,8 +201,8 @@ export const StatusCarousel = () => {
             join(", ")}. Que treino recomendam para hoje?`
           }
         })
-        }
-        className={`${cardBase} cursor-pointer`}>
+        } className="bg-[#011d17]">
+        
         
         <div className="mb-3 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
