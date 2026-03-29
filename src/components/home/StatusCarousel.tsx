@@ -124,7 +124,7 @@ export const StatusCarousel = () => {
 
   const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
   slides.push(
-    <div key="recovery-trend" className={cardBase}>
+    <div key="recovery-trend" className="bg-[#1d021d]">
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
           <TrendingUp className="h-5 w-5 text-foreground" />
