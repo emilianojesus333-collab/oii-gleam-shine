@@ -239,7 +239,7 @@ export const AICoaching = () => {
 
       // Validate response structure
       const validatedTips = Array.isArray(data.tips) 
-        ? data.tips.filter((t: any) => t && typeof t.title === 'string' && typeof t.message === 'string')
+        ? data.tips.filter((t: unknown): t is { title: string; message: string; priority?: string; category?: string } => !!t && typeof (t as Record<string,unknown>).title === 'string' && typeof (t as Record<string,unknown>).message === 'string')
         : [];
       const validatedSummary = typeof data.summary === 'string' ? data.summary : '';
 

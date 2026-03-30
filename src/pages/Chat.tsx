@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines, Edit3, Save, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
+import { BottomNav } from "@/components/BottomNav";
 import { QuickCommandsSheet } from "@/components/chat/QuickCommandsSheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +18,7 @@ import { collectUserContext, formatContextForAI } from "@/utils/userContextColle
 const Chat = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,6 +70,16 @@ const Chat = () => {
       setIsEditingName(false);
     }
   };
+
+  // Read prefill message from navigation state (e.g. from FatigueAlertCard)
+  useEffect(() => {
+    const navState = location.state as { prefill?: string } | null;
+    if (navState?.prefill) {
+      setInputValue(navState.prefill);
+      // Clear state so it doesn't repopulate on re-renders
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -213,7 +225,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#0B0F14]">
+    <div className="flex h-[100dvh] flex-col bg-[#0B0F14] pb-16">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
         <button
@@ -464,6 +476,7 @@ const Chat = () => {
           </div>
         </SheetContent>
       </Sheet>
+      <BottomNav />
       
     </div>);
 

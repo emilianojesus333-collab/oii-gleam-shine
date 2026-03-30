@@ -46,7 +46,7 @@ const SwipeableCard = ({
   const rightOpacity = useTransform(x, [0, 80], [0, 1]);
   const leftOpacity = useTransform(x, [-80, 0], [1, 0]);
 
-  const handleDragEnd = (_: any, info: PanInfo) => {
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.x > SWIPE_THRESHOLD) {
       onSwipeRight();
     } else if (info.offset.x < -SWIPE_THRESHOLD) {

@@ -107,7 +107,7 @@ const getStorageKey = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`;
 
 // Cache with TTL
 interface CacheEntry {
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
   expiresAt: number;
 }

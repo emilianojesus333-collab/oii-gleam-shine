@@ -22,7 +22,7 @@ const benefits = [
 
 const Paywall = () => {
   const navigate = useNavigate();
-  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing } = useSubscriptionContext();
+  const { createCheckout, isSubscriptionValid, shouldShowPaywall, isLoading, isTrialing, checkSubscription, openCustomerPortal } = useSubscriptionContext();
   const { pricing, isLoading: pricingLoading } = usePricing();
   const { toast } = useToast();
   const { signOut } = useAuth();
@@ -221,6 +221,25 @@ const Paywall = () => {
           <p className="text-xs text-muted-foreground/70 max-w-xs mx-auto">
             Teste gratuito de 7 dias. Cancela quando quiseres, sem compromisso.
           </p>
+          {/* Restore purchases — required for App Store / Google Play compliance */}
+          <button
+            onClick={async () => {
+              try {
+                await checkSubscription(false);
+                if (isSubscriptionValid()) {
+                  toast({ title: "Compra restaurada!", description: "A tua subscrição está ativa." });
+                  navigate("/home", { replace: true });
+                } else {
+                  toast({ title: "Sem subscrição ativa", description: "Não encontrámos nenhuma compra associada a esta conta.", variant: "destructive" });
+                }
+              } catch {
+                toast({ title: "Erro", description: "Não foi possível verificar a subscrição.", variant: "destructive" });
+              }
+            }}
+            className="text-xs text-muted-foreground/50 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+          >
+            Restaurar compra
+          </button>
         </motion.div>
       </div>
     </div>

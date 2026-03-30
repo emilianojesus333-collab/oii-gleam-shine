@@ -2,21 +2,20 @@ import { useCallback } from "react";
 import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 
-const STORAGE_KEY = "liftmate_fatigue_notification_sent";
-
 /**
  * Sends a local-style push notification when fatigue >= 81.
- * Max 1 per day, stored via localStorage flag.
+ * Max 1 per day, stored via localStorage flag (user-scoped).
  */
 export const useFatigueNotification = () => {
-  const checkAndNotify = useCallback(async (fatigueIndex: number | null | undefined) => {
+  const checkAndNotify = useCallback(async (fatigueIndex: number | null | undefined, userId?: string) => {
     if (!fatigueIndex || fatigueIndex < 81) return;
 
+    const storageKey = `liftmate_fatigue_notification_sent_${userId ?? "guest"}`;
     const today = new Date().toDateString();
-    const lastSent = localStorage.getItem(STORAGE_KEY);
+    const lastSent = localStorage.getItem(storageKey);
     if (lastSent === today) return;
 
-    localStorage.setItem(STORAGE_KEY, today);
+    localStorage.setItem(storageKey, today);
 
     // On native platforms, schedule a local notification
     if (Capacitor.isNativePlatform()) {

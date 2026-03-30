@@ -13,10 +13,6 @@ export const BottomNav = () => {
     { icon: Droplets, label: "Hidratação", path: "/hydration" },
   ];
 
-  if (location.pathname === '/chat') {
-    return null;
-  }
-
   const isActive = (path: string) => location.pathname === path;
 
   return (

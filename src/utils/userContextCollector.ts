@@ -325,7 +325,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       }
       
       // Today's log
-      const todayLog = parsed.dailyLogs?.find((log: any) => log.date === today);
+      const todayLog = parsed.dailyLogs?.find((log: { date: string; meals?: unknown[]; totals?: { calories?: number; protein?: number } }) => log.date === today);
       if (todayLog) {
         context.nutrition.todayCalories = todayLog.totals?.calories || 0;
         context.nutrition.todayProtein = todayLog.totals?.protein || 0;
@@ -338,13 +338,13 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       // Weekly stats
       if (parsed.dailyLogs?.length > 0) {
         const last7Days = parsed.dailyLogs.slice(-7);
-        const daysWithData = last7Days.filter((log: any) => log.meals?.length > 0);
+        const daysWithData = last7Days.filter((log: { date: string; meals?: unknown[]; totals?: { calories?: number; protein?: number } }) => log.meals?.length > 0);
         if (daysWithData.length > 0) {
-          const totalCals = daysWithData.reduce((sum: number, log: any) => sum + (log.totals?.calories || 0), 0);
-          const totalProt = daysWithData.reduce((sum: number, log: any) => sum + (log.totals?.protein || 0), 0);
+          const totalCals = daysWithData.reduce((sum: number, log: { totals?: { calories?: number; protein?: number } }) => sum + (log.totals?.calories || 0), 0);
+          const totalProt = daysWithData.reduce((sum: number, log: { totals?: { calories?: number; protein?: number } }) => sum + (log.totals?.protein || 0), 0);
           context.nutrition.weeklyAvgCalories = Math.round(totalCals / daysWithData.length);
           context.nutrition.weeklyAvgProtein = Math.round(totalProt / daysWithData.length);
-          context.nutrition.daysMetGoal = daysWithData.filter((log: any) => 
+          context.nutrition.daysMetGoal = daysWithData.filter((log: { date: string; meals?: unknown[]; totals?: { calories?: number; protein?: number } }) => 
             log.totals?.calories >= context.nutrition.goalCalories * 0.9
           ).length;
         }
@@ -478,7 +478,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       }
       
       if (parsed.supplements) {
-        context.alerts.supplements = parsed.supplements.map((s: any) => ({
+        context.alerts.supplements = parsed.supplements.map((s: { name?: string; time?: string; enabled?: boolean }) => ({
           name: s.name,
           time: s.time,
           enabled: s.enabled,
@@ -550,7 +550,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       const parsed = JSON.parse(measurementsData);
       
       if (parsed.measurements?.length > 0) {
-        const sorted = [...parsed.measurements].sort((a: any, b: any) => 
+        const sorted = [...parsed.measurements].sort((a: { date?: string }, b: { date?: string }) => 
           new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         const latest = sorted[0];
@@ -588,18 +588,18 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       const parsed = JSON.parse(challengesData);
       
       if (parsed.activeChallenges) {
-        context.challenges.active = parsed.activeChallenges.map((c: any) => ({
+        context.challenges.active = parsed.activeChallenges.map((c: { id?: string; title?: string; progress?: number; target?: number; unit?: string; completed?: boolean }) => ({
           type: c.type,
           target: c.target,
           progress: c.progress || 0,
           completed: c.completed || false,
         }));
-        context.challenges.completedThisWeek = parsed.activeChallenges.filter((c: any) => c.completed).length;
+        context.challenges.completedThisWeek = parsed.activeChallenges.filter((c: { completed?: boolean }) => c.completed).length;
       }
       
       if (parsed.unlockedBadges) {
         context.challenges.totalBadges = parsed.unlockedBadges.length;
-        context.challenges.recentBadges = parsed.unlockedBadges.slice(-3).map((b: any) => b.id || b);
+        context.challenges.recentBadges = parsed.unlockedBadges.slice(-3).map((b: { id?: string } | string) => b.id || b);
       }
     }
 
@@ -611,7 +611,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       if (parsed.photos?.length > 0) {
         context.progressPhotos.totalPhotos = parsed.photos.length;
         
-        const sorted = [...parsed.photos].sort((a: any, b: any) => 
+        const sorted = [...parsed.photos].sort((a: { date?: string }, b: { date?: string }) => 
           new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         const latest = sorted[0];
@@ -624,7 +624,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
         
         // Unique poses
         const poses = new Set<string>();
-        parsed.photos.forEach((p: any) => poses.add(p.pose));
+        parsed.photos.forEach((p: { pose?: string }) => poses.add(p.pose));
         context.progressPhotos.poses = Array.from(poses);
       }
     }

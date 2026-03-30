@@ -43,7 +43,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     });
   };
 
-  const generateWorkoutHTML = (sessions: any[]) => {
+  const generateWorkoutHTML = (sessions: Record<string, unknown>[]) => {
     if (sessions.length === 0) {
       return '<p>Sem histórico de treinos registado.</p>';
     }
@@ -70,7 +70,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
               </tr>
             </thead>
             <tbody>
-              ${exerciseLogs.map((log: any) => `
+              ${(exerciseLogs as Record<string, unknown>[]).map((log) => `
                 <tr>
                   <td style="padding: 8px; border-bottom: 1px solid #ddd;">${log.name || log.exercise_name || '-'}</td>
                   <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${log.weight || 0}kg</td>
@@ -142,7 +142,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     try {
       // Fetch workout sessions from database
       const { data: { user } } = await supabase.auth.getUser();
-      let workoutSessions: any[] = [];
+      let workoutSessions: Record<string, unknown>[] = [];
       if (user) {
         const { data } = await supabase
           .from('workout_sessions')

@@ -6,8 +6,16 @@ import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useNutrition } from "@/hooks/useNutrition";
 
-const CustomAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
-  const metric = rest.metrics?.find((m: any) => m.label === payload.value);
+interface RadarMetric { label: string; value: number; }
+interface CustomAxisProps {
+  payload: { value: string };
+  x: number; y: number; cx: number; cy: number;
+  metrics?: RadarMetric[];
+  [key: string]: unknown;
+}
+const CustomAngleAxis = ({ payload, x, y, cx, cy, ...rest }: CustomAxisProps) => {
+  const metrics = rest.metrics as RadarMetric[] | undefined;
+  const metric = metrics?.find((m) => m.label === payload.value);
   const val = metric?.value ?? 0;
 
   const dx = x - cx;
@@ -90,7 +98,7 @@ export function FitnessScoreRadar() {
                 />
                 <PolarAngleAxis
                   dataKey="label"
-                  tick={(props: any) => <CustomAngleAxis {...props} metrics={metrics} />}
+                  tick={(props) => <CustomAngleAxis {...(props as CustomAxisProps)} metrics={metrics} />}
                 />
                 <Radar
                   name="score"

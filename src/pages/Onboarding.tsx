@@ -10,9 +10,10 @@ import { LocationStep } from "@/components/onboarding/steps/LocationStep";
 import { GoalStep } from "@/components/onboarding/steps/GoalStep";
 import { MusclePriorityStep } from "@/components/onboarding/steps/MusclePriorityStep";
 import { LimitationsStep } from "@/components/onboarding/steps/LimitationsStep";
+import { ScheduleStep } from "@/components/onboarding/steps/ScheduleStep";
 import { toast } from "sonner";
 
-type Step = "identification" | "physical" | "experience" | "frequency" | "location" | "goal" | "muscles" | "limitations";
+type Step = "identification" | "physical" | "experience" | "frequency" | "location" | "goal" | "muscles" | "limitations" | "schedule";
 
 interface OnboardingData {
   name: string;
@@ -26,7 +27,10 @@ interface OnboardingData {
   goal: string | null;
   musclePriority: string[];
   limitations: string[];
+  schedule: Record<string, string[] | null>;
 }
+
+const ONBOARDING_DRAFT_KEY = (uid: string) => `liftmate_onboarding_draft_${uid}`;
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -46,7 +50,15 @@ const Onboarding = () => {
     goal: null,
     musclePriority: [],
     limitations: [],
+    schedule: {},
   });
+
+  // Save draft progress whenever step or data changes
+  useEffect(() => {
+    if (!userId || loading) return;
+    const draft = { currentStep, data };
+    localStorage.setItem(ONBOARDING_DRAFT_KEY(userId), JSON.stringify(draft));
+  }, [currentStep, data, userId, loading]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -55,11 +67,6 @@ const Onboarding = () => {
         navigate("/auth", { replace: true });
       } else {
         setUserId(session.user.id);
-        // Clear any old onboarding data from localStorage
-        const keysToRemove = Object.keys(localStorage).filter(
-          (key) => key.startsWith("liftmate_onboarding") || key.startsWith("onboarding")
-        );
-        keysToRemove.forEach((key) => localStorage.removeItem(key));
 
         const { data: settings } = await supabase
           .from("user_settings")
@@ -70,6 +77,17 @@ const Onboarding = () => {
           navigate("/home", { replace: true });
           return;
         }
+
+        // Restore draft if exists
+        const draftRaw = localStorage.getItem(ONBOARDING_DRAFT_KEY(session.user.id));
+        if (draftRaw) {
+          try {
+            const draft = JSON.parse(draftRaw);
+            if (draft.currentStep) setCurrentStep(draft.currentStep);
+            if (draft.data) setData((prev) => ({ ...prev, ...draft.data }));
+          } catch {}
+        }
+
         setLoading(false);
       }
     };
@@ -106,7 +124,7 @@ const Onboarding = () => {
         musclePriority: data.musclePriority,
         limitations: data.limitations,
         focus: null,
-        schedule: {},
+        schedule: data.schedule || {},
       };
 
       localStorage.setItem(`liftmate_onboarding_${userId}`, JSON.stringify(legacyData));
@@ -143,6 +161,8 @@ const Onboarding = () => {
         return;
       }
 
+      // Clear draft on success
+      if (userId) localStorage.removeItem(ONBOARDING_DRAFT_KEY(userId));
       navigate("/processing", { replace: true });
     } catch (error) {
       console.error("Error completing onboarding:", error);
@@ -151,7 +171,7 @@ const Onboarding = () => {
     }
   };
 
-  const stepFlow: Step[] = ["identification", "physical", "experience", "frequency", "location", "goal", "muscles", "limitations"];
+  const stepFlow: Step[] = ["identification", "physical", "experience", "frequency", "location", "goal", "muscles", "limitations", "schedule"];
 
   const goToNextStep = () => {
     const currentIndex = stepFlow.indexOf(currentStep);
@@ -277,6 +297,17 @@ const Onboarding = () => {
             key="limitations"
             selectedLimitations={data.limitations}
             onToggle={handleToggleLimitation}
+            onContinue={goToNextStep}
+            onBack={goToPreviousStep}
+          />
+        )}
+
+        {currentStep === "schedule" && (
+          <ScheduleStep
+            key="schedule"
+            frequency={data.frequency}
+            schedule={data.schedule}
+            onUpdate={(schedule) => setData((prev) => ({ ...prev, schedule }))}
             onContinue={goToNextStep}
             onBack={goToPreviousStep}
           />

@@ -407,15 +407,25 @@ export const useSubscription = (enabled: boolean = true) => {
       }
     });
 
-    // Auto-refresh every 2 minutes (reduced frequency, not initial boot)
+    // Auto-refresh every 15 minutes (reduced from 2min)
     const interval = setInterval(() => {
       lastCheckRef.current = 0;
       checkSubscription(false);
-    }, 120000);
+    }, 900000);
+
+    // Also refresh when user returns to the tab/app
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        lastCheckRef.current = 0;
+        checkSubscription(false);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       subscription.unsubscribe();
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [checkSubscription, enabled]);
 

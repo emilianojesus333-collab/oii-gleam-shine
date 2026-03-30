@@ -37,7 +37,7 @@ export const useNativeCamera = () => {
 
       setPhoto(result);
       return result;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage = err.message || 'Erro ao tirar foto';
       setError(errorMessage);
       console.error('Camera error:', err);
@@ -68,7 +68,7 @@ export const useNativeCamera = () => {
 
       setPhoto(result);
       return result;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage = err.message || 'Erro ao selecionar foto';
       setError(errorMessage);
       console.error('Gallery error:', err);

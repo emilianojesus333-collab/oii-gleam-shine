@@ -35,7 +35,7 @@ export const useOneRMRecords = () => {
       
       if (error) throw error;
       setRecords(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching 1RM records:", error);
     } finally {
       setLoading(false);
@@ -67,7 +67,7 @@ export const useOneRMRecords = () => {
       toast.success("1RM guardado com sucesso!");
       await fetchRecords(exerciseName);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving 1RM record:", error);
       toast.error("Erro ao guardar o 1RM");
       return false;

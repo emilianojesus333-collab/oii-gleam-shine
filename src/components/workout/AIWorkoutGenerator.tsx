@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface GeneratedExercise {
   name: string;
@@ -66,17 +67,30 @@ export const AIWorkoutGenerator = ({
   const [addedExercises, setAddedExercises] = useState<Set<number>>(new Set());
   const [persistingPlan, setPersistingPlan] = useState(false);
 
+  const { settings } = useUserSettings();
+
   const userProfile = useMemo(() => {
-    const onboardingData = localStorage.getItem("liftmate_onboarding");
-    if (onboardingData) {
-      const parsed = JSON.parse(onboardingData);
+    // Prefer Supabase onboarding data, fall back to user-scoped localStorage
+    if (settings?.onboarding_data) {
       return {
-        experience: parsed.experience || "Intermédio",
-        goal: parsed.goal || "Ganho de massa muscular",
+        experience: settings.onboarding_data.experience || "Intermédio",
+        goal: settings.onboarding_data.goal || "Ganho de massa muscular",
       };
     }
+    // Fallback: user-scoped key
+    const scopedKey = user?.id ? `liftmate_onboarding_${user.id}` : null;
+    const onboardingData = scopedKey ? localStorage.getItem(scopedKey) : null;
+    if (onboardingData) {
+      try {
+        const parsed = JSON.parse(onboardingData);
+        return {
+          experience: parsed.experience || "Intermédio",
+          goal: parsed.goal || "Ganho de massa muscular",
+        };
+      } catch {}
+    }
     return { experience: "Intermédio", goal: "Ganho de massa muscular" };
-  }, []);
+  }, [settings, user?.id]);
 
   const generateWorkout = async () => {
     if (todayMuscleGroups.length === 0) {
@@ -110,7 +124,7 @@ export const AIWorkoutGenerator = ({
       } else if (data?.error) {
         throw new Error(data.error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error generating workout:", error);
       toast.error(error.message || t("aiWorkout.error"));
     } finally {
@@ -191,7 +205,7 @@ export const AIWorkoutGenerator = ({
 
       toast.success("Treino planeado criado!");
       onSessionCreated?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error persisting workout plan:", err);
       toast.error("Erro ao criar plano de treino");
     } finally {

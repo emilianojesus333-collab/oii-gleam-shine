@@ -92,7 +92,7 @@ function validateNutritionData(raw: unknown): ValidatedResult {
 
   let foods: ValidatedFood[] = rawFoods
     .filter((f: unknown) => f && typeof f === 'object')
-    .map((f: any) => {
+    .map((f: { name?: string; [key: string]: unknown }) => {
       const name = typeof f.name === 'string' ? f.name : 'Alimento desconhecido';
       return {
         name,
@@ -180,7 +180,7 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    let messages: any[] = [
+    let messages: { role: string; content: unknown }[] = [
       {
         role: "system",
         content: `Você é um nutricionista profissional especializado em análise de alimentos para atletas e praticantes de musculação. Sua missão é identificar alimentos com ALTA PRECISÃO.

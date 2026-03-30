@@ -138,7 +138,7 @@ ${goalParts.length > 0 ? goalParts.map(g => `- ${g}`).join('\n') : '- Melhorar o
 Dados de contexto (use apenas se relevante para os objetivos):
 - Treinos esta semana: ${context.workout.thisWeek}
 - Streak atual: ${context.workout.streak} dias
-- Grupos mais treinados: ${context.workout.mostTrained?.map((m: any) => m.muscle).join(', ') || 'Nenhum'}`;
+- Grupos mais treinados: ${context.workout.mostTrained?.map((m: { muscle?: string }) => m.muscle).join(', ') || 'Nenhum'}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

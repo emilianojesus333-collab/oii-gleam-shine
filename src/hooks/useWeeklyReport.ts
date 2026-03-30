@@ -1,5 +1,23 @@
 import { useMemo } from 'react';
 
+interface NutritionLog {
+  date: string;
+  totals?: { calories?: number; protein?: number; carbs?: number; fat?: number };
+  meals?: unknown[];
+}
+
+interface WorkoutSession {
+  date: string;
+  muscleGroups?: string[];
+  exerciseLogs?: { exercise: string; sets?: number; reps?: number; weight?: number }[];
+}
+
+interface BodyMeasurement {
+  date: string;
+  weight?: number;
+}
+
+
 export interface WeeklyReport {
   weekStart: string;
   weekEnd: string;
@@ -107,17 +125,17 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
       if (nutritionData) {
         const parsed = JSON.parse(nutritionData);
         const goals = parsed.goals || { calories: 2000, protein: 150 };
-        const weekLogs = (parsed.dailyLogs || []).filter((log: any) => {
+        const weekLogs = (parsed.dailyLogs || []).filter((log: NutritionLog) => {
           const logDate = new Date(log.date);
           return logDate >= startDate && logDate <= endDate;
         });
 
         if (weekLogs.length > 0) {
-          const totalCals = weekLogs.reduce((sum: number, log: any) => sum + (log.totals?.calories || 0), 0);
-          const totalProt = weekLogs.reduce((sum: number, log: any) => sum + (log.totals?.protein || 0), 0);
-          const totalCarbs = weekLogs.reduce((sum: number, log: any) => sum + (log.totals?.carbs || 0), 0);
-          const totalFat = weekLogs.reduce((sum: number, log: any) => sum + (log.totals?.fat || 0), 0);
-          const totalMeals = weekLogs.reduce((sum: number, log: any) => sum + (log.meals?.length || 0), 0);
+          const totalCals = weekLogs.reduce((sum: number, log: NutritionLog) => sum + (log.totals?.calories || 0), 0);
+          const totalProt = weekLogs.reduce((sum: number, log: NutritionLog) => sum + (log.totals?.protein || 0), 0);
+          const totalCarbs = weekLogs.reduce((sum: number, log: NutritionLog) => sum + (log.totals?.carbs || 0), 0);
+          const totalFat = weekLogs.reduce((sum: number, log: NutritionLog) => sum + (log.totals?.fat || 0), 0);
+          const totalMeals = weekLogs.reduce((sum: number, log: NutritionLog) => sum + (log.meals?.length || 0), 0);
 
           report.nutrition = {
             avgCalories: Math.round(totalCals / weekLogs.length),
@@ -125,10 +143,10 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
             avgCarbs: Math.round(totalCarbs / weekLogs.length),
             avgFat: Math.round(totalFat / weekLogs.length),
             daysLogged: weekLogs.length,
-            daysMetCalorieGoal: weekLogs.filter((log: any) => 
+            daysMetCalorieGoal: weekLogs.filter((log: NutritionLog) => 
               log.totals?.calories >= goals.calories * 0.9 && log.totals?.calories <= goals.calories * 1.1
             ).length,
-            daysMetProteinGoal: weekLogs.filter((log: any) => log.totals?.protein >= goals.protein).length,
+            daysMetProteinGoal: weekLogs.filter((log: NutritionLog) => log.totals?.protein >= goals.protein).length,
             totalMeals,
           };
         }
@@ -142,7 +160,7 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
       const workoutHistory = localStorage.getItem(`liftmate_workout_history_${userId}`);
       if (workoutHistory) {
         const parsed = JSON.parse(workoutHistory);
-        const weekSessions = (parsed.sessions || []).filter((session: any) => {
+        const weekSessions = (parsed.sessions || []).filter((session: WorkoutSession) => {
           const sessionDate = new Date(session.date);
           return sessionDate >= startDate && sessionDate <= endDate;
         });
@@ -151,7 +169,7 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
         let totalCompletion = 0;
         let totalExercises = 0;
 
-        weekSessions.forEach((session: any) => {
+        weekSessions.forEach((session: WorkoutSession) => {
           session.muscleGroups?.forEach((mg: string) => allMuscleGroups.add(mg));
           totalCompletion += session.completionRate || 0;
           totalExercises += session.exercisesCompleted?.length || 0;
@@ -182,10 +200,10 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
       const measurementsData = localStorage.getItem(`liftmate_body_measurements_${userId}`);
       if (measurementsData) {
         const parsed = JSON.parse(measurementsData);
-        const weekMeasurements = (parsed.measurements || []).filter((m: any) => {
+        const weekMeasurements = (parsed.measurements || []).filter((m: BodyMeasurement) => {
           const mDate = new Date(m.date);
           return mDate >= startDate && mDate <= endDate;
-        }).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        }).sort((a: BodyMeasurement, b: BodyMeasurement) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         if (weekMeasurements.length >= 1) {
           report.measurements.endWeight = weekMeasurements[weekMeasurements.length - 1].weight;

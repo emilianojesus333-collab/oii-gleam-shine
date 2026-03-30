@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Dumbbell, Brain, Target, Calendar, Check } from "lucide-react";
+import { Dumbbell, Target, Calendar, Check } from "lucide-react";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 
 const steps = [
   { icon: Target, text: "A analisar o teu objetivo..." },
@@ -13,23 +14,22 @@ const Processing = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const { isSubscriptionValid, isTrialing, isLoading, checkSubscription } = useSubscriptionContext();
 
   useEffect(() => {
     const stepInterval = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev < steps.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
+      setCurrentStep((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
     }, 1000);
 
     const completeTimeout = setTimeout(() => {
       setCompleted(true);
     }, steps.length * 1000 + 500);
 
-    const navigateTimeout = setTimeout(() => {
-      navigate("/paywall", { replace: true });
+    const navigateTimeout = setTimeout(async () => {
+      // Re-check subscription before deciding where to send user
+      await checkSubscription(false);
+      const hasSub = isSubscriptionValid() || isTrialing;
+      navigate(hasSub ? "/home" : "/paywall", { replace: true });
     }, steps.length * 1000 + 1500);
 
     return () => {
@@ -37,7 +37,7 @@ const Processing = () => {
       clearTimeout(completeTimeout);
       clearTimeout(navigateTimeout);
     };
-  }, [navigate]);
+  }, [navigate, isSubscriptionValid, isTrialing, checkSubscription]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
@@ -68,10 +68,7 @@ const Processing = () => {
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
-              animate={{
-                opacity: isActive ? 1 : 0.3,
-                x: 0,
-              }}
+              animate={{ opacity: isActive ? 1 : 0.3, x: 0 }}
               transition={{ delay: index * 0.2, duration: 0.4 }}
               className="flex items-center gap-4"
             >
@@ -86,17 +83,9 @@ const Processing = () => {
                 animate={isActive && !isDone ? { scale: [1, 1.1, 1] } : {}}
                 transition={{ repeat: Infinity, duration: 1 }}
               >
-                {isDone ? (
-                  <Check className="h-6 w-6" />
-                ) : (
-                  <Icon className="h-6 w-6" />
-                )}
+                {isDone ? <Check className="h-6 w-6" /> : <Icon className="h-6 w-6" />}
               </motion.div>
-              <span
-                className={`text-lg font-medium transition-colors ${
-                  isActive ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
+              <span className={`text-lg font-medium transition-colors ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
                 {step.text}
               </span>
             </motion.div>
@@ -110,14 +99,13 @@ const Processing = () => {
         transition={{ delay: 0.5 }}
         className="mt-12"
       >
-        {!completed && (
+        {!completed ? (
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
             <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
             <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
           </div>
-        )}
-        {completed && (
+        ) : (
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

@@ -117,8 +117,8 @@ Deno.serve(async (req) => {
     let avgRpe: number | null = null;
     if (trend.length > 0) {
       const rpeValues = trend
-        .filter((s: any) => s.avg_rpe !== null)
-        .map((s: any) => s.avg_rpe);
+        .filter((s: WorkoutSet) => s.avg_rpe !== null)
+        .map((s: WorkoutSet) => s.avg_rpe);
       if (rpeValues.length > 0) {
         avgRpe = rpeValues.reduce((a: number, b: number) => a + b, 0) / rpeValues.length;
       }
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
 
     // 3d. Frequency Score
     const muscleFreq = frequencyData.find(
-      (f: any) => f.muscle_group === muscleGroup
+      (f: FatigueData) => f.muscle_group === muscleGroup
     );
     const trainingDays = muscleFreq?.training_days ?? 0;
     const frequencyScore =
@@ -270,7 +270,7 @@ Deno.serve(async (req) => {
 
     // ─── Step 8: Upsert progression log ───
     const latestSessionId = session_id;
-    const muscleVolume = volumeData.find((v: any) => v.muscle_group === muscleGroup);
+    const muscleVolume = volumeData.find((v: VolumeData) => v.muscle_group === muscleGroup);
     const incrementPct = suggestedIncrement ? suggestedIncrement.percentage : null;
 
     const logData = {
@@ -361,7 +361,7 @@ Deno.serve(async (req) => {
 
 // ─── Metric Helpers (inline, no cross-function calls) ───
 
-async function getExerciseTrend(supabase: any, userId: string, exerciseId: string) {
+async function getExerciseTrend(supabase: ReturnType<typeof createClient>, userId: string, exerciseId: string) {
   const { data: sets, error: setsError } = await supabase
     .from("workout_sets")
     .select("session_id, set_number, weight, reps, rpe")
@@ -372,7 +372,7 @@ async function getExerciseTrend(supabase: any, userId: string, exerciseId: strin
   if (setsError) throw setsError;
   if (!sets || sets.length === 0) return [];
 
-  const sessionIds = [...new Set(sets.map((s: any) => s.session_id))];
+  const sessionIds = [...new Set(sets.map((s: WorkoutSet) => s.session_id))];
   const { data: sessions, error: sessError } = await supabase
     .from("workout_sessions")
     .select("id, date, created_at")
@@ -381,29 +381,29 @@ async function getExerciseTrend(supabase: any, userId: string, exerciseId: strin
   if (sessError) throw sessError;
 
   const sortedSessions = (sessions || [])
-    .sort((a: any, b: any) => {
+    .sort((a: WorkoutSession, b: WorkoutSession) => {
       const dateCmp = new Date(b.date).getTime() - new Date(a.date).getTime();
       if (dateCmp !== 0) return dateCmp;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     })
     .slice(0, 3);
 
-  return sortedSessions.map((session: any) => {
+  return sortedSessions.map((session: WorkoutSession) => {
     const sessionSets = sets
-      .filter((s: any) => s.session_id === session.id)
-      .sort((a: any, b: any) => a.set_number - b.set_number);
+      .filter((s: WorkoutSet) => s.session_id === session.id)
+      .sort((a: WorkoutSet, b: WorkoutSet) => (a.set_number ?? 0) - (b.set_number ?? 0));
 
     const sessionVolume = sessionSets.reduce(
-      (sum: number, s: any) => sum + s.weight * s.reps, 0
+      (sum: number, s: WorkoutSet) => sum + s.weight * s.reps, 0
     );
-    const rpeValues = sessionSets.filter((s: any) => s.rpe !== null).map((s: any) => s.rpe);
+    const rpeValues = sessionSets.filter((s: WorkoutSet) => s.rpe !== null).map((s: WorkoutSet) => s.rpe);
     const avgRpe = rpeValues.length > 0
       ? rpeValues.reduce((a: number, b: number) => a + b, 0) / rpeValues.length
       : null;
 
     // Weighted avg load: Σ(weight × reps) / Σ(reps)
-    const totalVolume = sessionSets.reduce((sum: number, s: any) => sum + s.weight * s.reps, 0);
-    const totalReps = sessionSets.reduce((sum: number, s: any) => sum + s.reps, 0);
+    const totalVolume = sessionSets.reduce((sum: number, s: WorkoutSet) => sum + s.weight * s.reps, 0);
+    const totalReps = sessionSets.reduce((sum: number, s: WorkoutSet) => sum + s.reps, 0);
     const weightedAvgLoad = totalReps > 0 ? totalVolume / totalReps : 0;
 
     return {
@@ -416,7 +416,7 @@ async function getExerciseTrend(supabase: any, userId: string, exerciseId: strin
   });
 }
 
-async function getWeeklyVolume(supabase: any, userId: string) {
+async function getWeeklyVolume(supabase: ReturnType<typeof createClient>, userId: string) {
   const sevenDaysAgo = getDateNDaysAgo(6);
 
   const { data: sessions } = await supabase
@@ -432,17 +432,17 @@ async function getWeeklyVolume(supabase: any, userId: string) {
     .select("weight, reps, exercise_id")
     .eq("user_id", userId)
     .eq("set_type", "working")
-    .in("session_id", sessions.map((s: any) => s.id));
+    .in("session_id", sessions.map((s: WorkoutSession) => s.id));
 
   if (!sets || sets.length === 0) return [];
 
-  const exerciseIds = [...new Set(sets.map((s: any) => s.exercise_id))];
+  const exerciseIds = [...new Set(sets.map((s: WorkoutSet) => s.exercise_id))];
   const { data: exercises } = await supabase
     .from("exercises")
     .select("id, primary_muscle")
     .in("id", exerciseIds);
 
-  const exerciseMap = new Map((exercises || []).map((e: any) => [e.id, e.primary_muscle]));
+  const exerciseMap = new Map((exercises || []).map((e: Exercise) => [e.id, e.primary_muscle]));
   const volumeByMuscle: Record<string, number> = {};
 
   for (const set of sets) {
@@ -457,7 +457,7 @@ async function getWeeklyVolume(supabase: any, userId: string) {
   }));
 }
 
-async function getMuscleFrequency(supabase: any, userId: string) {
+async function getMuscleFrequency(supabase: ReturnType<typeof createClient>, userId: string) {
   const sevenDaysAgo = getDateNDaysAgo(6);
 
   const { data: sessions } = await supabase
@@ -473,18 +473,18 @@ async function getMuscleFrequency(supabase: any, userId: string) {
     .select("exercise_id, session_id")
     .eq("user_id", userId)
     .eq("set_type", "working")
-    .in("session_id", sessions.map((s: any) => s.id));
+    .in("session_id", sessions.map((s: WorkoutSession) => s.id));
 
   if (!sets || sets.length === 0) return [];
 
-  const exerciseIds = [...new Set(sets.map((s: any) => s.exercise_id))];
+  const exerciseIds = [...new Set(sets.map((s: WorkoutSet) => s.exercise_id))];
   const { data: exercises } = await supabase
     .from("exercises")
     .select("id, primary_muscle")
     .in("id", exerciseIds);
 
-  const exerciseMap = new Map((exercises || []).map((e: any) => [e.id, e.primary_muscle]));
-  const sessionDateMap = new Map(sessions.map((s: any) => [s.id, s.date]));
+  const exerciseMap = new Map((exercises || []).map((e: Exercise) => [e.id, e.primary_muscle]));
+  const sessionDateMap = new Map(sessions.map((s: WorkoutSession) => [s.id, s.date]));
   const freqByMuscle: Record<string, Set<string>> = {};
 
   for (const set of sets) {
@@ -500,7 +500,7 @@ async function getMuscleFrequency(supabase: any, userId: string) {
   }));
 }
 
-async function getAccumulatedFatigue(supabase: any, userId: string) {
+async function getAccumulatedFatigue(supabase: ReturnType<typeof createClient>, userId: string) {
   const sevenDaysAgo = getDateNDaysAgo(6);
   const threeDaysAgo = getDateNDaysAgo(2);
 
@@ -525,9 +525,9 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
     .select("weight, reps, session_id")
     .eq("user_id", userId)
     .eq("set_type", "working")
-    .in("session_id", sessions.map((s: any) => s.id));
+    .in("session_id", sessions.map((s: WorkoutSession) => s.id));
 
-  const sessionDateMap = new Map(sessions.map((s: any) => [s.id, s.date]));
+  const sessionDateMap = new Map(sessions.map((s: WorkoutSession) => [s.id, s.date]));
   const dailyVolumes: Record<string, number> = {};
 
   for (const set of sets || []) {
@@ -573,7 +573,7 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
 
 // ─── Utility Functions ───
 
-function calculateBaseWeight(trend: any[]): number {
+function calculateBaseWeight(trend: { avgVolume?: number; topWeight?: number }[]): number {
   // Weighted mean of weighted_avg_load: 50/30/20 for last 3 sessions
   if (trend.length === 1) return trend[0].weighted_avg_load;
   if (trend.length === 2) {
@@ -603,3 +603,39 @@ function getDateNDaysAgo(n: number): string {
   d.setDate(d.getDate() - n);
   return d.toISOString().split("T")[0];
 }
+interface WorkoutSet {
+  id?: string;
+  session_id?: string;
+  exercise_id?: string;
+  weight: number;
+  reps: number;
+  set_number?: number;
+  rpe?: number | null;
+  avg_rpe?: number | null;
+  [key: string]: unknown;
+}
+
+interface WorkoutSession {
+  id: string;
+  date?: string;
+  [key: string]: unknown;
+}
+
+interface Exercise {
+  id?: string;
+  name?: string;
+  primary_muscle?: string;
+  [key: string]: unknown;
+}
+
+interface VolumeData {
+  muscle_group?: string;
+  [key: string]: unknown;
+}
+
+interface FatigueData {
+  muscle_group?: string;
+  [key: string]: unknown;
+}
+
+
