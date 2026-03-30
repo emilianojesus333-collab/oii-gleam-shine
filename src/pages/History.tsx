@@ -110,9 +110,16 @@ export default function History() {
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : sessions.length === 0 ? (
-          <div className="text-center py-20">
-            <Dumbbell className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Sem treinos registados.</p>
+          <div className="text-center py-20 px-6">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Dumbbell className="w-8 h-8 text-primary/60" />
+            </div>
+            <p className="font-semibold text-foreground mb-1">Ainda sem treinos</p>
+            <p className="text-sm text-muted-foreground mb-6">Completa o teu primeiro treino para veres o histórico aqui.</p>
+            <Button onClick={() => navigate("/workout")} size="sm" className="gap-2">
+              <Dumbbell className="w-4 h-4" />
+              Fazer primeiro treino
+            </Button>
           </div>
         ) : (
           sessions.map((s, i) => {

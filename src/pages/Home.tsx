@@ -21,6 +21,8 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { FitnessScoreRadar } from "@/components/home/FitnessScoreRadar";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
+import { FirstUseCard } from "@/components/home/FirstUseCard";
+import { getWorkoutHistory } from "@/data/workoutHistory";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -101,11 +103,30 @@ const Home = () => {
     };
   }, [settings]);
 
-  const handleResetOnboarding = () => {
-    localStorage.removeItem("liftmate_onboarding");
-    localStorage.removeItem("liftmate_onboarded");
-    toast.success("Onboarding resetado!");
-    navigate("/");
+  const handleResetOnboarding = async () => {
+    try {
+      // Clear localStorage
+      const keysToRemove = Object.keys(localStorage).filter(
+        (key) => key.startsWith("liftmate_onboarding") || key.startsWith("liftmate_onboarded")
+      );
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      // Reset in Supabase so the redirect actually works
+      if (user?.id) {
+        await import("@/integrations/supabase/client").then(({ supabase }) =>
+          supabase
+            .from("user_settings")
+            .update({ has_completed_onboarding: false, onboarding_data: null })
+            .eq("user_id", user.id)
+        );
+      }
+
+      toast.success("Onboarding resetado!");
+      navigate("/onboarding", { replace: true });
+    } catch (error) {
+      console.error("Error resetting onboarding:", error);
+      toast.error("Erro ao resetar onboarding.");
+    }
   };
 
   // Light flicker animation state
@@ -114,12 +135,10 @@ const Home = () => {
   useEffect(() => {
     const flickerInterval = setInterval(() => {
       setIsFlickering(true);
-      setTimeout(() => setIsFlickering(false), 100);
-      setTimeout(() => setIsFlickering(true), 150);
-      setTimeout(() => setIsFlickering(false), 200);
-      setTimeout(() => setIsFlickering(true), 350);
-      setTimeout(() => setIsFlickering(false), 400);
-    }, 30000);
+      setTimeout(() => setIsFlickering(false), 80);
+      setTimeout(() => setIsFlickering(true), 120);
+      setTimeout(() => setIsFlickering(false), 170);
+    }, 60000);
 
     return () => clearInterval(flickerInterval);
   }, []);
@@ -127,6 +146,13 @@ const Home = () => {
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
   const fatigueIndex = settings?.fatigue_index ?? 0;
   const todayStats = getTodayStats();
+
+  // Detect first-use: no workout sessions at all
+  const isNewUser = useMemo(() => {
+    if (!user?.id) return false;
+    const history = getWorkoutHistory(user.id);
+    return !history.sessions || history.sessions.length === 0;
+  }, [user?.id]);
   
 
   return (
@@ -141,10 +167,7 @@ const Home = () => {
             y: imageY,
             scale: imageScale,
             opacity: imageOpacity,
-            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)'
-          }}
-          animate={{
-            filter: isFlickering ? 'brightness(0.3)' : 'brightness(1)'
+            filter: isFlickering ? 'brightness(0.7)' : 'brightness(1)'
           }}
           transition={{ duration: 0.05 }}
         />
@@ -266,6 +289,8 @@ const Home = () => {
 
       <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
         <NameAIBanner />
+
+        {isNewUser && <FirstUseCard />}
 
         <TodayWorkoutCard
           workout={todayWorkout}

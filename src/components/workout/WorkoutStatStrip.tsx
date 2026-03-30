@@ -68,16 +68,16 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
 
         const prs: ExercisePR[] = todayExerciseNames.map((exerciseName) => {
           const exerciseSets = (sets || []).filter(
-            (set: any) => set.exercises?.name && namesMatch(set.exercises.name, exerciseName)
+            (set: { exercises?: { name?: string }; weight?: number; reps?: number }) => set.exercises?.name && namesMatch(set.exercises.name, exerciseName)
           );
 
           if (exerciseSets.length > 0) {
-            const uniqueWeightsDesc = [...new Set(exerciseSets.map((set: any) => Number(set.weight)))]
+            const uniqueWeightsDesc = [...new Set(exerciseSets.map((set: { weight?: number }) => Number(set.weight)))]
               .sort((a, b) => b - a);
 
             const maxWeight = uniqueWeightsDesc[0] ?? 0;
             const previousMax = uniqueWeightsDesc[1] ?? null;
-            const latestTopSet = exerciseSets.find((set: any) => Number(set.weight) === maxWeight);
+            const latestTopSet = exerciseSets.find((set: { weight?: number; reps?: number }) => Number(set.weight) === maxWeight);
 
             return {
               name: exerciseName,

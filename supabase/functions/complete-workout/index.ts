@@ -91,11 +91,11 @@ Deno.serve(async (req) => {
       .eq("session_id", finalSessionId);
 
     if (plannedExercises && plannedExercises.length > 0) {
-      const aiExercises = plannedExercises.filter((e: any) => true); // all are AI-sourced
-      const completedAI = aiExercises.filter((e: any) => e.completed).length;
+      const aiExercises = plannedExercises.filter((_e: PlannedExercise) => true); // all are AI-sourced
+      const completedAI = aiExercises.filter((e: PlannedExercise) => e.completed).length;
       // Also count exercises being submitted now that match planned names
       const submittedNames = new Set(exerciseNames);
-      const additionalCompleted = aiExercises.filter((e: any) => !e.completed && submittedNames.has(e.exercise_name)).length;
+      const additionalCompleted = aiExercises.filter((e: PlannedExercise) => !e.completed && submittedNames.has(e.exercise_name)).length;
       completionRate = Math.round(((completedAI + additionalCompleted) / aiExercises.length) * 100);
     }
 
@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     }
 
     // ─── Step 3: Insert workout_sets ───
-    const setsToInsert: any[] = [];
+    const setsToInsert: WorkoutSet[] = [];
 
     for (const exercise of exercises) {
       const exerciseInfo = exerciseMap.get(exercise.name);
@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
     }
 
     // ─── Step 4: Call progression-engine for each unique exercise ───
-    const progressionResults: any[] = [];
+    const progressionResults: Record<string, unknown>[] = [];
     const uniqueExerciseIds = [...new Set(
       exercises
         .map((e) => exerciseMap.get(e.name)?.id)
@@ -248,7 +248,7 @@ Deno.serve(async (req) => {
         }
 
         return await response.json();
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(`[COMPLETE-WORKOUT] Progression fetch error for ${exerciseId}:`, err.message);
         return { exercise_id: exerciseId, error: err.message };
       }
@@ -301,7 +301,7 @@ Deno.serve(async (req) => {
       performance_score: performanceScore,
       fatigue_index: fatigueIndex,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[COMPLETE-WORKOUT] Error:", err);
     return jsonResponse({ error: err.message || "Internal server error" }, 500);
   }
@@ -309,7 +309,7 @@ Deno.serve(async (req) => {
 
 // ─── Celebration Detection ───
 async function detectCelebrations(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   userId: string,
   currentSessionId: string,
   exercises: ExerciseInput[],
@@ -330,9 +330,9 @@ async function detectCelebrations(
     .gte("date", twelveWeeksAgo)
     .neq("id", currentSessionId);
 
-  const historicalSessionIds = (historicalSessions || []).map((s: any) => s.id);
+  const historicalSessionIds = (historicalSessions || []).map((s: WorkoutSession) => s.id);
 
-  let historicalSets: any[] = [];
+  let historicalSets: WorkoutSet[] = [];
   if (historicalSessionIds.length > 0) {
     const { data: sets } = await supabase
       .from("workout_sets")
@@ -444,12 +444,12 @@ async function detectCelebrations(
 
 // ─── Performance Score Calculation ───
 async function calculatePerformanceScore(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   userId: string,
   sessionId: string,
   date: string,
   exercises: ExerciseInput[],
-  progressionResults: any[]
+  progressionResults: Record<string, unknown>[]
 ): Promise<number> {
   // 1. Completion Score (30%) — completion_rate is always 100 when finishing via this function
   const completionScore = 100 * 0.30;
@@ -468,7 +468,7 @@ async function calculatePerformanceScore(
     .limit(5);
 
   if (recentSessions && recentSessions.length > 0) {
-    const sessionIds = recentSessions.map((s: any) => s.id);
+    const sessionIds = recentSessions.map((s: WorkoutSession) => s.id);
     const { data: historicalSets } = await supabase
       .from("workout_sets")
       .select("weight, reps, session_id")
@@ -530,7 +530,7 @@ async function calculatePerformanceScore(
 
 // ─── Fatigue Index Calculation ───
 async function calculateFatigueIndex(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   userId: string,
   currentSessionId: string
 ): Promise<number> {
@@ -567,8 +567,8 @@ async function calculateFatigueIndex(
   const perfScores = perfRes.data || [];
 
   // ─── 1. Volume Score (50%) ───
-  const recentSessionIds = recentSessions.map((s: any) => s.id);
-  const historicalSessionIds = historicalSessions.map((s: any) => s.id);
+  const recentSessionIds = recentSessions.map((s: WorkoutSession) => s.id);
+  const historicalSessionIds = historicalSessions.map((s: WorkoutSession) => s.id);
 
   let volumeScore = 0;
 
@@ -591,14 +591,14 @@ async function calculateFatigueIndex(
     ]);
 
     const recentVolume = (recentSetsRes.data || []).reduce(
-      (sum: number, s: any) => sum + s.weight * s.reps, 0
+      (sum: number, s: WorkoutSet) => sum + s.weight * s.reps, 0
     );
 
     const histSets = historicalSetsRes.data || [];
     if (histSets.length > 0) {
       // Calculate weekly average from historical weeks
       const weekCount = Math.max(1, Math.ceil(historicalSessionIds.length > 0 ? 3 : 1));
-      const histVolume = histSets.reduce((sum: number, s: any) => sum + s.weight * s.reps, 0);
+      const histVolume = histSets.reduce((sum: number, s: WorkoutSet) => sum + s.weight * s.reps, 0);
       const avgWeeklyVolume = histVolume / weekCount;
 
       if (avgWeeklyVolume > 0) {
@@ -623,7 +623,7 @@ async function calculateFatigueIndex(
   // ─── 3. Performance Score (20%) ───
   let performanceComponent = 10; // default moderate
   const validScores = perfScores
-    .map((s: any) => s.performance_score)
+    .map((s: Record<string, unknown>) => s.performance_score)
     .filter((s: number | null) => s !== null) as number[];
 
   if (validScores.length > 0) {
@@ -641,7 +641,7 @@ async function calculateFatigueIndex(
 
 // ─── Muscle-Specific Fatigue ───
 async function updateMuscleFatigue(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   userId: string,
   exercises: ExerciseInput[],
   exerciseMap: Map<string, { id: string; primary_muscle: string; secondary_muscles: string[] | null; user_id: string | null }>,
@@ -749,6 +749,6 @@ async function updateMuscleFatigue(
 // ─── Utilities ───
 function round2(n: number) { return Math.round(n * 100) / 100; }
 function getDateNDaysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split("T")[0]; }
-function jsonResponse(body: any, status = 200) {
+function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }

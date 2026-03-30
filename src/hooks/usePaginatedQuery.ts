@@ -25,7 +25,7 @@ interface PaginatedQueryResult<T> {
 }
 
 // Simple in-memory cache - keyed by user_id for isolation
-const cache = new Map<string, { data: any[]; timestamp: number; totalCount: number }>();
+const cache = new Map<string, { data: unknown[]; timestamp: number; totalCount: number }>();
 
 // Clear all cache (called on logout)
 export const clearPaginatedQueryCache = () => {

@@ -116,7 +116,31 @@ Deno.serve(async (req) => {
 
 // ─── Handler 1: Weekly Volume by Muscle Group (rolling 7 days) ───
 
-async function getWeeklyVolume(supabase: any, userId: string) {
+interface TrainingSet {
+  id?: string;
+  session_id?: string;
+  exercise_id?: string;
+  weight: number;
+  reps: number;
+  set_number?: number;
+  rpe?: number | null;
+  [key: string]: unknown;
+}
+
+interface TrainingSession {
+  id: string;
+  date?: string;
+  [key: string]: unknown;
+}
+
+interface TrainingExercise {
+  id?: string;
+  primary_muscle?: string;
+  [key: string]: unknown;
+}
+
+
+async function getWeeklyVolume(supabase: ReturnType<typeof createClient>, userId: string) {
   // Get sessions from the last 7 days (today included)
   const sevenDaysAgo = getDateNDaysAgo(6);
 
@@ -129,7 +153,7 @@ async function getWeeklyVolume(supabase: any, userId: string) {
   if (sessionsError) throw sessionsError;
   if (!sessions || sessions.length === 0) return [];
 
-  const sessionIds = sessions.map((s: any) => s.id);
+  const sessionIds = sessions.map((s: TrainingSession) => s.id);
 
   const { data: sets, error: setsError } = await supabase
     .from("workout_sets")
@@ -142,7 +166,7 @@ async function getWeeklyVolume(supabase: any, userId: string) {
   if (!sets || sets.length === 0) return [];
 
   // Get exercise info for muscle mapping
-  const exerciseIds = [...new Set(sets.map((s: any) => s.exercise_id))];
+  const exerciseIds = [...new Set(sets.map((s: TrainingSet) => s.exercise_id))];
   const { data: exercises, error: exError } = await supabase
     .from("exercises")
     .select("id, primary_muscle")
@@ -151,7 +175,7 @@ async function getWeeklyVolume(supabase: any, userId: string) {
   if (exError) throw exError;
 
   const exerciseMap = new Map(
-    (exercises || []).map((e: any) => [e.id, e.primary_muscle])
+    (exercises || []).map((e: TrainingExercise) => [e.id, e.primary_muscle])
   );
 
   // Aggregate volume by muscle group
@@ -181,7 +205,7 @@ async function getWeeklyVolume(supabase: any, userId: string) {
 // ─── Handler 2: Exercise Trend (last 3 sessions) ───
 
 async function getExerciseTrend(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   userId: string,
   exerciseId: string
 ) {
@@ -197,7 +221,7 @@ async function getExerciseTrend(
   if (!sets || sets.length === 0) return [];
 
   // Get session dates
-  const sessionIds = [...new Set(sets.map((s: any) => s.session_id))];
+  const sessionIds = [...new Set(sets.map((s: TrainingSet) => s.session_id))];
   const { data: sessions, error: sessError } = await supabase
     .from("workout_sessions")
     .select("id, date, created_at")
@@ -208,7 +232,7 @@ async function getExerciseTrend(
 
   // Sort by date DESC, then created_at DESC for determinism
   const sortedSessions = (sessions || [])
-    .sort((a: any, b: any) => {
+    .sort((a: TrainingSession, b: TrainingSession) => {
       const dateCmp =
         new Date(b.date).getTime() - new Date(a.date).getTime();
       if (dateCmp !== 0) return dateCmp;
@@ -219,14 +243,14 @@ async function getExerciseTrend(
     .slice(0, 3);
 
   const sessionMap = new Map(
-    sortedSessions.map((s: any) => [s.id, s])
+    sortedSessions.map((s: TrainingSession) => [s.id, s])
   );
 
-  return sortedSessions.map((session: any) => {
+  return sortedSessions.map((session: TrainingSession) => {
     const sessionSets = sets
-      .filter((s: any) => s.session_id === session.id)
-      .sort((a: any, b: any) => a.set_number - b.set_number)
-      .map((s: any) => ({
+      .filter((s: TrainingSet) => s.session_id === session.id)
+      .sort((a: TrainingSet, b: TrainingSet) => (a.set_number ?? 0) - (b.set_number ?? 0))
+      .map((s: TrainingSet) => ({
         set_number: s.set_number,
         weight: s.weight,
         reps: s.reps,
@@ -234,12 +258,12 @@ async function getExerciseTrend(
       }));
 
     const sessionVolume = sessionSets.reduce(
-      (sum: number, s: any) => sum + s.weight * s.reps,
+      (sum: number, s: TrainingSet) => sum + s.weight * s.reps,
       0
     );
     const rpeValues = sessionSets
-      .filter((s: any) => s.rpe !== null)
-      .map((s: any) => s.rpe);
+      .filter((s: TrainingSet) => s.rpe !== null)
+      .map((s: TrainingSet) => s.rpe);
     const avgRpe =
       rpeValues.length > 0
         ? Math.round(
@@ -261,7 +285,7 @@ async function getExerciseTrend(
 
 // ─── Handler 3: Muscle Frequency (rolling 7 days) ───
 
-async function getMuscleFrequency(supabase: any, userId: string) {
+async function getMuscleFrequency(supabase: ReturnType<typeof createClient>, userId: string) {
   const sevenDaysAgo = getDateNDaysAgo(6);
 
   const { data: sessions, error: sessionsError } = await supabase
@@ -273,9 +297,9 @@ async function getMuscleFrequency(supabase: any, userId: string) {
   if (sessionsError) throw sessionsError;
   if (!sessions || sessions.length === 0) return [];
 
-  const sessionIds = sessions.map((s: any) => s.id);
+  const sessionIds = sessions.map((s: TrainingSession) => s.id);
   const sessionDateMap = new Map(
-    sessions.map((s: any) => [s.id, s.date])
+    sessions.map((s: TrainingSession) => [s.id, s.date])
   );
 
   const { data: sets, error: setsError } = await supabase
@@ -288,7 +312,7 @@ async function getMuscleFrequency(supabase: any, userId: string) {
   if (setsError) throw setsError;
   if (!sets || sets.length === 0) return [];
 
-  const exerciseIds = [...new Set(sets.map((s: any) => s.exercise_id))];
+  const exerciseIds = [...new Set(sets.map((s: TrainingSet) => s.exercise_id))];
   const { data: exercises, error: exError } = await supabase
     .from("exercises")
     .select("id, primary_muscle")
@@ -297,7 +321,7 @@ async function getMuscleFrequency(supabase: any, userId: string) {
   if (exError) throw exError;
 
   const exerciseMap = new Map(
-    (exercises || []).map((e: any) => [e.id, e.primary_muscle])
+    (exercises || []).map((e: TrainingExercise) => [e.id, e.primary_muscle])
   );
 
   const freqByMuscle: Record<
@@ -326,7 +350,7 @@ async function getMuscleFrequency(supabase: any, userId: string) {
 
 // ─── Handler 4: Weighted Intensity (rolling 14 days) ───
 
-async function getWeightedIntensity(supabase: any, userId: string) {
+async function getWeightedIntensity(supabase: ReturnType<typeof createClient>, userId: string) {
   const fourteenDaysAgo = getDateNDaysAgo(13);
 
   const { data: sessions, error: sessionsError } = await supabase
@@ -338,7 +362,7 @@ async function getWeightedIntensity(supabase: any, userId: string) {
   if (sessionsError) throw sessionsError;
   if (!sessions || sessions.length === 0) return [];
 
-  const sessionIds = sessions.map((s: any) => s.id);
+  const sessionIds = sessions.map((s: TrainingSession) => s.id);
 
   const { data: sets, error: setsError } = await supabase
     .from("workout_sets")
@@ -350,7 +374,7 @@ async function getWeightedIntensity(supabase: any, userId: string) {
   if (setsError) throw setsError;
   if (!sets || sets.length === 0) return [];
 
-  const exerciseIds = [...new Set(sets.map((s: any) => s.exercise_id))];
+  const exerciseIds = [...new Set(sets.map((s: TrainingSet) => s.exercise_id))];
   const { data: exercises, error: exError } = await supabase
     .from("exercises")
     .select("id, primary_muscle")
@@ -359,7 +383,7 @@ async function getWeightedIntensity(supabase: any, userId: string) {
   if (exError) throw exError;
 
   const exerciseMap = new Map(
-    (exercises || []).map((e: any) => [e.id, e.primary_muscle])
+    (exercises || []).map((e: TrainingExercise) => [e.id, e.primary_muscle])
   );
 
   const intensityByMuscle: Record<
@@ -407,7 +431,7 @@ async function getWeightedIntensity(supabase: any, userId: string) {
 
 // ─── Handler 5: Accumulated Fatigue ───
 
-async function getAccumulatedFatigue(supabase: any, userId: string) {
+async function getAccumulatedFatigue(supabase: ReturnType<typeof createClient>, userId: string) {
   const sevenDaysAgo = getDateNDaysAgo(6);
   const threeDaysAgo = getDateNDaysAgo(2);
 
@@ -432,9 +456,9 @@ async function getAccumulatedFatigue(supabase: any, userId: string) {
     };
   }
 
-  const sessionIds = sessions.map((s: any) => s.id);
+  const sessionIds = sessions.map((s: TrainingSession) => s.id);
   const sessionDateMap = new Map(
-    sessions.map((s: any) => [s.id, s.date])
+    sessions.map((s: TrainingSession) => [s.id, s.date])
   );
 
   const { data: sets, error: setsError } = await supabase

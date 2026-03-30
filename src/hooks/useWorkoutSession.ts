@@ -115,7 +115,7 @@ export function useWorkoutSession(sessionId: string | undefined) {
 
       setGroupedExercises(Object.values(grouped));
       setProgressionLogs((logsRes.data || []) as ProgressionLog[]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[useWorkoutSession]", err);
       setError(err.message || "Erro ao carregar sessão");
     } finally {

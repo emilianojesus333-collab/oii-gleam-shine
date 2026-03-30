@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AlertTriangle, ShieldAlert, ChevronRight, X, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FatigueAlertCardProps {
   fatigueIndex: number | null | undefined;
@@ -17,10 +18,12 @@ const getRecommendation = (index: number): string => {
 export const FatigueAlertCard = ({ fatigueIndex }: FatigueAlertCardProps) => {
   const [dismissed, setDismissed] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const alertKey = `liftmate_fatigue_alert_seen_${user?.id ?? "guest"}`;
 
   useEffect(() => {
     const today = new Date().toDateString();
-    const lastSeen = localStorage.getItem("liftmate_fatigue_alert_seen");
+    const lastSeen = localStorage.getItem(alertKey);
     if (lastSeen === today) {
       setDismissed(true);
     }
@@ -54,7 +57,7 @@ export const FatigueAlertCard = ({ fatigueIndex }: FatigueAlertCardProps) => {
   }[accentColor];
 
   const handleDismiss = () => {
-    localStorage.setItem("liftmate_fatigue_alert_seen", new Date().toDateString());
+    localStorage.setItem(alertKey, new Date().toDateString());
     setDismissed(true);
   };
 

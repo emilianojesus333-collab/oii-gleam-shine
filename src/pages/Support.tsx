@@ -56,13 +56,25 @@ const Support = () => {
 
     setSending(true);
     
-    // Simulate sending (in production, this would call an edge function)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Mensagem enviada! Responderemos em breve.");
-    setSubject("");
-    setMessage("");
-    setSending(false);
+    try {
+      // Open native mail client with pre-filled content
+      const supportEmail = "emilianojesus333@gmail.com";
+      const encodedSubject = encodeURIComponent(`[LiftMate Suporte] ${subject}`);
+      const encodedBody = encodeURIComponent(message);
+      const mailtoLink = `mailto:${supportEmail}?subject=${encodedSubject}&body=${encodedBody}`;
+      window.location.href = mailtoLink;
+      
+      // Small delay to allow mail client to open
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      toast.success("A abrir o teu cliente de email...");
+      setSubject("");
+      setMessage("");
+    } catch {
+      toast.error("Não foi possível abrir o email. Contacta-nos diretamente em emilianojesus333@gmail.com");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

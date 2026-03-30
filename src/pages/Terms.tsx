@@ -89,17 +89,47 @@ const Terms = () => {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-xl font-semibold">8. Alterações aos Termos</h2>
+          <h2 className="text-xl font-semibold">8. Cancelamento e Reembolsos</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Reservamo-nos o direito de modificar estes termos a qualquer momento. 
-            As alterações entram em vigor imediatamente após publicação na aplicação.
+            Pode cancelar a sua subscrição a qualquer momento através das definições da aplicação 
+            (Definições → Subscrição → Gerir subscrição). O cancelamento entra em vigor no final 
+            do período de faturação atual. Não são emitidos reembolsos parciais por períodos não utilizados.
+            Oferecemos reembolso total nos primeiros 7 dias após a primeira subscrição — contacte o 
+            suporte dentro desse prazo.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-xl font-semibold">9. Contacto</h2>
+          <h2 className="text-xl font-semibold">9. Período de Experimentação</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Para questões sobre estes termos, contacte-nos através das definições da aplicação.
+            O período de experimentação gratuito de 7 dias está disponível apenas para novos utilizadores. 
+            A subscrição é cobrada automaticamente no final do período de experimentação, salvo cancelamento 
+            antes do término. Apenas uma experimentação gratuita por conta.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">10. Lei Aplicável</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Estes termos são regidos pela legislação portuguesa e da União Europeia. 
+            Qualquer litígio será submetido à jurisdição exclusiva dos tribunais competentes de Portugal.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">11. Alterações aos Termos</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Reservamo-nos o direito de modificar estes termos a qualquer momento. 
+            As alterações entram em vigor 30 dias após publicação, exceto alterações exigidas por lei 
+            que entram em vigor imediatamente.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">12. Contacto</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Para questões sobre estes termos ou para exercer os seus direitos, contacte-nos: 
+            suporte disponível através das definições da aplicação (Definições → Suporte).
           </p>
         </section>
 

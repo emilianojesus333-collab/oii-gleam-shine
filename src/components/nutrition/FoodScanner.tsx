@@ -83,10 +83,10 @@ function setCachedResult(key: string, result: AnalysisResult) {
 /** Invoke with retry + timeout */
 async function invokeWithRetry<T>(
   fnName: string,
-  options: { body: any },
+  options: { body: unknown },
   maxRetries = MAX_RETRIES,
-): Promise<{ data: T; error: null } | { data: null; error: any }> {
-  let lastError: any = null;
+): Promise<{ data: T; error: null } | { data: null; error: unknown }> {
+  let lastError: unknown = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     if (attempt > 0) {

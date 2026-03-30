@@ -362,11 +362,11 @@ const Workout = () => {
         const storageKey = `liftmate_workout_history_${user.id}`;
         const history = JSON.parse(localStorage.getItem(storageKey) || '{"sessions":[]}');
         const todayStr = today.toISOString().split("T")[0];
-        history.sessions = history.sessions.filter((s: any) => s.date !== todayStr);
+        history.sessions = history.sessions.filter((s: { date?: string }) => s.date !== todayStr);
         localStorage.setItem(storageKey, JSON.stringify(history));
       }
 
-      checkFatigueNotification(result.fatigue_index);
+      checkFatigueNotification(result.fatigue_index, user?.id);
 
       const durationMin = Math.round((Date.now() - workoutStartRef.current) / 60000);
       const totalVolume = savedExercises.reduce((acc, e) => acc + (e.weight * e.reps * e.sets), 0);
@@ -383,7 +383,7 @@ const Workout = () => {
       });
 
       (window as any).__lastSessionId = result.session_id;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[Workout] Complete error:", err);
       toast.error("Erro ao concluir treino. Os dados não foram perdidos.");
     } finally {
@@ -392,6 +392,10 @@ const Workout = () => {
   };
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+  const hasScheduleSet = useMemo(() => {
+    const schedule = settings?.onboarding_data?.schedule || {};
+    return Object.values(schedule).some(v => v !== null && v !== undefined);
+  }, [settings]);
 
   const saveButtonLabel = useMemo(() => {
     if (!isGuidedMode || allAIDone) return undefined;
@@ -416,6 +420,29 @@ const Workout = () => {
           </div>
         </div>
       </div>
+
+      {/* First-use nudge: no schedule configured */}
+      {!hasScheduleSet && !isLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-6 mb-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-4 py-4 flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Configura o teu plano semanal</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Define os grupos musculares por dia nas Definições</p>
+          </div>
+          <button
+            onClick={() => navigate("/settings")}
+            className="text-xs font-semibold text-primary flex-shrink-0"
+          >
+            Ir →
+          </button>
+        </motion.div>
+      )}
 
       {isRestDay ? (
         <motion.div

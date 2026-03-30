@@ -195,7 +195,7 @@ Responde APENAS com o JSON, sem texto adicional.`;
 
       // ========== VALIDATE EXERCISE COUNT ==========
       const realExercises = (workout.exercises || []).filter(
-        (ex: any) => ex.category === "main" || ex.category === "accessory" || !ex.category
+        (ex: { category?: string }) => ex.category === "main" || ex.category === "accessory" || !ex.category
       );
       
       const totalReal = realExercises.length;
@@ -206,7 +206,7 @@ Responde APENAS com o JSON, sem texto adicional.`;
       }
 
       // Ensure all exercises have a category
-      workout.exercises = (workout.exercises || []).map((ex: any) => ({
+      workout.exercises = (workout.exercises || []).map((ex: { name?: string; sets?: number; reps?: string; rest?: number; notes?: string; category?: string; [key: string]: unknown }) => ({
         ...ex,
         category: ex.category || "main",
       }));
