@@ -589,7 +589,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       
       if (parsed.activeChallenges) {
         context.challenges.active = parsed.activeChallenges.map((c: { id?: string; title?: string; progress?: number; target?: number; unit?: string; completed?: boolean }) => ({
-          type: (c as any).type,
+          type: c.type,
           target: c.target,
           progress: c.progress || 0,
           completed: c.completed || false,
@@ -599,7 +599,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       
       if (parsed.unlockedBadges) {
         context.challenges.totalBadges = parsed.unlockedBadges.length;
-        context.challenges.recentBadges = parsed.unlockedBadges.slice(-3).map((b: any) => b.id || b);
+        context.challenges.recentBadges = parsed.unlockedBadges.slice(-3).map((b: { id?: string } | string) => b.id || b);
       }
     }
 

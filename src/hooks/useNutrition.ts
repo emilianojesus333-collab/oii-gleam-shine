@@ -124,7 +124,7 @@ const getCached = <T>(key: string): T | null => {
   return null;
 };
 
-const setCache = (key: string, data: Record<string, unknown>): void => {
+const setCache = <T>(key: string, data: T): void => {
   localCache.set(key, {
     data,
     timestamp: Date.now(),
@@ -343,7 +343,7 @@ export const useNutrition = () => {
           );
 
           // Cache the merged result
-          setCache(cacheKey2, mergedLogs as any);
+          setCache(cacheKey2, mergedLogs);
 
           return {
             ...prev,
