@@ -27,7 +27,7 @@ const getFatigueStatus = (fi: number) => {
   return { label: "Muito alta", color: "hsl(0, 84%, 60%)" };
 };
 
-const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { value?: number }[] }) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { value?: number; payload?: any }[] }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
