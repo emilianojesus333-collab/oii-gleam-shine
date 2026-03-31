@@ -343,7 +343,7 @@ export const useNutrition = () => {
           );
 
           // Cache the merged result
-          setCache(cacheKey2, mergedLogs);
+          setCache(cacheKey2, mergedLogs as any);
 
           return {
             ...prev,

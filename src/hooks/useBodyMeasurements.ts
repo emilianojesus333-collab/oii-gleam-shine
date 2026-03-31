@@ -131,7 +131,7 @@ export const useBodyMeasurements = () => {
           notes: m.notes || undefined,
         }));
 
-        setCache(cacheKey, formatted);
+        setCache(cacheKey, formatted as any);
 
         setState(prev => ({
           ...prev,
