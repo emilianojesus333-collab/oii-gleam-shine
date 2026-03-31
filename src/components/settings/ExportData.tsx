@@ -53,7 +53,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
     sessions.slice(0, 30).forEach((session) => {
       const muscleGroups = session.muscle_groups || [];
-      const exercisesCompleted = session.exercises_completed || [];
+      const exercisesCompleted = (session.exercises_completed as string[]) || [];
       const exerciseLogs = (session.exercise_logs as any[]) || [];
 
       html += `
