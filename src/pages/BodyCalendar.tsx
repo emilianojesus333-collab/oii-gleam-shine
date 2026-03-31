@@ -197,7 +197,7 @@ export default function BodyCalendar() {
     try {
       const current = settings?.onboarding_data || {};
       await updateSettings({
-        onboarding_data: { ...current, schedule },
+        onboarding_data: { ...current, schedule } as any,
       });
       toast.success("Calendário guardado!");
       setShowDayPicker(false);

@@ -138,6 +138,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/body-calendar"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <BodyCalendar />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/support" element={<Support />} />

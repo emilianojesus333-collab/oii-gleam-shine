@@ -57,7 +57,7 @@ const getCached = <T>(key: string): T | null => {
   return null;
 };
 
-const setCache = <T>(key: string, data: T): void => {
+const setCache = (key: string, data: Record<string, unknown>): void => {
   localCache.set(key, {
     data,
     timestamp: Date.now(),
