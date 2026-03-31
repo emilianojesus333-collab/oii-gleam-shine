@@ -171,8 +171,8 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
 
         weekSessions.forEach((session: WorkoutSession) => {
           session.muscleGroups?.forEach((mg: string) => allMuscleGroups.add(mg));
-          totalCompletion += (session as any).completionRate || 0;
-          totalExercises += (session as any).exercisesCompleted?.length || 0;
+          totalCompletion += session.completionRate || 0;
+          totalExercises += session.exercisesCompleted?.length || 0;
         });
 
         report.workout = {

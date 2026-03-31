@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, RotateCcw, Users } from "lucide-react";
 import { toast } from "sonner";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
 type Side = "front" | "back";
 type Gender = "male" | "female";
 type Schedule = Record<string, string[] | null>;
@@ -23,182 +21,279 @@ interface Muscle {
 }
 
 const DAYS_SHORT = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-const DAYS_FULL  = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
+const DAYS_FULL = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
 
-// ─── Muscles with precise anatomical SVG paths ───────────────────────────────
-// ViewBox: 0 0 200 420 — body centered, proportional
+// ─── MUSCLES ─────────────────────────────────────────────────────────────────
+// ViewBox: 0 0 200 440
+// Body is centered horizontally. All paths are tuned to sit INSIDE the silhouette.
 
 const MUSCLES: Muscle[] = [
   // ── FRONT ──────────────────────────────────────────────────────────────────
   {
     id: "chest",
     label: "Peito",
-    color: "#3B82F6",
+    color: "#60A5FA",
+    // Two pec slabs — broad, filling the chest area
     frontPath:
-      // left pec
-      "M 72 110 C 68 107 66 102 68 97 C 70 92 76 89 83 90 C 90 91 96 95 98 101 L 98 118 C 90 122 80 121 72 117 Z" +
-      // right pec
-      " M 128 110 C 132 107 134 102 132 97 C 130 92 124 89 117 90 C 110 91 104 95 102 101 L 102 118 C 110 122 120 121 128 117 Z",
+      "M 72 118 C 70 113 71 106 75 102 C 80 97 88 96 95 99 C 100 102 102 108 101 115 " +
+      "L 101 130 C 94 134 82 133 74 127 Z " +
+      "M 128 118 C 130 113 129 106 125 102 C 120 97 112 96 105 99 C 100 102 98 108 99 115 " +
+      "L 99 130 C 106 134 118 133 126 127 Z",
   },
   {
     id: "shoulders",
     label: "Ombros",
-    color: "#8B5CF6",
+    color: "#A78BFA",
+    // Rounded deltoid caps sitting on top of arms
     frontPath:
-      "M 55 103 C 52 97 54 88 60 84 C 67 80 76 82 80 89 L 73 108 C 66 108 60 107 55 103 Z" +
-      " M 145 103 C 148 97 146 88 140 84 C 133 80 124 82 120 89 L 127 108 C 134 108 140 107 145 103 Z",
+      "M 54 113 C 51 104 54 93 61 88 C 69 83 79 86 82 95 L 75 117 C 67 118 59 117 54 113 Z " +
+      "M 146 113 C 149 104 146 93 139 88 C 131 83 121 86 118 95 L 125 117 C 133 118 141 117 146 113 Z",
     backPath:
-      "M 55 103 C 52 97 54 88 60 84 C 67 80 76 82 80 89 L 73 108 C 66 108 60 107 55 103 Z" +
-      " M 145 103 C 148 97 146 88 140 84 C 133 80 124 82 120 89 L 127 108 C 134 108 140 107 145 103 Z",
+      "M 54 113 C 51 104 54 93 61 88 C 69 83 79 86 82 95 L 75 117 C 67 118 59 117 54 113 Z " +
+      "M 146 113 C 149 104 146 93 139 88 C 131 83 121 86 118 95 L 125 117 C 133 118 141 117 146 113 Z",
   },
   {
     id: "biceps",
     label: "Bíceps",
-    color: "#EC4899",
+    color: "#F472B6",
+    // Elongated shape on front of upper arm
     frontPath:
-      "M 53 112 C 49 120 48 132 50 143 C 54 143 60 142 63 140 C 64 130 65 120 66 112 Z" +
-      " M 147 112 C 151 120 152 132 150 143 C 146 143 140 142 137 140 C 136 130 135 120 134 112 Z",
+      "M 51 122 C 47 133 46 148 49 161 C 55 163 63 162 67 158 C 69 145 70 132 68 122 Z " +
+      "M 149 122 C 153 133 154 148 151 161 C 145 163 137 162 133 158 C 131 145 130 132 132 122 Z",
   },
   {
     id: "forearms",
     label: "Antebraços",
-    color: "#06B6D4",
+    color: "#22D3EE",
     frontPath:
-      "M 50 146 C 47 156 47 170 50 181 L 60 181 C 61 170 62 156 63 146 Z" +
-      " M 150 146 C 153 156 153 170 150 181 L 140 181 C 139 170 138 156 137 146 Z",
+      "M 48 164 C 45 176 45 193 48 206 L 61 206 C 63 193 64 176 63 164 Z " +
+      "M 152 164 C 155 176 155 193 152 206 L 139 206 C 137 193 136 176 137 164 Z",
     backPath:
-      "M 50 146 C 47 156 47 170 50 181 L 60 181 C 61 170 62 156 63 146 Z" +
-      " M 150 146 C 153 156 153 170 150 181 L 140 181 C 139 170 138 156 137 146 Z",
+      "M 48 164 C 45 176 45 193 48 206 L 61 206 C 63 193 64 176 63 164 Z " +
+      "M 152 164 C 155 176 155 193 152 206 L 139 206 C 137 193 136 176 137 164 Z",
   },
   {
     id: "abs",
     label: "Abdominais",
-    color: "#10B981",
+    color: "#34D399",
+    // 6 clearly separated blocks, 2 cols × 3 rows
     frontPath:
-      // 6 ab blocks in 2 columns
-      "M 89 122 L 99 122 L 99 132 L 89 132 Z" +
-      " M 101 122 L 111 122 L 111 132 L 101 132 Z" +
-      " M 89 134 L 99 134 L 99 144 L 89 144 Z" +
-      " M 101 134 L 111 134 L 111 144 L 101 144 Z" +
-      " M 89 146 L 99 146 L 99 156 L 89 156 Z" +
-      " M 101 146 L 111 146 L 111 156 L 101 156 Z",
+      "M 89 135 C 89 133 91 131 93 131 L 98 131 C 100 131 102 133 102 135 L 102 143 C 102 145 100 147 98 147 L 93 147 C 91 147 89 145 89 143 Z " +
+      "M 102 135 C 102 133 104 131 106 131 L 111 131 C 113 131 115 133 115 135 L 115 143 C 115 145 113 147 111 147 L 106 147 C 104 147 102 145 102 143 Z " +
+      "M 89 149 L 102 149 L 102 160 L 89 160 Z " +
+      "M 102 149 L 115 149 L 115 160 L 102 160 Z " +
+      "M 90 162 L 101 162 L 101 173 L 90 173 Z " +
+      "M 103 162 L 114 162 L 114 173 L 103 173 Z",
   },
   {
     id: "quads",
     label: "Quadríceps",
-    color: "#EAB308",
+    color: "#FCD34D",
+    // Wide tapered quads filling thigh area
     frontPath:
-      "M 78 195 C 76 208 75 228 76 248 L 90 248 C 92 228 93 208 92 195 Z" +
-      " M 122 195 C 124 208 125 228 124 248 L 110 248 C 108 228 107 208 108 195 Z",
+      "M 78 213 C 76 228 74 252 76 272 C 80 272 91 271 94 269 C 97 249 97 228 96 213 Z " +
+      "M 122 213 C 124 228 126 252 124 272 C 120 272 109 271 106 269 C 103 249 103 228 104 213 Z",
   },
   {
-    id: "calves_front",
+    id: "calves",
     label: "Gémeos",
-    color: "#14B8A6",
+    color: "#2DD4BF",
     frontPath:
-      "M 78 255 C 76 265 76 280 78 295 L 89 295 C 90 280 90 265 89 255 Z" +
-      " M 122 255 C 124 265 124 280 122 295 L 111 295 C 110 280 110 265 111 255 Z",
+      "M 78 279 C 76 292 76 312 78 326 L 92 326 C 94 312 94 292 92 279 Z " +
+      "M 122 279 C 124 292 124 312 122 326 L 108 326 C 106 312 106 292 108 279 Z",
+    backPath:
+      "M 78 282 C 76 295 76 315 78 330 L 92 330 C 94 315 94 295 92 282 Z " +
+      "M 122 282 C 124 295 124 315 122 330 L 108 330 C 106 315 106 295 108 282 Z",
   },
+
   // ── BACK ───────────────────────────────────────────────────────────────────
   {
     id: "traps",
     label: "Trapézios",
-    color: "#F59E0B",
+    color: "#FBBF24",
+    // Diamond shape from neck down to mid-back
     backPath:
-      "M 85 88 C 90 83 100 80 100 80 L 100 108 C 93 110 87 108 82 104 Z" +
-      " M 115 88 C 110 83 100 80 100 80 L 100 108 C 107 110 113 108 118 104 Z",
+      "M 86 93 C 91 87 100 84 100 84 L 100 116 C 93 119 87 115 82 109 Z " +
+      "M 114 93 C 109 87 100 84 100 84 L 100 116 C 107 119 113 115 118 109 Z",
   },
   {
-    id: "back_upper",
+    id: "lats",
     label: "Dorsais",
-    color: "#6366F1",
+    color: "#818CF8",
+    // Wide V-taper from armpit down to waist
     backPath:
-      "M 68 110 C 66 115 65 125 66 140 L 82 148 C 86 138 88 127 87 115 Z" +
-      " M 132 110 C 134 115 135 125 134 140 L 118 148 C 114 138 112 127 113 115 Z",
+      "M 65 118 C 62 126 61 140 63 158 C 68 162 78 166 84 164 C 87 150 88 136 86 120 Z " +
+      "M 135 118 C 138 126 139 140 137 158 C 132 162 122 166 116 164 C 113 150 112 136 114 120 Z",
   },
   {
     id: "rhomboids",
     label: "Rombóides",
-    color: "#A855F7",
+    color: "#C084FC",
     backPath:
-      "M 85 110 L 100 108 L 115 110 L 115 135 L 100 140 L 85 135 Z",
+      "M 86 120 L 100 116 L 114 120 L 114 148 L 100 154 L 86 148 Z",
   },
   {
     id: "lower_back",
     label: "Lombar",
-    color: "#84CC16",
+    color: "#86EFAC",
     backPath:
-      "M 85 145 L 115 145 L 112 175 L 88 175 Z",
+      "M 87 158 L 113 158 L 110 190 L 90 190 Z",
   },
   {
     id: "triceps",
     label: "Tríceps",
-    color: "#F97316",
+    color: "#FB923C",
+    // Back of upper arm
     backPath:
-      "M 53 112 C 49 120 48 132 50 143 C 54 143 60 142 63 140 C 64 130 65 120 66 112 Z" +
-      " M 147 112 C 151 120 152 132 150 143 C 146 143 140 142 137 140 C 136 130 135 120 134 112 Z",
+      "M 51 122 C 47 133 46 148 49 161 C 55 163 63 162 67 158 C 69 145 70 132 68 122 Z " +
+      "M 149 122 C 153 133 154 148 151 161 C 145 163 137 162 133 158 C 131 145 130 132 132 122 Z",
   },
   {
     id: "glutes",
     label: "Glúteos",
-    color: "#EF4444",
+    color: "#F87171",
+    // Two rounded glute shapes
     backPath:
-      "M 72 178 C 70 188 70 202 74 213 C 80 222 91 226 100 226 C 100 226 100 178 100 178 Z" +
-      " M 128 178 C 130 188 130 202 126 213 C 120 222 109 226 100 226 C 100 226 100 178 100 178 Z",
+      "M 74 194 C 71 207 71 224 76 236 C 83 249 96 254 100 254 L 100 194 Z " +
+      "M 126 194 C 129 207 129 224 124 236 C 117 249 104 254 100 254 L 100 194 Z",
   },
   {
     id: "hamstrings",
     label: "Isquiotibiais",
-    color: "#D946EF",
+    color: "#E879F9",
     backPath:
-      "M 76 230 C 74 243 73 262 75 280 L 90 280 C 91 262 92 243 91 230 Z" +
-      " M 124 230 C 126 243 127 262 125 280 L 110 280 C 109 262 108 243 109 230 Z",
-  },
-  {
-    id: "calves_back",
-    label: "Gémeos",
-    color: "#14B8A6",
-    backPath:
-      "M 77 285 C 75 296 75 312 77 325 L 89 325 C 90 312 90 296 89 285 Z" +
-      " M 123 285 C 125 296 125 312 123 325 L 111 325 C 110 312 110 296 111 285 Z",
+      "M 76 259 C 74 273 73 295 75 313 L 94 313 C 96 295 96 273 94 259 Z " +
+      "M 124 259 C 126 273 127 295 125 313 L 106 313 C 104 295 104 273 106 259 Z",
   },
 ];
 
-// ─── SVG Body Silhouettes ────────────────────────────────────────────────────
+// ─── BODY SILHOUETTES ─────────────────────────────────────────────────────────
+// These are anatomically-proportioned flat silhouettes.
+// The key is: shoulders wider than waist, clear neck, arms with elbow articulation,
+// legs with knee and calf definition, feet.
 
-// Male body — anatomically accurate flat-design silhouette
 const MALE_FRONT = `
-  M100,28 C91,28 84,35 84,44 C84,53 91,60 100,60 C109,60 116,53 116,44 C116,35 109,28 100,28 Z
-  M66,68 C60,70 56,76 54,82 L54,160 C54,163 57,165 60,165 L64,165 L64,188 C64,191 66,193 68,193 L72,193 L72,305 C72,308 74,310 77,310 L88,310 L88,193 L91,193 L91,165 L96,165 L96,193 L96,310 L96,340 C96,343 98,345 100,345 C102,345 104,343 104,340 L104,310 L104,193 L109,193 L109,165 L112,165 L112,193 L113,310 L123,310 C126,310 128,308 128,305 L128,193 L132,193 C134,193 136,191 136,188 L136,165 L140,165 C143,165 146,163 146,160 L146,82 C144,76 140,70 134,68 C126,64 113,61 100,61 C87,61 74,64 66,68 Z
+  M 100 20
+  C 91 20 83 27 83 37 C 83 47 91 54 100 54 C 109 54 117 47 117 37 C 117 27 109 20 100 20 Z
+
+  M 100 54
+  C 88 54 76 57 68 62
+  C 57 67 51 76 50 86
+  L 50 100
+  C 50 102 52 103 54 103
+  C 52 106 51 110 51 114
+  L 51 170
+  C 51 173 53 175 55 175
+  L 55 210
+  C 55 213 57 215 60 215
+  L 66 215
+  L 66 275 C 66 278 68 280 71 280
+  L 76 280
+  L 76 330 C 76 334 78 337 81 337 C 82 337 84 336 85 335
+  L 85 350 C 85 354 87 357 90 357 L 97 357 L 97 280 L 97 213
+  L 100 211 L 103 213
+  L 103 280 L 103 357 L 110 357 C 113 357 115 354 115 350
+  L 115 335 C 116 336 118 337 119 337 C 122 337 124 334 124 330
+  L 124 280 L 129 280 C 132 280 134 278 134 275
+  L 134 215 L 140 215 C 143 215 145 213 145 210
+  L 145 175 L 145 175 C 147 175 149 173 149 170
+  L 149 114 C 149 110 148 106 146 103
+  C 148 103 150 102 150 100
+  L 150 86 C 149 76 143 67 132 62
+  C 124 57 112 54 100 54 Z
 `;
 
 const MALE_BACK = `
-  M100,28 C91,28 84,35 84,44 C84,53 91,60 100,60 C109,60 116,53 116,44 C116,35 109,28 100,28 Z
-  M66,68 C60,70 56,76 54,82 L54,160 C54,163 57,165 60,165 L64,165 L64,188 C64,191 66,193 68,193 L72,193 L72,300 C72,303 74,305 77,305 L88,305 L88,340 C88,343 90,345 93,345 L96,345 L96,305 L96,225 L100,225 L104,225 L104,305 L104,345 L107,345 C110,345 112,343 112,340 L112,305 L123,305 C126,305 128,303 128,300 L128,193 L132,193 C134,193 136,191 136,188 L136,165 L140,165 C143,165 146,163 146,160 L146,82 C144,76 140,70 134,68 C126,64 113,61 100,61 C87,61 74,64 66,68 Z
+  M 100 20
+  C 91 20 83 27 83 37 C 83 47 91 54 100 54 C 109 54 117 47 117 37 C 117 27 109 20 100 20 Z
+
+  M 100 54
+  C 88 54 76 57 68 62
+  C 57 67 51 76 50 86
+  L 50 100
+  C 50 102 52 103 54 103
+  C 52 106 51 110 51 114
+  L 51 170 C 51 173 53 175 55 175
+  L 55 210 C 55 213 57 215 60 215
+  L 66 215 L 66 272 C 66 275 68 278 71 278
+  L 76 278 L 76 358 C 76 362 79 365 83 365 L 92 365 L 92 278
+  L 100 276 L 108 278
+  L 108 365 L 117 365 C 121 365 124 362 124 358
+  L 124 278 L 129 278 C 132 278 134 275 134 272
+  L 134 215 L 140 215 C 143 215 145 213 145 210
+  L 145 175 L 145 175 C 147 175 149 173 149 170
+  L 149 114 C 149 110 148 106 146 103
+  C 148 103 150 102 150 100
+  L 150 86 C 149 76 143 67 132 62
+  C 124 57 112 54 100 54 Z
 `;
 
 const FEMALE_FRONT = `
-  M100,28 C92,28 86,34 86,42 C86,50 92,56 100,56 C108,56 114,50 114,42 C114,34 108,28 100,28 Z
-  M70,64 C64,66 59,72 57,78 L57,155 C57,158 60,160 63,160 L66,160 L66,180 C66,183 68,185 70,185 L74,185 L74,300 C74,303 76,305 79,305 L88,305 L88,185 L90,185 L90,172 C94,176 97,178 100,178 C103,178 106,176 110,172 L110,185 L112,185 L112,305 L121,305 C124,305 126,303 126,300 L126,185 L130,185 C132,185 134,183 134,180 L134,160 L137,160 C140,160 143,158 143,155 L143,78 C141,72 136,66 130,64 C122,60 112,57 100,57 C88,57 78,60 70,64 Z
-  M84,158 C80,164 80,174 84,180 C88,186 100,188 116,180 C120,174 120,164 116,158 C112,152 88,152 84,158 Z
+  M 100 20
+  C 92 20 85 27 85 36 C 85 45 92 52 100 52 C 108 52 115 45 115 36 C 115 27 108 20 100 20 Z
+
+  M 100 52
+  C 90 52 79 55 71 60
+  C 61 65 56 73 55 83
+  L 55 96 C 55 98 57 100 59 100
+  C 57 103 56 107 56 111
+  L 56 163 C 56 166 58 168 61 168
+  L 61 188 C 61 191 63 193 66 193
+  L 70 193
+  L 70 230
+  C 68 234 67 240 68 248
+  C 72 264 86 272 100 272
+  C 114 272 128 264 132 248
+  C 133 240 132 234 130 230
+  L 130 193 L 134 193 C 137 193 139 191 139 188
+  L 139 168 C 142 168 144 166 144 163
+  L 144 111 C 144 107 143 103 141 100
+  C 143 100 145 98 145 96
+  L 145 83 C 144 73 139 65 129 60
+  C 121 55 110 52 100 52 Z
+
+  M 84 168 C 80 174 80 186 84 192
+  C 89 200 100 202 116 192
+  C 120 186 120 174 116 168
+  C 111 161 89 161 84 168 Z
 `;
 
 const FEMALE_BACK = `
-  M100,28 C92,28 86,34 86,42 C86,50 92,56 100,56 C108,56 114,50 114,42 C114,34 108,28 100,28 Z
-  M70,64 C64,66 59,72 57,78 L57,155 C57,158 60,160 63,160 L66,160 L66,180 C66,183 68,185 70,185 L74,185 L74,295 C74,298 76,300 79,300 L88,300 L88,340 C88,343 90,345 93,345 L96,345 L96,300 L96,230 L100,232 L104,230 L104,300 L104,345 L107,345 C110,345 112,343 112,340 L112,300 L121,300 C124,300 126,298 126,295 L126,185 L130,185 C132,185 134,183 134,180 L134,160 L137,160 C140,160 143,158 143,155 L143,78 C141,72 136,66 130,64 C122,60 112,57 100,57 C88,57 78,60 70,64 Z
-  M78,208 C75,218 75,232 79,241 C85,252 100,256 100,256 C100,256 115,252 121,241 C125,232 125,218 122,208 C116,198 84,198 78,208 Z
+  M 100 20
+  C 92 20 85 27 85 36 C 85 45 92 52 100 52 C 108 52 115 45 115 36 C 115 27 108 20 100 20 Z
+
+  M 100 52
+  C 90 52 79 55 71 60
+  C 61 65 56 73 55 83
+  L 55 96 C 55 98 57 100 59 100
+  C 57 103 56 107 56 111
+  L 56 163 C 56 166 58 168 61 168
+  L 61 188 C 61 191 63 193 66 193
+  L 70 193
+  L 70 268
+  C 74 282 87 292 100 292
+  C 113 292 126 282 130 268
+  L 130 193 L 134 193 C 137 193 139 191 139 188
+  L 139 168 C 142 168 144 166 144 163
+  L 144 111 C 144 107 143 103 141 100
+  C 143 100 145 98 145 96
+  L 145 83 C 144 73 139 65 129 60
+  C 121 55 110 52 100 52 Z
+
+  M 70 293 L 76 355 C 76 359 79 362 83 362 L 92 362 L 92 293 Z
+  M 130 293 L 124 355 C 124 359 121 362 117 362 L 108 362 L 108 293 Z
 `;
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarProps) => {
-  const [side, setSide] = useState<Side>("front");
-  const [gender, setGender] = useState<Gender>("male");
-  const [flipping, setFlipping] = useState(false);
+  const [side, setSide]               = useState<Side>("front");
+  const [gender, setGender]           = useState<Gender>("male");
+  const [flipping, setFlipping]       = useState(false);
   const [selectedMuscle, setSelectedMuscle] = useState<Muscle | null>(null);
-  const [localSchedule, setLocalSchedule] = useState<Schedule>(schedule);
-  const [hovered, setHovered] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [localSchedule, setLocalSchedule]   = useState<Schedule>(schedule);
+  const [hovered, setHovered]         = useState<string | null>(null);
+  const [saving, setSaving]           = useState(false);
   const touchX = useRef(0);
 
   const visibleMuscles = MUSCLES.filter((m) =>
@@ -210,12 +305,8 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
     return side === "front" ? FEMALE_FRONT : FEMALE_BACK;
   };
 
-  const getMuscleId = (muscle: Muscle) => muscle.label;
-
-  const getMuscleScheduledDays = (muscle: Muscle): string[] => {
-    const label = getMuscleId(muscle);
-    return DAYS_FULL.filter((d) => localSchedule[d]?.includes(label));
-  };
+  const getMuscleScheduledDays = (muscle: Muscle): string[] =>
+    DAYS_FULL.filter((d) => localSchedule[d]?.includes(muscle.label));
 
   const isScheduled = (muscle: Muscle) => getMuscleScheduledDays(muscle).length > 0;
 
@@ -226,7 +317,7 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
     setTimeout(() => {
       setSide((s) => (s === "front" ? "back" : "front"));
       setFlipping(false);
-    }, 180);
+    }, 200);
   };
 
   const handleMuscleClick = (m: Muscle) => {
@@ -234,12 +325,11 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
   };
 
   const toggleDay = (muscle: Muscle, dayFull: string) => {
-    const label = getMuscleId(muscle);
     setLocalSchedule((prev) => {
       const current = prev[dayFull] || [];
-      const updated = current.includes(label)
-        ? current.filter((x) => x !== label)
-        : [...current, label];
+      const updated = current.includes(muscle.label)
+        ? current.filter((x) => x !== muscle.label)
+        : [...current, muscle.label];
       return { ...prev, [dayFull]: updated.length ? updated : null };
     });
   };
@@ -261,13 +351,14 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
   return (
     <div className="space-y-3">
-      {/* Controls row */}
+
+      {/* Controls */}
       <div className="flex items-center justify-between gap-2">
         <motion.button
           whileTap={{ scale: 0.93 }}
           onClick={flipSide}
-          className="flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold text-white/60"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
+          className="flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold"
+          style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.65)" }}
         >
           <RotateCcw size={13} />
           {side === "front" ? "Ver costas" : "Ver frente"}
@@ -278,8 +369,8 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
           onClick={() => { setGender((g) => g === "male" ? "female" : "male"); setSelectedMuscle(null); }}
           className="flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold"
           style={{
-            background: gender === "female" ? "rgba(236,72,153,0.12)" : "rgba(99,102,241,0.12)",
-            border: `1px solid ${gender === "female" ? "rgba(236,72,153,0.28)" : "rgba(99,102,241,0.28)"}`,
+            background: gender === "female" ? "rgba(236,72,153,0.13)" : "rgba(99,102,241,0.13)",
+            border: `1px solid ${gender === "female" ? "rgba(236,72,153,0.3)" : "rgba(99,102,241,0.3)"}`,
             color: gender === "female" ? "#EC4899" : "#818CF8",
           }}
         >
@@ -290,87 +381,102 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Body canvas */}
       <div
-        className="relative rounded-3xl overflow-hidden flex items-center justify-center"
-        style={{ background: "linear-gradient(160deg, #0D1520 0%, #0A1018 100%)", minHeight: 340 }}
+        className="relative rounded-3xl flex items-center justify-center overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, #0A1628 0%, #060D18 100%)",
+          minHeight: 380,
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
         onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
         onTouchEnd={(e) => { if (Math.abs(touchX.current - e.changedTouches[0].clientX) > 45) flipSide(); }}
       >
-        {/* Subtle radial glow behind body */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 55% 60% at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 70%)" }}
-        />
+        {/* Ambient radial glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 60% 70% at 50% 42%, rgba(59,130,246,0.05) 0%, transparent 70%)",
+        }} />
 
         <motion.svg
-          viewBox="0 0 200 370"
-          className="w-48 relative z-10"
+          viewBox="0 0 200 390"
           animate={{ scaleX: flipping ? 0 : 1 }}
-          transition={{ duration: 0.18 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          style={{ width: "46%", maxWidth: 168, position: "relative", zIndex: 10 }}
         >
-          {/* Body silhouette */}
+          <defs>
+            {/* Subtle inner glow for active muscles */}
+            <filter id="mGlow" x="-15%" y="-15%" width="130%" height="130%">
+              <feGaussianBlur stdDeviation="2" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+
+          {/* Body silhouette — dark blue-grey fill */}
           <path
             d={getBodyPath()}
-            fill="#152030"
-            stroke="#1E3448"
-            strokeWidth="1"
+            fill="#1B2D42"
+            stroke="#253D58"
+            strokeWidth="0.7"
           />
 
           {/* Muscle zones */}
           {visibleMuscles.map((muscle) => {
             const path = side === "front" ? muscle.frontPath : muscle.backPath;
             if (!path) return null;
-            const isActive = selectedMuscle?.id === muscle.id;
-            const isHov = hovered === muscle.id;
-            const sched = isScheduled(muscle);
+            const isActive   = selectedMuscle?.id === muscle.id;
+            const isHov      = hovered === muscle.id;
+            const sched      = isScheduled(muscle);
 
             return (
-              <g key={muscle.id}>
-                <path
-                  d={path}
-                  fill={muscle.color}
-                  fillOpacity={isActive ? 0.92 : isHov ? 0.7 : sched ? 0.52 : 0.28}
-                  stroke={muscle.color}
-                  strokeWidth={isActive ? 1.2 : 0.4}
-                  strokeOpacity={isActive ? 0.9 : 0.5}
-                  rx="2"
-                  style={{ cursor: "pointer", transition: "fill-opacity 0.15s, stroke-width 0.15s" }}
-                  onClick={() => handleMuscleClick(muscle)}
-                  onMouseEnter={() => setHovered(muscle.id)}
-                  onMouseLeave={() => setHovered(null)}
-                />
-                {/* Scheduled badge */}
-                {sched && !isActive && (() => {
-                  // Small dot overlay — position varies by muscle
-                  return null; // handled by opacity
-                })()}
-              </g>
+              <path
+                key={muscle.id}
+                d={path}
+                fill={muscle.color}
+                fillOpacity={isActive ? 0.96 : isHov ? 0.75 : sched ? 0.58 : 0.24}
+                stroke={muscle.color}
+                strokeWidth={isActive ? 1.4 : sched ? 0.7 : 0.25}
+                strokeOpacity={isActive ? 1 : sched ? 0.9 : 0.5}
+                filter={isActive ? "url(#mGlow)" : undefined}
+                style={{ cursor: "pointer", transition: "fill-opacity 0.15s, stroke-width 0.15s" }}
+                onClick={() => handleMuscleClick(muscle)}
+                onMouseEnter={() => setHovered(muscle.id)}
+                onMouseLeave={() => setHovered(null)}
+              />
             );
           })}
 
-          {/* Floating label for hovered/selected */}
+          {/* Floating label */}
           {(hovered || selectedMuscle) && (() => {
             const m = MUSCLES.find((x) => x.id === (selectedMuscle?.id || hovered));
             if (!m) return null;
             const days = getMuscleScheduledDays(m);
+            const txt  = days.length
+              ? `${m.label}  ·  ${days.map((d) => DAYS_SHORT[DAYS_FULL.indexOf(d)]).join(" ")}`
+              : m.label;
             return (
               <g>
-                <rect x="30" y="4" width="140" height="28" rx="10" fill="rgba(5,10,18,0.88)" />
-                <text x="100" y="14" textAnchor="middle" fill={m.color} fontSize="9.5" fontWeight="700" fontFamily="system-ui" dy="0.35em">
-                  {m.label}
-                  {days.length > 0 ? `  ·  ${days.map(d => DAYS_SHORT[DAYS_FULL.indexOf(d)]).join(" ")}` : ""}
+                <rect x="18" y="6" width="164" height="22" rx="11" fill="rgba(4,12,24,0.92)" />
+                <text
+                  x="100" y="17"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill={m.color}
+                  fontSize="8.5"
+                  fontWeight="700"
+                  fontFamily="system-ui,-apple-system,sans-serif"
+                >
+                  {txt}
                 </text>
               </g>
             );
           })()}
         </motion.svg>
 
-        {/* Swipe hint */}
-        <p className="absolute bottom-2 left-0 right-0 text-center text-[9px] text-white/20">
+        <p className="absolute bottom-3 left-0 right-0 text-center"
+          style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: "0.05em" }}>
           ← desliza para rodar →
         </p>
       </div>
 
-      {/* Day picker — expands below when muscle is selected */}
+      {/* Day picker */}
       <AnimatePresence>
         {selectedMuscle && (
           <motion.div
@@ -381,84 +487,81 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div
-              className="rounded-2xl p-4"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-            >
+            <div className="rounded-2xl p-4" style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}>
               {/* Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ background: selectedMuscle.color }} />
+                  <div className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ background: selectedMuscle.color }} />
                   <span className="text-sm font-bold text-white">{selectedMuscle.label}</span>
-                  <span className="text-xs text-white/40">— escolhe os dias</span>
+                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.38)" }}>— dias</span>
                 </div>
                 <button
                   onClick={() => setSelectedMuscle(null)}
-                  className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center"
+                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.07)" }}
                 >
-                  <X size={12} className="text-white/50" />
+                  <X size={12} style={{ color: "rgba(255,255,255,0.5)" }} />
                 </button>
               </div>
 
-              {/* Day pills */}
+              {/* Day grid */}
               <div className="grid grid-cols-7 gap-1.5 mb-4">
                 {DAYS_SHORT.map((day, i) => {
                   const active = getMuscleScheduledDays(selectedMuscle).includes(DAYS_FULL[i]);
                   return (
                     <motion.button
                       key={day}
-                      whileTap={{ scale: 0.88 }}
+                      whileTap={{ scale: 0.86 }}
                       onClick={() => toggleDay(selectedMuscle, DAYS_FULL[i])}
                       className="flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all"
                       style={{
-                        background: active ? `${selectedMuscle.color}20` : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${active ? selectedMuscle.color + "50" : "rgba(255,255,255,0.07)"}`,
+                        background: active ? `${selectedMuscle.color}1E` : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${active ? selectedMuscle.color + "60" : "rgba(255,255,255,0.07)"}`,
                       }}
                     >
-                      <span
-                        className="text-[10px] font-bold"
-                        style={{ color: active ? selectedMuscle.color : "rgba(255,255,255,0.38)" }}
-                      >
+                      <span className="text-[10px] font-bold" style={{
+                        color: active ? selectedMuscle.color : "rgba(255,255,255,0.36)",
+                      }}>
                         {day}
                       </span>
-                      <div
-                        className="w-2.5 h-2.5 rounded-full transition-all"
-                        style={{ background: active ? selectedMuscle.color : "rgba(255,255,255,0.1)" }}
-                      />
+                      <div className="w-2.5 h-2.5 rounded-full transition-all" style={{
+                        background: active ? selectedMuscle.color : "rgba(255,255,255,0.1)",
+                      }} />
                     </motion.button>
                   );
                 })}
               </div>
 
-              {/* Save button */}
+              {/* Save */}
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => saveDay(selectedMuscle)}
                 disabled={saving}
-                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
                 style={{ background: selectedMuscle.color, color: "#fff" }}
               >
-                {saving ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Check size={15} />
-                    Guardar {selectedMuscle.label}
-                  </>
-                )}
+                {saving
+                  ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : <><Check size={15} />Guardar {selectedMuscle.label}</>
+                }
               </motion.button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Scheduled summary chips */}
+      {/* Summary chips */}
       {MUSCLES.some((m) => isScheduled(m)) && (
-        <div
-          className="rounded-2xl p-3"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-2">
+        <div className="rounded-2xl p-3" style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2"
+            style={{ color: "rgba(255,255,255,0.28)" }}>
             Plano configurado
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -466,19 +569,20 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
               <button
                 key={m.id}
                 onClick={() => handleMuscleClick(m)}
-                className="text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all"
+                className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
                 style={{
                   background: `${m.color}18`,
                   color: m.color,
                   border: `1px solid ${m.color}35`,
                 }}
               >
-                {m.label} · {getMuscleScheduledDays(m).map(d => DAYS_SHORT[DAYS_FULL.indexOf(d)]).join(" ")}
+                {m.label} · {getMuscleScheduledDays(m).map((d) => DAYS_SHORT[DAYS_FULL.indexOf(d)]).join(" ")}
               </button>
             ))}
           </div>
         </div>
       )}
+
     </div>
   );
 };

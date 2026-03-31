@@ -126,7 +126,7 @@ export const AIWorkoutGenerator = ({
       }
     } catch (error: unknown) {
       console.error("Error generating workout:", error);
-      toast.error((error as Error).message || t("aiWorkout.error"));
+      toast.error(error.message || t("aiWorkout.error"));
     } finally {
       setIsGenerating(false);
     }

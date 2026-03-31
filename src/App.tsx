@@ -23,7 +23,6 @@ import Support from "./pages/Support";
 import FAQ from "./pages/FAQ";
 import WorkoutSummary from "./pages/WorkoutSummary";
 import History from "./pages/History";
-import BodyCalendar from "./pages/BodyCalendar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -135,14 +134,6 @@ const App = () => (
               element={
                 <ProtectedRoute requireSubscription>
                   <History />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/body-calendar"
-              element={
-                <ProtectedRoute requireSubscription>
-                  <BodyCalendar />
                 </ProtectedRoute>
               }
             />

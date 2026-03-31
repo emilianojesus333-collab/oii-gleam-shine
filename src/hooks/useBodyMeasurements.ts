@@ -57,7 +57,7 @@ const getCached = <T>(key: string): T | null => {
   return null;
 };
 
-const setCache = (key: string, data: Record<string, unknown>): void => {
+const setCache = <T>(key: string, data: T): void => {
   localCache.set(key, {
     data,
     timestamp: Date.now(),
@@ -131,7 +131,7 @@ export const useBodyMeasurements = () => {
           notes: m.notes || undefined,
         }));
 
-        setCache(cacheKey, formatted as any);
+        setCache(cacheKey, formatted);
 
         setState(prev => ({
           ...prev,

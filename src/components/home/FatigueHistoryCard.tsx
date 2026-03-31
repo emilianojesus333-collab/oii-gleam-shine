@@ -29,7 +29,7 @@ interface ChartDataPoint {
   color: string;
 }
 
-const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { value?: number; name?: string; payload?: any }[] }) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { value?: number; name?: string }[] }) => {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload as ChartDataPoint;
   return (
