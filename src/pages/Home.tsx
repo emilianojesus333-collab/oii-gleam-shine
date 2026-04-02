@@ -288,7 +288,7 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
+      <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-5 home-card-shadows">
         <NameAIBanner />
 
         {isNewUser && <FirstUseCard />}
@@ -298,6 +298,8 @@ const Home = () => {
           stimulus={trainingStimulus}
           isRestDay={isRestDay}
         />
+
+        <WorkoutCarouselCard />
 
         <StatusCarousel />
 
