@@ -170,9 +170,9 @@ export const useWeeklyReport = (userId?: string): WeeklyReport | null => {
         let totalExercises = 0;
 
         weekSessions.forEach((session: WorkoutSession) => {
-          session.muscleGroups?.forEach((mg: string) => allMuscleGroups.add(mg));
-          totalCompletion += session.completionRate || 0;
-          totalExercises += session.exercisesCompleted?.length || 0;
+          (session as any).muscleGroups?.forEach((mg: string) => allMuscleGroups.add(mg));
+          totalCompletion += (session as any).completionRate || 0;
+          totalExercises += (session as any).exercisesCompleted?.length || 0;
         });
 
         report.workout = {
