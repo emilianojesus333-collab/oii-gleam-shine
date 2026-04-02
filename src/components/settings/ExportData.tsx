@@ -52,8 +52,8 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     html += `<p style="color: #666;">Total de sessões: ${sessions.length}</p>`;
 
     sessions.slice(0, 30).forEach((session) => {
-      const muscleGroups = session.muscle_groups || [];
-      const exercisesCompleted = session.exercises_completed || [];
+      const muscleGroups = (session.muscle_groups || []) as string[];
+      const exercisesCompleted = (session.exercises_completed || []) as string[];
       const exerciseLogs = (session.exercise_logs as any[]) || [];
 
       html += `
