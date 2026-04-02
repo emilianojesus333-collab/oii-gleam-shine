@@ -19,7 +19,6 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { FitnessScoreRadar } from "@/components/home/FitnessScoreRadar";
-import { WorkoutCarouselCard } from "@/components/home/WorkoutCarouselCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
 import { FirstUseCard } from "@/components/home/FirstUseCard";
@@ -288,7 +287,7 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <main className="relative z-10 flex-1 px-4 sm:px-6 space-y-5 home-card-shadows">
+      <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
         <NameAIBanner />
 
         {isNewUser && <FirstUseCard />}
@@ -298,8 +297,6 @@ const Home = () => {
           stimulus={trainingStimulus}
           isRestDay={isRestDay}
         />
-
-        <WorkoutCarouselCard />
 
         <StatusCarousel />
 

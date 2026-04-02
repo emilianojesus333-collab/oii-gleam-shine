@@ -69,7 +69,7 @@ export const useNativePushNotifications = () => {
       setState(prev => ({ ...prev, isRegistered: true }));
       return true;
     } catch (err: unknown) {
-      const errorMessage = (err as any).message || 'Erro ao registar notificações push';
+      const errorMessage = err.message || 'Erro ao registar notificações push';
       setError(errorMessage);
       console.error('Push registration error:', err);
       return false;

@@ -73,18 +73,6 @@ export function FitnessScoreRadar() {
 
   const hasData = metrics.some((m) => m.value > 0);
 
-  // Generate summary text
-  const getSummaryText = () => {
-    const sorted = [...metrics].sort((a, b) => b.value - a.value);
-    const strongest = sorted[0];
-    const weakest = sorted[sorted.length - 1];
-    if (strongest.value === 0) return "Começa a treinar para ver o teu score.";
-    const parts: string[] = [];
-    if (strongest.value >= 6) parts.push(`${strongest.label} forte`);
-    if (weakest.value <= 3) parts.push(`${weakest.label} a melhorar`);
-    return parts.length > 0 ? parts.join(" · ") : "Progresso equilibrado";
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -99,19 +87,6 @@ export function FitnessScoreRadar() {
         </div>
       ) : (
         <div className="relative">
-          {/* Score summary header */}
-          <div className="flex items-center justify-between mb-1 px-1">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Fitness Score</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-foreground">{totalScore.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">/10</span>
-            </div>
-          </div>
-
-          {/* Summary text */}
-          <p className="text-xs text-muted-foreground px-1 mb-2">{getSummaryText()}</p>
 
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
