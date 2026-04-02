@@ -95,7 +95,7 @@ async function invokeWithRetry<T>(
 
     try {
       const result = await Promise.race([
-        invokeWithAuth<T>(fnName, options),
+        invokeWithAuth<T>(fnName, options as any),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('__timeout__')), ANALYSIS_TIMEOUT)
         ),
