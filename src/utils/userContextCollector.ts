@@ -589,7 +589,7 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       
       if (parsed.activeChallenges) {
         context.challenges.active = parsed.activeChallenges.map((c: { id?: string; title?: string; progress?: number; target?: number; unit?: string; completed?: boolean }) => ({
-          type: c.type,
+          type: (c as any).type,
           target: c.target,
           progress: c.progress || 0,
           completed: c.completed || false,
