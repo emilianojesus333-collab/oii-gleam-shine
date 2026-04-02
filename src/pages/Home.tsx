@@ -19,6 +19,7 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { FitnessScoreRadar } from "@/components/home/FitnessScoreRadar";
+import { WorkoutCarouselCard } from "@/components/home/WorkoutCarouselCard";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
 import { FirstUseCard } from "@/components/home/FirstUseCard";
