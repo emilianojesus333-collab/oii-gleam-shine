@@ -147,13 +147,8 @@ const Home = () => {
   const fatigueIndex = settings?.fatigue_index ?? 0;
   const todayStats = getTodayStats();
 
-  // Detect first-use: no workout sessions at all
-  const isNewUser = useMemo(() => {
-    if (!user?.id) return false;
-    const history = getWorkoutHistory(user.id);
-    return !history.sessions || history.sessions.length === 0;
-  }, [user?.id]);
-  
+
+
 
   return (
     <div ref={containerRef} className="flex min-h-screen flex-col bg-black pb-20 sm:pb-24 mobile-scroll">
