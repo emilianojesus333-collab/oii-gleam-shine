@@ -52,13 +52,13 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
     html += `<p style="color: #666;">Total de sessões: ${sessions.length}</p>`;
 
     sessions.slice(0, 30).forEach((session) => {
-      const muscleGroups = session.muscle_groups || [];
-      const exercisesCompleted = session.exercises_completed || [];
+      const muscleGroups = (session.muscle_groups as string[]) || [];
+      const exercisesCompleted = (session.exercises_completed as string[]) || [];
       const exerciseLogs = (session.exercise_logs as any[]) || [];
 
       html += `
         <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 10px 0;">
-          <h3 style="margin: 0 0 10px 0;">${formatDate(session.date)} - ${muscleGroups.join(' + ')}</h3>
+          <h3 style="margin: 0 0 10px 0;">${formatDate(session.date as string)} - ${muscleGroups.join(' + ')}</h3>
           <p style="margin: 5px 0; color: #666;">Exercícios: ${exercisesCompleted.length} | Taxa: ${session.completion_rate || 0}%</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
             <thead>
