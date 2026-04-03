@@ -34,9 +34,9 @@ function getWorkoutName(workout: string | null, isRestDay: boolean): string {
   if (isRestDay) return "Rest day";
   if (!workout) return "Treino livre";
   const parts = workout.split(/[•+]/).map((s) => s.trim()).filter(Boolean);
-  if (parts.length === 1) return `${parts[0]} day`;
-  if (parts.length === 2) return `${parts[0]} & ${parts[1]} day`;
-  return parts.join(" · ") + " day";
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return `${parts[0]} & ${parts[1]}`;
+  return parts.join(" · ");
 }
 
 export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutCardProps) {
