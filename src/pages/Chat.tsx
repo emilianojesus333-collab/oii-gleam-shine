@@ -4,7 +4,7 @@ import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, Audio
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
-import { BottomNav } from "@/components/BottomNav";
+
 import { QuickCommandsSheet } from "@/components/chat/QuickCommandsSheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
