@@ -49,7 +49,7 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
       <motion.h2 key={workoutName} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="leading-tight text-white text-xl font-semibold" style={{ letterSpacing: "-0.02em", marginBottom: 10 }}>
         {workoutName}
       </motion.h2>
-      <motion.p key={tip} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="leading-relaxed" style={{ fontSize: 15, color: "rgba(255,255,255,0.52)", fontStyle: "italic", marginBottom: 28, maxWidth: 300 }}>
+      <motion.p key={tip} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="leading-relaxed text-sm" style={{ color: "rgba(255,255,255,0.52)", fontStyle: "italic", marginBottom: 28, maxWidth: 300 }}>
         {tip}
       </motion.p>
       <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/workout")} className="flex items-center justify-center gap-2 font-semibold" style={{ width: 312, height: 56, borderRadius: 16, backgroundColor: isRestDay ? "#1F2937" : "#2563EB", color: isRestDay ? "rgba(255,255,255,0.5)" : "#fff", fontSize: 15, border: "none", cursor: "pointer", boxShadow: isRestDay ? "none" : "0 4px 20px rgba(37,99,235,0.35)" }}>
