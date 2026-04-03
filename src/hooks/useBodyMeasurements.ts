@@ -41,7 +41,7 @@ const CACHE_TTL = 5 * 60 * 1000;
 const getStorageKey = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`;
 
 interface CacheEntry {
-  data: Record<string, unknown>;
+  data: unknown;
   timestamp: number;
   expiresAt: number;
 }
