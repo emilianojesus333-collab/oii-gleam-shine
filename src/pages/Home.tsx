@@ -285,8 +285,6 @@ const Home = () => {
       <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
         <NameAIBanner />
 
-        {isNewUser && <FirstUseCard />}
-
         <TodayWorkoutCard
           workout={todayWorkout}
           stimulus={trainingStimulus}

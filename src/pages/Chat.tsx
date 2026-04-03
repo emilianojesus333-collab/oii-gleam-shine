@@ -476,7 +476,7 @@ const Chat = () => {
           </div>
         </SheetContent>
       </Sheet>
-      <BottomNav />
+      
       
     </div>);
 
