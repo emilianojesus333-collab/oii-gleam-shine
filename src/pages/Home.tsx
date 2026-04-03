@@ -21,6 +21,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { FitnessScoreRadar } from "@/components/home/FitnessScoreRadar";
 import { PerformanceMetricsPanel } from "@/components/home/PerformanceMetricsPanel";
 import { StatusCarousel } from "@/components/home/StatusCarousel";
+import { RecoveryRingsCard } from "@/components/home/RecoveryRingsCard";
 
 
 
@@ -290,6 +291,8 @@ const Home = () => {
           stimulus={trainingStimulus}
           isRestDay={isRestDay}
         />
+
+        <RecoveryRingsCard />
 
         <StatusCarousel />
 

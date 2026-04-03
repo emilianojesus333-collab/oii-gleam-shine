@@ -55,31 +55,8 @@ export const StatusCarousel = () => {
   const offset = circumference - pct / 100 * circumference;
 
   slides.push(
-    <div key="muscle-and-weekly" className="space-y-3">
-      {/* 2x2 Muscle Recovery Grid */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {displayMuscles.map((muscle) =>
-        <div
-          key={muscle.muscle_group}
-          className="rounded-xl bg-[hsl(220,13%,12%)] px-3.5 py-3 flex flex-col gap-2 shadow-lg shadow-black/20 h-[5.5rem]">
-          
-            <span className="text-sm font-bold text-foreground">
-              {getMuscleLabel(muscle.muscle_group)}
-            </span>
-            <div className="h-1.5 w-full rounded-full bg-muted-foreground/15 overflow-hidden">
-              <div
-              className={`h-full rounded-full transition-all ${getBarColor(muscle.status)}`}
-              style={{ width: `${getBarWidth(muscle)}%` }} />
-            
-            </div>
-            <span className={`text-xs font-semibold ${getStatusColor(muscle.status)}`}>
-              {getStatusLabel(muscle.status)}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Weekly Progress inline */}
+    <div key="weekly-progress" className="space-y-3">
+      {/* Weekly Progress */}
       <div className="rounded-2xl p-4 shadow-lg shadow-black/20 bg-[#380439]/[0.43]">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
@@ -92,7 +69,6 @@ export const StatusCarousel = () => {
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
                 transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }} />
-              
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xs font-black text-foreground leading-none">
@@ -115,7 +91,6 @@ export const StatusCarousel = () => {
             key={i}
             className="h-1.5 flex-1 rounded-full transition-all"
             style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }} />
-
           )}
         </div>
       </div>
