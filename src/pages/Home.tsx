@@ -292,6 +292,8 @@ const Home = () => {
           isRestDay={isRestDay}
         />
 
+        <RecoveryRingsCard />
+
         <StatusCarousel />
 
         <FitnessScoreRadar />
