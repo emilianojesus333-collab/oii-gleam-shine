@@ -52,7 +52,7 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
       <motion.p key={tip} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="leading-relaxed text-sm" style={{ color: "rgba(255,255,255,0.52)", fontStyle: "italic", marginBottom: 28, maxWidth: 300 }}>
         {tip}
       </motion.p>
-      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/workout")} className="flex items-center justify-center gap-2 font-semibold rounded-md" style={{ width: 312, height: 28, backgroundColor: isRestDay ? "#1F2937" : "#2563EB", color: isRestDay ? "rgba(255,255,255,0.5)" : "#fff", fontSize: 12, border: "none", cursor: "pointer", boxShadow: isRestDay ? "none" : "0 4px 20px rgba(37,99,235,0.35)" }}>
+      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/workout")} className="flex items-center justify-center gap-2 font-semibold" style={{ width: 312, height: 28, borderRadius: 14, backgroundColor: isRestDay ? "#1F2937" : "#2563EB", color: isRestDay ? "rgba(255,255,255,0.5)" : "#fff", fontSize: 12, border: "none", cursor: "pointer", boxShadow: isRestDay ? "none" : "0 4px 20px rgba(37,99,235,0.35)" }}>
         {isRestDay ? (<><Leaf style={{ width: 16, height: 16 }} />Ver sugestão leve</>) : (<><Dumbbell style={{ width: 16, height: 16 }} />Iniciar treino</>)}
       </motion.button>
     </motion.div>
