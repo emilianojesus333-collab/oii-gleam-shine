@@ -46,7 +46,7 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="px-1 mb-2">
-      <motion.h2 key={workoutName} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="font-black leading-tight text-white" style={{ fontSize: 36, letterSpacing: "-0.02em", marginBottom: 10 }}>
+      <motion.h2 key={workoutName} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="leading-tight text-white text-xl font-semibold" style={{ letterSpacing: "-0.02em", marginBottom: 10 }}>
         {workoutName}
       </motion.h2>
       <motion.p key={tip} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="leading-relaxed" style={{ fontSize: 15, color: "rgba(255,255,255,0.52)", fontStyle: "italic", marginBottom: 28, maxWidth: 300 }}>
