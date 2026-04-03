@@ -141,8 +141,7 @@ export function RecoveryRingsCard() {
             fill="rgba(255,255,255,0.35)"
             fontSize={9}
             fontWeight={600}
-            textTransform="uppercase"
-            letterSpacing="0.08em"
+            style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}
           >
             GRUPOS
           </text>
