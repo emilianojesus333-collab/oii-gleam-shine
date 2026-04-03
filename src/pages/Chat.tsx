@@ -4,7 +4,7 @@ import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, Audio
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
-import { BottomNav } from "@/components/BottomNav";
+
 import { QuickCommandsSheet } from "@/components/chat/QuickCommandsSheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -225,7 +225,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#0B0F14] pb-16">
+    <div className="flex h-[100dvh] flex-col bg-[#0B0F14]">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
         <button
@@ -476,7 +476,7 @@ const Chat = () => {
           </div>
         </SheetContent>
       </Sheet>
-      <BottomNav />
+      
       
     </div>);
 
