@@ -224,40 +224,6 @@ const Home = () => {
       </AnimatePresence>
 
       {/* Week Calendar */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="relative z-10 px-4 sm:px-6 py-3 sm:py-4"
-      >
-        <div className="flex justify-between gap-1">
-          {weekSchedule.map((item, index) => (
-            <motion.div
-              key={item.fullDay}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15 + index * 0.03 }}
-              className="flex-col flex-1 flex items-center justify-start"
-            >
-              <span className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2">{item.shortDay}</span>
-              <div
-                className={`flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center transition-all ${
-                  item.isToday
-                    ? "rounded-lg sm:rounded-xl bg-muted/50"
-                    : item.workout && item.workout !== "Descanso"
-                    ? "rounded-lg sm:rounded-xl border border-dashed border-muted-foreground/40"
-                    : ""
-                }`}
-              >
-                <span className="text-base sm:text-lg font-semibold text-muted-foreground">
-                  {item.date}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
       <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
         <NameAIBanner />
 
