@@ -51,7 +51,7 @@ const Home = () => {
   const imageScale = useTransform(scrollY, [0, 300], [1, 1.1]);
   const imageOpacity = useTransform(scrollY, [0, 200], [1, 0.3]);
 
-  const { todayWorkout, weekSchedule, trainingStimulus } = useMemo(() => {
+  const { todayWorkout, trainingStimulus } = useMemo(() => {
     const userSchedule = settings?.onboarding_data?.schedule || {};
     const userGoal = settings?.onboarding_data?.goal || null;
 
