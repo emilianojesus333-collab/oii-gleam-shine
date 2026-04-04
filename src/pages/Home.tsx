@@ -73,31 +73,8 @@ const Home = () => {
     };
     const stimulus = userGoal ? stimulusMap[userGoal] || "Hoje é dia de treino" : "Hoje é dia de treino";
 
-    const schedule = [];
-    const currentDayOfWeek = today.getDay();
-    const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
-
-    for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(today.getDate() + mondayOffset + i);
-      const dayIndex = date.getDay();
-      const dayName = weekDaysMap[dayIndex];
-      const dayGroups = userSchedule[dayName] || null;
-      const dayWorkout = dayGroups
-        ? Array.isArray(dayGroups) ? dayGroups.join(" + ") : dayGroups
-        : null;
-      schedule.push({
-        shortDay: shortDays[dayIndex],
-        fullDay: dayName,
-        workout: dayWorkout,
-        date: date.getDate(),
-        isToday: date.toDateString() === today.toDateString()
-      });
-    }
-
     return {
       todayWorkout: workout,
-      weekSchedule: schedule,
       trainingStimulus: stimulus
     };
   }, [settings]);
