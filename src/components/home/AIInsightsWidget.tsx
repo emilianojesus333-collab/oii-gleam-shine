@@ -1,166 +1,131 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, ChevronRight, Lock, Calendar, BicepsFlexed } from "lucide-react";
+import { Zap, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 
-interface CoachingTip {
-  category: string;
-  title: string;
-  message: string;
-  priority: string;
-}
-
-const COACHING_STORAGE_PREFIX = 'liftmate_ai_coaching_';
-const PHYSIQUE_STORAGE_PREFIX = 'liftmate_physique_evaluation_';
-const EVALUATION_COOLDOWN_DAYS = 15;
+const CARD_PATH = "M12,0 L348,0 Q360,0 360,12 L360,72 Q360,84 348,84 L12,84 Q0,84 0,70 L0,14 Q0,0 12,0 Z";
 
 export const AIInsightsWidget = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [topTip, setTopTip] = useState<CoachingTip | null>(null);
-  const [daysUntilEval, setDaysUntilEval] = useState<number | null>(null);
-  const [canEvaluate, setCanEvaluate] = useState(true);
-  const [lastScore, setLastScore] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    // Load coaching tips using user-scoped key
-    const coachingData = localStorage.getItem(`${COACHING_STORAGE_PREFIX}${user.id}`);
-    if (coachingData) {
-      try {
-        const data = JSON.parse(coachingData);
-        if (data.tips && Array.isArray(data.tips) && data.tips.length > 0) {
-          const highPriority = data.tips.find((t: CoachingTip) => t.priority === 'high');
-          setTopTip(highPriority || data.tips[0]);
-        }
-      } catch (e) {
-        console.error('Error loading coaching data:', e);
-      }
-    }
-
-    // Load physique evaluation status using user-scoped key
-    const physiqueData = localStorage.getItem(`${PHYSIQUE_STORAGE_PREFIX}${user.id}`);
-    if (physiqueData) {
-      try {
-        const data = JSON.parse(physiqueData);
-        if (data.lastEvaluationDate) {
-          const lastDate = new Date(data.lastEvaluationDate);
-          const now = new Date();
-          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          const evalDay = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
-          const daysSinceEval = Math.floor((today.getTime() - evalDay.getTime()) / (1000 * 60 * 60 * 24));
-
-          if (daysSinceEval > 0 && daysSinceEval < EVALUATION_COOLDOWN_DAYS) {
-            setCanEvaluate(false);
-            setDaysUntilEval(EVALUATION_COOLDOWN_DAYS - daysSinceEval);
-          } else {
-            setCanEvaluate(true);
-            setDaysUntilEval(null);
-          }
-        }
-
-        if (data.lastResults?.analysis?.overallScore != null && typeof data.lastResults.analysis.overallScore === 'number') {
-          setLastScore(data.lastResults.analysis.overallScore);
-        }
-      } catch (e) {
-        console.error('Error loading physique data:', e);
-      }
-    }
-  }, [user?.id]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45 }}
-      className="space-y-3">
-
-      <h3 className="text-lg font-bold flex items-center gap-2 text-destructive-foreground">
-        
+    >
+      <h3 style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.01em", marginBottom: 10 }}>
         Insights IA
       </h3>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* Coaching Tip Card */}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')} className="px-[16px] py-[16px] border rounded-2xl text-center text-primary-foreground border-black bg-cyan-950 hover:bg-cyan-800">
-
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-[80px] h-[30px] text-sky-400 my-0 mx-0" />
-            <span className="text-xs text-left text-cyan-950">​</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* Card A — Criar treino com IA */}
+        <motion.div
+          whileTap={{ scale: 0.985 }}
+          onClick={() => navigate("/workout")}
+          style={{ position: "relative", width: "100%", height: 84, cursor: "pointer" }}
+        >
+          <svg
+            viewBox="0 0 360 84"
+            preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+          >
+            <path d={CARD_PATH} fill="#0E1825" stroke="rgba(96,165,250,0.16)" strokeWidth={1} />
+          </svg>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              padding: "0 20px",
+              gap: 12,
+            }}
+          >
+            <Zap size={22} color="#60A5FA" style={{ opacity: 0.5, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.65)" }}>
+                Criar treino com IA
+              </div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>
+                Gera um plano personalizado com base nos teus objetivos e recuperação.
+              </div>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate("/workout"); }}
+              style={{
+                background: "rgba(59,130,246,0.2)",
+                color: "#60A5FA",
+                border: "1px solid rgba(96,165,250,0.3)",
+                borderRadius: 4,
+                padding: "7px 16px",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            >
+              GERAR
+            </button>
           </div>
-          {topTip ?
-          <>
-              <p className="text-sm font-semibold text-white/80 line-clamp-2 mb-1">
-                {topTip.title}
-              </p>
-              <p className="text-xs text-white/50 line-clamp-2">
-                {topTip.message}
-              </p>
-            </> :
+        </motion.div>
 
-          <>
-              <p className="text-sm font-semibold mb-1 text-white text-left">
-                ​Criar um treino com IA    
-              </p>
-              <p className="text-xs text-primary">
-                Toca para gerar
-              </p>
-            </>
-          }
-          <ChevronRight className="w-4 h-4 text-white/30 absolute right-3 top-1/2 -translate-y-1/2" />
-        </motion.button>
-
-        {/* Physique Evaluation Card */}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/settings')}
-          className="rounded-2xl p-4 text-left bg-gradient-to-br from-purple-500/20 to-pink-500/10 border relative overflow-hidden text-[#1b1b1d] border-primary-foreground bg-[#111311]">
-
-          <div className="flex items-center gap-2 mb-2">
-            <BicepsFlexed className="h-[30px] w-[96px] text-purple-400" />
-            <span className="text-xs text-white/50">​</span>
+        {/* Card B — Avaliação física */}
+        <motion.div
+          whileTap={{ scale: 0.985 }}
+          onClick={() => navigate("/chat")}
+          style={{ position: "relative", width: "100%", height: 84, cursor: "pointer" }}
+        >
+          <svg
+            viewBox="0 0 360 84"
+            preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+          >
+            <path d={CARD_PATH} fill="#120E1F" stroke="rgba(167,139,250,0.16)" strokeWidth={1} />
+          </svg>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              padding: "0 20px",
+              gap: 12,
+            }}
+          >
+            <Heart size={22} color="#A78BFA" style={{ opacity: 0.5, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.65)" }}>
+                Avaliação física
+              </div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>
+                Identifica os teus pontos fortes e fracos para melhorar o plano.
+              </div>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate("/chat"); }}
+              style={{
+                background: "rgba(139,92,246,0.2)",
+                color: "#A78BFA",
+                border: "1px solid rgba(167,139,250,0.3)",
+                borderRadius: 4,
+                padding: "7px 16px",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            >
+              GERAR
+            </button>
           </div>
-          
-          {canEvaluate ?
-          <>
-              <p className="text-sm font-semibold mb-1 text-left text-white">
-                {lastScore ? 'Nova Avaliação' : 'Avaliação Física'}
-              </p>
-              <p className="text-xs text-left text-purple-400">
-                {lastScore ? `Última: ${lastScore.toFixed(1)}/10` : 'Descobre o teu nivel atual'}
-              </p>
-              <div className="absolute top-2 right-2">
-                <span className="flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-secondary-foreground"></span>
-                  
-                </span>
-              </div>
-            </> :
-
-          <>
-              <div className="flex items-center gap-1.5 mb-1">
-                <Lock className="w-3 h-3 text-orange-400" />
-                <p className="text-sm font-semibold text-white/80">
-                  Bloqueada
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-white/50">
-                <Calendar className="w-3 h-3" />
-                <span>Em {daysUntilEval} dias</span>
-              </div>
-              {lastScore &&
-            <p className="text-xs text-purple-400/70 mt-1">
-                  Score: {lastScore.toFixed(1)}/10
-                </p>
-            }
-            </>
-          }
-        </motion.button>
+        </motion.div>
       </div>
-    </motion.div>);
-
+    </motion.div>
+  );
 };
