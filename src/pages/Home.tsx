@@ -35,8 +35,6 @@ const weekDaysMap: Record<number, string> = {
   6: "Sábado"
 };
 
-const shortDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
