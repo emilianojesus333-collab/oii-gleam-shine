@@ -12,7 +12,7 @@ import {
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
-"flex min-h-[320px] w-full flex-col rounded-none border-0 bg-[#0F0F0F] p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }};
+  "flex min-h-[320px] w-full flex-col rounded-none border-0 bg-[#0F0F0F] p-5 border-l-2 border-l-white/[0.08]";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
