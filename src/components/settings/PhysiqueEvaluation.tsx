@@ -236,7 +236,7 @@ export const PhysiqueEvaluation = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-purple-500/10 via-card to-pink-500/10 rounded-[20px] p-5 border border-purple-500/20"
+        className="bg-[#0F0F0F] rounded-none p-5 border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">

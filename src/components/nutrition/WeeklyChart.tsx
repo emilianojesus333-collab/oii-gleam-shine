@@ -20,7 +20,7 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-2xl border border-white/10 bg-black">
+      className="p-4 rounded-none border-0 bg-[#0F0F0F]" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
 
       <h3 className="font-semibold mb-4 text-white">Últimos 7 dias</h3>
       

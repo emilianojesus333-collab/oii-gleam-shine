@@ -329,7 +329,7 @@ export const AICoaching = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-500/10 via-card to-cyan-500/10 rounded-[20px] p-5 border h-full border-black bg-[#111311]">
+      className="bg-[#0F0F0F] rounded-none p-5 border-0 h-full" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
