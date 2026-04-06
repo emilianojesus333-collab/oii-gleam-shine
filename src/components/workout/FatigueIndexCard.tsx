@@ -68,7 +68,7 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-card border border-border p-5"
+        className="rounded-none bg-[#0F0F0F] border-0 p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
       >
         <div className="flex items-center gap-2 mb-3">
           <BatteryCharging className="w-5 h-5 text-primary" />
@@ -89,7 +89,7 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-card border border-border p-5"
+      className="rounded-none bg-[#0F0F0F] border-0 p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
     >
       <div className="flex items-center gap-2 mb-3">
         <IconComponent className={`w-5 h-5 ${config.color}`} />

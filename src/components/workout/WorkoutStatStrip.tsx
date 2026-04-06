@@ -147,7 +147,7 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.08 }}
-              className="w-[160px] flex-shrink-0 space-y-3 rounded-2xl border border-border/30 bg-card p-4"
+              className="w-[160px] flex-shrink-0 space-y-3 rounded-none border-0 bg-[#0F0F0F] p-4" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
               style={{ scrollSnapAlign: "start" }}
             >
               <p className="truncate text-[11px] font-medium leading-tight text-muted-foreground">
