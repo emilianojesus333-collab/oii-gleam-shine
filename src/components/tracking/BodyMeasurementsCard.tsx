@@ -76,7 +76,7 @@ export const BodyMeasurementsCard = ({ onNavigate }: BodyMeasurementsCardProps) 
               <div className="flex items-center gap-2 text-xs">
                 {changes.weight !== 0 && (
                   <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-                    changes.weight < 0 ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'
+                    changes.weight < 0 ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
                   }`}>
                     {changes.weight < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
                     <span>{Math.abs(changes.weight).toFixed(1)}kg</span>

@@ -173,7 +173,7 @@ export const NutritionHistory = ({
                         <p className="text-xs text-gray-400">Média kcal/dia</p>
                       </div>
                       <div className="p-3 rounded-xl bg-white/5">
-                        <p className="text-2xl font-bold text-green-500">{weeklyStats.daysMetCalorieGoal}</p>
+                        <p className="text-2xl font-bold text-blue-500">{weeklyStats.daysMetCalorieGoal}</p>
                         <p className="text-xs text-gray-400">Dias meta calorias</p>
                       </div>
                       <div className="p-3 rounded-xl bg-white/5">

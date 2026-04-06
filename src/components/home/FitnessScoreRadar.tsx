@@ -103,13 +103,13 @@ export function FitnessScoreRadar() {
                 <Radar
                   name="score"
                   dataKey="value"
-                  stroke="hsl(142, 71%, 45%)"
+                  stroke="#2563EB"
                   strokeWidth={2}
-                  fill="hsl(142, 71%, 45%)"
+                  fill="#2563EB"
                   fillOpacity={0.2}
                   dot={{
                     r: 3,
-                    fill: "hsl(142, 71%, 45%)",
+                    fill: "#2563EB",
                     strokeWidth: 0,
                   }}
                 />

@@ -12,9 +12,9 @@ const getFatigueConfig = (score: number) => {
     return {
       label: "Recuperação total",
       subtitle: "Pronto para dar o máximo",
-      color: "text-green-400",
-      bgColor: "bg-green-400/10",
-      progressColor: "bg-green-400",
+      color: "text-blue-400",
+      bgColor: "bg-blue-400/10",
+      progressColor: "bg-blue-400",
       icon: BatteryFull,
     };
   }

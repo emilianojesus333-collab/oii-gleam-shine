@@ -179,7 +179,7 @@ export const UserProfileCard = () => {
               <h2 className="text-xl font-bold text-foreground truncate">{userData.name}</h2>
             </div>
             {isDeveloper && (
-              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0 mb-1">
+              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px] px-1.5 py-0 mb-1">
                 Developer Access
               </Badge>
             )}

@@ -14,7 +14,7 @@ export const WeeklyReportCard = () => {
   if (!report) return null;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-400';
+    if (score >= 80) return 'text-blue-400';
     if (score >= 60) return 'text-yellow-400';
     if (score >= 40) return 'text-orange-400';
     return 'text-red-400';
@@ -31,12 +31,12 @@ export const WeeklyReportCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 p-4"
+      className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 p-4"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-green-400" />
+          <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-blue-400" />
           </div>
           <div>
             <span className="font-semibold text-sm block">Relatório Semanal</span>
@@ -71,7 +71,7 @@ export const WeeklyReportCard = () => {
         </div>
         <div className="p-3 rounded-xl bg-black/20">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="w-4 h-4 text-green-400" />
+            <Target className="w-4 h-4 text-blue-400" />
             <span className="text-xs text-muted-foreground">Meta Proteína</span>
           </div>
           <p className="text-lg font-bold">{report.nutrition.daysMetProteinGoal}/7 dias</p>
@@ -89,7 +89,7 @@ export const WeeklyReportCard = () => {
       {report.highlights.length > 0 && (
         <div className="space-y-1 mb-3">
           {report.highlights.slice(0, 2).map((highlight, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-green-400">
+            <div key={i} className="flex items-center gap-2 text-xs text-blue-400">
               <Award className="w-3 h-3" />
               <span>{highlight}</span>
             </div>
@@ -197,8 +197,8 @@ export const WeeklyReportView = () => {
       {/* Highlights & Improvements */}
       <div className="grid grid-cols-1 gap-4">
         {report.highlights.length > 0 && (
-          <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/20">
-            <h3 className="font-semibold mb-2 text-green-400">✨ Destaques</h3>
+          <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+            <h3 className="font-semibold mb-2 text-blue-400">✨ Destaques</h3>
             <ul className="space-y-1">
               {report.highlights.map((h, i) => (
                 <li key={i} className="text-sm">{h}</li>

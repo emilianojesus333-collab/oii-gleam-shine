@@ -61,7 +61,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
 
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-green-500'}`} />
+            <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-blue-500'}`} />
               <motion.span
               key={Math.round(consumed.calories)}
               initial={{ scale: 1.2 }}

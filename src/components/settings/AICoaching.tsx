@@ -450,7 +450,7 @@ export const AICoaching = () => {
           <div className="p-4 rounded-xl bg-background/30 border border-border/50 space-y-2">
             {getGoalSummaryText().map((text, i) =>
           <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
-                <Check className="w-4 h-4 text-green-400" />
+                <Check className="w-4 h-4 text-blue-400" />
                 {text}
               </div>
           )}

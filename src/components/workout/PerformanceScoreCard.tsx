@@ -10,9 +10,9 @@ const getScoreConfig = (score: number) => {
   if (score >= 90) {
     return {
       label: "Treino excelente",
-      color: "text-green-400",
-      bgColor: "bg-green-400/10",
-      progressColor: "bg-green-400",
+      color: "text-blue-400",
+      bgColor: "bg-blue-400/10",
+      progressColor: "bg-blue-400",
       emoji: "🔥",
     };
   }

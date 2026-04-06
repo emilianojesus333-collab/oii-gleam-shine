@@ -17,7 +17,7 @@ interface SessionSummary {
 }
 
 const decisionIcons = {
-  progress: { icon: TrendingUp, color: "text-green-400" },
+  progress: { icon: TrendingUp, color: "text-blue-400" },
   maintain: { icon: Minus, color: "text-yellow-400" },
   deload: { icon: TrendingDown, color: "text-red-400" },
 };
@@ -153,7 +153,7 @@ export default function History() {
                     <>
                       <span>·</span>
                       {s.decisions.progress > 0 && (
-                        <span className="text-green-400 flex items-center gap-0.5">
+                        <span className="text-blue-400 flex items-center gap-0.5">
                           <TrendingUp className="w-3 h-3" /> {s.decisions.progress}
                         </span>
                       )}

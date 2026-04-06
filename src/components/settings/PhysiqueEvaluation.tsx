@@ -212,13 +212,13 @@ export const PhysiqueEvaluation = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-green-400';
+    if (score >= 8) return 'text-blue-400';
     if (score >= 6) return 'text-yellow-400';
     return 'text-orange-400';
   };
 
   const getScoreGradient = (score: number) => {
-    if (score >= 8) return 'from-green-500/20 to-green-500/5';
+    if (score >= 8) return 'from-blue-500/20 to-blue-500/5';
     if (score >= 6) return 'from-yellow-500/20 to-yellow-500/5';
     return 'from-orange-500/20 to-orange-500/5';
   };
@@ -386,7 +386,7 @@ export const PhysiqueEvaluation = () => {
               {/* Strengths */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-5 h-5 text-green-400" />
+                  <TrendingUp className="w-5 h-5 text-blue-400" />
                   <h3 className="font-semibold text-foreground">Pontos Fortes</h3>
                 </div>
                 <div className="space-y-2">
@@ -396,14 +396,14 @@ export const PhysiqueEvaluation = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-green-500/10 border border-green-500/20 rounded-xl p-4"
+                      className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-green-400">{strength.muscleGroup}</span>
-                        <span className="text-sm text-green-400">{strength.score}/10</span>
+                        <span className="font-medium text-blue-400">{strength.muscleGroup}</span>
+                        <span className="text-sm text-blue-400">{strength.score}/10</span>
                       </div>
                       <p className="text-sm text-foreground/70">{strength.description}</p>
-                      <Progress value={strength.score * 10} className="mt-2 h-1.5 bg-green-500/20" />
+                      <Progress value={strength.score * 10} className="mt-2 h-1.5 bg-blue-500/20" />
                     </motion.div>
                   ))}
                 </div>

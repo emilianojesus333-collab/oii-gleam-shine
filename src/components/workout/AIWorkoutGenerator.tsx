@@ -298,7 +298,7 @@ export const AIWorkoutGenerator = ({
             whileTap={{ scale: 0.97 }}
             onClick={handlePersistAndStart}
             disabled={persistingPlan}
-            className="w-full py-4 rounded-xl font-semibold bg-green-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-green-600/30 disabled:opacity-50"
+            className="w-full py-4 rounded-xl font-semibold bg-blue-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 disabled:opacity-50"
           >
             {persistingPlan ? (
               <>

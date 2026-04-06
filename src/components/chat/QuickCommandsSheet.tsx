@@ -34,9 +34,9 @@ const primaryCommands = [
     icon: RefreshCw,
     label: "Substituir",
     command: "Preciso de uma alternativa para um exercício. Que opções tenho?",
-    color: "text-emerald-400",
+    color: "text-blue-400",
     glow: "shadow-[0_0_12px_rgba(16,185,129,0.35)]",
-    iconBg: "bg-emerald-500/15",
+    iconBg: "bg-blue-500/15",
   },
 ];
 
@@ -57,7 +57,7 @@ const secondaryCommands = [
     icon: Target,
     label: "Progresso",
     command: "Mostra-me o meu progresso e estatísticas",
-    color: "text-green-400",
+    color: "text-blue-400",
   },
 ];
 

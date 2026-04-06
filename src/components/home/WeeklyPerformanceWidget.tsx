@@ -9,7 +9,7 @@ export function WeeklyPerformanceWidget() {
 
   const stats = [
   { value: data.totalSessions, label: "Sessões", icon: Activity, color: "text-foreground" },
-  { value: data.progressCount, label: "Progressos", icon: TrendingUp, color: "text-green-400" },
+  { value: data.progressCount, label: "Progressos", icon: TrendingUp, color: "text-blue-400" },
   { value: data.maintainCount, label: "Manutenção", icon: Minus, color: "text-yellow-400" }];
 
 
