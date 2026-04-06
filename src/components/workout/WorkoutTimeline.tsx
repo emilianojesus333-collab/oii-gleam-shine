@@ -7,7 +7,7 @@ interface WorkoutTimelineProps {
 }
 
 const statusConfig = {
-  recovered: { color: "hsl(142,60%,45%)", label: "Recuperado", borderColor: "hsl(142,40%,20%)" },
+  recovered: { color: "hsl(221,83%,53%)", label: "Recuperado", borderColor: "hsl(221,50%,20%)" },
   almost_recovered: { color: "hsl(45,90%,50%)", label: "Quase recuperado", borderColor: "hsl(45,50%,20%)" },
   recovering: { color: "hsl(270,60%,55%)", label: "Em recuperação", borderColor: "hsl(270,30%,20%)" },
   fatigued: { color: "hsl(0,70%,55%)", label: "Fatigado", borderColor: "hsl(0,40%,20%)" },

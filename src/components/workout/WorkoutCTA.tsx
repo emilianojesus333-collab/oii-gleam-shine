@@ -30,7 +30,7 @@ export const WorkoutCTA = ({
           whileTap={{ scale: 0.97 }}
           onClick={onComplete}
           disabled={isCompleting}
-          className="relative w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 bg-[hsl(142,60%,40%)] text-white shadow-[0_0_30px_hsl(142,60%,40%,0.3)] disabled:opacity-50 transition-all"
+          className="relative w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 bg-[hsl(221,83%,53%)] text-white shadow-[0_0_30px_hsl(142,60%,40%,0.3)] disabled:opacity-50 transition-all"
         >
           {isCompleting ? (
             <>
