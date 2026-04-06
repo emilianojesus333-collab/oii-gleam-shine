@@ -231,7 +231,7 @@ export const AIWorkoutGenerator = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-primary/20 via-[#1E1E1E]/80 to-[#1E1E1E]/50 rounded-[20px] p-5 border border-primary/30 bg-stone-950"
+      className="bg-[#0F0F0F] rounded-none p-5 border-0" style={{ borderLeft: "2px solid #2563EB" }}
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">

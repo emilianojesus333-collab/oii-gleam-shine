@@ -64,7 +64,7 @@ export function PerformanceScoreCard({ score }: PerformanceScoreCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-card border border-border p-5 mb-5"
+      className="rounded-none bg-[#0F0F0F] border-0 p-5 mb-2" style={{ borderLeft: "2px solid #2563EB" }}
     >
       <div className="flex items-center gap-2 mb-3">
         <Trophy className="w-5 h-5 text-primary" />

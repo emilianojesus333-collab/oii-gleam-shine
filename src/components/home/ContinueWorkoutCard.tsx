@@ -18,7 +18,7 @@ export const ContinueWorkoutCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-gradient-to-br from-primary/20 via-card to-card border border-primary/30 p-4 overflow-hidden"
+      className="rounded-none bg-[#0F0F0F] border-0 p-4 overflow-hidden" style={{ borderLeft: "2px solid #2563EB" }}
     >
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">

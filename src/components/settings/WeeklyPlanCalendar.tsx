@@ -381,7 +381,7 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Body canvas */}
       <div
-        className="relative rounded-3xl flex items-center justify-center overflow-hidden"
+        className="relative rounded-none flex items-center justify-center overflow-hidden"
         style={{
           background: "linear-gradient(180deg, #0A1628 0%, #060D18 100%)",
           minHeight: 380,

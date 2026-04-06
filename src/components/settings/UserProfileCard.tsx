@@ -131,7 +131,7 @@ export const UserProfileCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[20px] border border-border/30 bg-[#111311] overflow-hidden"
+      className="rounded-none border-0 bg-[#0F0F0F] overflow-hidden" style={{ borderLeft: "2px solid #2563EB" }}
     >
       {/* Profile Header */}
       <div className="relative px-5 pt-6 pb-5">

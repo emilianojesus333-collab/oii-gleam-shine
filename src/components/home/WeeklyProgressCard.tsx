@@ -8,7 +8,7 @@ export function WeeklyProgressCard() {
     return (
       <div className="space-y-3">
         <div className="h-5 w-32 rounded bg-muted-foreground/10 animate-pulse" />
-        <div className="rounded-2xl p-5 animate-pulse bg-[hsl(220,13%,12%)]">
+        <div className="rounded-none p-5 animate-pulse bg-[#0F0F0F]">
           <div className="h-24" />
         </div>
       </div>
@@ -35,7 +35,7 @@ export function WeeklyProgressCard() {
     >
       <h3 className="text-base font-bold text-foreground">Esta semana</h3>
 
-      <div className="rounded-2xl bg-[hsl(220,13%,12%)] p-5 shadow-lg shadow-black/20">
+      <div className="rounded-none bg-[#0F0F0F] p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative flex-shrink-0">

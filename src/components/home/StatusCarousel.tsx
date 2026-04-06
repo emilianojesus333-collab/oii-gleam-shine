@@ -12,7 +12,7 @@ import {
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
-"flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
+  "flex min-h-[320px] w-full flex-col rounded-none border-0 bg-[#0F0F0F] p-5 border-l-2 border-l-white/[0.08]";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="weekly-progress" className="space-y-3">
       {/* Weekly Progress */}
-      <div className="rounded-2xl p-4 shadow-lg shadow-black/20 bg-[#380439]/[0.43]">
+      <div className="rounded-none p-4 bg-[#0F0F0F]" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg width={ringSize} height={ringSize} className="-rotate-90">

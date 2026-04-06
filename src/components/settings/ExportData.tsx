@@ -222,10 +222,10 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild className="bg-[#111311]">
+      <DrawerTrigger asChild className="bg-[#0F0F0F]">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-card border border-border/30 rounded-[20px] p-5 flex items-center gap-4">
+          className="w-full bg-[#0F0F0F] border-0 rounded-none p-5 flex items-center gap-4" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
 
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
             <FileDown className="w-5 h-5 text-primary" />

@@ -72,7 +72,7 @@ export const ProgressionSuggestionCard = ({
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-xl border p-4 space-y-3 ${config.bg} ${isLow ? "opacity-70" : ""}`}
+      className={`rounded-none border-0 border-l-2 border-l-white/[0.08] p-4 space-y-3 bg-[#0F0F0F] ${config.bg} ${isLow ? "opacity-70" : ""}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
