@@ -52,7 +52,7 @@ export const FavoritesWidget = () => {
             transition={{ delay: 0.45 + index * 0.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/nutrition')}
-            className="rounded-2xl bg-[#1E1E1E]/50 p-3 text-center"
+            className="rounded-none bg-[#0F0F0F] p-3 text-center" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
           >
             <span className="text-2xl block mb-1">{item.emoji}</span>
             <p className="text-xs text-white/70 truncate font-medium">{item.name}</p>

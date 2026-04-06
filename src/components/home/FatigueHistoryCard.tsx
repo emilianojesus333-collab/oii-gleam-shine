@@ -98,7 +98,7 @@ export const FatigueHistoryCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 p-4"
+      className="rounded-none bg-[#0F0F0F] border-0 p-4" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
