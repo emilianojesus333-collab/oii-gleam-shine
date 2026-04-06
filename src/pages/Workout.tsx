@@ -756,7 +756,7 @@ const Workout = () => {
                 whileTap={{ scale: 0.97 }}
                 onClick={handleCompleteWorkout}
                 disabled={completing}
-                className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
+                className="w-full py-4 rounded-2xl bg-[hsl(221,83%,53%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(221,83%,53%)]/25 disabled:opacity-50"
               >
                 {completing ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>

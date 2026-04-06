@@ -48,13 +48,13 @@ export const PostWorkoutSuggestions = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5"
+            className="flex items-center gap-3 p-3 rounded-xl border border-blue-500/20 bg-blue-500/5"
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{meal.title}</p>
               <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Flame className="w-3 h-3 text-emerald-400" />
+                  <Flame className="w-3 h-3 text-blue-400" />
                   {meal.calories} kcal
                 </span>
                 <span className="flex items-center gap-1">

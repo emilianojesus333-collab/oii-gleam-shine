@@ -360,7 +360,7 @@ export const MainWorkoutCarousel = ({
                         placeholder="80"
                       />
                       {autoApplied && !userTouchedWeight && (
-                        <p className="text-xs text-green-400/70 mt-1.5 flex items-center gap-1">
+                        <p className="text-xs text-blue-400/70 mt-1.5 flex items-center gap-1">
                           <Sparkles className="w-3 h-3" />
                           Sugestão aplicada automaticamente (confiança alta)
                         </p>
@@ -405,7 +405,7 @@ export const MainWorkoutCarousel = ({
                     disabled={!selectedExercise.trim()}
                     className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                       justSaved
-                        ? "bg-green-500 text-white"
+                        ? "bg-blue-500 text-white"
                         : selectedExercise.trim()
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                         : "bg-[#2A2A2A]/50 text-gray-500 cursor-not-allowed"
@@ -554,10 +554,10 @@ export const MainWorkoutCarousel = ({
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <Activity className="w-3 h-3 text-green-400" />
+                              <Activity className="w-3 h-3 text-blue-400" />
                               <span className="text-xs text-gray-300">Resistência (50-65%)</span>
                             </div>
-                            <span className="text-xs font-semibold text-green-400">
+                            <span className="text-xs font-semibold text-blue-400">
                               {trainingZones?.endurance.min}-{trainingZones?.endurance.max}kg
                             </span>
                           </div>
@@ -593,7 +593,7 @@ export const MainWorkoutCarousel = ({
                           disabled={savingRM || savedRM || !calcExercise}
                           className={`flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all ${
                             savedRM
-                              ? "bg-green-500 text-white"
+                              ? "bg-blue-500 text-white"
                               : !calcExercise
                               ? "bg-[#2A2A2A]/50 text-gray-600 cursor-not-allowed"
                               : "bg-primary text-primary-foreground shadow-lg shadow-primary/30"

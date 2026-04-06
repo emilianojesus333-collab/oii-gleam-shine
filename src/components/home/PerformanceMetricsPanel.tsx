@@ -4,7 +4,7 @@ import { Activity, TrendingUp, Dumbbell, Calendar, Heart } from "lucide-react";
 import { usePerformanceMetrics } from "@/hooks/usePerformanceMetrics";
 
 const getPerformanceColor = (score: number) => {
-  if (score >= 90) return "hsl(142, 71%, 45%)";
+  if (score >= 90) return "#2563EB";
   if (score >= 75) return "hsl(217, 91%, 60%)";
   if (score >= 60) return "hsl(48, 96%, 53%)";
   if (score >= 40) return "hsl(25, 95%, 53%)";
@@ -20,7 +20,7 @@ const getPerformanceLabel = (score: number) => {
 };
 
 const getFatigueStatus = (fi: number) => {
-  if (fi <= 20) return { label: "Recuperado", color: "hsl(142, 71%, 45%)" };
+  if (fi <= 20) return { label: "Recuperado", color: "#2563EB" };
   if (fi <= 40) return { label: "Fadiga leve", color: "hsl(217, 91%, 60%)" };
   if (fi <= 60) return { label: "Moderada", color: "hsl(48, 96%, 53%)" };
   if (fi <= 80) return { label: "Alta", color: "hsl(25, 95%, 53%)" };

@@ -55,7 +55,7 @@ export const ExerciseCarousel = ({ exercises, currentIndex, onSelect }: Exercise
                 flex-shrink-0 snap-center rounded-2xl p-5 cursor-pointer transition-all duration-300
                 ${isActive ? "w-[280px]" : "w-[180px]"}
                 ${isCompleted
-                  ? "bg-[hsl(142,40%,15%)] border border-[hsl(142,50%,25%)]"
+                  ? "bg-[hsl(221,50%,15%)] border border-[hsl(221,60%,25%)]"
                   : isCurrent
                     ? "bg-card border-2 border-primary/40"
                     : "bg-muted/30 border border-border/30"
@@ -64,14 +64,14 @@ export const ExerciseCarousel = ({ exercises, currentIndex, onSelect }: Exercise
             >
               {/* Number */}
               <span className={`text-2xl font-mono font-bold ${
-                isCompleted ? "text-[hsl(142,60%,40%)]" : isCurrent ? "text-primary/60" : "text-muted-foreground/30"
+                isCompleted ? "text-[hsl(221,83%,53%)]" : isCurrent ? "text-primary/60" : "text-muted-foreground/30"
               }`}>
                 {String(i + 1).padStart(2, "0")}
               </span>
 
               {/* Name */}
               <p className={`mt-2 font-semibold text-base leading-tight ${
-                isCompleted ? "text-[hsl(142,50%,70%)] line-through" : "text-foreground"
+                isCompleted ? "text-[hsl(221,70%,70%)] line-through" : "text-foreground"
               }`}>
                 {ex.exercise_name}
               </p>
@@ -120,7 +120,7 @@ export const ExerciseCarousel = ({ exercises, currentIndex, onSelect }: Exercise
               i === activeCard
                 ? "w-6 bg-primary"
                 : exercises[i].completed
-                  ? "w-1.5 bg-[hsl(142,60%,40%)]"
+                  ? "w-1.5 bg-[hsl(221,83%,53%)]"
                   : "w-1.5 bg-muted-foreground/20"
             }`}
           />

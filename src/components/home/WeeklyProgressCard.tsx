@@ -53,7 +53,7 @@ export function WeeklyProgressCard() {
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="hsl(142,71%,45%)"
+                stroke="#2563EB"
                 strokeWidth={stroke}
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -87,7 +87,7 @@ export function WeeklyProgressCard() {
               key={i}
               className="h-2 flex-1 rounded-full transition-all"
               style={{
-                backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)",
+                backgroundColor: active ? "#2563EB" : "hsl(220,10%,20%)",
               }}
             />
           ))}

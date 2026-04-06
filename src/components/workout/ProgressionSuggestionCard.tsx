@@ -12,8 +12,8 @@ const decisionConfig = {
   progress: {
     icon: TrendingUp,
     label: "Progresso",
-    color: "text-green-400",
-    bg: "bg-green-500/10 border-green-500/20",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/20",
     getText: (w: number | null) => w ? `Hoje sobe para ${w} kg.` : "Podes subir de carga.",
   },
   maintain: {
@@ -62,7 +62,7 @@ export const ProgressionSuggestionCard = ({
   // BLOCO 2: Compute trend from score_trend if available
   const trendIndicator = data.score_trend
     ? data.score_trend === "up"
-      ? { symbol: "↑", color: "text-green-400", label: "Tendência positiva" }
+      ? { symbol: "↑", color: "text-blue-400", label: "Tendência positiva" }
       : data.score_trend === "down"
       ? { symbol: "↓", color: "text-red-400", label: "Tendência negativa" }
       : { symbol: "→", color: "text-muted-foreground", label: "Estável" }

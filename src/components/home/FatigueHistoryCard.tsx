@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 const getFatigueColor = (value: number) => {
-  if (value <= 20) return "hsl(142, 71%, 45%)";
+  if (value <= 20) return "#2563EB";
   if (value <= 40) return "hsl(217, 91%, 60%)";
   if (value <= 60) return "hsl(48, 96%, 53%)";
   if (value <= 80) return "hsl(25, 95%, 53%)";
@@ -156,7 +156,7 @@ export const FatigueHistoryCard = () => {
           {/* Color legend */}
           <div className="flex items-center justify-center gap-3 mt-2 flex-wrap">
             {[
-              { label: "Recuperado", color: "hsl(142, 71%, 45%)" },
+              { label: "Recuperado", color: "#2563EB" },
               { label: "Leve", color: "hsl(217, 91%, 60%)" },
               { label: "Moderada", color: "hsl(48, 96%, 53%)" },
               { label: "Alta", color: "hsl(25, 95%, 53%)" },

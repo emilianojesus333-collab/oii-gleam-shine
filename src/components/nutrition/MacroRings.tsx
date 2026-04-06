@@ -24,7 +24,7 @@ const macroConfig = [
 { key: 'protein', label: 'Proteína', icon: Beef, color: 'hsl(346, 77%, 49%)', unit: 'g' },
 { key: 'carbs', label: 'Carbs', icon: Wheat, color: 'hsl(45, 93%, 47%)', unit: 'g' },
 { key: 'fat', label: 'Gordura', icon: Droplet, color: 'hsl(217, 91%, 60%)', unit: 'g' },
-{ key: 'fiber', label: 'Fibra', icon: Leaf, color: 'hsl(142, 76%, 36%)', unit: 'g' }] as
+{ key: 'fiber', label: 'Fibra', icon: Leaf, color: 'hsl(221, 83%, 43%)', unit: 'g' }] as
 const;
 
 export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
@@ -51,7 +51,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
               cx="72"
               cy="72"
               r="64"
-              stroke={isOverCalories ? 'hsl(0, 84%, 60%)' : 'hsl(142, 76%, 36%)'}
+              stroke={isOverCalories ? 'hsl(0, 84%, 60%)' : 'hsl(221, 83%, 43%)'}
               strokeWidth="12"
               fill="none"
               strokeLinecap="round"
@@ -61,7 +61,7 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
 
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-green-500'}`} />
+            <Flame className={`w-6 h-6 ${isOverCalories ? 'text-red-500' : 'text-blue-500'}`} />
               <motion.span
               key={Math.round(consumed.calories)}
               initial={{ scale: 1.2 }}

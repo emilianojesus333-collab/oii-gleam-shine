@@ -6,7 +6,7 @@ import { useWorkoutSession } from "@/hooks/useWorkoutSession";
 import { PerformanceScoreCard } from "@/components/workout/PerformanceScoreCard";
 
 const decisionConfig = {
-  progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
+  progress: { label: "Progredir", icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
   maintain: { label: "Manter", icon: Minus, color: "text-yellow-400", bg: "bg-yellow-400/10" },
   deload: { label: "Reduzir", icon: TrendingDown, color: "text-red-400", bg: "bg-red-400/10" },
 };

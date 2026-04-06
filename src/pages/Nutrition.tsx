@@ -41,8 +41,8 @@ const Nutrition = () => {
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
       <div className="absolute inset-x-0 top-0 h-[420px] overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-600/40 via-emerald-500/20 via-60% to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-emerald-500/30 via-emerald-600/10 via-50% to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/40 via-blue-500/20 via-60% to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-blue-500/30 via-blue-600/10 via-50% to-transparent" />
       </div>
 
       {/* Header */}
@@ -53,12 +53,12 @@ const Nutrition = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/20 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Apple className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/20 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Apple className="w-5 h-5 text-blue-400" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-white">Nutrição</h1>
-              <p className="text-xs text-emerald-400">
+              <p className="text-xs text-blue-400">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>

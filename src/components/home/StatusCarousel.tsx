@@ -25,11 +25,11 @@ export const StatusCarousel = () => {
 
   const getBarColor = (status: string) => {
     switch (status) {
-      case "recovered":return "bg-[hsl(142,71%,45%)]";
+      case "recovered":return "bg-[#2563EB]";
       case "almost_recovered":return "bg-[hsl(45,93%,47%)]";
       case "recovering":return "bg-[hsl(270,60%,55%)]";
       case "fatigued":return "bg-destructive";
-      default:return "bg-[hsl(142,71%,45%)]";
+      default:return "bg-[#2563EB]";
     }
   };
 
@@ -64,7 +64,7 @@ export const StatusCarousel = () => {
               <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="hsl(220,10%,20%)" strokeWidth={ringStroke} />
               <motion.circle
                 cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none"
-                stroke="hsl(142,71%,45%)" strokeWidth={ringStroke} strokeLinecap="round"
+                stroke="#2563EB" strokeWidth={ringStroke} strokeLinecap="round"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
@@ -90,7 +90,7 @@ export const StatusCarousel = () => {
           <div
             key={i}
             className="h-1.5 flex-1 rounded-full transition-all"
-            style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }} />
+            style={{ backgroundColor: active ? "#2563EB" : "hsl(220,10%,20%)" }} />
           )}
         </div>
       </div>
