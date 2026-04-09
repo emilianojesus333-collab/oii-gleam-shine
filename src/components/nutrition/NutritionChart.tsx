@@ -56,7 +56,7 @@ const makeDotRenderer = (total: number) => (props: any) => {
     return (
       <g key={`glow-dot-${index}`}>
         <circle cx={cx} cy={cy} r={12} fill={`rgba(232,101,10,0.12)`} />
-        <circle cx={cx} cy={cy} r={7} fill={ACCENT} stroke="#0F1923" strokeWidth={2.5} />
+        <circle cx={cx} cy={cy} r={7} fill={ACCENT} stroke="#1A1A1A" strokeWidth={2.5} />
       </g>
     );
   }
@@ -67,7 +67,7 @@ const makeDotRenderer = (total: number) => (props: any) => {
       cy={cy}
       r={4.5}
       fill={ACCENT}
-      stroke="#0F1923"
+      stroke="#1A1A1A"
       strokeWidth={2}
     />
   );
@@ -184,10 +184,12 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
   return (
     <div
       style={{
-        background: "#0F1923",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 20,
-        padding: 18,
+        background: "#1A1A1A",
+        borderRadius: 0,
+        border: "none",
+        borderBottom: "1px solid #2A2A2A",
+        padding: "18px 16px",
+        width: "100%",
       }}
     >
       {/* Section label + title */}

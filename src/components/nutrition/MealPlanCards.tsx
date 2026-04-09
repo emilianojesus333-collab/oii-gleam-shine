@@ -127,7 +127,7 @@ export const MealPlanCards = () => {
               >
                 <path
                   d={SVG_PATH}
-                  fill="#0F1923"
+                  fill="#1A1A1A"
                   stroke="rgba(255,255,255,0.07)"
                   strokeWidth="1"
                 />

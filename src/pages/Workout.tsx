@@ -321,7 +321,7 @@ const Workout = () => {
   }, [isGuidedMode, allAIDone, currentAIIndex, aiExercises.length]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* ── HEADER ── */}
       <div className="px-6 pt-14 pb-2">
         {/* 1. Day label */}
@@ -433,11 +433,11 @@ const Workout = () => {
 
                 {/* 7. AI Generator Card */}
                 <div style={{
-                  background: "#0F1923",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: 18,
-                  padding: 16,
-                  marginBottom: 12,
+                  background: "#1A1A1A",
+                  borderRadius: 0,
+                  border: "none",
+                  borderBottom: "1px solid #2A2A2A",
+                  padding: "18px 0",
                 }}>
                   {/* Top row */}
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -466,8 +466,8 @@ const Workout = () => {
                     disabled={aiGenerating}
                     style={{
                       width: "100%", padding: 15, borderRadius: 12,
-                      background: "#2563EB", color: "white",
-                      fontSize: 13, fontWeight: 800, border: "none",
+                      background: "#0D0D0D", color: "white",
+                      fontSize: 13, fontWeight: 800, border: "1px solid rgba(255,255,255,0.12)",
                       cursor: "pointer", display: "flex",
                       alignItems: "center", justifyContent: "center", gap: 8,
                       opacity: aiGenerating ? 0.7 : 1,
@@ -519,7 +519,7 @@ const Workout = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-6 mb-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-4 py-4 flex items-center gap-3"
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", margin: 0, display: "flex", alignItems: "center", gap: 12 }}
         >
           <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
             <Target className="w-5 h-5 text-primary" />
@@ -550,16 +550,15 @@ const Workout = () => {
           <p className="text-muted-foreground max-w-xs mx-auto">{t("workout.restImportant")}</p>
         </motion.div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-0">
           {/* ── TRAINING TYPE SELECTOR ── */}
           {!isGuidedMode && (
-            <div className="px-6 space-y-5">
+            <div className="space-y-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="p-5"
-                style={{ borderLeft: "2px solid #3B82F6" }}
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
               >
                 <span className="text-sm font-medium mb-4 block text-muted-foreground">
                   {t("workout.trainingType")}
@@ -585,8 +584,6 @@ const Workout = () => {
                 </div>
               </motion.div>
 
-              <div className="h-px bg-white/[0.06]" />
-
               {/* ── AI GENERATOR ── */}
               <AIWorkoutGenerator
                 todayMuscleGroups={todayMuscleGroups}
@@ -605,7 +602,7 @@ const Workout = () => {
           {/* ── GUIDED MODE: Card Stack ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
-              <div className="px-6 pt-2">
+              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-muted-foreground">Progresso</span>
                   <span className="text-xs font-bold text-primary">{completedAICount}/{aiExercises.length}</span>
@@ -646,18 +643,15 @@ const Workout = () => {
             </>
           )}
 
-          <div className="h-px bg-white/[0.06]" />
-
           {/* ── EXERCISE REGISTRATION CARD ── */}
-          <div className="px-6 space-y-5">
+          <div className="space-y-0">
             {/* Guided mode: current exercise label */}
             {isGuidedMode && currentPlannedExercise && !allAIDone && (
               <motion.div
                 key={currentPlannedExercise.id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="p-4 flex items-center gap-3"
-                style={{ borderLeft: "2px solid #3B82F6" }}
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", display: "flex", alignItems: "center", gap: 12 }}
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
@@ -701,15 +695,12 @@ const Workout = () => {
               />
             </motion.div>
 
-            <div className="h-px bg-white/[0.06]" />
-
             {/* Saved Exercises */}
             {savedExercises.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-5"
-                style={{ borderLeft: "2px solid #3B82F6" }}
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-muted-foreground">
@@ -744,8 +735,6 @@ const Workout = () => {
               </motion.div>
             )}
 
-            <div className="h-px bg-white/[0.06]" />
-
             {/* Rest Timer Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -758,29 +747,28 @@ const Workout = () => {
               />
             </motion.div>
 
-            <div className="h-px bg-white/[0.06]" />
-
             {/* ── Complete Workout Button ── */}
             {savedExercises.length > 0 && !isGuidedMode && (
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handleCompleteWorkout}
-                disabled={completing}
-                className="w-full py-4 rounded-2xl bg-[#2563EB] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#2563EB]/25 disabled:opacity-50"
-              >
-                {completing ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
-                ) : (
-                  <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
-                )}
-              </motion.button>
+              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleCompleteWorkout}
+                  disabled={completing}
+                  className="w-full py-4 rounded-2xl text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ background: "#0D0D0D", border: "1px solid rgba(255,255,255,0.12)" }}
+                >
+                  {completing ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
+                  ) : (
+                    <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
+                  )}
+                </motion.button>
+              </div>
             )}
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
-
           {/* ── LAST SESSION CARD ── */}
-          <div className="px-6">
+          <div>
             <LastSessionCard
               todayMuscleGroups={todayMuscleGroups}
               userId={user?.id}

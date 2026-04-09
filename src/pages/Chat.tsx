@@ -226,9 +226,9 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#0B0F14]">
+    <div className="flex h-[100dvh] flex-col bg-black">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2A] bg-black">
         <button
           onClick={() => navigate(-1)}
           className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
@@ -265,7 +265,7 @@ const Chat = () => {
         <div className="flex flex-col gap-4">
           {messages.length === 0 &&
           <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F2937]">
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1A1A1A]">
                 <Activity className="h-8 w-8 text-[#F3F4F6]" />
               </div>
               <h2 className="mb-2 text-xl font-bold text-[#F3F4F6]">{aiName} AI</h2>
@@ -282,7 +282,7 @@ const Chat = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
             
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1F2937]" : ""}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1A1A1A]" : ""}`}>
                 <p className="text-sm leading-relaxed whitespace-pre-line text-[#F3F4F6]">
                   {message.text ||
                 <span className="flex items-center gap-1">
@@ -370,7 +370,7 @@ const Chat = () => {
         }
 
         {/* Pill input */}
-        <div className="flex items-center gap-2 rounded-full bg-[#1F2937]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
+        <div className="flex items-center gap-2 rounded-full bg-[#1A1A1A]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
           <input
             type="text"
             value={inputValue}
@@ -437,7 +437,7 @@ const Chat = () => {
 
       {/* AI Name Editor Sheet */}
       <Sheet open={isEditingName} onOpenChange={setIsEditingName}>
-        <SheetContent side="bottom" className="rounded-t-3xl bg-[#0B0F14] border-[#1F2937]">
+        <SheetContent side="bottom" className="rounded-t-3xl bg-black border-[#2A2A2A]">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold text-[#F3F4F6]">Nome do assistente</SheetTitle>
           </SheetHeader>
@@ -447,7 +447,7 @@ const Chat = () => {
               value={tempName}
               onChange={(e) => setTempName(e.target.value)}
               placeholder="Ex: Coach, Buddy, Trainer..."
-              className="border-[#1F2937] bg-[#1F2937]/50 text-[#F3F4F6] placeholder:text-white/30"
+              className="border-[#2A2A2A] bg-[#1A1A1A]/50 text-[#F3F4F6] placeholder:text-white/30"
               maxLength={20}
             />
             <div className="flex flex-wrap gap-2">
@@ -459,7 +459,7 @@ const Chat = () => {
                   className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
                     tempName === s
                       ? "bg-[#2563EB] text-white"
-                      : "border border-[#1F2937] bg-[#1F2937]/30 text-white/50"
+                      : "border border-[#2A2A2A] bg-[#1A1A1A]/30 text-white/50"
                   }`}
                 >
                   {s}

@@ -107,7 +107,11 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
           className="w-full rounded-none overflow-hidden"
           style={{
             padding: "32px 24px",
-            borderLeft: "2px solid #3B82F6",
+            background: "#1A1A1A",
+            borderRadius: 0,
+            border: "none",
+            borderBottom: "1px solid #2A2A2A",
+            width: "100%",
           }}
         >
           {/* Header */}

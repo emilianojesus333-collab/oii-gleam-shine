@@ -39,7 +39,7 @@ export function WeeklyProgressCard() {
         <h3 className="text-base font-bold text-foreground">Esta semana</h3>
       </div>
 
-      <div className="rounded-none p-5 mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
+      <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative flex-shrink-0">

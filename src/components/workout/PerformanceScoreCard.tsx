@@ -65,8 +65,8 @@ export function PerformanceScoreCard({ score }: PerformanceScoreCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none p-5 mb-2"
-      style={{ borderLeft: "2px solid #3B82F6" }}
+      className="rounded-none"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center gap-2 mb-3">
         <HexBadge label="PR" />

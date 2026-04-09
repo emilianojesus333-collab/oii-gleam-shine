@@ -38,8 +38,8 @@ export const FirstUseCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="rounded-2xl overflow-hidden mb-4"
-      style={{ background: "#0f1117", border: "1px solid #1F2937" }}
+      className="overflow-hidden"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%" }}
     >
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-center gap-2 mb-2">

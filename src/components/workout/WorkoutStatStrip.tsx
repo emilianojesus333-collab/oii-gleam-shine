@@ -124,7 +124,7 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="pl-6"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 0 20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center gap-2 mb-3">
         <HexBadge label="PR" size={28} />
@@ -151,8 +151,8 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.08 }}
-              className="w-[160px] flex-shrink-0 space-y-3 rounded-none p-4 mb-2"
-              style={{ scrollSnapAlign: "start", borderLeft: "2px solid #3B82F6" }}
+              className="w-[160px] flex-shrink-0 space-y-3"
+              style={{ scrollSnapAlign: "start", background: "#1A1A1A", borderRight: "1px solid #2A2A2A", padding: "16px" }}
             >
               <p className="truncate text-[11px] font-medium leading-tight text-muted-foreground">
                 {pr.name}

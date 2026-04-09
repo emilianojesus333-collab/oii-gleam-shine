@@ -226,9 +226,9 @@ const FAQ = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+      <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-[#2A2A2A]">
         <div className="flex items-center gap-4 p-4">
           <button
             onClick={() => navigate(-1)}

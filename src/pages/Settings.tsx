@@ -112,14 +112,14 @@ const Settings = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* Header */}
-      <div className="px-5 pb-4 pt-12">
+      <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "48px 20px 16px" }}>
         <motion.div {...anim(0)} className="flex items-center gap-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-card"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5"
           >
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
@@ -128,52 +128,48 @@ const Settings = () => {
         </motion.div>
       </div>
 
-      <div className="space-y-2 px-5">
+      <div className="space-y-0">
         {/* ─── Profile ─── */}
         <motion.div {...anim(0.05)}>
           <UserProfileCard />
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* ─── Plano Semanal (separado) ─── */}
-        <SectionLabel>Plano Semanal</SectionLabel>
+        {/* ─── Plano Semanal ─── */}
         <motion.div
           {...anim(0.12)}
-          className="p-4"
-          style={{ borderLeft: "2px solid #3B82F6" }}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
         >
+          <p className="pb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Plano Semanal</p>
           <WeeklyPlanCalendar schedule={schedule} onSaveDay={handleSaveDay} />
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
         {/* ─── Inteligência Artificial ─── */}
-        <SectionLabel>Inteligência Artificial</SectionLabel>
-        <motion.div {...anim(0.15)}>
+        <motion.div
+          {...anim(0.15)}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+        >
+          <p className="pb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Inteligência Artificial</p>
           <AIFeaturesCarousel />
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
         {/* ─── Dados ─── */}
-        <SectionLabel>Dados</SectionLabel>
-        <motion.div {...anim(0.2)}>
+        <motion.div
+          {...anim(0.2)}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
+        >
+          <p className="px-4 pt-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Dados</p>
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
         {/* ─── Subscrição ─── */}
-        <SectionLabel>Subscrição</SectionLabel>
         <motion.div
           {...anim(0.22)}
-          className="overflow-hidden"
-          style={{ borderLeft: "2px solid #3B82F6" }}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Subscrição</p>
           {isSubscriptionValid() || isTrialing ? (
             <>
-              <div className="flex items-center gap-3 px-3 py-3">
+              <div className="flex items-center gap-3 px-4 py-3">
                 <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary/15">
                   <Crown className="h-[18px] w-[18px] text-primary" />
                 </div>
@@ -196,7 +192,7 @@ const Settings = () => {
                   Ativa
                 </span>
               </div>
-              <div className="mx-3 border-t border-border/10" />
+              <div className="border-t border-white/[0.06]" />
               <SettingsRow
                 icon={RefreshCw}
                 label="Gerir subscrição"
@@ -213,7 +209,7 @@ const Settings = () => {
           ) : (
             <button
               onClick={() => navigate("/paywall")}
-              className="flex w-full items-center gap-3 px-3 py-4 transition-colors active:bg-muted/20"
+              className="flex w-full items-center gap-3 px-4 py-4 transition-colors active:bg-muted/20"
             >
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
                 <Crown className="h-[18px] w-[18px] text-amber-500" />
@@ -227,21 +223,18 @@ const Settings = () => {
           )}
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
         {/* ─── Informações ─── */}
-        <SectionLabel>Informações</SectionLabel>
         <motion.div
           {...anim(0.25)}
-          className=""
-          style={{ borderLeft: "2px solid #3B82F6" }}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Informações</p>
           <LanguageSelector inline />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow icon={FileText} label="Termos de Uso" onClick={() => navigate("/terms")} />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow icon={Shield} label="Política de Privacidade" onClick={() => navigate("/privacy")} />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow
             icon={Headphones}
             label="Suporte"
@@ -250,15 +243,12 @@ const Settings = () => {
           />
         </motion.div>
 
-        <div className="h-px bg-white/[0.06]" />
-
         {/* ─── Conta ─── */}
-        <SectionLabel>Conta</SectionLabel>
         <motion.div
           {...anim(0.3)}
-          className=""
-          style={{ borderLeft: "2px solid #3B82F6" }}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Conta</p>
           <SettingsRow
             icon={LogOut}
             label="Terminar sessão"
@@ -275,7 +265,7 @@ const Settings = () => {
             }}
             trailing={<span className="text-xs font-medium text-muted-foreground">Sair</span>}
           />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow
             icon={Trash2}
             label="Apagar conta"

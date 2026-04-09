@@ -51,7 +51,7 @@ export const PostWorkoutSuggestions = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
             className="flex items-center gap-3 p-3 rounded-none mb-2"
-            style={{ borderLeft: "2px solid #3B82F6" }}
+            style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{meal.title}</p>
