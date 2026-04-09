@@ -64,7 +64,7 @@ export const MealPlanCards = () => {
   const { settings, updateSettings } = useUserSettings();
 
   // Read active plan from onboarding_data (stored as nutrition_plan key)
-  const storedPlan = (settings?.onboarding_data as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
+  const storedPlan = (settings?.onboarding_data as unknown as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
   const [activePlan, setActivePlan] = useState<string>(storedPlan ?? "definicao");
 
   const handleSelect = async (planId: string) => {
