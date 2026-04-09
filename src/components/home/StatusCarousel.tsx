@@ -98,55 +98,6 @@ export const StatusCarousel = () => {
     </div>
   );
 
-  const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
-  slides.push(
-    <div key="recovery-trend" className={cardBase} style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
-      <div className="mb-4 flex items-center gap-3">
-        <HexBadge label="RC" />
-        <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3">
-        {recovering.length === 0 ?
-        <p className="text-sm text-muted-foreground">
-            Todos os músculos estão recuperados. Bom treino!
-          </p> :
-
-        recovering.
-        sort((a, b) => b.hours_to_recovery - a.hours_to_recovery).
-        map((muscle) =>
-        <div key={muscle.muscle_group} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  ≈ {muscle.hours_to_recovery}h para recuperar
-                </span>
-              </div>
-        )
-        }
-
-        <div className="mt-auto space-y-2 pt-2">
-          {mostRecovered.length > 0 &&
-          <div className="border-t border-border/30 pt-2">
-              <div className="mb-1 flex items-center gap-2">
-                <Dumbbell className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Músculos mais recuperados:{" "}
-                <span className="font-medium text-foreground">
-                  {mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ")}
-                </span>
-              </p>
-            </div>
-          }
-
-        </div>
-      </div>
-    </div>
-  );
 
   if (fatigued.length > 0) {
     slides.push(
