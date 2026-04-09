@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +18,7 @@ interface SessionSummary {
 }
 
 const decisionIcons = {
-  progress: { icon: TrendingUp, color: "text-blue-400" },
+  progress: { icon: TrendingUp, color: "text-green-400" },
   maintain: { icon: Minus, color: "text-yellow-400" },
   deload: { icon: TrendingDown, color: "text-red-400" },
 };
@@ -101,17 +102,18 @@ export default function History() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/workout")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
+        <HexBadge label="HI" />
         <h1 className="text-xl font-bold">Histórico de Treinos</h1>
       </div>
 
-      <div className="px-5 space-y-3">
+      <div className="px-5 space-y-0">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : sessions.length === 0 ? (
           <div className="text-center py-20 px-6">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Dumbbell className="w-8 h-8 text-primary/60" />
             </div>
             <p className="font-semibold text-foreground mb-1">Ainda sem treinos</p>
@@ -125,13 +127,15 @@ export default function History() {
           sessions.map((s, i) => {
             const totalDecisions = s.decisions.progress + s.decisions.maintain + s.decisions.deload;
             return (
+              <div key={s.id}>
+              {i > 0 && <div className="h-px bg-white/[0.06]" />}
               <motion.button
-                key={s.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
                 onClick={() => navigate(`/workout-summary/${s.id}`)}
-                className="w-full text-left rounded-2xl bg-card border border-border p-4 hover:bg-accent/50 transition-colors"
+                className="w-full text-left p-4 hover:bg-accent/10 transition-colors"
+                style={{ borderLeft: "2px solid #3B82F6" }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div>
@@ -153,7 +157,7 @@ export default function History() {
                     <>
                       <span>·</span>
                       {s.decisions.progress > 0 && (
-                        <span className="text-blue-400 flex items-center gap-0.5">
+                        <span className="text-green-400 flex items-center gap-0.5">
                           <TrendingUp className="w-3 h-3" /> {s.decisions.progress}
                         </span>
                       )}
@@ -171,6 +175,7 @@ export default function History() {
                   )}
                 </div>
               </motion.button>
+              </div>
             );
           })
         )}

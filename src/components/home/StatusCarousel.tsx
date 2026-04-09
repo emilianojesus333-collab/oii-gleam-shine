@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Activity, AlertTriangle, TrendingUp, Dumbbell, Clock, Droplets } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { HexBadge } from "@/components/ui/HexBadge";
 import {
   useMuscleFatigue,
   getStatusLabel,
@@ -12,7 +13,7 @@ import {
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
-  "flex min-h-[320px] w-full flex-col rounded-none border-0 bg-[#0F0F0F] p-5 border-l-2 border-l-white/[0.08]";
+"flex min-h-[320px] w-full flex-col rounded-none p-5 mb-2";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="weekly-progress" className="space-y-3">
       {/* Weekly Progress */}
-      <div className="rounded-none p-4 bg-[#0F0F0F]" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+      <div className="rounded-none p-4 mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg width={ringSize} height={ringSize} className="-rotate-90">
@@ -99,11 +100,9 @@ export const StatusCarousel = () => {
 
   const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
   slides.push(
-    <div key="recovery-trend" className={cardBase}>
+    <div key="recovery-trend" className={cardBase} style={{ borderLeft: "2px solid #3B82F6" }}>
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
-          <TrendingUp className="h-5 w-5 text-foreground" />
-        </div>
+        <HexBadge label="RC" />
         <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
       </div>
 
@@ -177,12 +176,11 @@ export const StatusCarousel = () => {
           }
         })
         }
-        className={`${cardBase} cursor-pointer`}>
+        className={`${cardBase} cursor-pointer`}
+        style={{ borderLeft: "2px solid #3B82F6" }}>
         
         <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-          </div>
+          <HexBadge label="RC" />
           <p className="text-sm font-bold text-foreground">Fadiga elevada detectada</p>
         </div>
 

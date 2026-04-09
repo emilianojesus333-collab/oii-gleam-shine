@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface PerformanceScoreCardProps {
   score: number | null | undefined;
@@ -10,9 +11,9 @@ const getScoreConfig = (score: number) => {
   if (score >= 90) {
     return {
       label: "Treino excelente",
-      color: "text-blue-400",
-      bgColor: "bg-blue-400/10",
-      progressColor: "bg-blue-400",
+      color: "text-green-400",
+      bgColor: "bg-green-400/10",
+      progressColor: "bg-green-400",
       emoji: "🔥",
     };
   }
@@ -64,9 +65,11 @@ export function PerformanceScoreCard({ score }: PerformanceScoreCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none bg-[#0F0F0F] border-0 p-5 mb-2" style={{ borderLeft: "2px solid #2563EB" }}
+      className="rounded-none p-5 mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-center gap-2 mb-3">
+        <HexBadge label="PR" />
         <Trophy className="w-5 h-5 text-primary" />
         <h2 className="font-semibold text-sm">Performance do Treino</h2>
       </div>

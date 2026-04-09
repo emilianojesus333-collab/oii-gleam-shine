@@ -12,8 +12,8 @@ const decisionConfig = {
   progress: {
     icon: TrendingUp,
     label: "Progresso",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10 border-blue-500/20",
+    color: "text-green-400",
+    bg: "bg-green-500/10 border-green-500/20",
     getText: (w: number | null) => w ? `Hoje sobe para ${w} kg.` : "Podes subir de carga.",
   },
   maintain: {
@@ -62,7 +62,7 @@ export const ProgressionSuggestionCard = ({
   // BLOCO 2: Compute trend from score_trend if available
   const trendIndicator = data.score_trend
     ? data.score_trend === "up"
-      ? { symbol: "↑", color: "text-blue-400", label: "Tendência positiva" }
+      ? { symbol: "↑", color: "text-green-400", label: "Tendência positiva" }
       : data.score_trend === "down"
       ? { symbol: "↓", color: "text-red-400", label: "Tendência negativa" }
       : { symbol: "→", color: "text-muted-foreground", label: "Estável" }
@@ -72,7 +72,8 @@ export const ProgressionSuggestionCard = ({
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-none border-0 border-l-2 border-l-white/[0.08] p-4 space-y-3 bg-[#0F0F0F] ${config.bg} ${isLow ? "opacity-70" : ""}`}
+      className={`rounded-none p-4 space-y-3 ${config.bg} ${isLow ? "opacity-70" : ""} mb-2`}
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">

@@ -1,9 +1,10 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Droplets, Plus, Minus, Settings2, Target } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Droplets, Minus, Settings2, Info } from 'lucide-react';
+import { HexBadge } from '@/components/ui/HexBadge';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
-import { formatLiters, formatBottleSize, HYDRATION_BOTTLE_SIZES, MAX_HYDRATION_GOAL_LITERS } from '@/lib/hydration';
+import { formatBottleSize, HYDRATION_BOTTLE_SIZES, MAX_HYDRATION_GOAL_LITERS } from '@/lib/hydration';
 import {
   Drawer,
   DrawerContent,
@@ -14,44 +15,41 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 
-const statusConfig = {
-  low: { label: 'Baixo', color: 'text-destructive', ring: 'ring-destructive/30', bg: 'bg-destructive/10' },
-  adequate: { label: 'Ok', color: 'text-chart-3', ring: 'ring-chart-3/30', bg: 'bg-chart-3/10' },
-  optimal: { label: 'Ótimo', color: 'text-primary', ring: 'ring-primary/30', bg: 'bg-primary/10' },
-} as const;
+const CYAN = '#22D3EE';
+const GREEN = '#34D399';
+const CIRCUMFERENCE = 2 * Math.PI * 84; // ≈ 527.8
+const PT_DAY_SHORT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-const impactMessages = {
-  low: 'Recuperação muscular mais lenta. Bebe mais água.',
-  adequate: 'Recuperação normal. Continua a hidratar-te.',
-  optimal: 'Recuperação otimizada. Excelente hidratação.',
-} as const;
+const QUICK_ADDS = [
+  { label: '+250ml', ml: 250, primary: false },
+  { label: '+500ml', ml: 500, primary: true },
+  { label: '+750ml', ml: 750, primary: false },
+  { label: '+1L',    ml: 1000, primary: false },
+];
 
-const weekDayLabels = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
+const SECTION_LABEL: React.CSSProperties = {
+  fontSize: 9,
+  fontWeight: 700,
+  letterSpacing: '0.16em',
+  textTransform: 'uppercase',
+  color: 'rgba(255,255,255,0.25)',
+  display: 'block',
+};
 
-function getBodyOpacity(pct: number): number {
-  if (pct <= 30) return 0.25;
-  if (pct <= 70) return 0.5;
-  return 0.85;
-}
+const MAIN_CARD: React.CSSProperties = {
+  background: '#0F1923',
+  border: '1px solid rgba(255,255,255,0.07)',
+  borderRadius: 20,
+  padding: '20px 18px 18px',
+};
 
-function getBodyGlow(pct: number): string {
-  if (pct >= 80) return 'drop-shadow-[0_0_24px_hsl(var(--primary)/0.5)]';
-  if (pct >= 50) return 'drop-shadow-[0_0_12px_hsl(var(--primary)/0.25)]';
-  return '';
-}
-
-function getWeeklyInsight(history: { metGoal: boolean; intake: number }[]): string | null {
-  const metCount = history.filter((d) => d.metGoal).length;
-  const yesterdayMet = history.length >= 2 ? history[history.length - 2]?.metGoal : null;
-
-  if (metCount >= 6) return 'Excelente consistência esta semana.';
-  if (metCount >= 4) return 'Boa consistência esta semana.';
-  if (yesterdayMet === false) return 'Ontem ficaste abaixo da meta.';
-  if (metCount <= 2) return 'Tenta melhorar a consistência esta semana.';
-  return null;
-}
+const HISTORY_CARD: React.CSSProperties = {
+  background: '#0F1923',
+  border: '1px solid rgba(255,255,255,0.07)',
+  borderRadius: 20,
+  padding: 18,
+};
 
 const Hydration = () => {
   const {
@@ -64,384 +62,359 @@ const Hydration = () => {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const { status, percentage, currentIntakeLiters, goalLiters, recoveryRatePerHour } = hydrationSummary;
-  const config = statusConfig[status];
-  const fillPct = Math.min(percentage, 100);
+  const { percentage, currentIntakeLiters, goalLiters } = hydrationSummary;
+
+  const currentMl  = Math.round(currentIntakeLiters * 1000);
+  const goalMl     = Math.round(goalLiters * 1000);
+  const pct        = Math.min(100, Math.round(percentage));
+  const remainMl   = Math.max(0, goalMl - currentMl);
   const goalReached = currentIntakeLiters >= goalLiters;
-  const remainingMl = Math.max(0, Math.round((goalLiters - currentIntakeLiters) * 1000));
 
-  const weeklyInsight = useMemo(() => getWeeklyInsight(weeklyHistory), [weeklyHistory]);
+  const dashOffset = CIRCUMFERENCE * (1 - Math.min(1, currentIntakeLiters / goalLiters));
 
-  const handleAdd = () => {
-    if (goalReached) {
-      toast.info('Meta atingida. Ajusta a meta nas definições se precisares de mais.');
-      return;
-    }
-    addWaterIntake(0.1);
-  };
+  const tipText = useMemo(() => {
+    if (pct < 50)  return 'Estás desidratado. Bebe água agora para melhorar o desempenho.';
+    if (pct < 80)  return 'Bebe mais 500ml antes do treino de hoje para melhorar a recuperação.';
+    return 'Boa hidratação! Mantém este ritmo até ao fim do dia.';
+  }, [pct]);
 
-  const handleBottleSizeChange = (sizeMl: number) => {
-    updateHydration({ bottleSizeMl: sizeMl });
-  };
+  const avgMl = useMemo(() => {
+    if (!weeklyHistory.length) return 0;
+    return Math.round(weeklyHistory.reduce((s, d) => s + d.intake, 0) / weeklyHistory.length * 1000);
+  }, [weeklyHistory]);
 
   const handleGoalChange = ([value]: number[]) => {
-    updateHydration({
-      customDailyGoalLiters: Math.min(value / 1000, MAX_HYDRATION_GOAL_LITERS),
-    });
+    updateHydration({ customDailyGoalLiters: Math.min(value / 1000, MAX_HYDRATION_GOAL_LITERS) });
   };
 
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Header */}
-      <div className="px-6 pb-2 pt-14">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Droplets className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Hidratação</h1>
-          </div>
-          <Drawer open={settingsOpen} onOpenChange={setSettingsOpen}>
-            <DrawerTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/50">
-                <Settings2 className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Configurar Hidratação</DrawerTitle>
-              </DrawerHeader>
-              <div className="space-y-6 p-4 pb-8">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-foreground">Lembretes</span>
-                  <Switch
-                    checked={state.hydration.enabled}
-                    onCheckedChange={(enabled) => updateHydration({ enabled })}
-                  />
+      <div className="px-6 pt-14 pb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <HexBadge label="H₂" />
+          <Droplets className="h-5 w-5" style={{ color: CYAN }} />
+          <h1 className="text-xl font-bold text-white">Hidratação</h1>
+        </div>
+        <Drawer open={settingsOpen} onOpenChange={setSettingsOpen}>
+          <DrawerTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/50">
+              <Settings2 className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Configurar Hidratação</DrawerTitle>
+            </DrawerHeader>
+            <div className="space-y-6 p-4 pb-8">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-foreground">Lembretes</span>
+                <Switch
+                  checked={state.hydration.enabled}
+                  onCheckedChange={(enabled) => updateHydration({ enabled })}
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Intervalo</span>
+                  <span className="font-medium text-foreground">{state.hydration.intervalMinutes} min</span>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Intervalo</span>
-                    <span className="font-medium text-foreground">{state.hydration.intervalMinutes} min</span>
-                  </div>
-                  <Slider
-                    value={[state.hydration.intervalMinutes]}
-                    onValueChange={([v]) => updateHydration({ intervalMinutes: v })}
-                    min={15}
-                    max={60}
-                    step={5}
-                  />
+                <Slider
+                  value={[state.hydration.intervalMinutes]}
+                  onValueChange={([v]) => updateHydration({ intervalMinutes: v })}
+                  min={15} max={60} step={5}
+                />
+              </div>
+              <div>
+                <div className="mb-3 flex items-center justify-between text-sm">
+                  <span className="font-medium text-foreground">Meta diária</span>
+                  <span className="font-medium text-foreground">{goalMl} ml</span>
                 </div>
-                <div>
-                  <div className="mb-3 flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">Meta diária</span>
-                    <span className="font-medium text-foreground">{Math.round(goalLiters * 1000)} ml</span>
-                  </div>
-                  <Slider
-                    value={[Math.round(goalLiters * 1000)]}
-                    onValueChange={handleGoalChange}
-                    min={500}
-                    max={MAX_HYDRATION_GOAL_LITERS * 1000}
-                    step={100}
-                  />
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Ajusta livremente até {MAX_HYDRATION_GOAL_LITERS} L.
-                  </p>
-                </div>
-                <div>
-                  <p className="mb-3 text-sm font-medium text-foreground">Tamanho da garrafa</p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {HYDRATION_BOTTLE_SIZES.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => handleBottleSizeChange(size)}
-                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
-                          state.hydration.bottleSizeMl === size
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-border/50 text-muted-foreground hover:bg-muted/30'
-                        }`}
-                      >
-                        {formatBottleSize(size)}
-                      </button>
-                    ))}
-                  </div>
+                <Slider
+                  value={[goalMl]}
+                  onValueChange={handleGoalChange}
+                  min={500} max={MAX_HYDRATION_GOAL_LITERS * 1000} step={100}
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Ajusta livremente até {MAX_HYDRATION_GOAL_LITERS} L.
+                </p>
+              </div>
+              <div>
+                <p className="mb-3 text-sm font-medium text-foreground">Tamanho da garrafa</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {HYDRATION_BOTTLE_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => updateHydration({ bottleSizeMl: size })}
+                      className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                        state.hydration.bottleSizeMl === size
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border/50 text-muted-foreground hover:bg-muted/30'
+                      }`}
+                    >
+                      {formatBottleSize(size)}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
 
-      {/* Main content */}
-      <div className="px-6 pt-4">
+      {/* Content */}
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        {/* Body silhouette with dynamic hydration visual */}
-        <div className="relative mx-auto flex h-[380px] w-full max-w-[320px] items-center justify-center">
-          {/* Human body silhouette — detailed anatomical outline */}
-          <motion.svg
-            viewBox="0 0 300 520"
-            className={`h-[360px] w-auto ${getBodyGlow(fillPct)}`}
-            animate={{ opacity: getBodyOpacity(fillPct) }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-          >
-            <defs>
-              <linearGradient id="bodyFill" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.85" />
-                <motion.stop
-                  offset="100%"
-                  stopColor="hsl(var(--primary))"
-                  animate={{ stopOpacity: fillPct > 80 ? 0.6 : 0.1 }}
-                  transition={{ duration: 0.8 }}
-                />
-              </linearGradient>
-              <clipPath id="bodyClip">
-                <path d="
-                  M150,12 C158,12 165,16 170,22 C175,28 177,36 176,44 C175,52 172,58 166,63 C162,66 158,68 154,69
-                  L156,72 C158,73 162,74 168,76 L185,80 C195,83 205,88 212,94 L230,108
-                  C238,114 244,118 248,120 L262,126 C268,128 272,130 274,131
-                  C276,132 278,134 278,136 C278,139 276,141 273,142 L268,143
-                  C264,143 258,142 252,140 L236,134 C230,131 224,128 220,126
-                  L205,118 C200,116 196,114 192,113
-                  L188,112 L188,118 L190,140 L192,165 L194,190 L196,210
-                  C197,218 198,226 200,234 L206,260 C210,274 214,288 216,300
-                  L220,320 C222,332 224,344 224,354 L224,370 C224,378 226,386 228,392
-                  L232,404 C234,410 234,416 232,420 C230,424 226,426 222,426
-                  L216,426 C212,426 208,424 206,420 L200,404 C198,398 196,390 194,382
-                  L190,366 C188,358 186,350 184,342 L180,324 C178,316 176,310 174,306
-                  L168,288 C164,278 160,270 156,264 L152,258
-                  L150,256
-                  L148,258
-                  L144,264 C140,270 136,278 132,288 L126,306
-                  C124,310 122,316 120,324 L116,342 C114,350 112,358 110,366
-                  L106,382 C104,390 102,398 100,404 L94,420
-                  C92,424 88,426 84,426 L78,426 C74,426 70,424 68,420
-                  C66,416 66,410 68,404 L72,392 C74,386 76,378 76,370
-                  L76,354 C76,344 78,332 80,320 L84,300
-                  C86,288 90,274 94,260 L100,234
-                  C102,226 103,218 104,210 L106,190 L108,165 L110,140 L112,118
-                  L112,112
-                  L108,113 C104,114 100,116 95,118 L80,126
-                  C76,128 70,131 64,134 L48,140
-                  C42,142 36,143 32,143 L27,142
-                  C24,141 22,139 22,136 C22,134 24,132 26,131
-                  L38,126 C42,124 46,122 52,120 L70,108
-                  C78,102 88,96 98,90 L115,82
-                  C122,79 130,76 138,74 L144,72 L146,69
-                  C142,68 138,66 134,63 C128,58 125,52 124,44
-                  C123,36 125,28 130,22 C135,16 142,12 150,12 Z
-                " />
-              </clipPath>
-            </defs>
-            {/* Body outline */}
-            <path
-              d="
-                M150,12 C158,12 165,16 170,22 C175,28 177,36 176,44 C175,52 172,58 166,63 C162,66 158,68 154,69
-                L156,72 C158,73 162,74 168,76 L185,80 C195,83 205,88 212,94 L230,108
-                C238,114 244,118 248,120 L262,126 C268,128 272,130 274,131
-                C276,132 278,134 278,136 C278,139 276,141 273,142 L268,143
-                C264,143 258,142 252,140 L236,134 C230,131 224,128 220,126
-                L205,118 C200,116 196,114 192,113
-                L188,112 L188,118 L190,140 L192,165 L194,190 L196,210
-                C197,218 198,226 200,234 L206,260 C210,274 214,288 216,300
-                L220,320 C222,332 224,344 224,354 L224,370 C224,378 226,386 228,392
-                L232,404 C234,410 234,416 232,420 C230,424 226,426 222,426
-                L216,426 C212,426 208,424 206,420 L200,404 C198,398 196,390 194,382
-                L190,366 C188,358 186,350 184,342 L180,324 C178,316 176,310 174,306
-                L168,288 C164,278 160,270 156,264 L152,258
-                L150,256
-                L148,258
-                L144,264 C140,270 136,278 132,288 L126,306
-                C124,310 122,316 120,324 L116,342 C114,350 112,358 110,366
-                L106,382 C104,390 102,398 100,404 L94,420
-                C92,424 88,426 84,426 L78,426 C74,426 70,424 68,420
-                C66,416 66,410 68,404 L72,392 C74,386 76,378 76,370
-                L76,354 C76,344 78,332 80,320 L84,300
-                C86,288 90,274 94,260 L100,234
-                C102,226 103,218 104,210 L106,190 L108,165 L110,140 L112,118
-                L112,112
-                L108,113 C104,114 100,116 95,118 L80,126
-                C76,128 70,131 64,134 L48,140
-                C42,142 36,143 32,143 L27,142
-                C24,141 22,139 22,136 C22,134 24,132 26,131
-                L38,126 C42,124 46,122 52,120 L70,108
-                C78,102 88,96 98,90 L115,82
-                C122,79 130,76 138,74 L144,72 L146,69
-                C142,68 138,66 134,63 C128,58 125,52 124,44
-                C123,36 125,28 130,22 C135,16 142,12 150,12 Z
-              "
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="1.8"
-              strokeOpacity="0.5"
-            />
-            {/* Fill level inside body */}
-            <g clipPath="url(#bodyClip)">
-              <rect x="0" y="0" width="300" height="520" fill="hsl(var(--primary))" fillOpacity="0.06" />
-              <motion.rect
-                x="0"
-                width="300"
-                height="520"
-                fill="url(#bodyFill)"
-                animate={{ y: 520 - (520 * fillPct) / 100 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              />
-            </g>
-          </motion.svg>
+        {/* ── MAIN CARD ── */}
+        <div style={MAIN_CARD}>
 
-          {/* Intake display overlaid */}
-          <div className="absolute inset-0 flex flex-col items-end justify-between py-4 pr-0">
-            {/* Top — goal */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold text-primary tabular-nums">
-                {Math.round(goalLiters * 1000)} ml
-              </span>
-              <Target className="h-3.5 w-3.5 text-primary" />
+          {/* Header row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+            {/* Left */}
+            <div>
+              <span style={{ ...SECTION_LABEL, marginBottom: 4 }}>HIDRATAÇÃO DE HOJE</span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontSize: 30, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  {currentMl}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>ml</span>
+              </div>
             </div>
+            {/* Right */}
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: 26, fontWeight: 900, color: CYAN, letterSpacing: '-0.02em', display: 'block', lineHeight: 1 }}>
+                {pct}%
+              </span>
+              <span style={{ fontSize: 10, color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>
+                da meta
+              </span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 3, display: 'block' }}>
+                Faltam <span style={{ color: 'rgba(255,255,255,0.45)' }}>{remainMl}</span> ml
+              </span>
+            </div>
+          </div>
 
-            {/* Middle — current percentage */}
-            <span className="text-sm font-bold text-primary/70 tabular-nums">
-              {Math.round(fillPct)}%
-            </span>
+          {/* Ring */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+            <div style={{ position: 'relative', width: 200, height: 200 }}>
+              <svg width="200" height="200" viewBox="0 0 200 200">
+                {/* Track */}
+                <circle cx="100" cy="100" r="84" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+                {/* Progress */}
+                <circle
+                  cx="100" cy="100" r="84"
+                  fill="none"
+                  stroke={goalReached ? GREEN : CYAN}
+                  strokeWidth="14"
+                  strokeLinecap="round"
+                  strokeDasharray={CIRCUMFERENCE}
+                  strokeDashoffset={dashOffset}
+                  transform="rotate(-90 100 100)"
+                  style={{ transition: 'stroke-dashoffset 0.4s ease, stroke 0.3s ease' }}
+                />
+                {/* Inner decorative ring */}
+                <circle cx="100" cy="100" r="68" fill="none" stroke="rgba(34,211,238,0.06)" strokeWidth="1" />
+              </svg>
+              {/* Center content */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 2,
+              }}>
+                <Droplets size={22} color="rgba(34,211,238,0.6)" style={{ marginBottom: 4 }} />
+                <span style={{ fontSize: 28, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  {currentMl}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>ml bebidos</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: CYAN, marginTop: 2 }}>{pct}% da meta</span>
+              </div>
+            </div>
+          </div>
 
-            {/* Bottom — 0% */}
-            <span className="text-xs text-muted-foreground tabular-nums">0%</span>
+          {/* Stats row */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <div style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: 12,
+              padding: 10,
+            }}>
+              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.25)', marginBottom: 3 }}>META</span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'white' }}>{goalMl}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>ml</span>
+              </div>
+            </div>
+            <div style={{
+              flex: 1,
+              background: 'rgba(34,211,238,0.08)',
+              border: '1px solid rgba(34,211,238,0.15)',
+              borderRadius: 12,
+              padding: 10,
+            }}>
+              <span style={{ ...SECTION_LABEL, color: 'rgba(34,211,238,0.6)', marginBottom: 3 }}>FALTAM</span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: CYAN }}>{remainMl}</span>
+                <span style={{ fontSize: 10, color: 'rgba(34,211,238,0.5)' }}>ml</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick add row */}
+          <div style={{ display: 'flex', gap: 7, marginBottom: 10 }}>
+            {QUICK_ADDS.map(({ label, ml, primary }) => (
+              <motion.button
+                key={ml}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={() => addWaterIntake(ml / 1000)}
+                style={{
+                  flex: 1,
+                  padding: '11px 0',
+                  borderRadius: 10,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  ...(primary
+                    ? { background: '#0EA5E9', color: 'white', border: 'none', boxShadow: '0 4px 14px rgba(14,165,233,0.3)' }
+                    : { background: 'rgba(34,211,238,0.09)', color: CYAN, border: '1px solid rgba(34,211,238,0.18)' }),
+                }}
+              >
+                {label}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Action buttons row */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              type="button"
+              onClick={() => addWaterIntake(-0.1)}
+              disabled={currentIntakeLiters <= 0}
+              style={{
+                width: 52,
+                height: 52,
+                flexShrink: 0,
+                borderRadius: 14,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: currentIntakeLiters <= 0 ? 0.3 : 1,
+              }}
+            >
+              <Minus size={18} color="rgba(255,255,255,0.5)" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={() => addWaterIntake(0.2)}
+              style={{
+                flex: 1,
+                padding: 15,
+                borderRadius: 14,
+                background: '#0EA5E9',
+                color: 'white',
+                boxShadow: '0 4px 16px rgba(14,165,233,0.35)',
+                fontSize: 14,
+                fontWeight: 800,
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              <Droplets size={18} />
+              Adicionar água
+            </motion.button>
           </div>
         </div>
 
-        {/* Current intake prominent display */}
-        <div className="mt-2 flex flex-col items-center gap-1">
-          <motion.span
-            key={currentIntakeLiters}
-            initial={{ scale: 1.08, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="text-3xl font-black tracking-tight text-foreground tabular-nums"
-          >
-            {Math.round(currentIntakeLiters * 1000)} ml
-          </motion.span>
-
-          <AnimatePresence mode="wait">
-            {goalReached ? (
-              <motion.span
-                key="done"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary"
-              >
-                Meta concluída
-              </motion.span>
-            ) : (
-              <motion.span
-                key="remaining"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm text-muted-foreground"
-              >
-                Faltam {remainingMl} ml
-              </motion.span>
-            )}
-          </AnimatePresence>
+        {/* ── TIP ROW ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '11px 14px',
+          background: 'rgba(34,211,238,0.07)',
+          border: '1px solid rgba(34,211,238,0.14)',
+          borderRadius: 14,
+        }}>
+          <Info size={14} color={CYAN} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(34,211,238,0.75)', fontWeight: 500 }}>
+            {tipText}
+          </span>
         </div>
 
-        {/* Action buttons */}
-        <div className="mx-auto mt-6 flex max-w-xs gap-3">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => addWaterIntake(-0.1)}
-            disabled={currentIntakeLiters <= 0}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-border/50 bg-muted/10 py-3.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/20 disabled:opacity-30"
-          >
-            <Minus className="h-4 w-4" />
-            Ajustar
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={handleAdd}
-            disabled={goalReached}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all ${
-              goalReached
-                ? 'bg-primary/20 text-primary/60'
-                : 'bg-primary text-primary-foreground shadow-[0_12px_28px_-12px_hsl(var(--primary)/0.7)] hover:opacity-95'
-            }`}
-          >
-            <Plus className="h-4 w-4" />
-            {goalReached ? 'Meta atingida' : '+ 100 ml'}
-          </motion.button>
-        </div>
+        {/* ── 7 DAYS HISTORY CARD ── */}
+        <div style={HISTORY_CARD}>
+          <span style={{ ...SECTION_LABEL, marginBottom: 14 }}>ÚLTIMOS 7 DIAS</span>
 
-        {/* Impact on recovery */}
-        <div className="mt-8">
-          <p className={`text-center text-sm leading-relaxed ${config.color}`}>
-            {impactMessages[status]}
-          </p>
-          <p className="mt-1 text-center text-xs text-muted-foreground">
-            Recuperação: {recoveryRatePerHour}%/h
-          </p>
-        </div>
-
-        {/* Weekly consistency */}
-        <div className="mt-10">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            Últimos 7 dias
-          </p>
-          <div className="flex items-center justify-between gap-1">
+          {/* Bar chart */}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 60, marginBottom: 6 }}>
             {weeklyHistory.map((day, i) => {
-              const dayOfWeek = new Date(day.date).getDay();
-              const label = weekDayLabels[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
               const isToday = i === weeklyHistory.length - 1;
-
+              const fillH = Math.min(52, Math.round((day.intake / goalLiters) * 52));
+              const fillColor = day.metGoal ? GREEN : CYAN;
               return (
-                <div key={day.date} className="flex flex-1 flex-col items-center gap-2">
-                  <AnimatePresence mode="wait">
+                <div key={day.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: 52 }}>
+                  <div style={{ width: 8, height: 52, borderRadius: 4, background: 'rgba(255,255,255,0.07)', position: 'relative', overflow: 'hidden' }}>
                     <motion.div
-                      key={`${day.date}-${day.metGoal}`}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                        day.metGoal
-                          ? 'bg-primary/20'
-                          : day.intake > 0
-                            ? 'bg-muted/30'
-                            : 'bg-transparent'
-                      } ${isToday ? 'ring-2 ring-primary/40' : ''}`}
-                    >
-                      <div
-                        className={`h-2.5 w-2.5 rounded-full ${
-                          day.metGoal
-                            ? 'bg-primary'
-                            : day.intake > 0
-                              ? 'bg-muted-foreground/40'
-                              : 'bg-muted/20'
-                        }`}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
-                  <span className={`text-[10px] ${isToday ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                      animate={{ height: fillH }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: isToday ? (goalReached ? GREEN : CYAN) : fillColor,
+                        borderRadius: 4,
+                        height: fillH,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Day labels */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+            {weeklyHistory.map((day, i) => {
+              const isToday = i === weeklyHistory.length - 1;
+              const label = PT_DAY_SHORT[new Date(day.date).getDay()];
+              return (
+                <div key={day.date} style={{ flex: 1, textAlign: 'center' }}>
+                  <span style={{
+                    fontSize: 10,
+                    fontWeight: isToday ? 800 : 600,
+                    color: isToday ? CYAN : 'rgba(255,255,255,0.22)',
+                  }}>
                     {label}
                   </span>
                 </div>
               );
             })}
           </div>
+
+          {/* Bottom row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>
+              Média: {avgMl} ml/dia
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginLeft: 'auto' }}>
+              <div style={{ width: 7, height: 7, borderRadius: 2, background: GREEN }} />
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Meta atingida</span>
+            </div>
+          </div>
         </div>
 
-        {/* Weekly insight */}
-        {weeklyInsight && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4 text-center text-xs text-muted-foreground"
-          >
-            {weeklyInsight}
-          </motion.p>
-        )}
-
-        {/* Workout intensity context */}
-        {hydrationSummary.bonusLiters > 0 && (
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            +{formatLiters(hydrationSummary.bonusLiters)} L adicionado pela atividade de hoje
-          </p>
-        )}
       </div>
 
       <BottomNav />

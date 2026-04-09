@@ -157,7 +157,7 @@ export const NutritionHistory = ({
                   className="space-y-4"
                 >
                   {/* Weekly Summary */}
-                  <div className="p-4 rounded-none bg-[#0F0F0F] border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+                  <div className="p-4 rounded-none mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
                     <h3 className="font-semibold mb-3 flex items-center gap-2 text-white">
                       <Flame className="w-4 h-4 text-orange-500" />
                       Resumo Semanal
@@ -173,7 +173,7 @@ export const NutritionHistory = ({
                         <p className="text-xs text-gray-400">Média kcal/dia</p>
                       </div>
                       <div className="p-3 rounded-xl bg-white/5">
-                        <p className="text-2xl font-bold text-blue-500">{weeklyStats.daysMetCalorieGoal}</p>
+                        <p className="text-2xl font-bold text-green-500">{weeklyStats.daysMetCalorieGoal}</p>
                         <p className="text-xs text-gray-400">Dias meta calorias</p>
                       </div>
                       <div className="p-3 rounded-xl bg-white/5">
@@ -212,7 +212,7 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Monthly Chart */}
-                  <div className="p-4 rounded-none bg-[#0F0F0F] border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+                  <div className="p-4 rounded-none mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
                     <h3 className="font-semibold mb-3 text-white">Últimos 30 Dias</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%">
@@ -276,7 +276,7 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Daily Goals */}
-                  <div className="p-4 rounded-none bg-[#0F0F0F] border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+                  <div className="p-4 rounded-none mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
                     <h3 className="font-semibold mb-3 text-white">Metas Diárias</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between p-2 rounded-lg bg-white/5">

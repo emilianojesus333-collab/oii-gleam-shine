@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 const getFatigueColor = (value: number) => {
   if (value <= 20) return "#2563EB";
@@ -98,9 +99,11 @@ export const FatigueHistoryCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="rounded-none bg-[#0F0F0F] border-0 p-4" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+      className="rounded-none p-4 mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-center gap-2 mb-3">
+        <HexBadge label="RC" />
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
           <Activity className="h-4 w-4 text-primary" />
         </div>

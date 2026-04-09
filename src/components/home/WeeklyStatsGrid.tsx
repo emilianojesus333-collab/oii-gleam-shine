@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 function pctChange(current: number, previous: number): number {
   if (previous === 0) return current > 0 ? 100 : 0;
@@ -31,10 +32,11 @@ export function WeeklyStatsGrid() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="rounded-none p-4"
-        style={{ backgroundColor: "#0F0F0F", borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+        className="rounded-none p-4 mb-2"
+        style={{ borderLeft: "2px solid #3B82F6" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
+          <HexBadge label="PR" size={22} />
           <BarChart3 className="h-3.5 w-3.5 text-[#06B6D4]" />
           <h4 className="text-[10px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
             Volume
@@ -77,10 +79,11 @@ export function WeeklyStatsGrid() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.75 }}
-        className="rounded-none p-4"
-        style={{ backgroundColor: "#0F0F0F", borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+        className="rounded-none p-4 mb-2"
+        style={{ borderLeft: "2px solid #3B82F6" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
+          <HexBadge label="PR" size={22} />
           <TrendingUp className="h-3.5 w-3.5 text-[#22C55E]" />
           <h4 className="text-[10px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
             Tendência

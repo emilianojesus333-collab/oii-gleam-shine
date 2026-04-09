@@ -4,9 +4,10 @@ import { ArrowLeft, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { useWorkoutSession } from "@/hooks/useWorkoutSession";
 import { PerformanceScoreCard } from "@/components/workout/PerformanceScoreCard";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 const decisionConfig = {
-  progress: { label: "Progredir", icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
+  progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
   maintain: { label: "Manter", icon: Minus, color: "text-yellow-400", bg: "bg-yellow-400/10" },
   deload: { label: "Reduzir", icon: TrendingDown, color: "text-red-400", bg: "bg-red-400/10" },
 };
@@ -70,6 +71,7 @@ export default function WorkoutSummary() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/history")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
+        <HexBadge label="TR" />
         <div>
           <h1 className="text-xl font-bold">Resumo do Treino</h1>
           <p className="text-xs text-muted-foreground">
@@ -109,7 +111,7 @@ export default function WorkoutSummary() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-2xl bg-card border border-border p-4"
+                className="p-4" style={{ borderLeft: "2px solid #3B82F6" }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-sm">{ex.exercise_name}</h3>
@@ -169,7 +171,7 @@ export default function WorkoutSummary() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: (groupedExercises.length + i) * 0.08 }}
-                  className="rounded-2xl bg-card border border-border p-4"
+                  className="p-4" style={{ borderLeft: "2px solid #3B82F6" }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-sm">{prog.exercise_id.slice(0, 8)}...</h3>

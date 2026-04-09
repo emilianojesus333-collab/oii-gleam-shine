@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface GeneratedExercise {
   name: string;
@@ -46,6 +47,12 @@ interface AIWorkoutGeneratorProps {
   trainingType: string;
   onAddExercise: (exercise: { name: string; weight: number; reps: number; sets: number }) => void;
   onSessionCreated?: () => void;
+  /** Ref that will be set to the generateWorkout function so parent can trigger it */
+  triggerRef?: React.MutableRefObject<(() => void) | null>;
+  /** When true, hides the built-in header row and default generate button */
+  hideHeader?: boolean;
+  /** Called whenever the generating state changes */
+  onGeneratingChange?: (generating: boolean) => void;
 }
 
 const weekDaysMap: Record<number, string> = {
@@ -58,6 +65,9 @@ export const AIWorkoutGenerator = ({
   trainingType,
   onAddExercise,
   onSessionCreated,
+  triggerRef,
+  hideHeader = false,
+  onGeneratingChange,
 }: AIWorkoutGeneratorProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -99,6 +109,7 @@ export const AIWorkoutGenerator = ({
     }
 
     setIsGenerating(true);
+    onGeneratingChange?.(true);
     setWorkout(null);
     setAddedExercises(new Set());
 
@@ -129,8 +140,12 @@ export const AIWorkoutGenerator = ({
       toast.error((error as Error).message || t("aiWorkout.error"));
     } finally {
       setIsGenerating(false);
+      onGeneratingChange?.(false);
     }
   };
+
+  // Expose generateWorkout to parent via ref after it's defined (runs every render)
+  if (triggerRef) triggerRef.current = generateWorkout;
 
   const handlePersistAndStart = async () => {
     if (!workout || !user) return;
@@ -231,21 +246,22 @@ export const AIWorkoutGenerator = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#0F0F0F] rounded-none p-5 border-0" style={{ borderLeft: "2px solid #2563EB" }}
+      className={hideHeader ? "" : "p-5 mb-2"}
+      style={hideHeader ? {} : { borderLeft: "2px solid #3B82F6" }}
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-primary" />
+      {!hideHeader && (
+        <div className="flex items-center gap-3 mb-4">
+          <HexBadge label="IA" />
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
+            <p className="text-xs text-gray-400">
+              {todayMuscleGroups.join(" + ")} • {trainingType}
+            </p>
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
-          <p className="text-xs text-gray-400">
-            {todayMuscleGroups.join(" + ")} • {trainingType}
-          </p>
-        </div>
-      </div>
+      )}
 
-      {!workout ? (
+      {!hideHeader && !workout && (
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={generateWorkout}
@@ -269,7 +285,9 @@ export const AIWorkoutGenerator = ({
             </>
           )}
         </motion.button>
-      ) : (
+      )}
+
+      {workout ? (
         <div className="space-y-4">
           {/* Workout Info */}
           <div className="flex gap-3">
@@ -298,7 +316,7 @@ export const AIWorkoutGenerator = ({
             whileTap={{ scale: 0.97 }}
             onClick={handlePersistAndStart}
             disabled={persistingPlan}
-            className="w-full py-4 rounded-xl font-semibold bg-blue-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 disabled:opacity-50"
+            className="w-full py-4 rounded-xl font-semibold bg-green-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-green-600/30 disabled:opacity-50"
           >
             {persistingPlan ? (
               <>
@@ -317,6 +335,8 @@ export const AIWorkoutGenerator = ({
               </>
             )}
           </motion.button>
+
+          <div className="h-px bg-white/[0.06]" />
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 && (
@@ -443,7 +463,7 @@ export const AIWorkoutGenerator = ({
             {t("aiWorkout.regenerate")}
           </button>
         </div>
-      )}
+      ) : null}
     </motion.div>
   );
 };

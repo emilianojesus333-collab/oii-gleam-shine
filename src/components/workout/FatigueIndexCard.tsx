@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { BatteryCharging, Battery, BatteryMedium, BatteryWarning, BatteryFull } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface FatigueIndexCardProps {
   score: number | null | undefined;
@@ -12,9 +13,9 @@ const getFatigueConfig = (score: number) => {
     return {
       label: "Recuperação total",
       subtitle: "Pronto para dar o máximo",
-      color: "text-blue-400",
-      bgColor: "bg-blue-400/10",
-      progressColor: "bg-blue-400",
+      color: "text-green-400",
+      bgColor: "bg-green-400/10",
+      progressColor: "bg-green-400",
       icon: BatteryFull,
     };
   }
@@ -68,10 +69,11 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-none bg-[#0F0F0F] border-0 p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+        className="p-5 mb-2"
+        style={{ borderLeft: "2px solid #3B82F6" }}
       >
         <div className="flex items-center gap-2 mb-3">
-          <BatteryCharging className="w-5 h-5 text-primary" />
+          <HexBadge label="PR" />
           <h2 className="font-semibold text-sm">Estado de Recuperação</h2>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -89,10 +91,11 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none bg-[#0F0F0F] border-0 p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+      className="p-5 mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <IconComponent className={`w-5 h-5 ${config.color}`} />
+        <HexBadge label="PR" />
         <h2 className="font-semibold text-sm">Estado de Recuperação</h2>
       </div>
 

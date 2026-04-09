@@ -39,7 +39,7 @@ export const ChallengesWidget = () => {
             animate={{ opacity: 1, x: 0 }}
             className={`p-3 rounded-xl border ${
               challenge.completed 
-                ? 'bg-blue-500/10 border-blue-500/30' 
+                ? 'bg-green-500/10 border-green-500/30' 
                 : 'bg-black/20 border-white/5'
             }`}
           >
@@ -49,7 +49,7 @@ export const ChallengesWidget = () => {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium truncate">{challenge.title}</p>
                   {challenge.completed && (
-                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
@@ -115,8 +115,8 @@ export const ChallengesView = () => {
           <p className="text-2xl font-bold text-amber-400">{totalChallengesCompleted}</p>
           <p className="text-xs text-muted-foreground">Total Completos</p>
         </div>
-        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
-          <p className="text-2xl font-bold text-blue-400">{badges.length}</p>
+        <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
+          <p className="text-2xl font-bold text-green-400">{badges.length}</p>
           <p className="text-xs text-muted-foreground">Badges</p>
         </div>
         <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
@@ -137,7 +137,7 @@ export const ChallengesView = () => {
               key={challenge.id}
               className={`p-4 rounded-2xl border ${
                 challenge.completed 
-                  ? 'bg-blue-500/10 border-blue-500/30' 
+                  ? 'bg-green-500/10 border-green-500/30' 
                   : 'bg-card/50 border-border/50'
               }`}
             >
@@ -147,7 +147,7 @@ export const ChallengesView = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold">{challenge.title}</h4>
                     {challenge.completed && (
-                      <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">
                         Completo!
                       </span>
                     )}

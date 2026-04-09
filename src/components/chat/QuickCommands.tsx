@@ -28,7 +28,7 @@ const commands = [
     icon: Target, 
     label: "Progresso", 
     command: "Mostra-me o meu progresso e estatísticas",
-    color: "text-blue-400"
+    color: "text-green-400"
   },
   { 
     icon: Utensils, 

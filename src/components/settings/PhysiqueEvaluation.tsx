@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, Lock, Calendar } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { compressImage } from "@/lib/imageCompression";
@@ -212,13 +213,13 @@ export const PhysiqueEvaluation = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-blue-400';
+    if (score >= 8) return 'text-green-400';
     if (score >= 6) return 'text-yellow-400';
     return 'text-orange-400';
   };
 
   const getScoreGradient = (score: number) => {
-    if (score >= 8) return 'from-blue-500/20 to-blue-500/5';
+    if (score >= 8) return 'from-green-500/20 to-green-500/5';
     if (score >= 6) return 'from-yellow-500/20 to-yellow-500/5';
     return 'from-orange-500/20 to-orange-500/5';
   };
@@ -236,9 +237,11 @@ export const PhysiqueEvaluation = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0F0F0F] rounded-none p-5 border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+        className="rounded-none p-5 mb-2"
+        style={{ borderLeft: "2px solid #3B82F6" }}
       >
         <div className="flex items-center gap-3 mb-4">
+          <HexBadge label="CF" />
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
             <Target className="w-5 h-5 text-white" />
           </div>
@@ -386,7 +389,7 @@ export const PhysiqueEvaluation = () => {
               {/* Strengths */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-5 h-5 text-blue-400" />
+                  <TrendingUp className="w-5 h-5 text-green-400" />
                   <h3 className="font-semibold text-foreground">Pontos Fortes</h3>
                 </div>
                 <div className="space-y-2">
@@ -396,14 +399,14 @@ export const PhysiqueEvaluation = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4"
+                      className="bg-green-500/10 border border-green-500/20 rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-blue-400">{strength.muscleGroup}</span>
-                        <span className="text-sm text-blue-400">{strength.score}/10</span>
+                        <span className="font-medium text-green-400">{strength.muscleGroup}</span>
+                        <span className="text-sm text-green-400">{strength.score}/10</span>
                       </div>
                       <p className="text-sm text-foreground/70">{strength.description}</p>
-                      <Progress value={strength.score * 10} className="mt-2 h-1.5 bg-blue-500/20" />
+                      <Progress value={strength.score * 10} className="mt-2 h-1.5 bg-green-500/20" />
                     </motion.div>
                   ))}
                 </div>

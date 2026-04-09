@@ -60,7 +60,8 @@ const PlanCardTrigger = ({ card, index, currentGoal, onApplyPlan }: {
           transition={{ delay: index * 0.05 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => setOpen(true)}
-          className="relative aspect-[4/5] rounded-none overflow-hidden cursor-pointer group"
+          className="relative aspect-[4/5] rounded-none overflow-hidden cursor-pointer group mb-2"
+          style={{ borderLeft: "2px solid #3B82F6" }}
         >
           <img
             src={card.image}
