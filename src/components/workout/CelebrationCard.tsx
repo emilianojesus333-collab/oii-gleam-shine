@@ -56,7 +56,8 @@ export default function CelebrationCard({ celebration, index }: CelebrationCardP
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.1, duration: 0.3 }}
-      className={`rounded-none border-0 border-l-2 ${config.border} ${config.bg} ${config.padding}`}
+      className={`rounded-none ${config.bg} ${config.padding} mb-2`}
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-start gap-3">
         <div className={`mt-0.5 ${config.iconColor}`}>

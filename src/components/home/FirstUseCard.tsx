@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Dumbbell, Apple, MessageCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 const steps = [
   {
@@ -41,9 +42,12 @@ export const FirstUseCard = () => {
       style={{ background: "#0f1117", border: "1px solid #1F2937" }}
     >
       <div className="px-5 pt-5 pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">
-          Começa por aqui
-        </p>
+        <div className="flex items-center gap-2 mb-2">
+          <HexBadge label="TR" />
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            Começa por aqui
+          </p>
+        </div>
         <h3 className="text-lg font-bold text-white">
           3 passos para o primeiro resultado
         </h3>

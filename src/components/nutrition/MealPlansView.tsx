@@ -20,7 +20,7 @@ interface MealPlansViewProps {
 
 const goalConfig = {
   cut: { label: 'Definição', border: 'border-blue-500/20', gradient: 'from-blue-500/10 to-cyan-500/10' },
-  maintain: { label: 'Manutenção', border: 'border-blue-500/20', gradient: 'from-blue-500/10 to-blue-500/10' },
+  maintain: { label: 'Manutenção', border: 'border-green-500/20', gradient: 'from-green-500/10 to-emerald-500/10' },
   bulk: { label: 'Volume', border: 'border-orange-500/20', gradient: 'from-orange-500/10 to-red-500/10' },
 };
 
@@ -53,7 +53,7 @@ export const MealPlansView = ({ currentGoal, onApplyPlan, preSelectedPlanId, ext
   };
 
   const trigger = customTrigger || (
-    <motion.button whileTap={{ scale: 0.95 }} className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-left">
+    <motion.button whileTap={{ scale: 0.95 }} className="w-full p-3 rounded-none text-left mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
       <p className="font-semibold text-white text-sm">Planos Alimentares</p>
       <p className="text-xs text-muted-foreground">Cut, Manutenção ou Bulk</p>
     </motion.button>

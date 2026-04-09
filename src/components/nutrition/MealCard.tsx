@@ -14,7 +14,8 @@ export const MealCard = ({ meal, onRemove }: MealCardProps) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="p-4 rounded-none bg-[#0F0F0F] border-0" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+      className="p-4 rounded-none mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">

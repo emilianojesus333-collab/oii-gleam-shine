@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
@@ -329,10 +330,12 @@ export const AICoaching = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#0F0F0F] rounded-none p-5 border-0 h-full" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+      className="rounded-none p-5 h-full mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}>
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
+          <HexBadge label="IA" />
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
             <Brain className="w-5 h-5 text-white" />
           </div>
@@ -450,7 +453,7 @@ export const AICoaching = () => {
           <div className="p-4 rounded-xl bg-background/30 border border-border/50 space-y-2">
             {getGoalSummaryText().map((text, i) =>
           <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
-                <Check className="w-4 h-4 text-blue-400" />
+                <Check className="w-4 h-4 text-green-400" />
                 {text}
               </div>
           )}

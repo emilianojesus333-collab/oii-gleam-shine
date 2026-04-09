@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Clock } from 'lucide-react';
+import { HexBadge } from "@/components/ui/HexBadge";
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 
 interface PostWorkoutMeal {
@@ -36,10 +37,11 @@ export const PostWorkoutSuggestions = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-3"
     >
-      <div>
+      <div className="flex items-center gap-2 mb-1">
+        <HexBadge label="TR" />
         <h3 className="font-semibold text-white text-sm">Recuperação Pós-Treino</h3>
-        <p className="text-xs text-muted-foreground">Sugestões rápidas para recuperação muscular</p>
       </div>
+      <p className="text-xs text-muted-foreground mb-2">Sugestões rápidas para recuperação muscular</p>
 
       <div className="grid gap-2">
         {suggestions.map((meal, i) => (
@@ -48,7 +50,8 @@ export const PostWorkoutSuggestions = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="flex items-center gap-3 p-3 rounded-none border-0 bg-[#0F0F0F]" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+            className="flex items-center gap-3 p-3 rounded-none mb-2"
+            style={{ borderLeft: "2px solid #3B82F6" }}
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{meal.title}</p>

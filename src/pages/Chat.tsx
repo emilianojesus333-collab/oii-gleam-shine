@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines, Edit3, Save, Check } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -236,6 +237,7 @@ const Chat = () => {
         </button>
 
         <button onClick={openNameEditor} className="flex items-center gap-2">
+          <HexBadge label="CH" size={30} />
           <Activity className="h-4 w-4 text-[#F3F4F6]" />
           <h1 className="text-base font-semibold text-[#F3F4F6]">{aiName} AI</h1>
           <Edit3 className="h-3 w-3 text-white/30" />
@@ -405,7 +407,7 @@ const Chat = () => {
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading || isRecording}
             whileTap={{ scale: 0.95 }}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#22C55E] text-white disabled:opacity-40">
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white disabled:opacity-40">
             
             {isLoading ?
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
@@ -456,7 +458,7 @@ const Chat = () => {
                   onClick={() => setTempName(s)}
                   className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
                     tempName === s
-                      ? "bg-[#22C55E] text-white"
+                      ? "bg-[#2563EB] text-white"
                       : "border border-[#1F2937] bg-[#1F2937]/30 text-white/50"
                   }`}
                 >
@@ -468,7 +470,7 @@ const Chat = () => {
               whileTap={{ scale: 0.95 }}
               onClick={saveAiName}
               disabled={!tempName.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#22C55E] py-4 font-semibold text-white disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-4 font-semibold text-white disabled:opacity-50"
             >
               <Check className="h-5 w-5" />
               Guardar

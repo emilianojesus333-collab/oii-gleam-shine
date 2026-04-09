@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface WeeklyChartProps {
   data: {
@@ -20,9 +21,13 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-none border-0 bg-[#0F0F0F]" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+      className="p-4 rounded-none mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}>
 
-      <h3 className="font-semibold mb-4 text-white">Últimos 7 dias</h3>
+      <div className="flex items-center gap-2 mb-4">
+        <HexBadge label="NU" />
+        <h3 className="font-semibold text-white">Últimos 7 dias</h3>
+      </div>
       
       <div className="h-40">
         <ResponsiveContainer width="100%" height="100%">

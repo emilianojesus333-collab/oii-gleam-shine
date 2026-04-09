@@ -25,6 +25,7 @@ import { useNutrition } from "@/hooks/useNutrition";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
+import { HexBadge } from "@/components/ui/HexBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +62,7 @@ const SettingsRow = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 transition-colors active:bg-muted/20"
+    className="flex w-full items-center gap-3 px-3 py-3 transition-colors active:bg-muted/20"
   >
     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-muted/30">
       <Icon className={`h-[18px] w-[18px] ${iconClass ?? "text-muted-foreground"}`} />
@@ -123,6 +124,7 @@ const Settings = () => {
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
           <h1 className="text-xl font-bold text-foreground">Definições</h1>
+          <HexBadge label="CF" />
         </motion.div>
       </div>
 
@@ -132,17 +134,19 @@ const Settings = () => {
           <UserProfileCard />
         </motion.div>
 
-
-
+        <div className="h-px bg-white/[0.06]" />
 
         {/* ─── Plano Semanal (separado) ─── */}
         <SectionLabel>Plano Semanal</SectionLabel>
         <motion.div
           {...anim(0.12)}
-          className="rounded-[20px] border border-border/20 bg-card/60 p-4 backdrop-blur-sm"
+          className="p-4"
+          style={{ borderLeft: "2px solid #3B82F6" }}
         >
           <WeeklyPlanCalendar schedule={schedule} onSaveDay={handleSaveDay} />
         </motion.div>
+
+        <div className="h-px bg-white/[0.06]" />
 
         {/* ─── Inteligência Artificial ─── */}
         <SectionLabel>Inteligência Artificial</SectionLabel>
@@ -150,17 +154,22 @@ const Settings = () => {
           <AIFeaturesCarousel />
         </motion.div>
 
+        <div className="h-px bg-white/[0.06]" />
+
         {/* ─── Dados ─── */}
         <SectionLabel>Dados</SectionLabel>
         <motion.div {...anim(0.2)}>
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
+        <div className="h-px bg-white/[0.06]" />
+
         {/* ─── Subscrição ─── */}
         <SectionLabel>Subscrição</SectionLabel>
         <motion.div
           {...anim(0.22)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm overflow-hidden"
+          className="overflow-hidden"
+          style={{ borderLeft: "2px solid #3B82F6" }}
         >
           {isSubscriptionValid() || isTrialing ? (
             <>
@@ -204,7 +213,7 @@ const Settings = () => {
           ) : (
             <button
               onClick={() => navigate("/paywall")}
-              className="flex w-full items-center gap-3 rounded-[20px] px-3 py-4 transition-colors active:bg-muted/20"
+              className="flex w-full items-center gap-3 px-3 py-4 transition-colors active:bg-muted/20"
             >
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
                 <Crown className="h-[18px] w-[18px] text-amber-500" />
@@ -218,11 +227,14 @@ const Settings = () => {
           )}
         </motion.div>
 
+        <div className="h-px bg-white/[0.06]" />
+
         {/* ─── Informações ─── */}
         <SectionLabel>Informações</SectionLabel>
         <motion.div
           {...anim(0.25)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
+          className=""
+          style={{ borderLeft: "2px solid #3B82F6" }}
         >
           <LanguageSelector inline />
           <div className="mx-3 border-t border-border/10" />
@@ -238,11 +250,14 @@ const Settings = () => {
           />
         </motion.div>
 
+        <div className="h-px bg-white/[0.06]" />
+
         {/* ─── Conta ─── */}
         <SectionLabel>Conta</SectionLabel>
         <motion.div
           {...anim(0.3)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
+          className=""
+          style={{ borderLeft: "2px solid #3B82F6" }}
         >
           <SettingsRow
             icon={LogOut}
@@ -276,9 +291,6 @@ const Settings = () => {
         {/* Bottom spacer */}
         <div className="h-4" />
       </div>
-
-
-
 
 
 

@@ -381,11 +381,11 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Body canvas */}
       <div
-        className="relative rounded-none flex items-center justify-center overflow-hidden"
+        className="relative rounded-none flex items-center justify-center overflow-hidden mb-2"
         style={{
-          background: "linear-gradient(180deg, #0A1628 0%, #060D18 100%)",
+          
           minHeight: 380,
-          border: "1px solid rgba(255,255,255,0.06)",
+          borderLeft: "2px solid #3B82F6",
         }}
         onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
         onTouchEnd={(e) => { if (Math.abs(touchX.current - e.changedTouches[0].clientX) > 45) flipSide(); }}
@@ -487,9 +487,9 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div className="rounded-2xl p-4" style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
+            <div className="rounded-none p-4 mb-2" style={{
+              
+              borderLeft: "2px solid #3B82F6",
             }}>
               {/* Header */}
               <div className="flex items-center justify-between mb-3">
@@ -556,9 +556,9 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Summary chips */}
       {MUSCLES.some((m) => isScheduled(m)) && (
-        <div className="rounded-2xl p-3" style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.06)",
+        <div className="rounded-none p-3 mb-2" style={{
+          
+          borderLeft: "2px solid #3B82F6",
         }}>
           <p className="text-[10px] font-semibold uppercase tracking-widest mb-2"
             style={{ color: "rgba(255,255,255,0.28)" }}>

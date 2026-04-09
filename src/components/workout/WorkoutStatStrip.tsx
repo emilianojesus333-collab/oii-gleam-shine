@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Trophy, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface ExercisePR {
   name: string;
@@ -125,9 +126,12 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
       transition={{ delay: 0.3 }}
       className="pl-6"
     >
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-        Recordes Pessoais
-      </p>
+      <div className="flex items-center gap-2 mb-3">
+        <HexBadge label="PR" size={28} />
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Recordes Pessoais
+        </p>
+      </div>
 
       <div
         ref={scrollRef}
@@ -147,8 +151,8 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.08 }}
-              className="w-[160px] flex-shrink-0 space-y-3 rounded-none border-0 bg-[#0F0F0F] p-4"
-              style={{ scrollSnapAlign: "start", borderLeft: "2px solid rgba(255,255,255,0.08)" }}
+              className="w-[160px] flex-shrink-0 space-y-3 rounded-none p-4 mb-2"
+              style={{ scrollSnapAlign: "start", borderLeft: "2px solid #3B82F6" }}
             >
               <p className="truncate text-[11px] font-medium leading-tight text-muted-foreground">
                 {pr.name}

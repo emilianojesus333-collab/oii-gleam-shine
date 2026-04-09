@@ -412,7 +412,7 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
         animate={{ opacity: 1, y: 0 }}
         className={`p-3 rounded-xl border flex items-start gap-3 ${
         workoutContext.phase === 'post_workout' ?
-        'bg-blue-500/10 border-blue-500/20' :
+        'bg-green-500/10 border-green-500/20' :
         workoutContext.phase === 'pre_workout' ?
         'bg-amber-500/10 border-amber-500/20' :
         'bg-blue-500/10 border-blue-500/20'}`
@@ -420,13 +420,13 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
         workoutContext.phase === 'post_workout' ?
-        'bg-blue-500/20' :
+        'bg-green-500/20' :
         workoutContext.phase === 'pre_workout' ?
         'bg-amber-500/20' :
         'bg-blue-500/20'}`
         }>
             {workoutContext.phase === 'post_workout' ?
-          <Zap className="w-4 h-4 text-blue-500" /> :
+          <Zap className="w-4 h-4 text-green-500" /> :
           workoutContext.phase === 'pre_workout' ?
           <Dumbbell className="w-4 h-4 text-amber-500" /> :
 

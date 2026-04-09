@@ -10,6 +10,7 @@ import { FavoritesWidget } from "@/components/home/FavoritesWidget";
 import { WeeklyPerformanceWidget } from "@/components/home/WeeklyPerformanceWidget";
 import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 import { WeeklyStatsGrid } from "@/components/home/WeeklyStatsGrid";
 import { UpcomingWorkouts } from "@/components/home/UpcomingWorkouts";
@@ -153,6 +154,7 @@ const Home = () => {
       >
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
+            <HexBadge label="TR" size={34} />
             <h1 className="text-xl font-black text-secondary-foreground sm:text-3xl">LiftMate</h1>
             <SubscriptionBadge variant="compact" />
           </div>
@@ -195,7 +197,7 @@ const Home = () => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-10"
+              className="w-full max-w-lg bg-[#111]/95 p-6 pb-10"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Configurações</h2>
@@ -224,8 +226,10 @@ const Home = () => {
       </AnimatePresence>
 
       {/* Week Calendar */}
-      <main className="relative z-10 flex-1 px-4 sm:px-6 home-card-shadows">
+      <main className="relative z-10 flex-1 px-4 sm:px-6">
         <NameAIBanner />
+
+        <div className="h-px bg-white/[0.06]" />
 
         <TodayWorkoutCard
           workout={todayWorkout}
@@ -233,21 +237,39 @@ const Home = () => {
           isRestDay={isRestDay}
         />
 
+        <div className="h-px bg-white/[0.06]" />
+
         <RecoveryRingsCard />
+
+        <div className="h-px bg-white/[0.06]" />
 
         <StatusCarousel />
 
+        <div className="h-px bg-white/[0.06]" />
+
         <FitnessScoreRadar />
+
+        <div className="h-px bg-white/[0.06]" />
 
         <PerformanceMetricsPanel />
 
+        <div className="h-px bg-white/[0.06]" />
+
         <AIInsightsWidget />
+
+        <div className="h-px bg-white/[0.06]" />
 
         <WeeklyStatsGrid />
 
+        <div className="h-px bg-white/[0.06]" />
+
         <WeeklyPerformanceWidget />
 
+        <div className="h-px bg-white/[0.06]" />
+
         <FavoritesWidget />
+
+        <div className="h-px bg-white/[0.06]" />
 
         <UpcomingWorkouts />
       </main>

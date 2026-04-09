@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 export function WeeklyProgressCard() {
   const { data, loading } = useWeeklyStats();
@@ -8,7 +9,7 @@ export function WeeklyProgressCard() {
     return (
       <div className="space-y-3">
         <div className="h-5 w-32 rounded bg-muted-foreground/10 animate-pulse" />
-        <div className="rounded-none p-5 animate-pulse bg-[#0F0F0F]">
+        <div className="rounded-none p-5 animate-pulse">
           <div className="h-24" />
         </div>
       </div>
@@ -33,9 +34,12 @@ export function WeeklyProgressCard() {
       transition={{ delay: 0.6 }}
       className="space-y-3"
     >
-      <h3 className="text-base font-bold text-foreground">Esta semana</h3>
+      <div className="flex items-center gap-2">
+        <HexBadge label="PR" />
+        <h3 className="text-base font-bold text-foreground">Esta semana</h3>
+      </div>
 
-      <div className="rounded-none bg-[#0F0F0F] p-5" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+      <div className="rounded-none p-5 mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative flex-shrink-0">

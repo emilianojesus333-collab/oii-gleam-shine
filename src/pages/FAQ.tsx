@@ -34,7 +34,7 @@ const faqCategories: FAQCategory[] = [
     id: "subscription",
     name: "Subscrição & Pagamentos",
     icon: CreditCard,
-    color: "from-blue-500 to-teal-500",
+    color: "from-blue-500 to-cyan-500",
     items: [
       {
         question: "Como cancelo a minha subscrição?",
@@ -86,7 +86,7 @@ const faqCategories: FAQCategory[] = [
     id: "nutrition",
     name: "Nutrição & Alimentação",
     icon: Utensils,
-    color: "from-blue-500 to-lime-500",
+    color: "from-green-500 to-lime-500",
     items: [
       {
         question: "Como funciona o tracking nutricional?",

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Ruler, Weight, Calendar, Edit2, Check, X, Dumbbell, Camera } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -131,10 +132,15 @@ export const UserProfileCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none border-0 bg-[#0F0F0F] overflow-hidden" style={{ borderLeft: "2px solid #2563EB" }}
+      className="rounded-none overflow-hidden mb-2"
+      style={{ borderLeft: "2px solid #3B82F6" }}
     >
       {/* Profile Header */}
       <div className="relative px-5 pt-6 pb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <HexBadge label="CF" />
+          <span className="text-sm font-bold text-foreground">Perfil</span>
+        </div>
         <div className="flex items-start gap-4">
           {/* Large Avatar with upload */}
           <div className="relative">
@@ -179,7 +185,7 @@ export const UserProfileCard = () => {
               <h2 className="text-xl font-bold text-foreground truncate">{userData.name}</h2>
             </div>
             {isDeveloper && (
-              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px] px-1.5 py-0 mb-1">
+              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0 mb-1">
                 Developer Access
               </Badge>
             )}
