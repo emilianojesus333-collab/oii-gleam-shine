@@ -56,15 +56,15 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
       </div>
 
       {/* Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
 
         {/* Card 1 — Pós-treino (urgent/active) */}
         <motion.div
           whileTap={{ scale: 0.98 }}
           style={{
-            background: "#0F1923",
-            border: "1px solid rgba(232,101,10,0.2)",
-            borderRadius: 16,
+            background: "#1A1A1A",
+            borderBottom: "1px solid #2A2A2A",
+            borderRadius: 0,
             padding: "16px 18px",
             cursor: "pointer",
             display: "flex",
@@ -139,9 +139,9 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
         <motion.div
           whileTap={{ scale: 0.98 }}
           style={{
-            background: "#0F1923",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 16,
+            background: "#1A1A1A",
+            borderBottom: "1px solid #2A2A2A",
+            borderRadius: 0,
             padding: "16px 18px",
             cursor: "pointer",
             display: "flex",

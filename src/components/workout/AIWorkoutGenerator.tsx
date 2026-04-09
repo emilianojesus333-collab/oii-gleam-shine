@@ -246,8 +246,7 @@ export const AIWorkoutGenerator = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={hideHeader ? "" : "p-5 mb-2"}
-      style={hideHeader ? {} : { borderLeft: "2px solid #3B82F6" }}
+      style={hideHeader ? {} : { background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       {!hideHeader && (
         <div className="flex items-center gap-3 mb-4">
@@ -266,7 +265,8 @@ export const AIWorkoutGenerator = ({
           whileTap={{ scale: 0.95 }}
           onClick={generateWorkout}
           disabled={isGenerating}
-          className="w-full py-4 rounded-xl font-semibold shadow-lg shadow-primary/30 bg-black text-primary flex items-center justify-center gap-0 border-transparent opacity-75"
+          className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2"
+          style={{ background: "#0D0D0D", color: "#ffffff", border: "1px solid rgba(255,255,255,0.12)" }}
         >
           {isGenerating ? (
             <>
@@ -336,7 +336,7 @@ export const AIWorkoutGenerator = ({
             )}
           </motion.button>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="border-t border-[#2A2A2A] mt-3 mb-3" />
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 && (

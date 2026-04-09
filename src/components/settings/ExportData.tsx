@@ -227,7 +227,7 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
         <motion.button
           whileTap={{ scale: 0.98 }}
           className="w-full rounded-none p-5 flex items-center gap-4 mb-2"
-          style={{ borderLeft: "2px solid #3B82F6" }}>
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
 
           <HexBadge label="CF" />
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">

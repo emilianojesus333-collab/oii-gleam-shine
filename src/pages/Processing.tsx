@@ -40,7 +40,7 @@ const Processing = () => {
   }, [navigate, isSubscriptionValid, isTrialing, checkSubscription]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}

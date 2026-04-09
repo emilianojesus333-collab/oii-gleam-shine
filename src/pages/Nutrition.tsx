@@ -19,7 +19,6 @@ const Nutrition = () => {
     goals,
     todayLog,
     progress,
-    remaining,
     weeklyData,
     weeklyStats,
     monthlyData,
@@ -86,87 +85,36 @@ const Nutrition = () => {
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 px-6 py-4 space-y-5">
-        {/* Macro rings */}
+      <div className="relative z-10">
         <MacroRings
           goals={goals}
           consumed={todayLog.totals}
           progress={progress} />
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Plans */}
         <MealPlanCards />
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Post-workout suggestions */}
         <PostWorkoutSuggestions />
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* AI Scanner button */}
         <FoodScanner onMealAdded={addMeal} />
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Quick stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-rose-500/15 to-rose-600/5 p-4 text-center"
-            style={{ borderLeft: "2px solid #3B82F6" }}>
-
-            <p className="text-2xl font-black text-[#a51d1d]">{Math.round(remaining.protein)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Proteína</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="bg-gradient-to-br from-amber-500/15 to-amber-600/5 p-4 text-center"
-            style={{ borderLeft: "2px solid #3B82F6" }}>
-
-            <p className="text-2xl font-black text-amber-500">{Math.round(remaining.carbs)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Carbs</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-sky-500/15 to-sky-600/5 p-4 text-center"
-            style={{ borderLeft: "2px solid #3B82F6" }}>
-
-            <p className="text-2xl font-black text-teal-600">{Math.round(remaining.fat)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Gordura</p>
-          </motion.div>
-        </div>
-
-        <div className="h-px bg-white/[0.06]" />
-
         {/* Today's meals */}
-        <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2 text-white">
+        <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%" }}>
+          <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
             <HexBadge label="NU" size={28} />
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
-
           <AnimatePresence>
             {todayLog.meals.length === 0 ?
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 bg-black">
-
+              className="text-center py-8">
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm text-gray-300">Nenhuma refeição registada</p>
                 <p className="text-xs text-gray-400">Usa o scanner IA acima para começar</p>
               </motion.div> :
-
-            <div className="space-y-3">
+            <div>
                 {todayLog.meals.map((meal) =>
               <MealCard key={meal.id} meal={meal} onRemove={removeMeal} />
               )}
@@ -175,14 +123,8 @@ const Nutrition = () => {
           </AnimatePresence>
         </div>
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Weekly chart */}
         <NutritionChart weeklyData={weeklyData} goals={goals} allLogs={allLogs} />
 
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Insights */}
         <NutritionInsights
           proteinConsumed={Math.round(todayLog.totals.protein)}
           proteinGoal={goals.protein}

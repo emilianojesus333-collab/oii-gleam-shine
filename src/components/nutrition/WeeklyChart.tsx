@@ -21,8 +21,8 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-none mb-2"
-      style={{ borderLeft: "2px solid #3B82F6" }}>
+      className="rounded-none"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
 
       <div className="flex items-center gap-2 mb-4">
         <HexBadge label="NU" />

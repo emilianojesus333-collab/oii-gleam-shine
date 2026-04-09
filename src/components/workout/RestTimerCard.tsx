@@ -35,9 +35,11 @@ interface RestTimerCardProps {
 }
 
 const CARD_STYLE: React.CSSProperties = {
-  background: "#0F1923",
-  border: "1px solid rgba(255,255,255,0.07)",
-  borderRadius: 20,
+  background: "#1A1A1A",
+  borderRadius: 0,
+  border: "none",
+  borderBottom: "1px solid #2A2A2A",
+  width: "100%",
 };
 
 export const RestTimerCard = ({ savedExercises, trainingType, userId }: RestTimerCardProps) => {
@@ -148,9 +150,9 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId }: RestTime
   const dashOffset = CIRCUMFERENCE * (1 - progress);
 
   // Main button appearance
-  let mainBg = "#2563EB";
+  let mainBg = "#0D0D0D";
   let mainColor = "white";
-  let mainBorder = "none";
+  let mainBorder = "1px solid rgba(255,255,255,0.12)";
   let mainIcon = <Play size={16} />;
   let mainLabel = "Iniciar Descanso";
   if (isRunning) {
@@ -168,7 +170,7 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId }: RestTime
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {/* ── SECTION 1: Cálculo do Descanso ── */}
       <div style={{ ...CARD_STYLE, padding: "16px 18px" }}>
         {/* Header */}

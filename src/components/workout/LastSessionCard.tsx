@@ -70,10 +70,12 @@ const STAT_LABEL: React.CSSProperties = {
 };
 
 const CARD: React.CSSProperties = {
-  background: "#0F1923",
-  border: "1px solid rgba(255,255,255,0.07)",
-  borderRadius: 20,
-  padding: 18,
+  background: "#1A1A1A",
+  borderRadius: 0,
+  border: "none",
+  borderBottom: "1px solid #2A2A2A",
+  padding: "18px 16px",
+  width: "100%",
 };
 
 export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardProps) => {

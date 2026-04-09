@@ -38,17 +38,21 @@ const SECTION_LABEL: React.CSSProperties = {
 };
 
 const MAIN_CARD: React.CSSProperties = {
-  background: '#0F1923',
-  border: '1px solid rgba(255,255,255,0.07)',
-  borderRadius: 20,
-  padding: '20px 18px 18px',
+  background: '#1A1A1A',
+  borderRadius: 0,
+  border: 'none',
+  borderBottom: '1px solid #2A2A2A',
+  padding: '20px 16px 18px',
+  width: '100%',
 };
 
 const HISTORY_CARD: React.CSSProperties = {
-  background: '#0F1923',
-  border: '1px solid rgba(255,255,255,0.07)',
-  borderRadius: 20,
-  padding: 18,
+  background: '#1A1A1A',
+  borderRadius: 0,
+  border: 'none',
+  borderBottom: '1px solid #2A2A2A',
+  padding: '18px 16px',
+  width: '100%',
 };
 
 const Hydration = () => {
@@ -88,9 +92,9 @@ const Hydration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-black pb-28">
       {/* Header */}
-      <div className="px-6 pt-14 pb-4 flex items-center justify-between">
+      <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "56px 16px 16px" }} className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <HexBadge label="H₂" />
           <Droplets className="h-5 w-5" style={{ color: CYAN }} />
@@ -163,7 +167,7 @@ const Hydration = () => {
       </div>
 
       {/* Content */}
-      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
         {/* ── MAIN CARD ── */}
         <div style={MAIN_CARD}>
@@ -253,7 +257,7 @@ const Hydration = () => {
               borderRadius: 12,
               padding: 10,
             }}>
-              <span style={{ ...SECTION_LABEL, color: 'rgba(34,211,238,0.6)', marginBottom: 3 }}>FALTAM</span>
+              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.28)', marginBottom: 3 }}>FALTAM</span>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                 <span style={{ fontSize: 16, fontWeight: 900, color: CYAN }}>{remainMl}</span>
                 <span style={{ fontSize: 10, color: 'rgba(34,211,238,0.5)' }}>ml</span>
@@ -341,10 +345,9 @@ const Hydration = () => {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          padding: '11px 14px',
+          padding: '11px 16px',
           background: 'rgba(34,211,238,0.07)',
-          border: '1px solid rgba(34,211,238,0.14)',
-          borderRadius: 14,
+          borderBottom: '1px solid #2A2A2A',
         }}>
           <Info size={14} color={CYAN} style={{ flexShrink: 0 }} />
           <span style={{ fontSize: 11, color: 'rgba(34,211,238,0.75)', fontWeight: 500 }}>

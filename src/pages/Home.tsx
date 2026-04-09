@@ -12,7 +12,6 @@ import { AIInsightsWidget } from "@/components/home/AIInsightsWidget";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
 import { HexBadge } from "@/components/ui/HexBadge";
 
-import { WeeklyStatsGrid } from "@/components/home/WeeklyStatsGrid";
 import { UpcomingWorkouts } from "@/components/home/UpcomingWorkouts";
 import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
@@ -225,52 +224,21 @@ const Home = () => {
         )}
       </AnimatePresence>
 
-      {/* Week Calendar */}
-      <main className="relative z-10 flex-1 px-4 sm:px-6">
+      {/* Content sections */}
+      <main className="relative z-10 flex-1">
         <NameAIBanner />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <TodayWorkoutCard
           workout={todayWorkout}
           stimulus={trainingStimulus}
           isRestDay={isRestDay}
         />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <RecoveryRingsCard />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <StatusCarousel />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <FitnessScoreRadar />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <PerformanceMetricsPanel />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <AIInsightsWidget />
-
-        <div className="h-px bg-white/[0.06]" />
-
-        <WeeklyStatsGrid />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <WeeklyPerformanceWidget />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <FavoritesWidget />
-
-        <div className="h-px bg-white/[0.06]" />
-
         <UpcomingWorkouts />
       </main>
 

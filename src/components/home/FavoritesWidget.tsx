@@ -28,6 +28,7 @@ export const FavoritesWidget = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
@@ -54,7 +55,7 @@ export const FavoritesWidget = () => {
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/nutrition')}
             className="rounded-none p-3 text-center"
-            style={{ borderLeft: "2px solid #3B82F6" }}
+            style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
           >
             <span className="text-2xl block mb-1">{item.emoji}</span>
             <p className="text-xs text-white/70 truncate font-medium">{item.name}</p>

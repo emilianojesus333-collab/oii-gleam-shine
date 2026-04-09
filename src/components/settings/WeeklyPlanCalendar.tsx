@@ -381,11 +381,14 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Body canvas */}
       <div
-        className="relative rounded-none flex items-center justify-center overflow-hidden mb-2"
+        className="relative flex items-center justify-center overflow-hidden"
         style={{
-          
           minHeight: 380,
-          borderLeft: "2px solid #3B82F6",
+          background: "#1A1A1A",
+          borderRadius: 0,
+          border: "none",
+          borderBottom: "1px solid #2A2A2A",
+          width: "100%",
         }}
         onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
         onTouchEnd={(e) => { if (Math.abs(touchX.current - e.changedTouches[0].clientX) > 45) flipSide(); }}
@@ -487,10 +490,7 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div className="rounded-none p-4 mb-2" style={{
-              
-              borderLeft: "2px solid #3B82F6",
-            }}>
+            <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px", width: "100%" }}>
               {/* Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -556,10 +556,7 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Summary chips */}
       {MUSCLES.some((m) => isScheduled(m)) && (
-        <div className="rounded-none p-3 mb-2" style={{
-          
-          borderLeft: "2px solid #3B82F6",
-        }}>
+        <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "12px 16px", width: "100%" }}>
           <p className="text-[10px] font-semibold uppercase tracking-widest mb-2"
             style={{ color: "rgba(255,255,255,0.28)" }}>
             Plano configurado

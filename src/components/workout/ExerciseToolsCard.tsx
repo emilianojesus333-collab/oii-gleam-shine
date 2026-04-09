@@ -159,9 +159,11 @@ export const ExerciseToolsCard = ({
   return (
     <div
       style={{
-        background: "#0F1923",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 20,
+        background: "#1A1A1A",
+        borderRadius: 0,
+        border: "none",
+        borderBottom: "1px solid #2A2A2A",
+        width: "100%",
         overflow: "hidden",
       }}
     >
@@ -256,12 +258,12 @@ export const ExerciseToolsCard = ({
                 width: "100%",
                 marginTop: 14,
                 padding: 15,
-                background: justSaved ? "#16a34a" : "#2563EB",
+                background: justSaved ? "#16a34a" : "#0D0D0D",
                 color: "white",
                 borderRadius: 12,
                 fontSize: 13,
                 fontWeight: 800,
-                border: "none",
+                border: justSaved ? "none" : "1px solid rgba(255,255,255,0.12)",
                 cursor: selectedExercise.trim() ? "pointer" : "not-allowed",
                 opacity: selectedExercise.trim() ? 1 : 0.45,
                 display: "flex",

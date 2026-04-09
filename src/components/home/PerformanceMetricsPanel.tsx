@@ -84,7 +84,70 @@ export const PerformanceMetricsPanel = () => {
   }];
 
 
-  return;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.42 }}
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <Activity size={16} color="rgba(255,255,255,0.4)" />
+        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+          Métricas
+        </span>
+      </div>
+
+      {/* Stat cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              style={{ background: "#111111", borderRadius: 8, padding: "12px 14px", border: "1px solid #2A2A2A" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <Icon size={12} color={card.color || "rgba(255,255,255,0.4)"} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  {card.label}
+                </span>
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: card.color || "#fff", lineHeight: 1 }}>
+                {card.value}
+              </div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 3 }}>{card.sub}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Performance trend chart */}
+      {performanceTrend && performanceTrend.length > 0 && (
+        <div>
+          <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Tendência 30 dias
+          </span>
+          <div style={{ marginTop: 8, height: 80 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={performanceTrend} margin={{ top: 0, right: 0, left: -32, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.25)" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "rgba(255,255,255,0.25)" }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="score" stroke="#2563EB" strokeWidth={1.5} fill="url(#perfGrad)" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
 
 
 

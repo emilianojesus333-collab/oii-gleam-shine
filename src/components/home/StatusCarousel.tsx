@@ -58,7 +58,7 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="weekly-progress" className="space-y-3">
       {/* Weekly Progress */}
-      <div className="rounded-none p-4 mb-2" style={{ borderLeft: "2px solid #3B82F6" }}>
+      <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg width={ringSize} height={ringSize} className="-rotate-90">
@@ -100,7 +100,7 @@ export const StatusCarousel = () => {
 
   const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
   slides.push(
-    <div key="recovery-trend" className={cardBase} style={{ borderLeft: "2px solid #3B82F6" }}>
+    <div key="recovery-trend" className={cardBase} style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
       <div className="mb-4 flex items-center gap-3">
         <HexBadge label="RC" />
         <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
@@ -177,7 +177,7 @@ export const StatusCarousel = () => {
         })
         }
         className={`${cardBase} cursor-pointer`}
-        style={{ borderLeft: "2px solid #3B82F6" }}>
+        style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
         
         <div className="mb-3 flex items-center gap-3">
           <HexBadge label="RC" />
