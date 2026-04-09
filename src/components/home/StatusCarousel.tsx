@@ -143,20 +143,6 @@ export const StatusCarousel = () => {
             </div>
           }
 
-          <div className="rounded-xl border border-border/40 bg-background/40 p-3">
-            <div className="flex items-start gap-2">
-              <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-foreground">Contexto de hidratação</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {hydrationContext.message}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {hydrationContext.currentIntakeLiters.toFixed(1)} / {hydrationContext.goalLiters.toFixed(1)} L · recuperação a {hydrationContext.recoveryRatePerHour}%/h
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
