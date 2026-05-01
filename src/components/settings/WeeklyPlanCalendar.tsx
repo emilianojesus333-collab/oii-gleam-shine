@@ -381,14 +381,11 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Body canvas */}
       <div
-        className="relative flex items-center justify-center overflow-hidden"
+        className="relative rounded-3xl flex items-center justify-center overflow-hidden"
         style={{
+          background: "linear-gradient(180deg, #0A1628 0%, #060D18 100%)",
           minHeight: 380,
-          background: "#1A1A1A",
-          borderRadius: 0,
-          border: "none",
-          borderBottom: "1px solid #2A2A2A",
-          width: "100%",
+          border: "1px solid rgba(255,255,255,0.06)",
         }}
         onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
         onTouchEnd={(e) => { if (Math.abs(touchX.current - e.changedTouches[0].clientX) > 45) flipSide(); }}
@@ -490,7 +487,10 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px", width: "100%" }}>
+            <div className="rounded-2xl p-4" style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}>
               {/* Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -556,7 +556,10 @@ export const WeeklyPlanCalendar = ({ schedule, onSaveDay }: WeeklyPlanCalendarPr
 
       {/* Summary chips */}
       {MUSCLES.some((m) => isScheduled(m)) && (
-        <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "12px 16px", width: "100%" }}>
+        <div className="rounded-2xl p-3" style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}>
           <p className="text-[10px] font-semibold uppercase tracking-widest mb-2"
             style={{ color: "rgba(255,255,255,0.28)" }}>
             Plano configurado

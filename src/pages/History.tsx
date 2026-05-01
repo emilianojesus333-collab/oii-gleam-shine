@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,23 +96,22 @@ export default function History() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-foreground pb-32">
-      <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "48px 20px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+    <div className="min-h-screen bg-background text-foreground pb-32">
+      <div className="px-5 pt-12 pb-4 flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/workout")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <HexBadge label="HI" />
         <h1 className="text-xl font-bold">Histórico de Treinos</h1>
       </div>
 
-      <div className="space-y-0">
+      <div className="px-5 space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : sessions.length === 0 ? (
           <div className="text-center py-20 px-6">
-            <div className="w-16 h-16 bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Dumbbell className="w-8 h-8 text-primary/60" />
             </div>
             <p className="font-semibold text-foreground mb-1">Ainda sem treinos</p>
@@ -127,14 +125,13 @@ export default function History() {
           sessions.map((s, i) => {
             const totalDecisions = s.decisions.progress + s.decisions.maintain + s.decisions.deload;
             return (
-              <div key={s.id}>
               <motion.button
+                key={s.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
                 onClick={() => navigate(`/workout-summary/${s.id}`)}
-                className="w-full text-left transition-colors"
-                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}
+                className="w-full text-left rounded-2xl bg-card border border-border p-4 hover:bg-accent/50 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div>
@@ -174,7 +171,6 @@ export default function History() {
                   )}
                 </div>
               </motion.button>
-              </div>
             );
           })
         )}

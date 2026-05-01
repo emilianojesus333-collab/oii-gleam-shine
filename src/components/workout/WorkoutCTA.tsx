@@ -23,14 +23,14 @@ export const WorkoutCTA = ({
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="px-6 pb-8"
     >
       {showComplete ? (
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={onComplete}
           disabled={isCompleting}
-          className="relative w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 bg-[#2563EB] text-white shadow-[0_0_30px_rgba(37,99,235,0.3)] disabled:opacity-50 transition-all"
+          className="relative w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 bg-[hsl(142,60%,40%)] text-white shadow-[0_0_30px_hsl(142,60%,40%,0.3)] disabled:opacity-50 transition-all"
         >
           {isCompleting ? (
             <>

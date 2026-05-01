@@ -32,7 +32,7 @@ export const BodyMeasurementsCard = ({ onNavigate }: BodyMeasurementsCardProps) 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+        className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 p-4"
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export const MeasurementsHistory = () => {
     <div className="space-y-4">
       {/* Weight Chart */}
       {progressData.length > 1 && (
-        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
+        <div className="rounded-2xl bg-card/50 border border-border/50 p-4">
           <h3 className="font-semibold mb-3">Evolução do Peso</h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">

@@ -5,10 +5,9 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 const getFatigueColor = (value: number) => {
-  if (value <= 20) return "#2563EB";
+  if (value <= 20) return "hsl(142, 71%, 45%)";
   if (value <= 40) return "hsl(217, 91%, 60%)";
   if (value <= 60) return "hsl(48, 96%, 53%)";
   if (value <= 80) return "hsl(25, 95%, 53%)";
@@ -99,11 +98,9 @@ export const FatigueHistoryCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="rounded-none"
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 p-4"
     >
       <div className="flex items-center gap-2 mb-3">
-        <HexBadge label="RC" />
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
           <Activity className="h-4 w-4 text-primary" />
         </div>
@@ -159,7 +156,7 @@ export const FatigueHistoryCard = () => {
           {/* Color legend */}
           <div className="flex items-center justify-center gap-3 mt-2 flex-wrap">
             {[
-              { label: "Recuperado", color: "#2563EB" },
+              { label: "Recuperado", color: "hsl(142, 71%, 45%)" },
               { label: "Leve", color: "hsl(217, 91%, 60%)" },
               { label: "Moderada", color: "hsl(48, 96%, 53%)" },
               { label: "Alta", color: "hsl(25, 95%, 53%)" },

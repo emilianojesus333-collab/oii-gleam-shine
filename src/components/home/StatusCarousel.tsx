@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Activity, AlertTriangle, TrendingUp, Dumbbell, Clock, Droplets } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { HexBadge } from "@/components/ui/HexBadge";
 import {
   useMuscleFatigue,
   getStatusLabel,
@@ -13,7 +12,7 @@ import {
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 const cardBase =
-"flex min-h-[320px] w-full flex-col rounded-none p-5 mb-2";
+"flex min-h-[320px] w-full flex-col rounded-2xl border border-border/50 bg-card p-5";
 
 export const StatusCarousel = () => {
   const navigate = useNavigate();
@@ -26,11 +25,11 @@ export const StatusCarousel = () => {
 
   const getBarColor = (status: string) => {
     switch (status) {
-      case "recovered":return "bg-[#2563EB]";
+      case "recovered":return "bg-[hsl(142,71%,45%)]";
       case "almost_recovered":return "bg-[hsl(45,93%,47%)]";
       case "recovering":return "bg-[hsl(270,60%,55%)]";
       case "fatigued":return "bg-destructive";
-      default:return "bg-[#2563EB]";
+      default:return "bg-[hsl(142,71%,45%)]";
     }
   };
 
@@ -58,14 +57,14 @@ export const StatusCarousel = () => {
   slides.push(
     <div key="weekly-progress" className="space-y-3">
       {/* Weekly Progress */}
-      <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+      <div className="rounded-2xl p-4 shadow-lg shadow-black/20 bg-[#380439]/[0.43]">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg width={ringSize} height={ringSize} className="-rotate-90">
               <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="hsl(220,10%,20%)" strokeWidth={ringStroke} />
               <motion.circle
                 cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none"
-                stroke="#2563EB" strokeWidth={ringStroke} strokeLinecap="round"
+                stroke="hsl(142,71%,45%)" strokeWidth={ringStroke} strokeLinecap="round"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
@@ -91,13 +90,78 @@ export const StatusCarousel = () => {
           <div
             key={i}
             className="h-1.5 flex-1 rounded-full transition-all"
-            style={{ backgroundColor: active ? "#2563EB" : "hsl(220,10%,20%)" }} />
+            style={{ backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)" }} />
           )}
         </div>
       </div>
     </div>
   );
 
+  const recovering = muscles.filter((muscle) => muscle.current_fatigue > 0);
+  slides.push(
+    <div key="recovery-trend" className={cardBase}>
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+          <TrendingUp className="h-5 w-5 text-foreground" />
+        </div>
+        <p className="text-sm font-bold text-foreground">Recuperação em progresso</p>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-3">
+        {recovering.length === 0 ?
+        <p className="text-sm text-muted-foreground">
+            Todos os músculos estão recuperados. Bom treino!
+          </p> :
+
+        recovering.
+        sort((a, b) => b.hours_to_recovery - a.hours_to_recovery).
+        map((muscle) =>
+        <div key={muscle.muscle_group} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-sm text-foreground">{getMuscleLabel(muscle.muscle_group)}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  ≈ {muscle.hours_to_recovery}h para recuperar
+                </span>
+              </div>
+        )
+        }
+
+        <div className="mt-auto space-y-2 pt-2">
+          {mostRecovered.length > 0 &&
+          <div className="border-t border-border/30 pt-2">
+              <div className="mb-1 flex items-center gap-2">
+                <Dumbbell className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-primary">Sugestão de treino hoje</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Músculos mais recuperados:{" "}
+                <span className="font-medium text-foreground">
+                  {mostRecovered.map((muscle) => getMuscleLabel(muscle.muscle_group)).join(", ")}
+                </span>
+              </p>
+            </div>
+          }
+
+          <div className="rounded-xl border border-border/40 bg-background/40 p-3">
+            <div className="flex items-start gap-2">
+              <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div>
+                <p className="text-xs font-medium text-foreground">Contexto de hidratação</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {hydrationContext.message}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {hydrationContext.currentIntakeLiters.toFixed(1)} / {hydrationContext.goalLiters.toFixed(1)} L · recuperação a {hydrationContext.recoveryRatePerHour}%/h
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   if (fatigued.length > 0) {
     slides.push(
@@ -113,11 +177,12 @@ export const StatusCarousel = () => {
           }
         })
         }
-        className={`${cardBase} cursor-pointer`}
-        style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+        className={`${cardBase} cursor-pointer`}>
         
         <div className="mb-3 flex items-center gap-3">
-          <HexBadge label="RC" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+          </div>
           <p className="text-sm font-bold text-foreground">Fadiga elevada detectada</p>
         </div>
 

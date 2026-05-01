@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines, Edit3, Save, Check } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -226,9 +225,9 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-black">
+    <div className="flex h-[100dvh] flex-col bg-[#0B0F14]">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2A] bg-black">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
         <button
           onClick={() => navigate(-1)}
           className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
@@ -237,7 +236,6 @@ const Chat = () => {
         </button>
 
         <button onClick={openNameEditor} className="flex items-center gap-2">
-          <HexBadge label="CH" size={30} />
           <Activity className="h-4 w-4 text-[#F3F4F6]" />
           <h1 className="text-base font-semibold text-[#F3F4F6]">{aiName} AI</h1>
           <Edit3 className="h-3 w-3 text-white/30" />
@@ -265,7 +263,7 @@ const Chat = () => {
         <div className="flex flex-col gap-4">
           {messages.length === 0 &&
           <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1A1A1A]">
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F2937]">
                 <Activity className="h-8 w-8 text-[#F3F4F6]" />
               </div>
               <h2 className="mb-2 text-xl font-bold text-[#F3F4F6]">{aiName} AI</h2>
@@ -282,7 +280,7 @@ const Chat = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
             
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1A1A1A]" : ""}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1F2937]" : ""}`}>
                 <p className="text-sm leading-relaxed whitespace-pre-line text-[#F3F4F6]">
                   {message.text ||
                 <span className="flex items-center gap-1">
@@ -370,7 +368,7 @@ const Chat = () => {
         }
 
         {/* Pill input */}
-        <div className="flex items-center gap-2 rounded-full bg-[#1A1A1A]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
+        <div className="flex items-center gap-2 rounded-full bg-[#1F2937]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
           <input
             type="text"
             value={inputValue}
@@ -407,7 +405,7 @@ const Chat = () => {
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading || isRecording}
             whileTap={{ scale: 0.95 }}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white disabled:opacity-40">
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#22C55E] text-white disabled:opacity-40">
             
             {isLoading ?
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
@@ -437,7 +435,7 @@ const Chat = () => {
 
       {/* AI Name Editor Sheet */}
       <Sheet open={isEditingName} onOpenChange={setIsEditingName}>
-        <SheetContent side="bottom" className="rounded-t-3xl bg-black border-[#2A2A2A]">
+        <SheetContent side="bottom" className="rounded-t-3xl bg-[#0B0F14] border-[#1F2937]">
           <SheetHeader className="pb-4">
             <SheetTitle className="text-xl font-bold text-[#F3F4F6]">Nome do assistente</SheetTitle>
           </SheetHeader>
@@ -447,7 +445,7 @@ const Chat = () => {
               value={tempName}
               onChange={(e) => setTempName(e.target.value)}
               placeholder="Ex: Coach, Buddy, Trainer..."
-              className="border-[#2A2A2A] bg-[#1A1A1A]/50 text-[#F3F4F6] placeholder:text-white/30"
+              className="border-[#1F2937] bg-[#1F2937]/50 text-[#F3F4F6] placeholder:text-white/30"
               maxLength={20}
             />
             <div className="flex flex-wrap gap-2">
@@ -458,8 +456,8 @@ const Chat = () => {
                   onClick={() => setTempName(s)}
                   className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
                     tempName === s
-                      ? "bg-[#2563EB] text-white"
-                      : "border border-[#2A2A2A] bg-[#1A1A1A]/30 text-white/50"
+                      ? "bg-[#22C55E] text-white"
+                      : "border border-[#1F2937] bg-[#1F2937]/30 text-white/50"
                   }`}
                 >
                   {s}
@@ -470,7 +468,7 @@ const Chat = () => {
               whileTap={{ scale: 0.95 }}
               onClick={saveAiName}
               disabled={!tempName.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-4 font-semibold text-white disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#22C55E] py-4 font-semibold text-white disabled:opacity-50"
             >
               <Check className="h-5 w-5" />
               Guardar

@@ -104,14 +104,10 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
         {/* The card to export */}
         <div
           ref={cardRef}
-          className="w-full rounded-none overflow-hidden"
+          className="w-full rounded-3xl overflow-hidden"
           style={{
+            background: "linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
             padding: "32px 24px",
-            background: "#1A1A1A",
-            borderRadius: 0,
-            border: "none",
-            borderBottom: "1px solid #2A2A2A",
-            width: "100%",
           }}
         >
           {/* Header */}

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { computeFitnessScore } from "@/hooks/useFitnessScore";
 import { usePerformanceMetrics } from "@/hooks/usePerformanceMetrics";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
@@ -79,12 +78,7 @@ export function FitnessScoreRadar() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingTop: 8 }}>
-        <HexBadge label="PR" />
-        <span style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>Score de Forma</span>
-      </div>
       {!hasData ? (
         <div className="flex items-center justify-center py-10">
           <p className="text-xs text-muted-foreground text-center leading-relaxed">
@@ -109,13 +103,13 @@ export function FitnessScoreRadar() {
                 <Radar
                   name="score"
                   dataKey="value"
-                  stroke="#2563EB"
+                  stroke="hsl(142, 71%, 45%)"
                   strokeWidth={2}
-                  fill="#2563EB"
+                  fill="hsl(142, 71%, 45%)"
                   fillOpacity={0.2}
                   dot={{
                     r: 3,
-                    fill: "#2563EB",
+                    fill: "hsl(142, 71%, 45%)",
                     strokeWidth: 0,
                   }}
                 />

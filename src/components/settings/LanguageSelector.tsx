@@ -52,8 +52,7 @@ export const LanguageSelector = ({ inline }: LanguageSelectorProps) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4"
-          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+          className="rounded-[20px] border border-border/30 bg-card/60 p-4"
         >
           {triggerContent}
         </motion.div>

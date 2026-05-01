@@ -20,7 +20,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
+    --primary: 200 98% 39%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
@@ -37,21 +37,21 @@
 
     --border: 214 31% 91%;
     --input: 214 31% 91%;
-    --ring: 221 83% 53%;
+    --ring: 200 98% 39%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary: 200 98% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 40% 96%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 31% 91%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-ring: 200 98% 39%;
 
-    --chart-1: 221 83% 53%;
-    --chart-2: 221 83% 63%;
+    --chart-1: 198 93% 59%;
+    --chart-2: 213 93% 67%;
     --chart-3: 215 20% 65%;
     --chart-4: 215 16% 46%;
     --chart-5: 222 47% 11%;
@@ -76,8 +76,8 @@
     --gradient-end: 215 20% 65%;
 
     /* Nutrition & Alerts accent colors */
-    --nutrition-primary: 221 83% 53%;
-    --nutrition-glow: 221 83% 43%;
+    --nutrition-primary: 142 71% 45%;
+    --nutrition-glow: 142 76% 36%;
     --alerts-primary: 199 89% 48%;
     --alerts-glow: 217 91% 60%;
     --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
@@ -85,7 +85,7 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
     --card: 217 32% 17%;
@@ -94,8 +94,8 @@
     --popover: 215 24% 26%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 198 93% 59%;
+    --primary-foreground: 222 47% 11%;
 
     --secondary: 217 32% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -111,16 +111,16 @@
 
     --border: 215 19% 34%;
     --input: 215 19% 34%;
-    --ring: 221 83% 53%;
+    --ring: 198 93% 59%;
 
     --sidebar-background: 222 47% 8%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 198 93% 59%;
+    --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 215 24% 26%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 19% 34%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-ring: 198 93% 59%;
 
     /* Gradient colors for subtle effects */
     --gradient-start: 220 10% 25%;
@@ -128,13 +128,13 @@
     --gradient-end: 220 10% 15%;
 
     /* Nutrition & Alerts accent colors */
-    --nutrition-primary: 221 83% 53%;
-    --nutrition-glow: 221 83% 43%;
+    --nutrition-primary: 142 71% 45%;
+    --nutrition-glow: 142 76% 36%;
     --alerts-primary: 199 89% 48%;
     --alerts-glow: 217 91% 60%;
 
-    --chart-1: 221 83% 63%;
-    --chart-2: 221 83% 73%;
+    --chart-1: 199 95% 73%;
+    --chart-2: 211 96% 78%;
     --chart-3: 215 20% 65%;
     --chart-4: 215 16% 46%;
     --chart-5: 215 19% 34%;

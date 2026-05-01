@@ -3,7 +3,6 @@ import {
   useMuscleFatigue,
   getMuscleLabel,
 } from "@/hooks/useMuscleFatigue";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 const RING_COLORS = ["#F87171", "#FBBF24", "#4ADE80", "#818CF8"];
 const RING_RADII = [49, 37, 27, 17];
@@ -58,27 +57,28 @@ export function RecoveryRingsCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="mb-4"
+      style={{
+        background: "#0F1923",
+        borderRadius: 22,
+        border: "1px solid rgba(255,255,255,0.07)",
+        padding: "20px 18px 18px",
+      }}
     >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <HexBadge label="RC" />
-        <div>
-          <p
-            style={{
-              fontSize: 9,
-              fontWeight: 600,
-              letterSpacing: "0.1em",
-              color: "rgba(255,255,255,0.25)",
-              textTransform: "uppercase",
-              marginBottom: 2,
-            }}
-          >
-            Recuperação Muscular
-          </p>
-          <p style={{ fontSize: 17, fontWeight: 800, color: "#fff", lineHeight: 1 }}>Hoje</p>
-        </div>
-      </div>
+      <p
+        style={{
+          fontSize: 9,
+          fontWeight: 600,
+          letterSpacing: "0.1em",
+          color: "rgba(255,255,255,0.25)",
+          textTransform: "uppercase",
+          marginBottom: 2,
+        }}
+      >
+        Recuperação Muscular
+      </p>
+      <p style={{ fontSize: 17, fontWeight: 800, color: "#fff", marginBottom: 16 }}>Hoje</p>
 
       {/* Rings + Legend */}
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>

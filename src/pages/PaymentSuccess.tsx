@@ -144,7 +144,7 @@ const PaymentSuccess = () => {
   }, [navigate, subscriptionSynced]);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
       {/* Success Icon */}
       <motion.div
         initial={{ scale: 0, rotate: -180 }}

@@ -157,7 +157,7 @@ export const NutritionHistory = ({
                   className="space-y-4"
                 >
                   {/* Weekly Summary */}
-                  <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
                     <h3 className="font-semibold mb-3 flex items-center gap-2 text-white">
                       <Flame className="w-4 h-4 text-orange-500" />
                       Resumo Semanal
@@ -212,7 +212,7 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Monthly Chart */}
-                  <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                     <h3 className="font-semibold mb-3 text-white">Últimos 30 Dias</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%">
@@ -276,7 +276,7 @@ export const NutritionHistory = ({
                   </div>
 
                   {/* Daily Goals */}
-                  <div className="rounded-none" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                     <h3 className="font-semibold mb-3 text-white">Metas Diárias</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between p-2 rounded-lg bg-white/5">
