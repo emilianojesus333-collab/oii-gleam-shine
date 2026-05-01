@@ -6,12 +6,11 @@ import { MacroRings } from '@/components/nutrition/MacroRings';
 import { FoodScanner } from '@/components/nutrition/FoodScanner';
 import { MealCard } from '@/components/nutrition/MealCard';
 import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
-import { NutritionChart } from '@/components/nutrition/NutritionChart';
+import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
-import { MealPlanCards } from '@/components/nutrition/MealPlanCards';
+import { NutritionPlansGrid } from '@/components/nutrition/NutritionPlansGrid';
 import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSuggestions';
-import { NutritionInsights } from '@/components/nutrition/NutritionInsights';
-import { HexBadge } from '@/components/ui/HexBadge';
+import { MealPlan } from '@/data/mealPlans';
 
 const Nutrition = () => {
   const {
@@ -19,6 +18,7 @@ const Nutrition = () => {
     goals,
     todayLog,
     progress,
+    remaining,
     weeklyData,
     weeklyStats,
     monthlyData,
@@ -41,8 +41,8 @@ const Nutrition = () => {
     <div className="min-h-screen bg-black pb-32">
       {/* Hero Background Gradient */}
       <div className="absolute inset-x-0 top-0 h-[420px] overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/40 via-blue-500/20 via-60% to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-blue-500/30 via-blue-600/10 via-50% to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-600/40 via-emerald-500/20 via-60% to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-emerald-500/30 via-emerald-600/10 via-50% to-transparent" />
       </div>
 
       {/* Header */}
@@ -53,18 +53,17 @@ const Nutrition = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <HexBadge label="NU" size={38} />
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/20 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Apple className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/20 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Apple className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-white">Nutrição</h1>
-              <p className="text-xs text-blue-400">
+              <p className="text-xs text-emerald-400">
                 {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
               </p>
             </div>
           </div>
-
+          
           {/* Minimalist action buttons */}
           <div className="flex items-center gap-1">
             <NutritionHistory
@@ -85,36 +84,81 @@ const Nutrition = () => {
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 px-6 py-4 space-y-5">
+        {/* Macro rings */}
         <MacroRings
           goals={goals}
           consumed={todayLog.totals}
           progress={progress} />
 
-        <MealPlanCards />
 
+        {/* Plans & Recipes Grid */}
+        <NutritionPlansGrid
+          currentGoal={profile.goal}
+          onApplyPlan={(plan: MealPlan) => {
+            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
+            updateProfile({ goal: plan.goal });
+            setCustomGoals({ calories: avgCalories });
+          }}
+        />
+
+        {/* Post-workout suggestions */}
         <PostWorkoutSuggestions />
 
+        {/* AI Scanner button */}
         <FoodScanner onMealAdded={addMeal} />
 
+        {/* Quick stats */}
+        <div className="grid grid-cols-3 gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-stone-950 bg-[#111311]">
+
+            <p className="text-2xl font-black text-[#a51d1d]">{Math.round(remaining.protein)}g</p>
+            <p className="text-xs text-gray-300 mt-1">Proteína</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border p-4 text-center bg-stone-950 border-stone-950">
+
+            <p className="text-2xl font-black text-amber-500">{Math.round(remaining.carbs)}g</p>
+            <p className="text-xs text-gray-300 mt-1">Carbs</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border p-4 text-center bg-stone-950 border-stone-950">
+
+            <p className="text-2xl font-black text-teal-600">{Math.round(remaining.fat)}g</p>
+            <p className="text-xs text-gray-300 mt-1">Gordura</p>
+          </motion.div>
+        </div>
+
         {/* Today's meals */}
-        <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%" }}>
-          <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
-            <HexBadge label="NU" size={28} />
+        <div className="space-y-3">
+          <h3 className="font-semibold flex items-center gap-2 text-white">
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
+          
           <AnimatePresence>
             {todayLog.meals.length === 0 ?
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8">
+              className="text-center py-8 bg-black">
+
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm text-gray-300">Nenhuma refeição registada</p>
                 <p className="text-xs text-gray-400">Usa o scanner IA acima para começar</p>
               </motion.div> :
-            <div>
+
+            <div className="space-y-3">
                 {todayLog.meals.map((meal) =>
               <MealCard key={meal.id} meal={meal} onRemove={removeMeal} />
               )}
@@ -123,12 +167,38 @@ const Nutrition = () => {
           </AnimatePresence>
         </div>
 
-        <NutritionChart weeklyData={weeklyData} goals={goals} allLogs={allLogs} />
+        {/* Weekly chart */}
+        <WeeklyChart data={weeklyData} />
 
-        <NutritionInsights
-          proteinConsumed={Math.round(todayLog.totals.protein)}
-          proteinGoal={goals.protein}
-        />
+        {/* Tips section */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-white">​Insights De Hoje  </h3>
+          <div className="grid gap-3">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
+
+              <span className="text-xl">​🏋️</span>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Pós-treino</p>
+                <p className="text-xs text-gray-400">​Consumir 30g de proteína nas próximas 2h melhora recuperação.</p>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
+
+              <span className="text-xl">​🍽️</span>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Distribui a proteína</p>
+                <p className="text-xs text-gray-400">​20–40g por refeição melhora absorção e recuperação</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       <BottomNav />

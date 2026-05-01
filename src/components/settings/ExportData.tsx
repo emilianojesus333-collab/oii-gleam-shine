@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { HexBadge } from "@/components/ui/HexBadge";
 import {
   FileDown,
   Loader2,
@@ -223,13 +222,11 @@ export const ExportData = ({ nutritionLogs, nutritionGoals }: ExportDataProps) =
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild>
+      <DrawerTrigger asChild className="bg-[#111311]">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          className="w-full rounded-none p-5 flex items-center gap-4 mb-2"
-          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
+          className="w-full bg-card border border-border/30 rounded-[20px] p-5 flex items-center gap-4">
 
-          <HexBadge label="CF" />
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted">
             <FileDown className="w-5 h-5 text-primary" />
           </div>

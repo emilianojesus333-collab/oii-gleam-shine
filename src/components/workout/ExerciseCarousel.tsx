@@ -24,9 +24,9 @@ export const ExerciseCarousel = ({ exercises, currentIndex, onSelect }: Exercise
   if (exercises.length === 0) return null;
 
   return (
-    <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0, paddingTop: 20, paddingBottom: 8 }}>
+    <div className="space-y-4">
       {/* Section label */}
-      <div style={{ paddingLeft: 16, paddingRight: 16, marginBottom: 12 }}>
+      <div className="px-6">
         <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
           Exercícios
         </p>

@@ -77,7 +77,7 @@ export const UpcomingWorkouts = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="mb-4"
     >
       <h2 style={{ fontSize: 18, fontWeight: 900, color: "#fff", marginBottom: 16 }}>
         Próximos treinos
@@ -117,7 +117,7 @@ export const UpcomingWorkouts = () => {
                 height: 10,
                 borderRadius: "50%",
                 border: index === 0 ? "2px solid #60A5FA" : "2px solid rgba(255,255,255,0.2)",
-                background: index === 0 ? "#60A5FA" : "#000000",
+                background: index === 0 ? "#60A5FA" : "#080C10",
                 boxShadow: index === 0 ? "0 0 8px rgba(96,165,250,0.5)" : "none",
               }}
             />

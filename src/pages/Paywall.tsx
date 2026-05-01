@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Crown, Sparkles, Shield, Zap, Brain, Dumbbell, ChefHat, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { SUBSCRIPTION_PRODUCTS } from "@/hooks/useSubscription";
 import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { usePricing } from "@/hooks/usePricing";
@@ -64,7 +65,7 @@ const Paywall = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -74,7 +75,7 @@ const Paywall = () => {
   const monthlyPriceId = pricing?.monthly.price_id || SUBSCRIPTION_PRODUCTS.monthly.price_id;
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl opacity-30" />
 
@@ -123,7 +124,7 @@ const Paywall = () => {
         <div className="flex-1 flex flex-col justify-center gap-4 max-w-md mx-auto w-full">
           {/* Annual Plan */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <div className="relative p-5 w-full" style={{ background: '#1A1A1A', borderRadius: 0, border: 'none', borderBottom: '1px solid #2A2A2A' }}>
+            <Card className="relative p-5 border border-primary/50 bg-card">
               <div className="absolute -top-2.5 left-4">
                 <span className="bg-primary text-primary-foreground text-[10px] font-medium px-2.5 py-1 rounded-full">
                   Melhor valor
@@ -164,7 +165,6 @@ const Paywall = () => {
                 onClick={() => handleSubscribe(annualPriceId, "annual")}
                 disabled={loadingPlan !== null}
                 className="w-full h-12 font-medium"
-                style={{ background: "#0D0D0D", color: "#ffffff", border: "1px solid rgba(255,255,255,0.12)" }}
               >
                 {loadingPlan === "annual" ? (
                   <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
@@ -172,12 +172,12 @@ const Paywall = () => {
                   "Começar 7 dias grátis"
                 )}
               </Button>
-            </div>
+            </Card>
           </motion.div>
 
           {/* Monthly Plan */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <div className="p-5 w-full" style={{ background: '#1A1A1A', borderRadius: 0, border: 'none', borderBottom: '1px solid #2A2A2A' }}>
+            <Card className="p-5 border border-border/30 bg-card/50">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-base font-semibold">Mensal</h3>
@@ -208,7 +208,7 @@ const Paywall = () => {
                   "Escolher Mensal"
                 )}
               </Button>
-            </div>
+            </Card>
           </motion.div>
         </div>
 

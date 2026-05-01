@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 interface GeneratedExercise {
   name: string;
@@ -47,12 +46,6 @@ interface AIWorkoutGeneratorProps {
   trainingType: string;
   onAddExercise: (exercise: { name: string; weight: number; reps: number; sets: number }) => void;
   onSessionCreated?: () => void;
-  /** Ref that will be set to the generateWorkout function so parent can trigger it */
-  triggerRef?: React.MutableRefObject<(() => void) | null>;
-  /** When true, hides the built-in header row and default generate button */
-  hideHeader?: boolean;
-  /** Called whenever the generating state changes */
-  onGeneratingChange?: (generating: boolean) => void;
 }
 
 const weekDaysMap: Record<number, string> = {
@@ -65,9 +58,6 @@ export const AIWorkoutGenerator = ({
   trainingType,
   onAddExercise,
   onSessionCreated,
-  triggerRef,
-  hideHeader = false,
-  onGeneratingChange,
 }: AIWorkoutGeneratorProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -109,7 +99,6 @@ export const AIWorkoutGenerator = ({
     }
 
     setIsGenerating(true);
-    onGeneratingChange?.(true);
     setWorkout(null);
     setAddedExercises(new Set());
 
@@ -140,12 +129,8 @@ export const AIWorkoutGenerator = ({
       toast.error((error as Error).message || t("aiWorkout.error"));
     } finally {
       setIsGenerating(false);
-      onGeneratingChange?.(false);
     }
   };
-
-  // Expose generateWorkout to parent via ref after it's defined (runs every render)
-  if (triggerRef) triggerRef.current = generateWorkout;
 
   const handlePersistAndStart = async () => {
     if (!workout || !user) return;
@@ -246,27 +231,26 @@ export const AIWorkoutGenerator = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      style={hideHeader ? {} : { background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="bg-gradient-to-br from-primary/20 via-[#1E1E1E]/80 to-[#1E1E1E]/50 rounded-[20px] p-5 border border-primary/30 bg-stone-950"
     >
-      {!hideHeader && (
-        <div className="flex items-center gap-3 mb-4">
-          <HexBadge label="IA" />
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
-            <p className="text-xs text-gray-400">
-              {todayMuscleGroups.join(" + ")} • {trainingType}
-            </p>
-          </div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-primary" />
         </div>
-      )}
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
+          <p className="text-xs text-gray-400">
+            {todayMuscleGroups.join(" + ")} • {trainingType}
+          </p>
+        </div>
+      </div>
 
-      {!hideHeader && !workout && (
+      {!workout ? (
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={generateWorkout}
           disabled={isGenerating}
-          className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2"
-          style={{ background: "#0D0D0D", color: "#ffffff", border: "1px solid rgba(255,255,255,0.12)" }}
+          className="w-full py-4 rounded-xl font-semibold shadow-lg shadow-primary/30 bg-black text-primary flex items-center justify-center gap-0 border-transparent opacity-75"
         >
           {isGenerating ? (
             <>
@@ -285,9 +269,7 @@ export const AIWorkoutGenerator = ({
             </>
           )}
         </motion.button>
-      )}
-
-      {workout ? (
+      ) : (
         <div className="space-y-4">
           {/* Workout Info */}
           <div className="flex gap-3">
@@ -335,8 +317,6 @@ export const AIWorkoutGenerator = ({
               </>
             )}
           </motion.button>
-
-          <div className="border-t border-[#2A2A2A] mt-3 mb-3" />
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 && (
@@ -463,7 +443,7 @@ export const AIWorkoutGenerator = ({
             {t("aiWorkout.regenerate")}
           </button>
         </div>
-      ) : null}
+      )}
     </motion.div>
   );
 };

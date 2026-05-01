@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Clock } from 'lucide-react';
-import { HexBadge } from "@/components/ui/HexBadge";
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 
 interface PostWorkoutMeal {
@@ -37,11 +36,10 @@ export const PostWorkoutSuggestions = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-3"
     >
-      <div className="flex items-center gap-2 mb-1">
-        <HexBadge label="TR" />
+      <div>
         <h3 className="font-semibold text-white text-sm">Recuperação Pós-Treino</h3>
+        <p className="text-xs text-muted-foreground">Sugestões rápidas para recuperação muscular</p>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">Sugestões rápidas para recuperação muscular</p>
 
       <div className="grid gap-2">
         {suggestions.map((meal, i) => (
@@ -50,14 +48,13 @@ export const PostWorkoutSuggestions = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="flex items-center gap-3 p-3 rounded-none mb-2"
-            style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+            className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5"
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{meal.title}</p>
               <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Flame className="w-3 h-3 text-blue-400" />
+                  <Flame className="w-3 h-3 text-emerald-400" />
                   {meal.calories} kcal
                 </span>
                 <span className="flex items-center gap-1">

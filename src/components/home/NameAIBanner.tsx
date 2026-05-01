@@ -5,7 +5,6 @@ import { Sparkles, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 // Get user-specific storage key
 const getStorageKey = (userId?: string) => userId ? `liftmate_name_banner_dismissed_${userId}` : null;
@@ -54,8 +53,7 @@ export const NameAIBanner = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="p-4 relative overflow-hidden mb-2"
-          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+          className="rounded-2xl bg-primary/10 border border-primary/20 p-4 relative overflow-hidden"
         >
           {/* Dismiss button */}
           <button
@@ -66,7 +64,9 @@ export const NameAIBanner = () => {
           </button>
 
           <div className="flex items-start gap-4">
-            <HexBadge label="IA" size={42} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 shrink-0">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
             
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-foreground mb-1">

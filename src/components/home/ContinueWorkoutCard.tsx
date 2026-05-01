@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Play, Dumbbell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useActiveSession } from "@/hooks/useActiveSession";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 export const ContinueWorkoutCard = () => {
   const navigate = useNavigate();
@@ -19,11 +18,12 @@ export const ContinueWorkoutCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none p-4 overflow-hidden mb-2"
-      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      className="rounded-2xl bg-gradient-to-br from-primary/20 via-card to-card border border-primary/30 p-4 overflow-hidden"
     >
       <div className="flex items-center gap-3 mb-3">
-        <HexBadge label="TR" />
+        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+          <Dumbbell className="w-5 h-5 text-primary" />
+        </div>
         <div className="flex-1">
           <h3 className="text-sm font-bold text-foreground">
             {isActive ? "Treino em andamento" : "Treino planeado"}

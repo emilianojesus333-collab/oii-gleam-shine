@@ -80,7 +80,7 @@ const weeklyTemplates: Omit<Challenge, 'id' | 'startDate' | 'endDate' | 'current
     target: 6,
     unit: 'dias',
     icon: '🎯',
-    color: '#2563EB',
+    color: 'hsl(142, 71%, 45%)',
   },
   {
     type: 'streak',
