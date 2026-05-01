@@ -146,7 +146,22 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
             messages: [
               {
                 role: "user",
-                content: `Com base no que sabes sobre este utilizador, gera UMA dica curta (máximo 2 frases) personalizada para o treino de hoje: ${workoutName}. Baseia-te no histórico real — última sessão, dores mencionadas, progressão de carga. Responde APENAS com a dica.`,
+                content: [
+                  `Gera UMA dica diária para o treino de hoje: ${workoutName}. Baseia-te no histórico real (última sessão, dores, progressão).`,
+                  ``,
+                  `REGRAS PARA A DICA DIÁRIA:`,
+                  `- Máximo 15 palavras — dica MUITO curta`,
+                  `- Frases completas — nunca cortar palavras a meio`,
+                  `- Sem abreviações`,
+                  `- Linguagem simples e direta`,
+                  `- Exemplos corretos:`,
+                  `  ✅ "Foca na execução hoje, não no peso."`,
+                  `  ✅ "Hidrata bem antes de treinar."`,
+                  `  ❌ "Concentra-te em aument a intensidade dos exercíc..."`,
+                  `- Revê sempre a frase antes de responder — deve estar 100% completa`,
+                  ``,
+                  `Responde APENAS com a dica, sem prefixos.`,
+                ].join("\n"),
               },
             ],
             context: contextStr,
