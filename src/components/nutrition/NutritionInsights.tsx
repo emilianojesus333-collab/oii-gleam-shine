@@ -40,7 +40,7 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
   return (
     <div>
       {/* Section title */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 24, marginBottom: 16 }}>
         <HexBadge label="NU" />
         <h2
           style={{
@@ -65,11 +65,12 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
             background: "#1A1A1A",
             borderBottom: "1px solid #2A2A2A",
             borderRadius: 0,
-            padding: "16px 18px",
+            padding: "16px",
+            marginBottom: 12,
             cursor: "pointer",
             display: "flex",
             alignItems: "flex-start",
-            gap: 12,
+            gap: 14,
           }}
         >
           {/* Icon box */}
@@ -126,8 +127,9 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
               style={{
                 fontSize: 11,
                 color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.5,
+                lineHeight: 1.6,
                 margin: 0,
+                marginTop: 6,
               }}
             >
               {card1Description}
@@ -142,11 +144,12 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
             background: "#1A1A1A",
             borderBottom: "1px solid #2A2A2A",
             borderRadius: 0,
-            padding: "16px 18px",
+            padding: "16px",
+            marginBottom: 12,
             cursor: "pointer",
             display: "flex",
             alignItems: "flex-start",
-            gap: 12,
+            gap: 14,
           }}
         >
           {/* Icon box */}
@@ -203,8 +206,9 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
               style={{
                 fontSize: 11,
                 color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.5,
+                lineHeight: 1.6,
                 margin: 0,
+                marginTop: 6,
               }}
             >
               {card2Description}

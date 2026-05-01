@@ -21,6 +21,8 @@ import { ScrollAreaWithIndicators } from '@/components/ui/scroll-area-with-indic
 
 interface FoodScannerProps {
   onMealAdded: (meal: Omit<Meal, 'id'>) => void;
+  controlledOpen?: boolean;
+  onControlledChange?: (open: boolean) => void;
 }
 
 interface AnalysisResult {
@@ -120,8 +122,9 @@ function getErrorMessage(error: unknown): string {
   return String(error);
 }
 
-export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
+export const FoodScanner = ({ onMealAdded, controlledOpen, onControlledChange }: FoodScannerProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dialogOpen = controlledOpen !== undefined ? controlledOpen : isOpen;
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStatus, setAnalyzeStatus] = useState(0);
   const [analysisFailed, setAnalysisFailed] = useState(false);
@@ -395,7 +398,11 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
 
   // Update default meal type based on workout context
   const handleOpen = (open: boolean) => {
-    setIsOpen(open);
+    if (controlledOpen !== undefined) {
+      onControlledChange?.(open);
+    } else {
+      setIsOpen(open);
+    }
     if (open) {
       setSelectedMealType(workoutContext.suggestedMealType);
     } else {
@@ -444,17 +451,18 @@ export const FoodScanner = ({ onMealAdded }: FoodScannerProps) => {
         </motion.div>
       }
 
-      <Dialog open={isOpen} onOpenChange={handleOpen}>
-        <DialogTrigger asChild>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium shadow-lg shadow-primary/25">
-
-            <Camera className="w-5 h-5" />
-            <span>Adicionar Refeição</span>
-            <Sparkles className="w-4 h-4" />
-          </motion.button>
-        </DialogTrigger>
+      <Dialog open={dialogOpen} onOpenChange={handleOpen}>
+        {controlledOpen === undefined && (
+          <DialogTrigger asChild>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              className="shimmer-green w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-medium shadow-lg">
+              <Camera className="w-5 h-5" />
+              <span>Adicionar Refeição</span>
+              <Sparkles className="w-4 h-4" />
+            </motion.button>
+          </DialogTrigger>
+        )}
 
         <DialogContent className="
           w-[92vw] max-w-[520px] h-[85vh] sm:h-[70vh] max-h-[80vh]

@@ -211,7 +211,7 @@ export default function BodyCalendar() {
     getMuscleSchedule(muscleId).length > 0;
 
   return (
-    <div className="min-h-screen bg-[#080C10] flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-black flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-12 pb-4 z-10">
         <button
@@ -386,7 +386,7 @@ export default function BodyCalendar() {
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
               className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pt-5 pb-10"
-              style={{ background: "#0F1923", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#1A1A1A", border: "1px solid #2A2A2A" }}
             >
               {/* Handle */}
               <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />

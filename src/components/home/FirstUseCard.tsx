@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Dumbbell, Apple, MessageCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 const steps = [
   {
@@ -37,13 +38,17 @@ export const FirstUseCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="rounded-2xl overflow-hidden mb-4"
-      style={{ background: "#0f1117", border: "1px solid #1F2937" }}
+      className="overflow-hidden"
+      className="mx-4 mb-3"
+      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="px-5 pt-5 pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">
-          Começa por aqui
-        </p>
+        <div className="flex items-center gap-2 mb-2">
+          <HexBadge label="TR" />
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            Começa por aqui
+          </p>
+        </div>
         <h3 className="text-lg font-bold text-white">
           3 passos para o primeiro resultado
         </h3>

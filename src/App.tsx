@@ -4,6 +4,20 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { supabase } from "@/integrations/supabase/client";
+import { syncOfflineQueue } from "@/utils/offlineSync";
+
+// Sync offline queue when connection is restored
+window.addEventListener("online", async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      await syncOfflineQueue(session.user.id);
+    }
+  } catch {
+    // Silently ignore — will retry on next online event
+  }
+});
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Processing from "./pages/Processing";
@@ -23,6 +37,14 @@ import Support from "./pages/Support";
 import FAQ from "./pages/FAQ";
 import WorkoutSummary from "./pages/WorkoutSummary";
 import History from "./pages/History";
+import CoachingIA from "./pages/CoachingIA";
+import AvaliacaoFisica from "./pages/AvaliacaoFisica";
+import WorkoutComplete from "./pages/WorkoutComplete";
+import Analytics from "./pages/Analytics";
+import ExerciseLibrary from "./pages/ExerciseLibrary";
+import PlanoSemanal from "./pages/PlanoSemanal";
+import ChatIA from "./pages/ChatIA";
+import MeuEquipamento from "./pages/MeuEquipamento";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -134,6 +156,70 @@ const App = () => (
               element={
                 <ProtectedRoute requireSubscription>
                   <History />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/coaching-ia"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <CoachingIA />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/avaliacao-fisica"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <AvaliacaoFisica />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/workout-complete"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <WorkoutComplete />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/exercises"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <ExerciseLibrary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/plano-semanal"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <PlanoSemanal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat-ia"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <ChatIA />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipamento"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <MeuEquipamento />
                 </ProtectedRoute>
               }
             />

@@ -1,8 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List } from "lucide-react";
+import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List, Shuffle } from "lucide-react";
 import type { PlannedExercise } from "@/hooks/useActiveSession";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { AlternativesSheet } from "@/components/workout/AlternativesSheet";
+import { getAlternativesForExercise } from "@/utils/exerciseAlternatives";
+import type { Equipment, CatalogExercise } from "@/data/exerciseCatalog";
 
 interface ExerciseCardStackProps {
   exercises: PlannedExercise[];
@@ -12,6 +15,9 @@ interface ExerciseCardStackProps {
   onSwipeLeft: (exercise: PlannedExercise, index: number) => void;
   onFinish: () => void;
   isCompleting: boolean;
+  onUndo?: () => void;
+  availableEquipment?: Equipment[];
+  onSelectAlternative?: (exercise: PlannedExercise, alternative: CatalogExercise) => void;
 }
 
 const SWIPE_THRESHOLD = 100;
@@ -33,6 +39,7 @@ const SwipeableCard = ({
   onSwipeRight,
   onSwipeLeft,
   isTop,
+  onShowAlternatives,
 }: {
   exercise: PlannedExercise;
   index: number;
@@ -40,6 +47,7 @@ const SwipeableCard = ({
   onSwipeRight: () => void;
   onSwipeLeft: () => void;
   isTop: boolean;
+  onShowAlternatives?: () => void;
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
@@ -83,9 +91,8 @@ const SwipeableCard = ({
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
     >
       <div
-        className="relative h-full rounded-2xl overflow-hidden border border-white/[0.05]"
+        className="exercise-swipe-card relative h-full border border-white/[0.05]"
         style={{
-          backgroundColor: '#1A1A2E',
           boxShadow: isTop
             ? '0 10px 28px -6px rgba(0,0,0,0.4), 0 0 20px -4px rgba(124,58,237,0.08)'
             : '0 6px 18px -6px rgba(0,0,0,0.3)',
@@ -108,8 +115,7 @@ const SwipeableCard = ({
               style={{ opacity: leftOpacity }}
               className="absolute top-5 left-5 z-10 flex items-center gap-1.5 bg-red-500/90 rounded-lg px-3 py-1.5"
             >
-              <RotateCcw className="w-4 h-4 text-white" />
-              <span className="text-xs font-bold text-white tracking-wide">DESFAZER</span>
+              <span className="text-xs font-bold text-white tracking-wide">← SALTAR</span>
             </motion.div>
           </>
         )}
@@ -142,11 +148,26 @@ const SwipeableCard = ({
             <h2 className="text-2xl font-black text-[#E5E7EB] leading-tight tracking-tight">
               {exercise.exercise_name}
             </h2>
-            <p className="text-sm text-[#9CA3AF] mt-1.5 line-clamp-2">
-              {exercise.source === "ai"
-                ? "Gerado pela Victoria AI · Controla a fase excêntrica"
-                : "Exercício personalizado"}
-            </p>
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-sm text-[#9CA3AF] line-clamp-2 flex-1">
+                {exercise.source === "ai"
+                  ? "Gerado pela Victoria AI · Controla a fase excêntrica"
+                  : "Exercício personalizado"}
+              </p>
+              {isTop && onShowAlternatives && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onShowAlternatives(); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 4,
+                    background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.2)",
+                    borderRadius: 8, padding: "4px 8px", cursor: "pointer", flexShrink: 0, marginLeft: 8,
+                  }}
+                >
+                  <Shuffle style={{ width: 11, height: 11, color: "#60A5FA" }} />
+                  <span style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>Alternativa</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -204,9 +225,32 @@ export const ExerciseCardStack = ({
   onSwipeLeft,
   onFinish,
   isCompleting,
+  onUndo,
+  availableEquipment = [],
+  onSelectAlternative,
 }: ExerciseCardStackProps) => {
   const remaining = exercises.filter((_, i) => i >= currentIndex);
   const allDone = currentIndex >= exercises.length;
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [altOpen, setAltOpen] = useState(false);
+  const currentExercise = exercises[currentIndex] ?? null;
+  const alternatives = currentExercise
+    ? getAlternativesForExercise(currentExercise.exercise_name, availableEquipment)
+    : [];
+
+  const handleSwipeRight = (ex: PlannedExercise, idx: number) => {
+    onSwipeRight(ex, idx);
+    setShowUndo(true);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = setTimeout(() => setShowUndo(false), 4000);
+  };
+
+  const handleUndo = () => {
+    setShowUndo(false);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    onUndo?.();
+  };
 
   return (
     <div className="px-6 space-y-3">
@@ -228,13 +272,51 @@ export const ExerciseCardStack = ({
                 index={stackIdx}
                 total={remaining.length}
                 isTop={stackIdx === 0}
-                onSwipeRight={() => onSwipeRight(ex, currentIndex + stackIdx)}
+                onSwipeRight={() => handleSwipeRight(ex, currentIndex + stackIdx)}
                 onSwipeLeft={() => onSwipeLeft(ex, currentIndex + stackIdx)}
+                onShowAlternatives={stackIdx === 0 ? () => setAltOpen(true) : undefined}
               />
             ))
           )}
         </AnimatePresence>
       </div>
+
+      {/* Swipe hints */}
+      {!allDone && (
+        <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: 4, paddingRight: 4 }}>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontWeight: 600 }}>← Saltar</span>
+          <span style={{ fontSize: 11, color: "rgba(34,197,94,0.6)", fontWeight: 600 }}>Feito →</span>
+        </div>
+      )}
+
+      {/* Undo button */}
+      <AnimatePresence>
+        {showUndo && (
+          <motion.button
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            onClick={handleUndo}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              margin: "0 auto",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 10,
+              padding: "6px 12px",
+              fontSize: 12,
+              color: "rgba(255,255,255,0.5)",
+              cursor: "pointer",
+            }}
+          >
+            <RotateCcw style={{ width: 12, height: 12 }} />
+            Desfazer
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Dot indicators */}
       <div className="flex justify-center gap-1.5 pt-2">
@@ -251,6 +333,20 @@ export const ExerciseCardStack = ({
           />
         ))}
       </div>
+
+      {/* Alternatives sheet */}
+      {currentExercise && (
+        <AlternativesSheet
+          open={altOpen}
+          exerciseName={currentExercise.exercise_name}
+          alternatives={alternatives}
+          onClose={() => setAltOpen(false)}
+          onSelect={(alt) => {
+            setAltOpen(false);
+            onSelectAlternative?.(currentExercise, alt);
+          }}
+        />
+      )}
 
       {/* Exercise list link */}
       {!allDone && (

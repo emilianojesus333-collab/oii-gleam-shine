@@ -16,9 +16,9 @@ import {
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface GeneratedExercise {
   name: string;
@@ -46,6 +46,12 @@ interface AIWorkoutGeneratorProps {
   trainingType: string;
   onAddExercise: (exercise: { name: string; weight: number; reps: number; sets: number }) => void;
   onSessionCreated?: () => void;
+  /** Ref that will be set to the generateWorkout function so parent can trigger it */
+  triggerRef?: React.MutableRefObject<(() => void) | null>;
+  /** When true, hides the built-in header row and default generate button */
+  hideHeader?: boolean;
+  /** Called whenever the generating state changes */
+  onGeneratingChange?: (generating: boolean) => void;
 }
 
 const weekDaysMap: Record<number, string> = {
@@ -58,8 +64,10 @@ export const AIWorkoutGenerator = ({
   trainingType,
   onAddExercise,
   onSessionCreated,
+  triggerRef,
+  hideHeader = false,
+  onGeneratingChange,
 }: AIWorkoutGeneratorProps) => {
-  const { t } = useLanguage();
   const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null);
@@ -94,11 +102,12 @@ export const AIWorkoutGenerator = ({
 
   const generateWorkout = async () => {
     if (todayMuscleGroups.length === 0) {
-      toast.error(t("aiWorkout.noMuscleGroups"));
+      toast.error("Seleciona pelo menos um grupo muscular.");
       return;
     }
 
     setIsGenerating(true);
+    onGeneratingChange?.(true);
     setWorkout(null);
     setAddedExercises(new Set());
 
@@ -120,17 +129,21 @@ export const AIWorkoutGenerator = ({
 
       if (data?.workout) {
         setWorkout(data.workout);
-        toast.success(t("aiWorkout.success"));
+        toast.success("Treino gerado com sucesso!");
       } else if (data?.error) {
         throw new Error(data.error);
       }
     } catch (error: unknown) {
       console.error("Error generating workout:", error);
-      toast.error((error as Error).message || t("aiWorkout.error"));
+      toast.error((error as Error).message || "Erro ao gerar treino.");
     } finally {
       setIsGenerating(false);
+      onGeneratingChange?.(false);
     }
   };
+
+  // Expose generateWorkout to parent via ref after it's defined (runs every render)
+  if (triggerRef) triggerRef.current = generateWorkout;
 
   const handlePersistAndStart = async () => {
     if (!workout || !user) return;
@@ -231,26 +244,27 @@ export const AIWorkoutGenerator = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-primary/20 via-[#1E1E1E]/80 to-[#1E1E1E]/50 rounded-[20px] p-5 border border-primary/30 bg-stone-950"
+      style={hideHeader ? {} : { background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-primary" />
+      {!hideHeader && (
+        <div className="flex items-center gap-3 mb-4">
+          <HexBadge label="IA" />
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-white">Treino IA</h3>
+            <p className="text-xs text-gray-400">
+              {todayMuscleGroups.join(" + ")} • {trainingType}
+            </p>
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-white">{t("aiWorkout.title")}</h3>
-          <p className="text-xs text-gray-400">
-            {todayMuscleGroups.join(" + ")} • {trainingType}
-          </p>
-        </div>
-      </div>
+      )}
 
-      {!workout ? (
+      {!hideHeader && !workout && (
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={generateWorkout}
           disabled={isGenerating}
-          className="w-full py-4 rounded-xl font-semibold shadow-lg shadow-primary/30 bg-black text-primary flex items-center justify-center gap-0 border-transparent opacity-75"
+          className="shimmer-blue w-full rounded-xl font-semibold flex items-center justify-center gap-2"
+          style={{ color: "#ffffff", border: "none", height: 44 }}
         >
           {isGenerating ? (
             <>
@@ -260,37 +274,31 @@ export const AIWorkoutGenerator = ({
               >
                 <Sparkles className="w-5 h-5" />
               </motion.div>
-              {t("aiWorkout.generating")}
+              A gerar...
             </>
           ) : (
             <>
               <Sparkles className="w-5 h-5" />
-              {t("aiWorkout.generateFor")} {todayMuscleGroups.join(" + ")}
+              Gerar treino para {todayMuscleGroups.join(" + ")}
             </>
           )}
         </motion.button>
-      ) : (
+      )}
+
+      {workout ? (
         <div className="space-y-4">
           {/* Workout Info */}
           <div className="flex gap-3">
-            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
-              <Clock className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{workout.estimatedDuration}'</p>
-              <p className="text-xs text-gray-400">{t("aiWorkout.duration")}</p>
-            </div>
-            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
-              <Target className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-              <p className="text-sm font-bold text-white">{workout.difficulty}</p>
-              <p className="text-xs text-gray-400">{t("aiWorkout.level")}</p>
-            </div>
-            <div className="flex-1 bg-[#2A2A2A]/50 rounded-xl p-3 text-center">
-              <Dumbbell className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{workout.exercises.length}</p>
-              <p className="text-xs text-gray-400">{t("home.exercises")}</p>
-              {workout.recommendedCount && workout.recommendedCount < workout.exercises.length && (
-                <p className="text-[10px] text-primary mt-0.5">Rec: {workout.recommendedCount}</p>
-              )}
-            </div>
+            {[
+              { value: `${workout.estimatedDuration}'`, label: "Duração" },
+              { value: workout.difficulty,              label: "Nível" },
+              { value: workout.exercises.length,        label: "Exercícios" },
+            ].map(({ value, label }) => (
+              <div key={label} style={{ flex: 1, background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "14px 10px", textAlign: "center" }}>
+                <p style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>{value}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>{label}</p>
+              </div>
+            ))}
           </div>
 
           {/* Start planned workout button */}
@@ -298,7 +306,8 @@ export const AIWorkoutGenerator = ({
             whileTap={{ scale: 0.97 }}
             onClick={handlePersistAndStart}
             disabled={persistingPlan}
-            className="w-full py-4 rounded-xl font-semibold bg-green-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-green-600/30 disabled:opacity-50"
+            className="shimmer-workout w-full flex items-center justify-center gap-2 disabled:opacity-50"
+            style={{ height: 50, borderRadius: 14, border: "none", color: "white", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
           >
             {persistingPlan ? (
               <>
@@ -318,17 +327,19 @@ export const AIWorkoutGenerator = ({
             )}
           </motion.button>
 
+          <div className="border-t border-[#2A2A2A] mt-3 mb-3" />
+
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 && (
-            <div className="bg-[#2A2A2A]/30 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-amber-500 mb-2 flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                {t("aiWorkout.warmup")}
+            <div style={{ background: "#141414", borderRadius: 16, border: "1px solid rgba(251,191,36,0.15)", padding: 16 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#FBBF24", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                <Zap style={{ width: 14, height: 14, color: "#FBBF24", flexShrink: 0 }} />
+                ⚡ Aquecimento
               </h4>
               <div className="space-y-1">
                 {workout.warmup.map((w, i) => (
-                  <p key={i} className="text-sm text-gray-300">
-                    • {w.name} - {w.duration}
+                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                    <span style={{ color: "#FBBF24" }}>•</span> {w.name} - {w.duration}
                   </p>
                 ))}
               </div>
@@ -346,7 +357,7 @@ export const AIWorkoutGenerator = ({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#2A2A2A]/50 rounded-xl overflow-hidden"
+                  style={{ background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}
                 >
                   <div
                     className="flex items-center gap-3 p-4 cursor-pointer"
@@ -357,11 +368,11 @@ export const AIWorkoutGenerator = ({
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-white">{exercise.name}</p>
                         {exercise.category === "accessory" && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground">Acessório</span>
+                          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 20, background: "rgba(96,165,250,0.12)", color: "#60A5FA" }}>Acessório</span>
                         )}
                       </div>
                       <p className="text-xs text-gray-400">
-                        {exercise.sets}x{exercise.reps} • {exercise.rest}s {t("aiWorkout.rest")}
+                        {exercise.sets}x{exercise.reps} • {exercise.rest}s descanso
                       </p>
                     </div>
                     {isExpanded ? (
@@ -382,14 +393,14 @@ export const AIWorkoutGenerator = ({
                         {exercise.tip && (
                           <div className="bg-[#1E1E1E]/50 rounded-lg p-3 mb-2">
                             <p className="text-sm text-gray-300">
-                              <span className="text-primary font-medium">{t("aiWorkout.tip")}:</span>{" "}
+                              <span className="text-primary font-medium">Dica:</span>{" "}
                               {exercise.tip}
                             </p>
                           </div>
                         )}
                         {exercise.equipment && (
                           <p className="text-xs text-gray-400">
-                            <span className="text-gray-300">{t("aiWorkout.equipment")}:</span>{" "}
+                            <span className="text-gray-300">Equipamento:</span>{" "}
                             {exercise.equipment}
                           </p>
                         )}
@@ -403,12 +414,12 @@ export const AIWorkoutGenerator = ({
 
           {/* Stretching */}
           {workout.stretching && workout.stretching.length > 0 && (
-            <div className="bg-[#2A2A2A]/30 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-blue-400 mb-2">Alongamento</h4>
+            <div style={{ background: "#141414", borderRadius: 16, border: "1px solid rgba(167,139,250,0.12)", padding: 16 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", marginBottom: 10 }}>Alongamento</h4>
               <div className="space-y-1">
                 {workout.stretching.map((s, i) => (
-                  <p key={i} className="text-sm text-gray-300">
-                    • {s.name} - {s.duration}
+                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                    <span style={{ color: "#A78BFA" }}>•</span> {s.name} - {s.duration}
                   </p>
                 ))}
               </div>
@@ -417,17 +428,17 @@ export const AIWorkoutGenerator = ({
 
           {/* Cooldown */}
           {workout.cooldown && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-blue-400 mb-1">{t("aiWorkout.cooldown")}</h4>
-              <p className="text-sm text-gray-300">{workout.cooldown}</p>
+            <div style={{ background: "#141414", borderRadius: 16, border: "1px solid rgba(96,165,250,0.12)", padding: 16 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: "#60A5FA", marginBottom: 8 }}>Arrefecimento</h4>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{workout.cooldown}</p>
             </div>
           )}
 
           {/* Notes */}
           {workout.notes && (
-            <div className="flex items-start gap-2 p-3 bg-[#2A2A2A]/30 rounded-xl">
-              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-gray-400">{workout.notes}</p>
+            <div style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.1)", borderRadius: 12, padding: 12, display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <AlertCircle style={{ width: 14, height: 14, color: "#FBBF24", marginTop: 2, flexShrink: 0 }} />
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{workout.notes}</p>
             </div>
           )}
 
@@ -437,13 +448,13 @@ export const AIWorkoutGenerator = ({
               setWorkout(null);
               generateWorkout();
             }}
-            className="w-full py-3 rounded-xl bg-[#2A2A2A]/50 text-gray-300 font-medium flex items-center justify-center gap-2 hover:bg-[#2A2A2A]/80 transition-all"
+            style={{ width: "100%", height: 48, borderRadius: 14, background: "#141414", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
           >
             <RotateCcw className="w-4 h-4" />
-            {t("aiWorkout.regenerate")}
+            Gerar novo
           </button>
         </div>
-      )}
+      ) : null}
     </motion.div>
   );
 };

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface WorkoutHeroProps {
   muscleGroups: string[];
@@ -39,7 +38,6 @@ export const WorkoutHero = ({
   difficulty = "Intermédio",
 }: WorkoutHeroProps) => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const gradient = getGradient(muscleGroups);
 
   return (
@@ -76,7 +74,7 @@ export const WorkoutHero = ({
         className="text-3xl font-bold text-foreground leading-tight"
       >
         {isRestDay ? (
-          t("workout.restDay")
+          "Dia de descanso"
         ) : (
           <>
             {muscleGroups.map((g, i) => (

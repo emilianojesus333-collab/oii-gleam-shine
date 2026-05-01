@@ -4,6 +4,7 @@ import { ArrowLeft, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { useWorkoutSession } from "@/hooks/useWorkoutSession";
 import { PerformanceScoreCard } from "@/components/workout/PerformanceScoreCard";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 const decisionConfig = {
   progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
@@ -24,7 +25,7 @@ export default function WorkoutSummary() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="min-h-screen bg-black text-foreground flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -32,7 +33,7 @@ export default function WorkoutSummary() {
 
   if (error === "not_found" || error === "invalid") {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-black text-foreground flex flex-col items-center justify-center p-6">
         <p className="text-muted-foreground mb-4">Sessão não encontrada.</p>
         <Button onClick={() => navigate("/history")}>Ver Histórico</Button>
       </div>
@@ -41,7 +42,7 @@ export default function WorkoutSummary() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-black text-foreground flex flex-col items-center justify-center p-6">
         <p className="text-muted-foreground mb-4">Erro ao carregar sessão.</p>
         <Button onClick={() => navigate("/home")}>Voltar ao Início</Button>
       </div>
@@ -65,11 +66,12 @@ export default function WorkoutSummary() {
     : null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 max-w-lg mx-auto">
+    <div className="min-h-screen bg-black text-foreground p-4 max-w-lg mx-auto">
       <div className="flex items-center gap-2 mb-6 pt-8">
         <Button variant="ghost" size="icon" onClick={() => navigate("/history")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
+        <HexBadge label="TR" />
         <div>
           <h1 className="text-xl font-bold">Resumo do Treino</h1>
           <p className="text-xs text-muted-foreground">
@@ -109,7 +111,7 @@ export default function WorkoutSummary() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-2xl bg-card border border-border p-4"
+                className="p-4" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-sm">{ex.exercise_name}</h3>
@@ -169,7 +171,7 @@ export default function WorkoutSummary() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: (groupedExercises.length + i) * 0.08 }}
-                  className="rounded-2xl bg-card border border-border p-4"
+                  className="p-4" style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-sm">{prog.exercise_id.slice(0, 8)}...</h3>

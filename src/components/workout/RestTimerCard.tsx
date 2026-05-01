@@ -32,6 +32,7 @@ interface RestTimerCardProps {
   savedExercises: ExerciseLog[];
   trainingType: string;
   userId?: string;
+  autoStartTrigger?: number;
 }
 
 const CARD_STYLE: React.CSSProperties = {
@@ -42,7 +43,7 @@ const CARD_STYLE: React.CSSProperties = {
   width: "100%",
 };
 
-export const RestTimerCard = ({ savedExercises, trainingType, userId }: RestTimerCardProps) => {
+export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartTrigger = 0 }: RestTimerCardProps) => {
   const lastEx = savedExercises.length > 0 ? savedExercises[savedExercises.length - 1] : null;
   const lastWeight = lastEx?.weight ?? 30;
   const lastReps = lastEx?.reps ?? 8;
@@ -87,6 +88,17 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId }: RestTime
       }
     } catch { /* ignore */ }
   }, []);
+
+  // Auto-start after set is confirmed
+  useEffect(() => {
+    if (autoStartTrigger === 0) return;
+    const newPreset = nearestPreset(total);
+    setSelectedPreset(newPreset);
+    setTimeRemaining(newPreset);
+    setIsFinished(false);
+    setIsRunning(true);
+    hasNotifiedRef.current = false;
+  }, [autoStartTrigger]);
 
   // Persist timer state
   useEffect(() => {
