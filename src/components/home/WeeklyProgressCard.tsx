@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 export function WeeklyProgressCard() {
   const { data, loading } = useWeeklyStats();
@@ -8,7 +9,7 @@ export function WeeklyProgressCard() {
     return (
       <div className="space-y-3">
         <div className="h-5 w-32 rounded bg-muted-foreground/10 animate-pulse" />
-        <div className="rounded-2xl p-5 animate-pulse bg-[hsl(220,13%,12%)]">
+        <div className="rounded-none p-5 animate-pulse">
           <div className="h-24" />
         </div>
       </div>
@@ -31,11 +32,14 @@ export function WeeklyProgressCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
-      className="space-y-3"
+      className="mx-4 mb-3 space-y-3"
     >
-      <h3 className="text-base font-bold text-foreground">Esta semana</h3>
+      <div className="flex items-center gap-2">
+        <HexBadge label="PR" />
+        <h3 className="text-base font-bold text-foreground">Esta semana</h3>
+      </div>
 
-      <div className="rounded-2xl bg-[hsl(220,13%,12%)] p-5 shadow-lg shadow-black/20">
+      <div style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}>
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative flex-shrink-0">
@@ -53,7 +57,7 @@ export function WeeklyProgressCard() {
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="hsl(142,71%,45%)"
+                stroke="#2563EB"
                 strokeWidth={stroke}
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -87,7 +91,7 @@ export function WeeklyProgressCard() {
               key={i}
               className="h-2 flex-1 rounded-full transition-all"
               style={{
-                backgroundColor: active ? "hsl(142,71%,45%)" : "hsl(220,10%,20%)",
+                backgroundColor: active ? "#2563EB" : "hsl(220,10%,20%)",
               }}
             />
           ))}

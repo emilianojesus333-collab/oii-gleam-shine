@@ -147,6 +147,13 @@ export interface UserContext {
   recovery: {
     fatigueIndex: number | null;
   };
+
+  // Chat Personality Settings
+  chatSettings: {
+    personality: string;
+    tone: string;
+    focus: string;
+  };
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -218,6 +225,11 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
     recovery: {
       fatigueIndex: null,
     },
+    chatSettings: {
+      personality: "motivador",
+      tone: "Casual",
+      focus: "Tudo",
+    },
   };
 
   try {
@@ -264,6 +276,16 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
             age: birthYear ? currentYear - birthYear : undefined,
           };
           context.schedule.nextTrainingDays = context.profile.trainingDays || [];
+
+          // Populate scheduledWorkouts (day → muscles mapping)
+          if (onboardingData.schedule) {
+            context.schedule.scheduledWorkouts = Object.entries(onboardingData.schedule)
+              .filter(([, muscles]) => muscles != null && (Array.isArray(muscles) ? muscles.length > 0 : (muscles as string) !== "Descanso"))
+              .map(([day, muscles]) => ({
+                day,
+                type: Array.isArray(muscles) ? muscles.join(" + ") : String(muscles),
+              }));
+          }
         }
 
         // AI Name from database
@@ -271,6 +293,14 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
 
         // Fatigue Index from database
         context.recovery.fatigueIndex = userSettings.fatigue_index ?? null;
+
+        // Chat personality settings from alerts_config
+        const cfg = (userSettings.alerts_config as Record<string, string> | null) || {};
+        context.chatSettings = {
+          personality: cfg.chat_personality || localStorage.getItem("liftmate_chat_personality") || "motivador",
+          tone: cfg.chat_tone || localStorage.getItem("liftmate_chat_tone") || "Casual",
+          focus: cfg.chat_focus || localStorage.getItem("liftmate_chat_focus") || "Tudo",
+        };
       }
     }
 
@@ -657,6 +687,12 @@ export const formatContextForAI = (ctx: UserContext): string => {
 
   parts.push(`📅 DATA ATUAL: ${today}`);
 
+  // Chat personality
+  parts.push(`\n🎭 PERSONALIDADE E ESTILO DE COMUNICAÇÃO:
+- Personalidade: ${ctx.chatSettings.personality}
+- Tom: ${ctx.chatSettings.tone}
+- Foco: ${ctx.chatSettings.focus}`);
+
   // User Name
   if (ctx.profile.userName) {
     parts.push(`\n👤 NOME DO UTILIZADOR: ${ctx.profile.userName}`);
@@ -728,6 +764,12 @@ ${protPercent >= 100 ? "✅ Meta de proteína atingida!" : ""}`);
     }
   }
 
+  // Weekly Schedule
+  if (ctx.schedule.scheduledWorkouts.length > 0) {
+    const lines = ctx.schedule.scheduledWorkouts.map(sw => `- ${sw.day}: ${sw.type}`).join("\n");
+    parts.push(`\n📅 PLANO SEMANAL DE TREINOS:\n${lines}`);
+  }
+
   // Recent Sessions
   if (ctx.workout.recentSessions.length > 0) {
     parts.push(`\nÚLTIMAS SESSÕES:`);
@@ -735,6 +777,28 @@ ${protPercent >= 100 ? "✅ Meta de proteína atingida!" : ""}`);
       const date = new Date(s.date + "T00:00:00").toLocaleDateString("pt-PT", { weekday: "short", day: "numeric", month: "short" });
       parts.push(`- ${date}: ${s.muscleGroups.join("+")} - ${s.exercisesCompleted.length} exercícios (${s.completionRate}%)`);
     });
+  }
+
+  // Per-muscle recovery (derived from session dates)
+  if (ctx.workout.recentSessions.length > 0) {
+    const muscleDays: Record<string, number> = {};
+    const todayMs = new Date().setHours(0, 0, 0, 0);
+    for (const s of ctx.workout.recentSessions) {
+      const days = Math.round((todayMs - new Date(s.date + "T00:00:00").getTime()) / 86400000);
+      for (const m of s.muscleGroups) {
+        if (!(m in muscleDays) || days < muscleDays[m]) muscleDays[m] = days;
+      }
+    }
+    const lines = Object.entries(muscleDays)
+      .sort(([, a], [, b]) => a - b)
+      .map(([muscle, days]) => {
+        if (days === 0) return `- ${muscle}: treinou HOJE`;
+        if (days === 1) return `- ${muscle}: treinou ontem — pode ainda estar a recuperar`;
+        if (days <= 2) return `- ${muscle}: há ${days} dias — recuperação em curso`;
+        if (days <= 4) return `- ${muscle}: há ${days} dias — provavelmente recuperado`;
+        return `- ${muscle}: há ${days}+ dias — totalmente recuperado`;
+      });
+    parts.push(`\n💪 RECUPERAÇÃO POR MÚSCULO:\n${lines.join("\n")}`);
   }
 
   // Recent Exercise Volume
@@ -857,6 +921,8 @@ ${ctx.weeklyReport.highlights.map(h => `- ${h}`).join("\n")}`);
 ${ctx.weeklyReport.improvements.map(i => `- ${i}`).join("\n")}`);
     }
   }
+
+  parts.push(`\n⚙️ CAPACIDADE DE AÇÃO: Quando o utilizador pedir para criar ou alterar calendário, reagendar treinos ou criar metas, inclui na resposta: [ACTION:updateSchedule:{"Segunda-feira":["Peito","Bíceps"]}] — usa dias em português completo. Nunca mostres a linha [ACTION:...] ao utilizador.`);
 
   return parts.join("\n");
 };

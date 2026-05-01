@@ -10,21 +10,21 @@ import {
   ChevronRight,
   Crown,
   RefreshCw,
+  Calendar,
+  Brain,
+  Dumbbell,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 
 import { ExportData } from "@/components/settings/ExportData";
-import { AIFeaturesCarousel } from "@/components/settings/AIFeaturesCarousel";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
-import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useNutrition } from "@/hooks/useNutrition";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useUserSettings } from "@/hooks/useUserSettings";
-import { WeeklyPlanCalendar } from "@/components/settings/WeeklyPlanCalendar";
+import { HexBadge } from "@/components/ui/HexBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +36,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type Schedule = Record<string, string[] | null>;
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="px-1 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
@@ -61,7 +60,7 @@ const SettingsRow = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 transition-colors active:bg-muted/20"
+    className="flex w-full items-center gap-3 px-3 py-3 transition-colors active:bg-muted/20"
   >
     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-muted/30">
       <Icon className={`h-[18px] w-[18px] ${iconClass ?? "text-muted-foreground"}`} />
@@ -76,33 +75,22 @@ const SettingsRow = ({
 
 const Settings = () => {
   const navigate = useNavigate();
-  const [schedule, setSchedule] = useState<Schedule>({});
+  const location = useLocation();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { settings, updateSettings, updateSchedule: saveScheduleToDb } = useUserSettings();
   const { allLogs, goals } = useNutrition();
   const { isSubscriptionValid, isTrialing, subscriptionEnd, openCustomerPortal } = useSubscriptionContext();
 
+  // Redireciona para páginas específicas se chegou via scrollTo state
   useEffect(() => {
-    if (settings) {
-      setSchedule(settings.onboarding_data?.schedule || {});
+    const target = (location.state as { scrollTo?: string } | null)?.scrollTo;
+    if (target === "coaching-ia") {
+      navigate("/coaching-ia", { replace: true });
+    } else if (target === "avaliacao-fisica") {
+      navigate("/avaliacao-fisica", { replace: true });
     }
-  }, [settings]);
-
-
-
-
-  const handleSaveDay = async (day: string, muscles: string[] | null) => {
-    const newSchedule = { ...schedule, [day]: muscles };
-    setSchedule(newSchedule);
-    try {
-      await saveScheduleToDb(newSchedule);
-      toast.success(`${day} atualizado!`);
-    } catch (error) {
-      console.error("Error saving schedule:", error);
-    }
-  };
+  }, []);
 
   const anim = (delay: number) => ({
     initial: { opacity: 0, y: 16 },
@@ -111,125 +99,214 @@ const Settings = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-black pb-32">
       {/* Header */}
-      <div className="px-5 pb-4 pt-12">
+      <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "48px 20px 16px" }}>
         <motion.div {...anim(0)} className="flex items-center gap-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-card"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5"
           >
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
           <h1 className="text-xl font-bold text-foreground">Definições</h1>
+          <HexBadge label="CF" />
         </motion.div>
       </div>
 
-      <div className="space-y-2 px-5">
+      <div className="space-y-0">
         {/* ─── Profile ─── */}
         <motion.div {...anim(0.05)}>
           <UserProfileCard />
         </motion.div>
 
-
-
-
-        {/* ─── Plano Semanal (separado) ─── */}
-        <SectionLabel>Plano Semanal</SectionLabel>
+        {/* ─── Treino ─── */}
         <motion.div
-          {...anim(0.12)}
-          className="rounded-[20px] border border-border/20 bg-card/60 p-4 backdrop-blur-sm"
+          {...anim(0.1)}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
-          <WeeklyPlanCalendar schedule={schedule} onSaveDay={handleSaveDay} />
-        </motion.div>
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Treino</p>
 
-        {/* ─── Inteligência Artificial ─── */}
-        <SectionLabel>Inteligência Artificial</SectionLabel>
-        <motion.div {...anim(0.15)}>
-          <AIFeaturesCarousel />
+          {/* Plano Semanal nav card */}
+          <button
+            onClick={() => navigate("/plano-semanal")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 14,
+              padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Calendar size={18} color="white" />
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Plano Semanal</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Define os teus dias de treino</p>
+            </div>
+            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+          </button>
+
+          <div className="border-t border-white/[0.06]" />
+
+          {/* Chat & IA nav card */}
+          <button
+            onClick={() => navigate("/chat-ia")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 14,
+              padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Brain size={18} color="white" />
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Chat & IA</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Personaliza o teu assistente</p>
+            </div>
+            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+          </button>
+
+          <div className="border-t border-white/[0.06]" />
+
+          {/* Equipamento nav card */}
+          <button
+            onClick={() => navigate("/equipamento")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 14,
+              padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Dumbbell size={18} color="white" />
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>O meu Equipamento</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Alternativas baseadas no teu ginásio</p>
+            </div>
+            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+          </button>
         </motion.div>
 
         {/* ─── Dados ─── */}
-        <SectionLabel>Dados</SectionLabel>
-        <motion.div {...anim(0.2)}>
+        <motion.div
+          {...anim(0.2)}
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
+        >
+          <p className="px-4 pt-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Dados</p>
           <ExportData nutritionLogs={allLogs} nutritionGoals={goals} />
         </motion.div>
 
         {/* ─── Subscrição ─── */}
-        <SectionLabel>Subscrição</SectionLabel>
         <motion.div
           {...anim(0.22)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm overflow-hidden"
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
-          {isSubscriptionValid() || isTrialing ? (
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Subscrição</p>
+          {isTrialing ? (
+            /* ── Trial ativo ── */
             <>
-              <div className="flex items-center gap-3 px-3 py-3">
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary/15">
-                  <Crown className="h-[18px] w-[18px] text-primary" />
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
+                  <Crown className="h-[18px] w-[18px] text-amber-400" />
                 </div>
                 <div className="flex-1 text-left">
-                  <span className="text-sm font-medium text-foreground">
-                    {isTrialing ? "Trial ativo" : "LiftMate Pro"}
-                  </span>
-                  {subscriptionEnd && (
-                    <p className="text-[11px] text-muted-foreground">
-                      {isTrialing ? "Trial termina em" : "Renova em"}{" "}
-                      {new Date(subscriptionEnd).toLocaleDateString("pt-PT", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
+                  <span className="text-sm font-medium text-foreground">Trial ativo</span>
+                  <p className="text-[11px] text-amber-400/80">
+                    {subscriptionEnd
+                      ? `${Math.max(0, Math.ceil((new Date(subscriptionEnd).getTime() - Date.now()) / 86400000))} dias restantes`
+                      : "7 dias grátis"}
+                  </p>
                 </div>
-                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                  Ativa
+                <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">
+                  Trial
                 </span>
               </div>
-              <div className="mx-3 border-t border-border/10" />
+              <div className="border-t border-white/[0.06]" />
               <SettingsRow
                 icon={RefreshCw}
                 label="Gerir subscrição"
                 sublabel="Cancelar, alterar plano ou ver faturas"
                 onClick={async () => {
-                  try {
-                    await openCustomerPortal();
-                  } catch {
+                  try { await openCustomerPortal(); } catch {
+                    toast.error("Não foi possível abrir o portal. Tenta novamente.");
+                  }
+                }}
+              />
+            </>
+          ) : isSubscriptionValid() ? (
+            /* ── Subscrito ── */
+            <>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-500/15">
+                  <Crown className="h-[18px] w-[18px] text-emerald-400" />
+                </div>
+                <div className="flex-1 text-left">
+                  <span className="text-sm font-medium text-foreground">LiftMate Pro</span>
+                  {subscriptionEnd && (
+                    <p className="text-[11px] text-emerald-400/80">
+                      Subscrito até{" "}
+                      {new Date(subscriptionEnd).toLocaleDateString("pt-PT", {
+                        day: "numeric", month: "long", year: "numeric",
+                      })}
+                    </p>
+                  )}
+                </div>
+                <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">
+                  Ativa
+                </span>
+              </div>
+              <div className="border-t border-white/[0.06]" />
+              <SettingsRow
+                icon={RefreshCw}
+                label="Gerir subscrição"
+                sublabel="Cancelar, alterar plano ou ver faturas"
+                onClick={async () => {
+                  try { await openCustomerPortal(); } catch {
                     toast.error("Não foi possível abrir o portal. Tenta novamente.");
                   }
                 }}
               />
             </>
           ) : (
+            /* ── Expirado / não subscrito ── */
             <button
               onClick={() => navigate("/paywall")}
-              className="flex w-full items-center gap-3 rounded-[20px] px-3 py-4 transition-colors active:bg-muted/20"
+              className="flex w-full items-center gap-3 px-4 py-4 transition-colors active:bg-muted/20"
             >
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
-                <Crown className="h-[18px] w-[18px] text-amber-500" />
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-red-500/15">
+                <Crown className="h-[18px] w-[18px] text-red-400" />
               </div>
               <div className="flex-1 text-left">
-                <span className="text-sm font-medium text-foreground">Ativar LiftMate Pro</span>
-                <p className="text-[11px] text-muted-foreground">7 dias grátis, cancela quando quiseres</p>
+                <span className="text-sm font-medium text-red-400">Trial expirado</span>
+                <p className="text-[11px] text-muted-foreground">Subscreve para continuar</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+              <ChevronRight className="h-4 w-4 text-red-400/50" />
             </button>
           )}
         </motion.div>
 
         {/* ─── Informações ─── */}
-        <SectionLabel>Informações</SectionLabel>
         <motion.div
           {...anim(0.25)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
-          <LanguageSelector inline />
-          <div className="mx-3 border-t border-border/10" />
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Informações</p>
           <SettingsRow icon={FileText} label="Termos de Uso" onClick={() => navigate("/terms")} />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow icon={Shield} label="Política de Privacidade" onClick={() => navigate("/privacy")} />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow
             icon={Headphones}
             label="Suporte"
@@ -239,11 +316,11 @@ const Settings = () => {
         </motion.div>
 
         {/* ─── Conta ─── */}
-        <SectionLabel>Conta</SectionLabel>
         <motion.div
           {...anim(0.3)}
-          className="rounded-[20px] border border-border/20 bg-card/60 backdrop-blur-sm"
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", width: "100%", margin: 0 }}
         >
+          <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Conta</p>
           <SettingsRow
             icon={LogOut}
             label="Terminar sessão"
@@ -260,7 +337,7 @@ const Settings = () => {
             }}
             trailing={<span className="text-xs font-medium text-muted-foreground">Sair</span>}
           />
-          <div className="mx-3 border-t border-border/10" />
+          <div className="border-t border-white/[0.06]" />
           <SettingsRow
             icon={Trash2}
             label="Apagar conta"
@@ -276,9 +353,6 @@ const Settings = () => {
         {/* Bottom spacer */}
         <div className="h-4" />
       </div>
-
-
-
 
 
 

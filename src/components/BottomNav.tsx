@@ -1,17 +1,17 @@
 import { Home, Dumbbell, MessageCircle, Apple, Droplets } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const navItems = [
-  { icon: Dumbbell, label: "Treino", path: "/workout" },
-  { icon: MessageCircle, label: "Chat", path: "/chat" },
-  { icon: Home, label: "Início", path: "/home" },
-  { icon: Apple, label: "Nutrição", path: "/nutrition" },
-  { icon: Droplets, label: "Hidratação", path: "/hydration" },
-];
-
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const navItems = [
+    { icon: Dumbbell, label: "Treino", path: "/workout" },
+    { icon: MessageCircle, label: "Chat", path: "/chat" },
+    { icon: Home, label: "Início", path: "/home" },
+    { icon: Apple, label: "Nutrição", path: "/nutrition" },
+    { icon: Droplets, label: "Água", path: "/hydration" },
+  ];
 
   if (location.pathname === "/chat") return null;
 
@@ -34,35 +34,6 @@ export const BottomNav = () => {
       >
         {navItems.map((item) => {
           const active = isActive(item.path);
-          const isHome = item.path === "/home";
-
-          if (isHome) {
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className="flex flex-col items-center justify-center flex-1 cursor-pointer"
-                style={{ gap: 4 }}
-              >
-                <div
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: 28,
-                    padding: "10px 20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <item.icon size={22} strokeWidth={1.5} color="#000" />
-                  <span style={{ fontSize: 9.5, fontWeight: 700, color: "#000", lineHeight: 1 }}>
-                    {item.label}
-                  </span>
-                </div>
-              </button>
-            );
-          }
 
           return (
             <button

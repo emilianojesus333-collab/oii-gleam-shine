@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Heart, Apple, ChevronRight } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useNavigate } from 'react-router-dom';
+import { HexBadge } from '@/components/ui/HexBadge';
 
 export const FavoritesWidget = () => {
   const { favorites, totalFavorites } = useFavorites();
@@ -27,10 +28,12 @@ export const FavoritesWidget = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
+      className="mx-4 mb-3"
+      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
-          <Heart className="w-4 h-4 text-rose-400" />
+          <HexBadge label="NU" size={28} />
           Favoritos Rápidos
         </h3>
         <motion.button
@@ -52,7 +55,8 @@ export const FavoritesWidget = () => {
             transition={{ delay: 0.45 + index * 0.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/nutrition')}
-            className="rounded-2xl bg-[#1E1E1E]/50 p-3 text-center"
+            className="rounded-xl p-3 text-center"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
           >
             <span className="text-2xl block mb-1">{item.emoji}</span>
             <p className="text-xs text-white/70 truncate font-medium">{item.name}</p>

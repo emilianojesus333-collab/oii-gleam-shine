@@ -3,6 +3,7 @@ import { AlertTriangle, ShieldAlert, ChevronRight, X, Lightbulb } from "lucide-r
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface FatigueAlertCardProps {
   fatigueIndex: number | null | undefined;
@@ -73,7 +74,9 @@ export const FatigueAlertCard = ({ fatigueIndex }: FatigueAlertCardProps) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.97 }}
           transition={{ duration: 0.3 }}
-          className={`relative rounded-2xl border p-4 ${colorClasses.border} ${colorClasses.bg}`}
+          className={`relative rounded-none p-4 mb-2 ${colorClasses.bg}`}
+          className="mx-4 mb-3"
+      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
         >
           <button
             onClick={handleDismiss}
@@ -87,9 +90,12 @@ export const FatigueAlertCard = ({ fatigueIndex }: FatigueAlertCardProps) => {
               <Icon className={`h-5 w-5 ${colorClasses.text}`} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm font-semibold ${colorClasses.text}`}>
-                {isVeryHigh ? "Fadiga Muito Alta" : isHigh ? "Fadiga Alta" : "Fadiga Moderada"}
-              </p>
+              <div className="flex items-center gap-2 mb-0.5">
+                <HexBadge label="RC" size={22} />
+                <p className={`text-sm font-semibold ${colorClasses.text}`}>
+                  {isVeryHigh ? "Fadiga Muito Alta" : isHigh ? "Fadiga Alta" : "Fadiga Moderada"}
+                </p>
+              </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                 {message}
               </p>

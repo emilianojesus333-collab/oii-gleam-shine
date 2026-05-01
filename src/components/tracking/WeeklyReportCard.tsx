@@ -31,7 +31,7 @@ export const WeeklyReportCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 p-4"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export const WeeklyReportView = () => {
       </div>
 
       {/* Nutrition Stats */}
-      <div className="rounded-2xl bg-card/50 border border-border/50 p-4">
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Utensils className="w-5 h-5 text-orange-400" />
           Nutrição
@@ -157,7 +157,7 @@ export const WeeklyReportView = () => {
       </div>
 
       {/* Workout Stats */}
-      <div className="rounded-2xl bg-card/50 border border-border/50 p-4">
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-blue-400" />
           Treinos

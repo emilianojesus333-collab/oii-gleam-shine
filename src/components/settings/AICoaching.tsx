@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
@@ -329,10 +330,12 @@ export const AICoaching = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-500/10 via-card to-cyan-500/10 rounded-[20px] p-5 border h-full border-black bg-[#111311]">
+      className="rounded-none p-5 h-full mb-2"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}>
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
+          <HexBadge label="IA" />
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
             <Brain className="w-5 h-5 text-white" />
           </div>

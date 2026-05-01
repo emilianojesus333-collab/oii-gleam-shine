@@ -1,12 +1,8 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useTimerNotification } from "@/hooks/useTimerNotification";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useActiveSession } from "@/hooks/useActiveSession";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Play,
-  Pause,
-  RotateCcw,
   Target,
   Zap,
   TrendingUp,
@@ -14,7 +10,9 @@ import {
   Check,
   Loader2,
   ChevronRight,
+  ArrowUp,
 } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,20 +32,24 @@ import {
   type WorkoutSession,
 } from "@/data/workoutHistory";
 import { toast } from "sonner";
-import { MainWorkoutCarousel } from "@/components/workout/MainWorkoutCarousel";
+import { ExerciseToolsCard } from "@/components/workout/ExerciseToolsCard";
+import { RestTimerCard } from "@/components/workout/RestTimerCard";
+import { BarbellCalculator } from "@/components/workout/BarbellCalculator";
+import { LastSessionCard } from "@/components/workout/LastSessionCard";
 import { AIWorkoutGenerator } from "@/components/workout/AIWorkoutGenerator";
-import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
+import { markTaskComplete, isTaskComplete } from "@/utils/onboardingFlow";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
 import { Progress } from "@/components/ui/progress";
-import { WorkoutShareCard } from "@/components/workout/WorkoutShareCard";
+import { supabase } from "@/integrations/supabase/client";
 
 // Editorial components
 import { ExerciseCardStack } from "@/components/workout/ExerciseCardStack";
-import { EditorialQuote } from "@/components/workout/EditorialQuote";
-import { WorkoutTimeline } from "@/components/workout/WorkoutTimeline";
+import CelebrationCard from "@/components/workout/CelebrationCard";
+import type { CelebrationEvent } from "@/services/workoutService";
+import { saveToOfflineQueue } from "@/utils/offlineSync";
 
 const weekDaysMap: Record<number, string> = {
   0: "Domingo",
@@ -67,64 +69,57 @@ const trainingTypeConfig: Record<TrainingType, { icon: typeof Zap; description: 
   Resistência: { icon: Clock, description: "Mais reps, menos descanso" },
 };
 
-interface RestBreakdown {
-  base: number;
-  weightBonus: number;
-  repsAdjustment: number;
-  setsBonus: number;
-  repsCategory: string;
-}
-
-const calculateRestTime = (
-  weight: number,
-  reps: number,
-  sets: number
-): { total: number; breakdown: RestBreakdown } => {
-  const breakdown: RestBreakdown = {
-    base: 60,
-    weightBonus: 0,
-    repsAdjustment: 0,
-    setsBonus: 0,
-    repsCategory: "Hipertrofia",
-  };
-  breakdown.weightBonus = Math.floor(weight / 10) * 10;
-  if (reps <= 5) { breakdown.repsAdjustment = 60; breakdown.repsCategory = "Força máxima"; }
-  else if (reps <= 8) { breakdown.repsAdjustment = 30; breakdown.repsCategory = "Força/Hipertrofia"; }
-  else if (reps <= 12) { breakdown.repsAdjustment = 0; breakdown.repsCategory = "Hipertrofia"; }
-  else { breakdown.repsAdjustment = -15; breakdown.repsCategory = "Resistência"; }
-  if (sets >= 4) breakdown.setsBonus = 15;
-  const total = breakdown.base + breakdown.weightBonus + breakdown.repsAdjustment + breakdown.setsBonus;
-  return { total: Math.max(30, Math.min(300, total)), breakdown };
+const MUSCLE_COLOR: Record<string, string> = {
+  Costas: "#A78BFA",
+  Ombros: "#FBBF24",
+  Bíceps: "#F87171",
+  Peito: "#60A5FA",
+  Pernas: "#34D399",
+  Tríceps: "#FB923C",
+  Abdominais: "#22D3EE",
 };
 
+const MUSCLE_BG: Record<string, string> = {
+  Costas: "rgba(167,139,250,0.15)",
+  Ombros: "rgba(251,191,36,0.15)",
+  Bíceps: "rgba(248,113,113,0.15)",
+  Peito: "rgba(96,165,250,0.15)",
+  Pernas: "rgba(52,211,153,0.15)",
+  Tríceps: "rgba(251,146,60,0.15)",
+  Abdominais: "rgba(34,211,238,0.15)",
+};
+
+const TYPE_SUB: Record<TrainingType, string> = {
+  Força: "3–6 reps",
+  Hipertrofia: "8–12 reps",
+  Resistência: "15–20 reps",
+};
+
+
 const Workout = () => {
-  const { t } = useLanguage();
   const { settings, isLoading } = useUserSettings();
   const { activeSession, loading: sessionLoading, refresh: refreshSession, markExerciseCompleted, startSession } = useActiveSession();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const aiGenerateRef = useRef<(() => void) | null>(null);
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
   const [reps, setReps] = useState("7");
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
-  const [restBreakdown, setRestBreakdown] = useState<RestBreakdown>({
-    base: 60, weightBonus: 30, repsAdjustment: 30, setsBonus: 0, repsCategory: "Força/Hipertrofia",
-  });
-
-  const [isRestRunning, setIsRestRunning] = useState(false);
-  const [restRemaining, setRestRemaining] = useState(90);
-  const [userEditedRest, setUserEditedRest] = useState(false);
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
   const [justSaved, setJustSaved] = useState(false);
+  const [autoStartTrigger, setAutoStartTrigger] = useState(0);
+  const [currentOneRM, setCurrentOneRM] = useState<Record<string, number>>({});
+  const [prCelebration, setPrCelebration] = useState<CelebrationEvent | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
+  const [showBarbellCalc, setShowBarbellCalc] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
-  const [shareData, setShareData] = useState<{
-    muscleGroups: string[]; durationMin: number; totalVolume: number;
-    totalSets: number; date: string; dayOfWeek: string;
-  } | null>(null);
+  const [shareData, setShareData] = useState<null>(null);
   const workoutStartRef = useRef(Date.now());
 
   // --- AI guided mode state ---
@@ -151,14 +146,36 @@ const Workout = () => {
       setSelectedExercise(currentPlannedExercise.exercise_name);
       setReps(String(parseInt(currentPlannedExercise.reps) || 10));
       setSets(String(currentPlannedExercise.sets));
-      setUserEditedRest(false);
       const aiRest = currentPlannedExercise.rest;
       if (aiRest && aiRest > 0) {
         setRestTime(String(aiRest));
-        if (!isRestRunning) setRestRemaining(aiRest);
       }
     }
   }, [currentPlannedExercise?.id, isGuidedMode]);
+
+  // Pre-fill weight/reps from the last saved set for the selected exercise
+  useEffect(() => {
+    if (!selectedExercise) return;
+    const lastLog = [...savedExercises]
+      .reverse()
+      .find((e) => e.name === selectedExercise);
+    if (lastLog) {
+      if (lastLog.weight > 0) setWeight(String(lastLog.weight));
+      if (lastLog.reps > 0) setReps(String(lastLog.reps));
+    }
+  }, [selectedExercise]);
+
+  // Online/offline detection
+  useEffect(() => {
+    const handleOnline  = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online",  handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online",  handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // Load today's saved exercises on mount
   useEffect(() => {
@@ -191,99 +208,78 @@ const Workout = () => {
     return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  // Rest timer
-  useEffect(() => {
-    if (isGuidedMode && currentPlannedExercise) return;
-    if (userEditedRest) return;
-    const weightNum = parseInt(weight) || 0;
-    const repsNum = parseInt(reps) || 0;
-    const setsNum = parseInt(sets) || 0;
-    if (weightNum > 0 && repsNum > 0 && setsNum > 0) {
-      const { total, breakdown } = calculateRestTime(weightNum, repsNum, setsNum);
-      setRestTime(String(total));
-      setRestBreakdown(breakdown);
-      if (!isRestRunning) setRestRemaining(total);
-    }
-  }, [weight, reps, sets, isRestRunning, isGuidedMode, currentPlannedExercise, userEditedRest]);
-
-  // Persist timer state
-  const TIMER_STORAGE_KEY = `liftmate_rest_timer_${user?.id}`;
-
-  useEffect(() => {
-    if (!user) return;
-    try {
-      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
-      if (!saved) return;
-      const { startTime, duration, isActive } = JSON.parse(saved);
-      if (!isActive || !startTime || !duration) return;
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const remaining = duration - elapsed;
-      if (remaining > 0) {
-        setRestTime(String(duration));
-        setRestRemaining(remaining);
-        setIsRestRunning(true);
-      } else {
-        localStorage.removeItem(TIMER_STORAGE_KEY);
-      }
-    } catch { /* ignore */ }
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    if (isRestRunning) {
-      const startTime = Date.now() - ((parseInt(restTime) - restRemaining) * 1000);
-      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
-        startTime,
-        duration: parseInt(restTime),
-        isActive: true,
-      }));
-    } else {
-      localStorage.removeItem(TIMER_STORAGE_KEY);
-    }
-  }, [isRestRunning, restRemaining, restTime, user]);
-
-  const { notifyTimerEnd } = useTimerNotification();
-  const hasNotifiedRef = useRef(false);
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isRestRunning && restRemaining > 0) {
-      hasNotifiedRef.current = false;
-      interval = setInterval(() => {
-        setRestRemaining((prev) => {
-          if (prev <= 1) {
-            setIsRestRunning(false);
-            if (!hasNotifiedRef.current) {
-              hasNotifiedRef.current = true;
-              notifyTimerEnd();
-              toast.success("Tempo de descanso terminado! 💪");
-            }
-            return parseInt(restTime);
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRestRunning, restRemaining, restTime, notifyTimerEnd]);
-
-  const formatRestTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const startRestTimer = () => { setRestRemaining(parseInt(restTime)); setIsRestRunning(true); };
-  const resetRestTimer = () => { setIsRestRunning(false); setRestRemaining(parseInt(restTime)); if (user) localStorage.removeItem(TIMER_STORAGE_KEY); };
-
-  const REST_PRESETS = [30, 60, 90, 120, 180, 300];
-  const handleRestPreset = (seconds: number) => {
-    setUserEditedRest(true);
-    setRestTime(String(seconds));
-    if (!isRestRunning) setRestRemaining(seconds);
-  };
-
   const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
+
+  // Last session stats for the header pill
+  const lastSessionInfo = useMemo(() => {
+    if (!user || todayMuscleGroups.length === 0) return null;
+    const history = getWorkoutHistory(user.id);
+    const today = new Date().toISOString().split("T")[0];
+    const relevant = history.sessions.filter(
+      (s) => s.date !== today && s.muscleGroups.some((mg) => todayMuscleGroups.includes(mg))
+    );
+    if (!relevant.length) return null;
+    const last = relevant[0];
+    const prev = relevant[1] ?? null;
+    const lastDate = new Date(last.date + "T00:00:00");
+    const todayDate = new Date(today + "T00:00:00");
+    const daysAgo = Math.round((todayDate.getTime() - lastDate.getTime()) / 86400000);
+    const lastVol = last.exerciseLogs?.reduce((s, l) => s + (l.weight || 0) * (l.reps || 0) * (l.sets || 0), 0) ?? 0;
+    const prevVol = prev?.exerciseLogs?.reduce((s, l) => s + (l.weight || 0) * (l.reps || 0) * (l.sets || 0), 0) ?? null;
+    const volPct = prevVol && prevVol > 0 ? Math.round(((lastVol - prevVol) / prevVol) * 100) : null;
+    return { daysAgo, volPct };
+  }, [user, todayMuscleGroups]);
+
+  const checkAndSaveOneRM = async (exerciseName: string, weightKg: number, repsCount: number) => {
+    if (!user?.id || !exerciseName || weightKg <= 0 || repsCount <= 0) return;
+    const new1RM = Math.round(weightKg * (1 + repsCount / 30));
+
+    // Update live display
+    setCurrentOneRM((prev) => ({ ...prev, [exerciseName]: new1RM }));
+
+    try {
+      // Fetch previous best for this exercise
+      const { data: existing } = await supabase
+        .from("one_rm_records")
+        .select("calculated_1rm")
+        .eq("user_id", user.id)
+        .eq("exercise_name", exerciseName)
+        .order("calculated_1rm", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const previousBest = existing?.calculated_1rm ?? 0;
+
+      if (new1RM > previousBest) {
+        // Save new record
+        await supabase.from("one_rm_records").insert({
+          user_id: user.id,
+          exercise_name: exerciseName,
+          calculated_1rm: new1RM,
+          weight_used: weightKg,
+          reps_performed: repsCount,
+        });
+
+        // Vibrate
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
+
+        // Toast
+        toast.success(`🏆 Novo recorde! 1RM estimado: ${new1RM}kg`);
+
+        // Trigger CelebrationCard
+        setPrCelebration({
+          type: "new_max",
+          exercise_name: exerciseName,
+          value: new1RM,
+        });
+
+        // Auto-dismiss after 5s
+        setTimeout(() => setPrCelebration(null), 5000);
+      }
+    } catch (err) {
+      console.error("[1RM] Error checking/saving record:", err);
+    }
+  };
 
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) { toast.error("Seleciona um exercício primeiro"); return; }
@@ -313,6 +309,21 @@ const Workout = () => {
     const updatedExercises = [...savedExercises, newLog];
     setSavedExercises(updatedExercises);
 
+    // 1RM check — online: Supabase, offline: queue
+    if (navigator.onLine) {
+      checkAndSaveOneRM(newLog.name, newLog.weight, newLog.reps);
+    } else if (user) {
+      const estimated1RM = Math.round(newLog.weight * (1 + newLog.reps / 30));
+      setCurrentOneRM((prev) => ({ ...prev, [newLog.name]: estimated1RM }));
+      saveToOfflineQueue(user.id, {
+        user_id: user.id,
+        exercise_name: newLog.name,
+        calculated_1rm: estimated1RM,
+        weight_used: newLog.weight,
+        reps_performed: newLog.reps,
+      }, "one_rm_record");
+    }
+
     if (!isGuidedMode) {
       const today = new Date();
       const dateStr = today.toISOString().split("T")[0];
@@ -329,9 +340,11 @@ const Workout = () => {
       saveWorkoutSession(session, user.id);
     }
 
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
-    toast.success(`${selectedExercise} guardado!`);
+    toast.success(`${selectedExercise} guardado! ⏱️ Descanso iniciado`);
+    setAutoStartTrigger((prev) => prev + 1);
     setSelectedExercise("");
     setShowSaveConfirm(false);
   };
@@ -346,6 +359,24 @@ const Workout = () => {
     if (!user) return;
     if (savedExercises.length === 0) return;
     setCompleting(true);
+
+    // Offline fallback
+    if (!navigator.onLine) {
+      const today = new Date();
+      const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
+      saveToOfflineQueue(user.id, {
+        user_id: user.id,
+        date: activeSession?.date || today.toISOString().split("T")[0],
+        day_of_week: activeSession?.day_of_week || weekDaysMap[today.getDay()],
+        muscle_groups: muscleGroups,
+        exercises_completed: savedExercises.map((e) => e.name),
+        status: "completed",
+      }, "workout_session");
+      toast.warning("Sem ligação — treino guardado localmente. Será sincronizado quando voltar online.");
+      setCompleting(false);
+      return;
+    }
+
     try {
       const today = new Date();
       const result = await completeWorkout({
@@ -368,21 +399,36 @@ const Workout = () => {
 
       checkFatigueNotification(result.fatigue_index, user?.id);
 
+      // Auto-mark day flow tasks
+      if (user?.id) {
+        if (!isTaskComplete(user.id, "first_workout_done")) {
+          markTaskComplete(user.id, "first_workout_done");
+        } else if (!isTaskComplete(user.id, "second_workout_done")) {
+          markTaskComplete(user.id, "second_workout_done");
+        }
+      }
+
       const durationMin = Math.round((Date.now() - workoutStartRef.current) / 60000);
-      const totalVolume = savedExercises.reduce((acc, e) => acc + (e.weight * e.reps * e.sets), 0);
-      const totalSets = savedExercises.reduce((acc, e) => acc + e.sets, 0);
+      const totalSets   = savedExercises.reduce((acc, e) => acc + e.sets, 0);
+      const totalReps   = savedExercises.reduce((acc, e) => acc + (e.reps * e.sets), 0);
       const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
 
-      setShareData({
-        muscleGroups,
-        durationMin: durationMin || 1,
-        totalVolume,
-        totalSets,
-        date: activeSession?.date || new Date().toISOString().split("T")[0],
-        dayOfWeek: activeSession?.day_of_week || weekDaysMap[new Date().getDay()],
+      navigate("/workout-complete", {
+        state: {
+          workoutName:   muscleGroups.join(" + ") || "Treino",
+          trainingType:  trainingType,
+          exercises:     aiExercises.filter((e) => e.completed).map((e) => ({
+            name: e.exercise_name,
+            sets: e.sets,
+            reps: e.reps,
+            rest: e.rest,
+          })),
+          durationMin:   durationMin || 1,
+          totalSets,
+          totalReps,
+          sessionId:     result.session_id,
+        },
       });
-
-      (window as any).__lastSessionId = result.session_id;
     } catch (err: unknown) {
       console.error("[Workout] Complete error:", err);
       toast.error("Erro ao concluir treino. Os dados não foram perdidos.");
@@ -405,20 +451,118 @@ const Workout = () => {
   }, [isGuidedMode, allAIDone, currentAIIndex, aiExercises.length]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
-      {/* ── HEADER (old style) ── */}
-      <div className="px-6 pt-14 pb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
-            <Zap className="w-7 h-7 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {isRestDay ? t("workout.restDay") : todayMuscleGroups.join(" + ")}
-            </h1>
-            <p className="text-sm text-muted-foreground">{weekDaysMap[new Date().getDay()]}</p>
-          </div>
+    <div className="min-h-screen pb-32" style={{ backgroundColor: "#000000", position: "relative", zIndex: 1 }}>
+
+      {/* ── OFFLINE BANNER ── */}
+      <AnimatePresence>
+        {!isOnline && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+              background: "rgba(251,191,36,0.15)",
+              border: "1px solid rgba(251,191,36,0.3)",
+              padding: "10px 20px",
+              display: "flex", alignItems: "center", gap: 8,
+            }}
+          >
+            <motion.div
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              style={{ width: 7, height: 7, borderRadius: "50%", background: "#FBBF24", flexShrink: 0 }}
+            />
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#FBBF24" }}>
+              Sem ligação — dados guardados localmente
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── HEADER ── */}
+      <div className="px-6 pt-14 pb-2">
+        {/* 1. Day label + offline indicator */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <p style={{
+            fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
+            letterSpacing: "0.1em", textTransform: "uppercase", margin: 0,
+          }}>
+            {weekDaysMap[new Date().getDay()]}
+          </p>
+          {!isOnline && (
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <motion.div
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                style={{ width: 6, height: 6, borderRadius: "50%", background: "#FBBF24" }}
+              />
+              <span style={{ fontSize: 11, color: "#FBBF24", fontWeight: 600 }}>Offline</span>
+            </div>
+          )}
         </div>
+
+        {!isRestDay && !isLoading && (
+          <>
+            {/* 2. Workout title */}
+            <h1 style={{
+              fontSize: 30, fontWeight: 900, color: "white",
+              letterSpacing: "-0.02em", lineHeight: 1.05, marginBottom: 12,
+            }}>
+              {todayMuscleGroups.map((g, i) => (
+                <span key={g}>
+                  {g}{i < todayMuscleGroups.length - 1 ? " +" : ""}
+                  {i < todayMuscleGroups.length - 1 && <br />}
+                </span>
+              ))}
+            </h1>
+
+            {/* 3. Muscle chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+              {todayMuscleGroups.map((mg) => (
+                <span key={mg} style={{
+                  padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700,
+                  background: MUSCLE_BG[mg] ?? "rgba(255,255,255,0.08)",
+                  color: MUSCLE_COLOR[mg] ?? "rgba(255,255,255,0.6)",
+                }}>
+                  {mg}
+                </span>
+              ))}
+            </div>
+
+            {/* 4. Last session pill */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "9px 14px",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 10, marginBottom: 20,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <Clock size={14} style={{ color: "white", opacity: 0.35, flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.38)", fontWeight: 500 }}>
+                  {lastSessionInfo
+                    ? `Última sessão · há ${lastSessionInfo.daysAgo} ${lastSessionInfo.daysAgo === 1 ? "dia" : "dias"}`
+                    : "Sem sessões anteriores"}
+                </span>
+              </div>
+              {lastSessionInfo?.volPct !== null && lastSessionInfo?.volPct !== undefined ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <ArrowUp size={12} color="#34D399" />
+                  <span style={{ fontSize: 11, color: "#34D399", fontWeight: 700 }}>
+                    {lastSessionInfo.volPct > 0 ? "+" : ""}{lastSessionInfo.volPct}% volume
+                  </span>
+                </div>
+              ) : (
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+                  Sem dados anteriores
+                </span>
+              )}
+            </div>
+
+          </>
+        )}
       </div>
 
       {/* First-use nudge: no schedule configured */}
@@ -426,7 +570,7 @@ const Workout = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-6 mb-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-4 py-4 flex items-center gap-3"
+          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", margin: 0, display: "flex", alignItems: "center", gap: 12 }}
         >
           <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
             <Target className="w-5 h-5 text-primary" />
@@ -453,22 +597,22 @@ const Workout = () => {
           <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-muted-foreground/50" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground/70 mb-2">{t("workout.activeRecovery")}</h3>
-          <p className="text-muted-foreground max-w-xs mx-auto">{t("workout.restImportant")}</p>
+          <h3 className="text-xl font-semibold text-foreground/70 mb-2">Recuperação ativa</h3>
+          <p className="text-muted-foreground max-w-xs mx-auto">O descanso é parte do treino. Aproveita para recuperar.</p>
         </motion.div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-0">
           {/* ── TRAINING TYPE SELECTOR ── */}
           {!isGuidedMode && (
-            <div className="px-6 space-y-5">
+            <div className="space-y-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="rounded-2xl p-5 bg-card border border-border/20"
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
               >
                 <span className="text-sm font-medium mb-4 block text-muted-foreground">
-                  {t("workout.trainingType")}
+                  Tipo de treino
                 </span>
                 <div className="flex gap-2">
                   {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
@@ -509,7 +653,7 @@ const Workout = () => {
           {/* ── GUIDED MODE: Card Stack ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
-              <div className="px-6 pt-2">
+              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-muted-foreground">Progresso</span>
                   <span className="text-xs font-bold text-primary">{completedAICount}/{aiExercises.length}</span>
@@ -535,31 +679,42 @@ const Workout = () => {
                   setSets(String(ex.sets));
                   if (ex.rest > 0) {
                     setRestTime(String(ex.rest));
-                    if (!isRestRunning) setRestRemaining(ex.rest);
                   }
                   // Save + mark completed
                   handleSaveClick();
                   markExerciseCompleted(ex.id);
                 }}
                 onSwipeLeft={(ex) => {
-                  // Undo - skip for now (mark as completed undone)
-                  toast.info(`${ex.exercise_name} desfeito`);
+                  markExerciseCompleted(ex.id);
+                  toast.info("Exercício saltado");
                 }}
                 onFinish={handleCompleteWorkout}
                 isCompleting={completing}
+                onUndo={() => {
+                  // Undo last completed exercise
+                  const lastCompleted = [...aiExercises].reverse().find((e) => e.completed);
+                  if (lastCompleted) {
+                    supabase
+                      .from("planned_exercises" as any)
+                      .update({ completed: false })
+                      .eq("id", lastCompleted.id)
+                      .then(() => refreshSession());
+                    toast.info("Exercício desfeito");
+                  }
+                }}
               />
             </>
           )}
 
           {/* ── EXERCISE REGISTRATION CARD ── */}
-          <div className="px-6 space-y-5">
+          <div className="space-y-0">
             {/* Guided mode: current exercise label */}
             {isGuidedMode && currentPlannedExercise && !allAIDone && (
               <motion.div
                 key={currentPlannedExercise.id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", display: "flex", alignItems: "center", gap: 12 }}
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
@@ -579,14 +734,13 @@ const Workout = () => {
               </motion.div>
             )}
 
-            {/* Main Carousel Card */}
+            {/* Exercise Tools Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-card/50 rounded-2xl overflow-hidden border border-border/20"
             >
-              <MainWorkoutCarousel
+              <ExerciseToolsCard
                 selectedExercise={selectedExercise}
                 setSelectedExercise={setSelectedExercise}
                 weight={weight}
@@ -601,19 +755,53 @@ const Workout = () => {
                 saveExercise={handleSaveClick}
                 justSaved={justSaved}
                 saveButtonLabel={saveButtonLabel}
+                userId={user?.id}
+                focusTrigger={autoStartTrigger}
+                completedSetsCount={savedExercises.filter((e) => e.name === selectedExercise).length}
+                targetSets={parseInt(sets) || undefined}
+                estimatedOneRM={
+                  (() => {
+                    const w = parseFloat(weight);
+                    const r = parseInt(reps);
+                    if (!w || !r || w <= 0 || r <= 0) return undefined;
+                    return Math.round(w * (1 + r / 30));
+                  })()
+                }
               />
             </motion.div>
+
+            {/* Barbell Calculator trigger */}
+            <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px" }}>
+              <button
+                onClick={() => setShowBarbellCalc(true)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600,
+                  padding: "4px 8px",
+                }}
+              >
+                🏋️ Calculadora de barbell
+              </button>
+            </div>
+
+            {showBarbellCalc && (
+              <BarbellCalculator
+                onClose={() => setShowBarbellCalc(false)}
+                defaultWeight={parseFloat(weight) || 80}
+              />
+            )}
 
             {/* Saved Exercises */}
             {savedExercises.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-card/50 rounded-2xl p-5 border border-border/20"
+                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-muted-foreground">
-                    {t("workout.savedExercisesToday")}
+                    Exercícios guardados hoje
                   </span>
                   <span className="text-xs px-2 py-1 rounded-full bg-primary/15 text-primary font-medium">
                     {savedExercises.length}
@@ -644,137 +832,60 @@ const Workout = () => {
               </motion.div>
             )}
 
-            {/* Rest Calculation */}
+            {/* PR Celebration Card */}
+            <AnimatePresence>
+              {prCelebration && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                >
+                  <CelebrationCard celebration={prCelebration} index={0} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Rest Timer Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl p-5 bg-card border border-border/20"
             >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-semibold text-foreground">Cálculo do Descanso</span>
-                <span className="text-xs px-3 py-1 rounded-full bg-primary/15 text-primary font-medium">
-                  {restBreakdown.repsCategory}
-                </span>
-              </div>
-              <div className="space-y-2.5 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground" />
-                    <span className="text-muted-foreground">Tempo base</span>
-                  </div>
-                  <span className="font-medium text-foreground">{restBreakdown.base}s</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary" />
-                    <span className="text-muted-foreground">Peso ({weight}kg)</span>
-                  </div>
-                  <span className="font-medium text-primary">+{restBreakdown.weightBonus}s</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-400" />
-                    <span className="text-muted-foreground">Repetições ({reps})</span>
-                  </div>
-                  <span className="font-medium text-amber-400">
-                    {restBreakdown.repsAdjustment >= 0 ? "+" : ""}{restBreakdown.repsAdjustment}s
-                  </span>
-                </div>
-                <div className="border-t border-border/30 pt-2.5 flex items-center justify-between">
-                  <span className="font-semibold text-foreground">Total recomendado</span>
-                  <span className="font-bold text-lg text-primary">{parseInt(restTime)}s</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Rest Timer */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-card/50 rounded-2xl p-5 border border-border/20"
-            >
-              <span className="text-sm font-medium text-muted-foreground text-center block mb-3">
-                {t("workout.restTimer")}
-              </span>
-
-              <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
-                {REST_PRESETS.map((sec) => {
-                  const label = sec >= 60 ? `${sec / 60}min` : `${sec}s`;
-                  const isActive = parseInt(restTime) === sec;
-                  return (
-                    <button
-                      key={sec}
-                      onClick={() => handleRestPreset(sec)}
-                      disabled={isRestRunning}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-primary/20 text-primary border border-primary/40"
-                          : "bg-muted/20 text-muted-foreground border border-transparent hover:bg-muted/40"
-                      } disabled:opacity-40`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="text-center mb-4">
-                <span className={`text-5xl font-mono font-bold tracking-tight ${isRestRunning ? "text-primary" : "text-foreground/70"}`}>
-                  {formatRestTime(restRemaining)}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={isRestRunning ? () => setIsRestRunning(false) : startRestTimer}
-                  className={`flex-1 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all text-sm ${
-                    isRestRunning
-                      ? "bg-destructive text-destructive-foreground"
-                      : "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                  }`}
-                >
-                  {isRestRunning ? (
-                    <><Pause className="w-4 h-4" /> Pausar</>
-                  ) : (
-                    <><Play className="w-4 h-4" /> Iniciar Descanso</>
-                  )}
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={resetRestTimer}
-                  className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-all"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </motion.button>
-              </div>
+              <RestTimerCard
+                savedExercises={savedExercises}
+                trainingType={trainingType}
+                userId={user?.id}
+                autoStartTrigger={autoStartTrigger}
+              />
             </motion.div>
 
             {/* ── Complete Workout Button ── */}
             {savedExercises.length > 0 && !isGuidedMode && (
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handleCompleteWorkout}
-                disabled={completing}
-                className="w-full py-4 rounded-2xl bg-[hsl(142,60%,45%)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[hsl(142,60%,45%)]/25 disabled:opacity-50"
-              >
-                {completing ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
-                ) : (
-                  <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
-                )}
-              </motion.button>
+              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleCompleteWorkout}
+                  disabled={completing}
+                  className="w-full py-4 rounded-2xl text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ background: "#0D0D0D", border: "1px solid rgba(255,255,255,0.12)" }}
+                >
+                  {completing ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
+                  ) : (
+                    <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
+                  )}
+                </motion.button>
+              </div>
             )}
           </div>
 
-          {/* ── EDITORIAL QUOTE (after timer) ── */}
-          <EditorialQuote
-            muscleGroups={todayMuscleGroups}
-            aiName={settings?.ai_name || "Victoria AI"}
-          />
-
-          {/* ── TIMELINE (after quote) ── */}
-          <WorkoutTimeline todayMuscleGroups={todayMuscleGroups} />
+          {/* ── LAST SESSION CARD ── */}
+          <div>
+            <LastSessionCard
+              todayMuscleGroups={todayMuscleGroups}
+              userId={user?.id}
+            />
+          </div>
         </div>
       )}
 
@@ -802,19 +913,6 @@ const Workout = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AnimatePresence>
-        {shareData && (
-          <WorkoutShareCard
-            open={!!shareData}
-            onClose={() => {
-              setShareData(null);
-              const sid = (window as any).__lastSessionId;
-              if (sid) navigate(`/workout-summary/${sid}`);
-            }}
-            data={shareData}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 };

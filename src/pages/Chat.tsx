@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines, Edit3, Save, Check } from "lucide-react";
+import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -10,10 +11,20 @@ import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { toast } from "sonner";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
+import { formatMemoryForAI, extractAndStoreFromMessage } from "@/lib/chatMemory";
+import { executeActionsFromResponse, stripActionsFromText } from "@/lib/chatActions";
+import { loadMemories, formatMemoriesForAI, detectAndSaveMemories } from "@/utils/chatMemory";
+import { executeChatAction } from "@/utils/chatActions";
+
+const thinkingStates = [
+  "A pensar...",
+  "A analisar o teu treino...",
+  "A verificar a fadiga muscular...",
+  "A calcular as tuas necessidades...",
+  "A preparar a resposta..."
+];
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -21,6 +32,9 @@ const Chat = () => {
   const location = useLocation();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [thinkingText, setThinkingText] = useState("A pensar...");
+  const thinkingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [showHistorySheet, setShowHistorySheet] = useState(false);
@@ -49,27 +63,8 @@ const Chat = () => {
     stopSpeaking
   } = useVoiceChat();
 
-  const { settings: userSettings, updateSettings } = useUserSettings();
+  const { settings: userSettings } = useUserSettings();
   const aiName = useMemo(() => userSettings?.ai_name || "LiftMate", [userSettings]);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState("");
-
-  const openNameEditor = () => {
-    setTempName(aiName);
-    setIsEditingName(true);
-  };
-
-  const saveAiName = async () => {
-    if (tempName.trim()) {
-      try {
-        await updateSettings({ ai_name: tempName.trim() });
-        toast.success("Nome atualizado!");
-      } catch (e) {
-        console.error(e);
-      }
-      setIsEditingName(false);
-    }
-  };
 
   // Read prefill message from navigation state (e.g. from FatigueAlertCard)
   useEffect(() => {
@@ -98,6 +93,13 @@ const Chat = () => {
 
   const streamChat = async (userMessageText: string, conversationId: string) => {
     setIsLoading(true);
+    setIsThinking(true);
+    setThinkingText("A pensar...");
+    let thinkingIndex = 0;
+    thinkingIntervalRef.current = setInterval(() => {
+      thinkingIndex = (thinkingIndex + 1) % thinkingStates.length;
+      setThinkingText(thinkingStates[thinkingIndex]);
+    }, 1800);
 
     const apiMessages = messages.map((m) => ({
       role: m.isUser ? "user" : "assistant",
@@ -106,7 +108,57 @@ const Chat = () => {
     apiMessages.push({ role: "user", content: userMessageText });
 
     const userContext = await collectUserContext(user?.id);
-    const formattedContext = formatContextForAI(userContext);
+    const memories = user?.id ? await loadMemories(user.id) : [];
+    const formattedContext = formatContextForAI(userContext)
+      + (user?.id ? formatMemoryForAI(user.id) : "")
+      + formatMemoriesForAI(memories);
+
+    const userName = userContext.profile.userName || user?.email?.split("@")[0] || "atleta";
+    const systemPrompt = `És o ${aiName}, assistente pessoal de fitness do ${userName}.
+
+PERSONALIDADE:
+- Fala como um amigo próximo que percebe de fitness — informal, direto, natural
+- Usa palavras do dia a dia: "olha", "então", "percebi", "repara", "deixa eu te dizer", "acredita", "vai ser fixe", "tás bom?"
+- NUNCA uses linguagem clínica ou formal: nunca "deve consumir", "recomenda-se", "é aconselhável", "proteínas são essenciais"
+- Faz referência SEMPRE aos dados reais do utilizador — nunca respondas de forma genérica
+- Quando vês um padrão nos dados diz-o diretamente: "olha, reparei que..."
+- Máximo 3-4 frases por resposta — vai direto ao assunto
+- Usa o nome do utilizador naturalmente, não em todas as frases
+
+DADOS REAIS DISPONÍVEIS:
+${formattedContext}
+
+REGRAS DE OURO:
+- Se o utilizador perguntar sobre alimentação → usa os dados de fadiga + treino do dia para personalizar
+- Se perguntar sobre treino → referencia a última sessão e os músculos trabalhados
+- Se perguntar sobre recuperação → menciona os dias desde o último treino por músculo
+- Se não tiveres dados suficientes → pergunta uma coisa específica para personalizar melhor
+- NUNCA dás uma lista de bullet points — fala em texto corrido como uma conversa normal
+- NUNCA começas com "Claro!", "Ótima pergunta!", "Com certeza!" — vai direto ao ponto
+
+EXEMPLOS DE COMO FALAR:
+
+❌ ERRADO: "Deve consumir carboidratos complexos e proteínas de alta qualidade para otimizar a recuperação muscular."
+
+✅ CERTO: "Então, vi que fizeste perna ontem com um volume alto — tás com fadiga de certeza. Come arroz com frango ou batata-doce com atum, algo simples mas que te vai ajudar a recuperar. E bebe água — a tua hidratação hoje ainda tá baixa."
+
+❌ ERRADO: "É recomendável realizar exercícios de mobilidade para facilitar a recuperação."
+
+✅ CERTO: "Olha, os teus ombros e costas já estão recuperados mas as pernas ainda precisam de mais um dia. Hoje faz só mobilidade leve ou vai descansar mesmo — não vale a pena forçar."
+
+REGRA CRÍTICA — AÇÕES OBRIGATÓRIAS:
+Quando o utilizador pedir para mudar, reagendar, alterar ou criar algo no plano de treino ou metas, OBRIGATORIAMENTE inclui na tua resposta um bloco de ação no formato EXATO abaixo — sem espaços extra, sem quebras de linha dentro do bloco:
+
+Para reagendar treino: [ACTION:rescheduleWorkout:{"from":"Segunda-feira","to":"Quarta-feira"}]
+Para atualizar plano semanal: [ACTION:updateSchedule:{"Segunda-feira":["Peito","Bíceps"],"Terça-feira":["Descanso"]}]
+Para criar meta: [ACTION:addGoal:{"description":"descrição da meta","targetDate":"2026-06-01","category":"força"}]
+
+REGRAS ABSOLUTAS SOBRE AÇÕES:
+- O bloco [ACTION:...] DEVE aparecer na resposta sempre que o utilizador pedir uma alteração ao plano
+- O bloco é removido automaticamente antes de mostrar ao utilizador — ele nunca o vê
+- Se não incluíres o bloco, a ação NÃO é executada e o utilizador fica frustrado
+- Coloca SEMPRE o bloco no final da tua resposta, numa linha separada
+- Usa os nomes dos dias em português completo: "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"`;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -120,7 +172,7 @@ const Chat = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify({ messages: apiMessages, context: formattedContext })
+          body: JSON.stringify({ messages: apiMessages, context: systemPrompt })
         }
       );
 
@@ -131,6 +183,13 @@ const Chat = () => {
         toast.error(errorData.error || "Erro ao comunicar com a IA");
         setIsLoading(false);
         return;
+      }
+
+      // Resposta recebida — para o estado de thinking
+      setIsThinking(false);
+      if (thinkingIntervalRef.current) {
+        clearInterval(thinkingIntervalRef.current);
+        thinkingIntervalRef.current = null;
       }
 
       if (!response.body) throw new Error("No response body");
@@ -164,7 +223,9 @@ const Chat = () => {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages((prev) => prev.map((m, i) => i === prev.length - 1 ? { ...m, text: assistantContent } : m));
+              const displayText = stripActionsFromText(assistantContent)
+                .replace(/\[ACTION:\w+:[^\]]*(?:\[[^\]]*\][^\]]*)*\]/g, "").trim();
+              setMessages((prev) => prev.map((m, i) => i === prev.length - 1 ? { ...m, text: displayText } : m));
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -190,7 +251,29 @@ const Chat = () => {
       }
 
       if (assistantContent) {
-        addMessage(conversationId, { id: aiMessageId, text: assistantContent, isUser: false, timestamp: Date.now() });
+        // Strip both action formats before displaying to user
+        const displayText = stripActionsFromText(assistantContent)
+          .replace(/\[ACTION:\w+:[^\]]*(?:\[[^\]]*\][^\]]*)*\]/g, "")
+          .trim();
+
+        addMessage(conversationId, { id: aiMessageId, text: displayText, isUser: false, timestamp: Date.now() });
+
+        // Final clean bubble update
+        setMessages((prev) =>
+          prev.map((m) => (m.id === aiMessageId ? { ...m, text: displayText } : m))
+        );
+
+        // Execute <!--ACTION:--> format (lib/chatActions: water, meals, reminders, navigate)
+        const libResults = await executeActionsFromResponse(assistantContent, navigate);
+        libResults.forEach((r) => {
+          if (!r.success) console.warn("[ChatAction] lib failed:", r.action, r.message);
+        });
+
+        // Execute [ACTION:TYPE:{JSON}] format (utils/chatActions: schedule, goals)
+        if (user?.id && /\[ACTION:\w+:/.test(assistantContent)) {
+          const result = await executeChatAction(user.id, assistantContent);
+          if (result) toast.success(result.message);
+        }
       }
     } catch (error) {
       console.error("Chat error:", error);
@@ -198,6 +281,11 @@ const Chat = () => {
       setMessages((prev) => prev.filter((m) => m.text !== ""));
     } finally {
       setIsLoading(false);
+      setIsThinking(false);
+      if (thinkingIntervalRef.current) {
+        clearInterval(thinkingIntervalRef.current);
+        thinkingIntervalRef.current = null;
+      }
     }
   };
 
@@ -208,6 +296,12 @@ const Chat = () => {
     const userMessage: ChatMessage = { id: Date.now().toString(), text: messageText, isUser: true, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+
+    // Auto-extract facts (localStorage) + persist ao Supabase (chat_memory)
+    if (user?.id) {
+      extractAndStoreFromMessage(user.id, messageText);
+      detectAndSaveMemories(user.id, messageText);
+    }
 
     let convId = currentConversationId;
     if (!convId) {
@@ -225,9 +319,9 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#0B0F14]">
+    <div className="flex h-[100dvh] flex-col bg-black">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[#1F2937] bg-black">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2A] bg-black">
         <button
           onClick={() => navigate(-1)}
           className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/5">
@@ -235,11 +329,11 @@ const Chat = () => {
           <ArrowLeft className="h-5 w-5 text-[#F3F4F6]" />
         </button>
 
-        <button onClick={openNameEditor} className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <HexBadge label="CH" size={30} />
           <Activity className="h-4 w-4 text-[#F3F4F6]" />
           <h1 className="text-base font-semibold text-[#F3F4F6]">{aiName} AI</h1>
-          <Edit3 className="h-3 w-3 text-white/30" />
-        </button>
+        </div>
 
         <div className="flex items-center gap-1">
           <button
@@ -263,7 +357,7 @@ const Chat = () => {
         <div className="flex flex-col gap-4">
           {messages.length === 0 &&
           <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F2937]">
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#1A1A1A]">
                 <Activity className="h-8 w-8 text-[#F3F4F6]" />
               </div>
               <h2 className="mb-2 text-xl font-bold text-[#F3F4F6]">{aiName} AI</h2>
@@ -280,7 +374,7 @@ const Chat = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
             
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1F2937]" : ""}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.isUser ? "bg-[#1A1A1A]" : ""}`}>
                 <p className="text-sm leading-relaxed whitespace-pre-line text-[#F3F4F6]">
                   {message.text ||
                 <span className="flex items-center gap-1">
@@ -321,6 +415,40 @@ const Chat = () => {
               </div>
             </motion.div>
           )}
+          {isThinking && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start"
+            >
+              <div style={{ maxWidth: '85%' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', marginBottom: 4, paddingLeft: 4 }}>
+                  ✦ {aiName}
+                </div>
+                <div style={{
+                  background: '#141414',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '18px 18px 18px 4px',
+                  padding: '14px 18px',
+                  display: 'flex', alignItems: 'center', gap: 10
+                }}>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    {[0, 1, 2].map(i => (
+                      <div key={i} style={{
+                        width: 7, height: 7, borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.4)',
+                        animation: `dotPulse 1.4s ease-in-out ${i * 0.2}s infinite`
+                      }} />
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                    {thinkingText}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -368,7 +496,7 @@ const Chat = () => {
         }
 
         {/* Pill input */}
-        <div className="flex items-center gap-2 rounded-full bg-[#1F2937]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
+        <div className="flex items-center gap-2 rounded-full bg-[#1A1A1A]/80 border border-white/10 pl-5 pr-1.5 py-1.5">
           <input
             type="text"
             value={inputValue}
@@ -405,7 +533,7 @@ const Chat = () => {
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading || isRecording}
             whileTap={{ scale: 0.95 }}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#22C55E] text-white disabled:opacity-40">
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white disabled:opacity-40">
             
             {isLoading ?
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
@@ -433,51 +561,6 @@ const Chat = () => {
         onOpenChange={setShowCommandsSheet}
         onCommand={(cmd) => handleSend(cmd)} />
 
-      {/* AI Name Editor Sheet */}
-      <Sheet open={isEditingName} onOpenChange={setIsEditingName}>
-        <SheetContent side="bottom" className="rounded-t-3xl bg-[#0B0F14] border-[#1F2937]">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-xl font-bold text-[#F3F4F6]">Nome do assistente</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-white/40">Como queres chamar o teu assistente?</p>
-            <Input
-              value={tempName}
-              onChange={(e) => setTempName(e.target.value)}
-              placeholder="Ex: Coach, Buddy, Trainer..."
-              className="border-[#1F2937] bg-[#1F2937]/50 text-[#F3F4F6] placeholder:text-white/30"
-              maxLength={20}
-            />
-            <div className="flex flex-wrap gap-2">
-              {["Victoria", "Coach", "Buddy", "Trainer", "Atlas", "Titan"].map((s) => (
-                <motion.button
-                  key={s}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setTempName(s)}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
-                    tempName === s
-                      ? "bg-[#22C55E] text-white"
-                      : "border border-[#1F2937] bg-[#1F2937]/30 text-white/50"
-                  }`}
-                >
-                  {s}
-                </motion.button>
-              ))}
-            </div>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={saveAiName}
-              disabled={!tempName.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#22C55E] py-4 font-semibold text-white disabled:opacity-50"
-            >
-              <Check className="h-5 w-5" />
-              Guardar
-            </motion.button>
-          </div>
-        </SheetContent>
-      </Sheet>
-      
-      
     </div>);
 
 };

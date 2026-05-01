@@ -1,16 +1,30 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, Apple } from 'lucide-react';
+import { Utensils, Apple, Plus } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { useNutrition, mealTypeLabels } from '@/hooks/useNutrition';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { MacroRings } from '@/components/nutrition/MacroRings';
 import { FoodScanner } from '@/components/nutrition/FoodScanner';
 import { MealCard } from '@/components/nutrition/MealCard';
 import { ProfileSetup } from '@/components/nutrition/ProfileSetup';
-import { WeeklyChart } from '@/components/nutrition/WeeklyChart';
+import { NutritionChart } from '@/components/nutrition/NutritionChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
-import { NutritionPlansGrid } from '@/components/nutrition/NutritionPlansGrid';
+import { MealPlanCards } from '@/components/nutrition/MealPlanCards';
 import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSuggestions';
-import { MealPlan } from '@/data/mealPlans';
+import { NutritionInsights } from '@/components/nutrition/NutritionInsights';
+import { HexBadge } from '@/components/ui/HexBadge';
+import { FoodSearchSheet } from '@/components/nutrition/FoodSearchSheet';
+import { CustomMealsSection } from '@/components/nutrition/CustomMealsSection';
+import type { CustomMealFood } from '@/utils/customMeals';
+import { markTaskComplete, isTaskComplete } from '@/utils/onboardingFlow';
+
+const weekDaysMap: Record<number, string> = {
+  0: "Domingo", 1: "Segunda-feira", 2: "Terça-feira",
+  3: "Quarta-feira", 4: "Quinta-feira", 5: "Sexta-feira", 6: "Sábado",
+};
+
 
 const Nutrition = () => {
   const {
@@ -18,7 +32,6 @@ const Nutrition = () => {
     goals,
     todayLog,
     progress,
-    remaining,
     weeklyData,
     weeklyStats,
     monthlyData,
@@ -29,6 +42,19 @@ const Nutrition = () => {
     updateProfile,
     setCustomGoals
   } = useNutrition();
+  const { user } = useAuth();
+  const { settings } = useUserSettings();
+  const [foodSearchOpen, setFoodSearchOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [suggestionsTrigger, setSuggestionsTrigger] = useState(0);
+
+  // Derive today's workout type from user schedule
+  const addMealAndMark = (meal: Parameters<typeof addMeal>[0]) => {
+    addMeal(meal);
+    if (user?.id && !isTaskComplete(user.id, "first_meal_done")) {
+      markTaskComplete(user.id, "first_meal_done");
+    }
+  };
 
   // Group meals by type
   const mealsByType = todayLog.meals.reduce((acc, meal) => {
@@ -37,128 +63,163 @@ const Nutrition = () => {
     return acc;
   }, {} as Record<string, typeof todayLog.meals>);
 
+  // Build currentFoods from today's meals for "save as custom meal"
+  const currentFoods: CustomMealFood[] = todayLog.meals.flatMap((meal) =>
+    meal.foods.map((f) => ({
+      name:     f.name,
+      brand:    "",
+      quantity: parseFloat(f.portion) || 100,
+      calories: f.calories,
+      protein:  f.protein,
+      carbs:    f.carbs,
+      fat:      f.fat,
+      fiber:    f.fiber ?? 0,
+    }))
+  );
+
   return (
-    <div className="min-h-screen bg-black pb-32">
-      {/* Hero Background Gradient */}
-      <div className="absolute inset-x-0 top-0 h-[420px] overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-600/40 via-emerald-500/20 via-60% to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-emerald-500/30 via-emerald-600/10 via-50% to-transparent" />
-      </div>
+    <div className="min-h-screen pb-32" style={{ backgroundColor: "#000000", position: "relative", zIndex: 1 }}>
 
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 px-6 pt-12 pb-4">
+      {/* Hero — fundo verde escuro */}
+      <div style={{ background: "linear-gradient(180deg, #1A5C30 0%, #0D2818 60%, #000000 100%)" }}>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/20 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Apple className="w-5 h-5 text-emerald-400" />
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 px-6 pt-12 pb-4">
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Ícone Apple */}
+              <Apple size={28} color="#fff" />
+              <div>
+                <h1 className="text-2xl font-black text-white">Nutrição</h1>
+                <p className="text-xs" style={{ color: "rgba(134,239,172,0.8)" }}>
+                  {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-black text-white">Nutrição</h1>
-              <p className="text-xs text-emerald-400">
-                {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
-              </p>
+
+            {/* Minimalist action buttons */}
+            <div className="flex items-center gap-1">
+              <NutritionHistory
+                allLogs={allLogs}
+                monthlyData={monthlyData}
+                weeklyStats={weeklyStats}
+                goals={goals}
+                achievements={achievements} />
+
+              <ProfileSetup
+                profile={profile}
+                goals={goals}
+                onUpdateProfile={updateProfile}
+                onSetGoals={setCustomGoals} />
             </div>
           </div>
-          
-          {/* Minimalist action buttons */}
-          <div className="flex items-center gap-1">
-            <NutritionHistory
-              allLogs={allLogs}
-              monthlyData={monthlyData}
-              weeklyStats={weeklyStats}
-              goals={goals}
-              achievements={achievements} />
+        </motion.div>
 
-            <ProfileSetup
-              profile={profile}
-              goals={goals}
-              onUpdateProfile={updateProfile}
-              onSetGoals={setCustomGoals} />
-
-          </div>
+        {/* MacroRings dentro do hero verde */}
+        <div className="relative z-10">
+          <MacroRings
+            goals={goals}
+            consumed={todayLog.totals}
+            progress={progress} />
         </div>
-      </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 px-6 py-4 space-y-5">
-        {/* Macro rings */}
-        <MacroRings
-          goals={goals}
-          consumed={todayLog.totals}
-          progress={progress} />
+      </div>{/* fim hero */}
 
+        <MealPlanCards onActivate={setCustomGoals} />
 
-        {/* Plans & Recipes Grid */}
-        <NutritionPlansGrid
-          currentGoal={profile.goal}
-          onApplyPlan={(plan: MealPlan) => {
-            const avgCalories = Math.round((plan.calorieRange.min + plan.calorieRange.max) / 2);
-            updateProfile({ goal: plan.goal });
-            setCustomGoals({ calories: avgCalories });
-          }}
-        />
-
-        {/* Post-workout suggestions */}
         <PostWorkoutSuggestions />
 
-        {/* AI Scanner button */}
-        <FoodScanner onMealAdded={addMeal} />
-
-        {/* Quick stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-600/5 border p-4 text-center border-stone-950 bg-[#111311]">
-
-            <p className="text-2xl font-black text-[#a51d1d]">{Math.round(remaining.protein)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Proteína</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border p-4 text-center bg-stone-950 border-stone-950">
-
-            <p className="text-2xl font-black text-amber-500">{Math.round(remaining.carbs)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Carbs</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="rounded-2xl bg-gradient-to-br from-sky-500/15 to-sky-600/5 border p-4 text-center bg-stone-950 border-stone-950">
-
-            <p className="text-2xl font-black text-teal-600">{Math.round(remaining.fat)}g</p>
-            <p className="text-xs text-gray-300 mt-1">Gordura</p>
-          </motion.div>
+        {/* ── Botões de Ação ── */}
+        <div style={{ padding: "12px 16px 4px" }}>
+          <button
+            type="button"
+            onClick={() => setFoodSearchOpen(true)}
+            style={{
+              width: "100%", height: 52, borderRadius: 14, border: "none",
+              background: "#16A34A", color: "white", fontSize: 15, fontWeight: 700,
+              boxShadow: "0 8px 24px rgba(22,163,74,0.25)", cursor: "pointer",
+              marginBottom: 10,
+              position: "relative", overflow: "hidden",
+              animation: "breathe 3s ease-in-out infinite",
+            }}
+          >
+            {/* Shimmer interior */}
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 14,
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 2s linear infinite",
+              pointerEvents: "none",
+            }} />
+            + Adicionar Refeição
+          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              style={{
+                flex: 1, height: 46, borderRadius: 12,
+                background: "#141414", border: "1px solid rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              📷 Scanner
+            </button>
+            <button
+              type="button"
+              onClick={() => setSuggestionsTrigger(t => t + 1)}
+              style={{
+                flex: 1, height: 46, borderRadius: 12,
+                background: "#141414", border: "1px solid rgba(74,222,128,0.2)",
+                color: "#4ADE80", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              ✨ Sugestões IA
+            </button>
+          </div>
         </div>
 
+        {/* Food Search Sheet */}
+        <AnimatePresence>
+          {foodSearchOpen && (
+            <FoodSearchSheet
+              open={foodSearchOpen}
+              onClose={() => setFoodSearchOpen(false)}
+              onAddMeal={addMealAndMark}
+              userId={user?.id}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Scanner (controlled externally) */}
+        <FoodScanner
+          onMealAdded={addMealAndMark}
+          controlledOpen={scannerOpen}
+          onControlledChange={setScannerOpen}
+        />
+
         {/* Today's meals */}
-        <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2 text-white">
+        <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", marginTop: 12, marginBottom: 12 }}>
+          <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
+            <HexBadge label="NU" size={28} />
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
-          
           <AnimatePresence>
             {todayLog.meals.length === 0 ?
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 bg-black">
-
+              className="text-center py-8">
                 <Apple className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm text-gray-300">Nenhuma refeição registada</p>
                 <p className="text-xs text-gray-400">Usa o scanner IA acima para começar</p>
               </motion.div> :
-
-            <div className="space-y-3">
+            <div>
                 {todayLog.meals.map((meal) =>
               <MealCard key={meal.id} meal={meal} onRemove={removeMeal} />
               )}
@@ -167,39 +228,21 @@ const Nutrition = () => {
           </AnimatePresence>
         </div>
 
-        {/* Weekly chart */}
-        <WeeklyChart data={weeklyData} />
+        {/* ── Refeições Personalizadas ── */}
+        {user?.id && (
+          <CustomMealsSection
+            userId={user.id}
+            currentFoods={currentFoods}
+            onUseMeal={addMealAndMark}
+          />
+        )}
 
-        {/* Tips section */}
-        <div className="space-y-3">
-          <h3 className="font-semibold text-white">​Insights De Hoje  </h3>
-          <div className="grid gap-3">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
+        <NutritionChart weeklyData={weeklyData} goals={goals} allLogs={allLogs} />
 
-              <span className="text-xl">​🏋️</span>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Pós-treino</p>
-                <p className="text-xs text-gray-400">​Consumir 30g de proteína nas próximas 2h melhora recuperação.</p>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-[#111311]">
-
-              <span className="text-xl">​🍽️</span>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Distribui a proteína</p>
-                <p className="text-xs text-gray-400">​20–40g por refeição melhora absorção e recuperação</p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
+        <NutritionInsights
+          proteinConsumed={Math.round(todayLog.totals.protein)}
+          proteinGoal={goals.protein}
+        />
 
       <BottomNav />
     </div>);

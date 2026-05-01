@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Ruler, Weight, Calendar, Edit2, Check, X, Dumbbell, Camera } from "lucide-react";
+import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -131,10 +132,15 @@ export const UserProfileCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[20px] border border-border/30 bg-[#111311] overflow-hidden"
+      className="rounded-none overflow-hidden mb-2"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       {/* Profile Header */}
       <div className="relative px-5 pt-6 pb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <HexBadge label="CF" />
+          <span className="text-sm font-bold text-foreground">Perfil</span>
+        </div>
         <div className="flex items-start gap-4">
           {/* Large Avatar with upload */}
           <div className="relative">

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { HexBadge } from "@/components/ui/HexBadge";
 
 interface PerformanceScoreCardProps {
   score: number | null | undefined;
@@ -64,9 +65,11 @@ export function PerformanceScoreCard({ score }: PerformanceScoreCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-card border border-border p-5 mb-5"
+      className="rounded-none"
+      style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center gap-2 mb-3">
+        <HexBadge label="PR" />
         <Trophy className="w-5 h-5 text-primary" />
         <h2 className="font-semibold text-sm">Performance do Treino</h2>
       </div>
