@@ -1,7 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 
+const db = supabase as any;
+
 export const saveMemory = async (userId: string, type: string, content: string) => {
-  await supabase.from("chat_memory").insert({
+  await db.from("chat_memory").insert({
     user_id: userId,
     memory_type: type,
     content
@@ -9,14 +11,14 @@ export const saveMemory = async (userId: string, type: string, content: string) 
 };
 
 export const loadMemories = async (userId: string) => {
-  const { data } = await supabase
+  const { data } = await db
     .from("chat_memory")
     .select("*")
     .eq("user_id", userId)
     .or("expires_at.is.null,expires_at.gt.now()")
     .order("created_at", { ascending: false })
     .limit(20);
-  return data || [];
+  return (data || []) as { memory_type: string; content: string; created_at: string }[];
 };
 
 export const detectAndSaveMemories = async (userId: string, userMessage: string) => {

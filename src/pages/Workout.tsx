@@ -268,6 +268,7 @@ const Workout = () => {
 
         // Trigger CelebrationCard
         setPrCelebration({
+          exercise_id: exerciseName,
           type: "new_max",
           exercise_name: exerciseName,
           value: new1RM,
