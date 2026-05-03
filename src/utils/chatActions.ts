@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
+type AnyRecord = Record<string, any>;
+
 export const executeChatAction = async (userId: string, actionStr: string) => {
   try {
     // Find [ACTION:TYPE: header
@@ -28,7 +30,7 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const updated = { ...(current?.onboarding_data || {}), schedule: data };
+      const updated = { ...((current?.onboarding_data as AnyRecord) || {}), schedule: data };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "updateSchedule", message: "Calendário atualizado com sucesso!" };
     }
@@ -40,10 +42,10 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const schedule = current?.onboarding_data?.schedule || {};
+      const schedule = ((current?.onboarding_data as AnyRecord)?.schedule as AnyRecord) || {};
       schedule[to] = schedule[from];
       schedule[from] = ["Descanso"];
-      const updated = { ...(current?.onboarding_data || {}), schedule };
+      const updated = { ...((current?.onboarding_data as AnyRecord) || {}), schedule };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "rescheduleWorkout", message: `Treino movido de ${from} para ${to}!` };
     }
