@@ -653,21 +653,6 @@ const Workout = () => {
           {/* ── GUIDED MODE: Card Stack ── */}
           {isGuidedMode && aiExercises.length > 0 && (
             <>
-              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">Progresso</span>
-                  <span className="text-xs font-bold text-primary">{completedAICount}/{aiExercises.length}</span>
-                </div>
-                <div className="w-full h-1.5 bg-muted/30 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercent}%` }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                  />
-                </div>
-              </div>
-
               <ExerciseCardStack
                 exercises={aiExercises}
                 currentIndex={currentAIIndex}
