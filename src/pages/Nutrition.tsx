@@ -13,7 +13,9 @@ import { NutritionChart } from '@/components/nutrition/NutritionChart';
 import { NutritionHistory } from '@/components/nutrition/NutritionHistory';
 import { MealPlanCards } from '@/components/nutrition/MealPlanCards';
 import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSuggestions';
+import { MealSuggestionsSection } from '@/components/nutrition/MealSuggestionsSection';
 import { NutritionInsights } from '@/components/nutrition/NutritionInsights';
+import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 import { HexBadge } from '@/components/ui/HexBadge';
 import { FoodSearchSheet } from '@/components/nutrition/FoodSearchSheet';
 import { CustomMealsSection } from '@/components/nutrition/CustomMealsSection';
@@ -44,6 +46,8 @@ const Nutrition = () => {
   } = useNutrition();
   const { user } = useAuth();
   const { settings } = useUserSettings();
+  const { todayMuscleGroups } = useWorkoutNutritionSync();
+  const todayWorkoutType = todayMuscleGroups.length > 0 ? todayMuscleGroups.join(' + ') : null;
   const [foodSearchOpen, setFoodSearchOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [suggestionsTrigger, setSuggestionsTrigger] = useState(0);
@@ -182,6 +186,16 @@ const Nutrition = () => {
             </button>
           </div>
         </div>
+
+        {/* Sugestões IA — aparece quando o botão é premido */}
+        {user?.id && suggestionsTrigger > 0 && (
+          <MealSuggestionsSection
+            userId={user.id}
+            todayWorkoutType={todayWorkoutType}
+            onAddMeal={addMealAndMark}
+            externalTrigger={suggestionsTrigger}
+          />
+        )}
 
         {/* Food Search Sheet */}
         <AnimatePresence>

@@ -6,8 +6,8 @@ export type DeloadSeverity = "none" | "consider" | "recommended" | "urgent";
 
 export interface DeloadAlert {
   severity: DeloadSeverity;
-  weeklyVolumes: number[];          // last 6 weeks, oldest first
-  volumeSpike: number;              // % increase vs baseline
+  weeklyVolumes: number[];          // last 4 weeks, oldest first
+  volumeSpike: number;              // % increase vs 4-week avg
   fatigueIndex: number | null;
   consecutiveHighWeeks: number;
   message: string;
@@ -95,64 +95,73 @@ export function useDeloadAlert(): DeloadAlert {
       const sets = setsRes.data || [];
       const fatigueIndex = settingsRes.data?.fatigue_index ?? null;
 
-      // Map session_id → volume
+      const noAlert = () => {
+        setAlert({ severity: "none", weeklyVolumes: [], volumeSpike: 0, fatigueIndex, consecutiveHighWeeks: 0, message: "", recommendation: "" });
+        setLoading(false);
+      };
+
+      // ── CONDIÇÃO 1: pelo menos 3 semanas de histórico ──────────────────
+      // Count distinct weeks with at least one session
+      const weekSet = new Set<number>();
+      for (const session of sessions) {
+        const d = new Date(session.date + "T00:00:00");
+        const daysBack = Math.floor((thisMonday.getTime() - d.getTime()) / 86400000);
+        weekSet.add(Math.floor(daysBack / 7));
+      }
+      if (weekSet.size < 3) { noAlert(); return; }
+
+      // ── CONDIÇÃO 2: pelo menos 4 dias de treino na última semana ───────
+      const lastWeekSessions = sessions.filter(s => {
+        const d = new Date(s.date + "T00:00:00");
+        return d >= thisMonday;
+      });
+      // count unique days (a user could have 2 sessions in 1 day)
+      const uniqueTrainingDays = new Set(lastWeekSessions.map(s => s.date)).size;
+      if (uniqueTrainingDays < 4) { noAlert(); return; }
+
+      // ── Map session_id → volume ─────────────────────────────────────────
       const volBySession: Record<string, number> = {};
       for (const s of sets) {
         volBySession[s.session_id] = (volBySession[s.session_id] ?? 0) + Number(s.weight) * s.reps;
       }
 
-      // Bucket into 6 weeks (index 0 = oldest). Also track sessions per week.
+      // Bucket into 6 weeks (index 0 = oldest)
       const weeklyVolumes = [0, 0, 0, 0, 0, 0];
-      const weeklySessions = [0, 0, 0, 0, 0, 0];
-      const weekHasData = [false, false, false, false, false, false];
       for (const session of sessions) {
         const sessionDate = new Date(session.date + "T00:00:00");
         const daysFromMonday = Math.floor((thisMonday.getTime() - sessionDate.getTime()) / 86400000);
         const weekIndex = 5 - Math.floor(daysFromMonday / 7);
         if (weekIndex >= 0 && weekIndex <= 5) {
           weeklyVolumes[weekIndex] += volBySession[session.id] ?? 0;
-          weeklySessions[weekIndex] += 1;
-          weekHasData[weekIndex] = true;
         }
       }
 
-      // === REGRAS CONSERVADORAS DE DELOAD ===
-      // Histórico mínimo: pelo menos 3 semanas de dados (qualquer das últimas 6)
-      const weeksWithData = weekHasData.filter(Boolean).length;
-
-      // Última semana completa (índice 5 = semana atual em curso; usamos a mais recente fechada: índice 4)
-      const lastFullWeekIndex = 4;
-      const lastWeekSessions = weeklySessions[lastFullWeekIndex] ?? 0;
-
-      // Spike vs média das 3 semanas anteriores à última fechada
-      const baselineThree = weeklyVolumes.slice(1, 4); // semanas -4,-3,-2
+      // 3 baseline weeks vs 3 recent weeks
+      const baselineThree = weeklyVolumes.slice(0, 3);
+      const recentThree   = weeklyVolumes.slice(3);
       const avgBaseline = baselineThree.reduce((s, v) => s + v, 0) / 3;
-      const avgRecent = weeklyVolumes[lastFullWeekIndex] ?? 0;
-      const spike = avgBaseline > 0 ? Math.round(((avgRecent - avgBaseline) / avgBaseline) * 100) : 0;
+      const avgRecent   = recentThree.reduce((s, v) => s + v, 0) / 3;
 
-      // Conta semanas consecutivas (mais recentes) com aumento >20% face à anterior
-      let consecutive = 0;
-      for (let i = lastFullWeekIndex; i >= 1; i--) {
-        const prev = weeklyVolumes[i - 1];
-        const curr = weeklyVolumes[i];
-        if (prev > 0 && curr > prev * 1.2) {
-          consecutive += 1;
-        } else {
-          break;
-        }
-      }
+      // ── CONDIÇÃO 3: 3 semanas consecutivas com volume >20% acima baseline ──
+      if (avgBaseline <= 0) { noAlert(); return; }
+      const SPIKE_THRESHOLD = 20; // %
+      const minHighVolume = avgBaseline * (1 + SPIKE_THRESHOLD / 100);
 
-      // Severity: só dispara se TODAS as condições críticas forem cumpridas
-      let severity: DeloadSeverity = "none";
-      const hasMinHistory = weeksWithData >= 3;
-      const trainedEnoughLastWeek = lastWeekSessions >= 4;
-      const sustainedSpike = consecutive >= 3;
+      // All 3 recent weeks must individually exceed baseline + 20%
+      const allThreeConsecutiveHigh = recentThree.every(v => v > minHighVolume);
+      if (!allThreeConsecutiveHigh) { noAlert(); return; }
 
-      if (hasMinHistory && trainedEnoughLastWeek && sustainedSpike) {
-        if (fatigueIndex !== null && fatigueIndex >= 81) severity = "urgent";
-        else if (spike >= 40 || consecutive >= 4) severity = "urgent";
-        else if (spike >= 30) severity = "recommended";
-        else severity = "consider";
+      // All conditions met — calculate severity and spike
+      const spike = Math.round(((avgRecent - avgBaseline) / avgBaseline) * 100);
+      const consecutive = 3; // we know all 3 weeks qualify
+
+      let severity: DeloadSeverity = "consider";
+      if (fatigueIndex !== null && fatigueIndex >= 81) {
+        severity = "urgent";
+      } else if (spike >= 40 || (fatigueIndex !== null && fatigueIndex >= 61)) {
+        severity = "urgent";
+      } else if (spike >= 30) {
+        severity = "recommended";
       }
 
       const { message, recommendation } = buildMessage(severity, Math.max(0, spike), consecutive);

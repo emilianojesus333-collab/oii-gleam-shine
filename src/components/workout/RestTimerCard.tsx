@@ -89,17 +89,6 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
     } catch { /* ignore */ }
   }, []);
 
-  // Auto-start after set is confirmed
-  useEffect(() => {
-    if (autoStartTrigger === 0) return;
-    const newPreset = nearestPreset(total);
-    setSelectedPreset(newPreset);
-    setTimeRemaining(newPreset);
-    setIsFinished(false);
-    setIsRunning(true);
-    hasNotifiedRef.current = false;
-  }, [autoStartTrigger]);
-
   // Persist timer state
   useEffect(() => {
     if (!STORAGE_KEY) return;
@@ -162,18 +151,21 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
   const dashOffset = CIRCUMFERENCE * (1 - progress);
 
   // Main button appearance
-  let mainBg = "#0D0D0D";
+  let mainBg = "#2563EB";
   let mainColor = "white";
-  let mainBorder = "1px solid rgba(255,255,255,0.12)";
+  let mainBorder = "none";
+  let mainHeight: number | string = 36;
   let mainIcon = <Play size={16} />;
-  let mainLabel = "Iniciar Descanso";
+  let mainLabel = "▷ Iniciar descanso";
   if (isRunning) {
+    mainHeight = 50;
     mainBg = "rgba(239,68,68,0.15)";
     mainColor = "#F87171";
     mainBorder = "1px solid rgba(239,68,68,0.25)";
     mainIcon = <Pause size={16} />;
     mainLabel = "Pausar";
   } else if (isFinished) {
+    mainHeight = 50;
     mainBg = "rgba(52,211,153,0.15)";
     mainColor = "#34D399";
     mainBorder = "1px solid rgba(52,211,153,0.25)";
@@ -328,10 +320,10 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
             onClick={handleMainButton}
             style={{
               flex: 1,
-              padding: 15,
-              borderRadius: 12,
+              height: mainHeight,
+              borderRadius: 10,
               fontSize: 13,
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: "pointer",
               background: mainBg,
               color: mainColor,

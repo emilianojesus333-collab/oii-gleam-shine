@@ -1,8 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { FoodSearchResult } from "./foodSearch";
 
-const db = supabase as any;
-
 export interface CustomMealFood {
   name: string;
   brand: string;
@@ -29,7 +27,7 @@ export const saveCustomMeal = async (
   userId: string,
   meal: Omit<CustomMeal, "id" | "created_at">
 ) => {
-  const { error } = await db.from("custom_meals").insert({
+  const { error } = await supabase.from("custom_meals").insert({
     user_id: userId,
     name: meal.name,
     foods: meal.foods as unknown as Record<string, unknown>[],
@@ -42,7 +40,7 @@ export const saveCustomMeal = async (
 };
 
 export const loadCustomMeals = async (userId: string): Promise<CustomMeal[]> => {
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("custom_meals")
     .select("*")
     .eq("user_id", userId)
@@ -52,7 +50,7 @@ export const loadCustomMeals = async (userId: string): Promise<CustomMeal[]> => 
 };
 
 export const deleteCustomMeal = async (mealId: string) => {
-  const { error } = await db.from("custom_meals").delete().eq("id", mealId);
+  const { error } = await supabase.from("custom_meals").delete().eq("id", mealId);
   if (error) throw error;
 };
 

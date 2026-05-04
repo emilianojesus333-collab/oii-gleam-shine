@@ -4,13 +4,11 @@ import {
   Sparkles,
   Dumbbell,
   Clock,
-  RotateCcw,
   ChevronDown,
   ChevronUp,
   Target,
   Zap,
   AlertCircle,
-  Plus,
   Play,
 } from "lucide-react";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
@@ -238,7 +236,24 @@ export const AIWorkoutGenerator = ({
     toast.success(`${exercise.name} adicionado ao treino`);
   };
 
-  if (todayMuscleGroups.length === 0) return null;
+  if (todayMuscleGroups.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+      >
+        <button
+          disabled
+          className="shimmer-blue w-full rounded-xl font-semibold flex items-center justify-center gap-2"
+          style={{ color: "#ffffff", border: "none", height: 44, opacity: 0.4, cursor: "not-allowed", pointerEvents: "none" }}
+        >
+          <Sparkles className="w-5 h-5" />
+          Gerar treino
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -279,7 +294,7 @@ export const AIWorkoutGenerator = ({
           ) : (
             <>
               <Sparkles className="w-5 h-5" />
-              Gerar treino para {todayMuscleGroups.join(" + ")}
+              Gerar treino · {todayMuscleGroups.join(" + ")}
             </>
           )}
         </motion.button>
@@ -287,6 +302,47 @@ export const AIWorkoutGenerator = ({
 
       {workout ? (
         <div className="space-y-4">
+          {/* Action buttons row — primary decision before starting */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setWorkout(null)}
+              style={{
+                flex: 1, height: 44, borderRadius: 100,
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 700,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              }}
+            >
+              ↺ Gerar novo
+            </button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handlePersistAndStart}
+              disabled={persistingPlan}
+              style={{
+                flex: 2, height: 44, borderRadius: 100,
+                background: "#2563EB", border: "none",
+                color: "white", fontSize: 14, fontWeight: 800,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                opacity: persistingPlan ? 0.7 : 1,
+              }}
+            >
+              {persistingPlan ? (
+                <>
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                    <Sparkles className="w-4 h-4" />
+                  </motion.div>
+                  A criar plano...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  Usar este treino
+                </>
+              )}
+            </motion.button>
+          </div>
+
           {/* Workout Info */}
           <div className="flex gap-3">
             {[
@@ -300,34 +356,6 @@ export const AIWorkoutGenerator = ({
               </div>
             ))}
           </div>
-
-          {/* Start planned workout button */}
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={handlePersistAndStart}
-            disabled={persistingPlan}
-            className="shimmer-workout w-full flex items-center justify-center gap-2 disabled:opacity-50"
-            style={{ height: 50, borderRadius: 14, border: "none", color: "white", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
-          >
-            {persistingPlan ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                </motion.div>
-                A criar plano...
-              </>
-            ) : (
-              <>
-                <Play className="w-5 h-5" />
-                Usar este treino
-              </>
-            )}
-          </motion.button>
-
-          <div className="border-t border-[#2A2A2A] mt-3 mb-3" />
 
           {/* Warmup */}
           {workout.warmup && workout.warmup.length > 0 && (
@@ -442,17 +470,6 @@ export const AIWorkoutGenerator = ({
             </div>
           )}
 
-          {/* Regenerate */}
-          <button
-            onClick={() => {
-              setWorkout(null);
-              generateWorkout();
-            }}
-            style={{ width: "100%", height: 48, borderRadius: 14, background: "#141414", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-          >
-            <RotateCcw className="w-4 h-4" />
-            Gerar novo
-          </button>
         </div>
       ) : null}
     </motion.div>

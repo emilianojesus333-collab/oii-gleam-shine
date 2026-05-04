@@ -234,12 +234,15 @@ export const ExerciseCardStack = ({
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [altOpen, setAltOpen] = useState(false);
+  const [flashVisible, setFlashVisible] = useState(false);
   const currentExercise = exercises[currentIndex] ?? null;
   const alternatives = currentExercise
     ? getAlternativesForExercise(currentExercise.exercise_name, availableEquipment)
     : [];
 
   const handleSwipeRight = (ex: PlannedExercise, idx: number) => {
+    setFlashVisible(true);
+    setTimeout(() => setFlashVisible(false), 550);
     onSwipeRight(ex, idx);
     setShowUndo(true);
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
@@ -256,6 +259,39 @@ export const ExerciseCardStack = ({
     <div className="px-6 space-y-3">
       {/* Card stack area */}
       <div className="relative w-full" style={{ height: 280 }}>
+        {/* Green flash overlay on set confirmation */}
+        <AnimatePresence>
+          {flashVisible && (
+            <motion.div
+              key="flash"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, exit: { duration: 0.3 } }}
+              style={{
+                position: "absolute", inset: 0, zIndex: 60,
+                borderRadius: 16,
+                background: "rgba(34,197,94,0.22)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                style={{
+                  width: 64, height: 64, borderRadius: "50%",
+                  background: "rgba(34,197,94,0.35)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <Check style={{ width: 32, height: 32, color: "#22C55E" }} strokeWidth={3} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {allDone ? (
             <FinishCard

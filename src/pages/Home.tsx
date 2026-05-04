@@ -19,9 +19,7 @@ import { NutritionWidget } from "@/components/home/NutritionWidget";
 import { HomeWeeklyReportCard } from "@/components/home/HomeWeeklyReportCard";
 import { DeloadAlertBanner } from "@/components/home/DeloadAlertBanner";
 import { DayFlowCard, DayFlowCompleted } from "@/components/home/DayFlowCard";
-import { MilestoneModal } from "@/components/home/MilestoneModal";
 import { getCurrentDayTask, initDayFlow, markTaskComplete } from "@/utils/onboardingFlow";
-import { useMilestones } from "@/hooks/useMilestones";
 import { useSmartNotifications } from "@/hooks/useSmartNotifications";
 
 const weekDaysMap: Record<number, string> = {
@@ -35,7 +33,6 @@ const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
   const { settings } = useUserSettings();
   const { user } = useAuth();
-  const { pendingMilestone, dismissMilestone } = useMilestones();
 
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, 100]);
@@ -253,7 +250,6 @@ const Home = () => {
 
       <BottomNav />
 
-      <MilestoneModal milestone={pendingMilestone} onDismiss={dismissMilestone} />
     </div>
   );
 };
