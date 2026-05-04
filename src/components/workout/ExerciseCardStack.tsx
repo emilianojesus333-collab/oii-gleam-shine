@@ -267,7 +267,7 @@ export const ExerciseCardStack = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12, exit: { duration: 0.3 } }}
+              transition={{ duration: 0.12 }}
               style={{
                 position: "absolute", inset: 0, zIndex: 60,
                 borderRadius: 16,
