@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_meals: {
+        Row: {
+          created_at: string | null
+          foods: Json
+          id: string
+          name: string
+          total_calories: number | null
+          total_carbs: number | null
+          total_fat: number | null
+          total_protein: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          foods?: Json
+          id?: string
+          name: string
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          foods?: Json
+          id?: string
+          name?: string
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       exercises: {
         Row: {
           created_at: string
@@ -286,6 +322,45 @@ export type Database = {
           reps_performed?: number
           user_id?: string | null
           weight_used?: number
+        }
+        Relationships: []
+      }
+      physique_evaluations: {
+        Row: {
+          action_plan: Json | null
+          body_fat_estimate: string | null
+          created_at: string | null
+          id: string
+          improvements: Json | null
+          motivational_message: string | null
+          photo_path: string | null
+          score: number | null
+          strengths: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_plan?: Json | null
+          body_fat_estimate?: string | null
+          created_at?: string | null
+          id?: string
+          improvements?: Json | null
+          motivational_message?: string | null
+          photo_path?: string | null
+          score?: number | null
+          strengths?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_plan?: Json | null
+          body_fat_estimate?: string | null
+          created_at?: string | null
+          id?: string
+          improvements?: Json | null
+          motivational_message?: string | null
+          photo_path?: string | null
+          score?: number | null
+          strengths?: Json | null
+          user_id?: string
         }
         Relationships: []
       }

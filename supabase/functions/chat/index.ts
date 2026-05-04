@@ -211,14 +211,20 @@ O teu objetivo é comportar-te como um parceiro de treino inteligente, ajudando 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: "gpt-4o",
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages,
         ],
+        tools: [
+          {
+            type: "web_search_preview",
+            search_context_size: "medium"
+          }
+        ],
+        tool_choice: "auto",
+        max_tokens: 1500,
         stream: true,
-        max_tokens: 800,
-        temperature: 0.7,
       }),
     });
 

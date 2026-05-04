@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Dumbbell, Leaf } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useMuscleFatigue } from "@/hooks/useMuscleFatigue";
@@ -146,22 +146,19 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
             messages: [
               {
                 role: "user",
-                content: [
-                  `Gera UMA dica diária para o treino de hoje: ${workoutName}. Baseia-te no histórico real (última sessão, dores, progressão).`,
-                  ``,
-                  `REGRAS PARA A DICA DIÁRIA:`,
-                  `- Máximo 15 palavras — dica MUITO curta`,
-                  `- Frases completas — nunca cortar palavras a meio`,
-                  `- Sem abreviações`,
-                  `- Linguagem simples e direta`,
-                  `- Exemplos corretos:`,
-                  `  ✅ "Foca na execução hoje, não no peso."`,
-                  `  ✅ "Hidrata bem antes de treinar."`,
-                  `  ❌ "Concentra-te em aument a intensidade dos exercíc..."`,
-                  `- Revê sempre a frase antes de responder — deve estar 100% completa`,
-                  ``,
-                  `Responde APENAS com a dica, sem prefixos.`,
-                ].join("\n"),
+                content: `Com base no que sabes sobre este utilizador, gera UMA dica curta e personalizada para o treino de hoje: ${workoutName}. Baseia-te no histórico real — última sessão, dores mencionadas, progressão de carga.
+
+REGRAS OBRIGATÓRIAS PARA A DICA:
+- Máximo 15 palavras — dica MUITO curta
+- A frase deve estar 100% completa — nunca cortar palavras a meio
+- Sem abreviações de nenhum tipo
+- Linguagem simples e direta
+- Exemplos corretos:
+  ✅ "Foca na execução hoje, não no peso."
+  ✅ "Hidrata bem antes de treinar."
+  ❌ "Concentra-te em aument a intensidade dos exercíc..."
+- Revê a frase antes de responder — deve estar completamente terminada com ponto final
+- Responde APENAS com a dica, nada mais.`,
               },
             ],
             context: contextStr,
@@ -317,54 +314,33 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
         ✦ {aiName}
       </div>
 
-      {/* Wrapper contém o breathe sem ultrapassar a tela */}
-      <div style={{ overflow: "hidden", paddingLeft: 2, paddingRight: 2, paddingTop: 2, paddingBottom: 2 }}>
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => navigate("/workout")}
-          style={{
-            width: "100%",
-            marginLeft: 0,
-            marginRight: 0,
-            height: 52,
-            borderRadius: 100,
-            background: "transparent",
-            border: "2px solid #2563EB",
-            color: "#2563EB",
-            fontSize: 15,
-            fontWeight: 800,
-            letterSpacing: "0.02em",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            position: "relative",
-            overflow: "hidden",
-            animation: "breathe 3s ease-in-out infinite",
-          }}
-        >
-          {/* Shimmer interior */}
-          <div style={{
-            position: "absolute", inset: 0, borderRadius: 100,
-            background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.2), transparent)",
-            backgroundSize: "200% 100%",
-            animation: "shimmer 2s linear infinite",
-            pointerEvents: "none",
-          }} />
-          {isRestDay ? (
-            <>
-              <Leaf style={{ width: 18, height: 18, color: "#2563EB" }} />
-              Iniciar recuperação
-            </>
-          ) : (
-            <>
-              <Dumbbell style={{ width: 18, height: 18, color: "#2563EB" }} />
-              Iniciar treino
-            </>
-          )}
-        </motion.button>
-      </div>
+      <motion.button
+        whileTap={isRestDay ? {} : { scale: 0.97 }}
+        onClick={isRestDay ? undefined : () => navigate("/workout")}
+        style={{
+          width: "100%",
+          margin: "0 0",
+          height: 40,
+          borderRadius: 100,
+          background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+          border: "none",
+          color: "white",
+          fontSize: 13,
+          fontWeight: 800,
+          letterSpacing: "0.02em",
+          cursor: isRestDay ? "not-allowed" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          animation: isRestDay ? undefined : "glowBreath 3s ease-in-out infinite",
+          opacity: isRestDay ? 0.4 : 1,
+          pointerEvents: isRestDay ? "none" : undefined,
+        }}
+      >
+        <Dumbbell style={{ width: 16, height: 16, color: "white" }} />
+        Iniciar treino
+      </motion.button>
     </motion.div>
   );
 }

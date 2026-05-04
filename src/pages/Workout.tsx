@@ -11,8 +11,9 @@ import {
   Loader2,
   ChevronRight,
   ArrowUp,
+  Sparkles,
+  X,
 } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,13 +43,7 @@ import { useNavigate } from "react-router-dom";
 import { completeWorkout } from "@/services/workoutService";
 import { markTaskComplete, isTaskComplete } from "@/utils/onboardingFlow";
 import { useFatigueNotification } from "@/hooks/useFatigueNotification";
-import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-
-// Editorial components
-import { ExerciseCardStack } from "@/components/workout/ExerciseCardStack";
-import CelebrationCard from "@/components/workout/CelebrationCard";
-import type { CelebrationEvent } from "@/services/workoutService";
 import { saveToOfflineQueue } from "@/utils/offlineSync";
 
 const weekDaysMap: Record<number, string> = {
@@ -89,40 +84,44 @@ const MUSCLE_BG: Record<string, string> = {
   Abdominais: "rgba(34,211,238,0.15)",
 };
 
-const TYPE_SUB: Record<TrainingType, string> = {
-  Força: "3–6 reps",
-  Hipertrofia: "8–12 reps",
-  Resistência: "15–20 reps",
+type WorkoutItem = {
+  id: string;
+  name: string;
+  sets: number;
+  reps: string;
+  rest: number;
+  weight: number;
+  done: boolean;
+  skipped?: boolean;
+  source: "ai" | "manual";
 };
-
 
 const Workout = () => {
   const { settings, isLoading } = useUserSettings();
-  const { activeSession, loading: sessionLoading, refresh: refreshSession, markExerciseCompleted, startSession } = useActiveSession();
+  const { activeSession, refresh: refreshSession, markExerciseCompleted } = useActiveSession();
   const [trainingType, setTrainingType] = useState<TrainingType>("Hipertrofia");
-  const [aiGenerating, setAiGenerating] = useState(false);
-  const aiGenerateRef = useRef<(() => void) | null>(null);
   const [selectedExercise, setSelectedExercise] = useState("");
   const [weight, setWeight] = useState("30");
   const [reps, setReps] = useState("7");
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
+  const [workoutItems, setWorkoutItems] = useState<WorkoutItem[]>([]);
+  const [showRestTimer, setShowRestTimer] = useState(false);
+  const restAutoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [justSaved, setJustSaved] = useState(false);
-  const [autoStartTrigger, setAutoStartTrigger] = useState(0);
   const [currentOneRM, setCurrentOneRM] = useState<Record<string, number>>({});
-  const [prCelebration, setPrCelebration] = useState<CelebrationEvent | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [completing, setCompleting] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
   const [showBarbellCalc, setShowBarbellCalc] = useState(false);
   const { checkAndNotify: checkFatigueNotification } = useFatigueNotification();
-  const [shareData, setShareData] = useState<null>(null);
   const workoutStartRef = useRef(Date.now());
 
-  // --- AI guided mode state ---
+  // --- AI guided mode ---
   const isGuidedMode = !!(activeSession && activeSession.planned_exercises.length > 0);
 
   const aiExercises = useMemo(() => {
@@ -138,7 +137,13 @@ const Workout = () => {
   const currentPlannedExercise = aiExercises[currentAIIndex] || null;
   const completedAICount = aiExercises.filter((e) => e.completed).length;
   const allAIDone = currentAIIndex >= aiExercises.length;
-  const progressPercent = aiExercises.length > 0 ? Math.round((completedAICount / aiExercises.length) * 100) : 0;
+  const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
+
+  // Derived workoutItems stats
+  const doneCount = workoutItems.filter((i) => i.done && !i.skipped).length;
+  const skippedCount = workoutItems.filter((i) => i.skipped === true).length;
+  const totalCount = workoutItems.length;
+  const listProgressPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   // Pre-fill card when guided exercise changes
   useEffect(() => {
@@ -146,19 +151,14 @@ const Workout = () => {
       setSelectedExercise(currentPlannedExercise.exercise_name);
       setReps(String(parseInt(currentPlannedExercise.reps) || 10));
       setSets(String(currentPlannedExercise.sets));
-      const aiRest = currentPlannedExercise.rest;
-      if (aiRest && aiRest > 0) {
-        setRestTime(String(aiRest));
-      }
+      if (currentPlannedExercise.rest > 0) setRestTime(String(currentPlannedExercise.rest));
     }
   }, [currentPlannedExercise?.id, isGuidedMode]);
 
-  // Pre-fill weight/reps from the last saved set for the selected exercise
+  // Pre-fill weight/reps from last saved set for selected exercise
   useEffect(() => {
     if (!selectedExercise) return;
-    const lastLog = [...savedExercises]
-      .reverse()
-      .find((e) => e.name === selectedExercise);
+    const lastLog = [...savedExercises].reverse().find((e) => e.name === selectedExercise);
     if (lastLog) {
       if (lastLog.weight > 0) setWeight(String(lastLog.weight));
       if (lastLog.reps > 0) setReps(String(lastLog.reps));
@@ -167,14 +167,11 @@ const Workout = () => {
 
   // Online/offline detection
   useEffect(() => {
-    const handleOnline  = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener("online",  handleOnline);
-    window.addEventListener("offline", handleOffline);
-    return () => {
-      window.removeEventListener("online",  handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
+    const on  = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener("online",  on);
+    window.addEventListener("offline", off);
+    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
   }, []);
 
   // Load today's saved exercises on mount
@@ -183,15 +180,36 @@ const Workout = () => {
     const history = getWorkoutHistory(user.id);
     const today = new Date().toISOString().split("T")[0];
     const todaySession = history.sessions.find((s) => s.date === today);
-    if (todaySession?.exerciseLogs) {
-      setSavedExercises(todaySession.exerciseLogs);
-    }
+    if (todaySession?.exerciseLogs) setSavedExercises(todaySession.exerciseLogs);
   }, [user]);
+
+  // Populate AI exercises into workoutItems once
+  useEffect(() => {
+    if (!isGuidedMode || aiExercises.length === 0) return;
+    setWorkoutItems((prev) => {
+      if (prev.some((i) => i.source === "ai")) return prev;
+      const aiItems: WorkoutItem[] = aiExercises.map((e) => ({
+        id: e.id,
+        name: e.exercise_name,
+        sets: e.sets,
+        reps: String(e.reps),
+        rest: e.rest,
+        weight: 0,
+        done: e.completed,
+        source: "ai",
+      }));
+      return [...aiItems, ...prev.filter((i) => i.source === "manual")];
+    });
+  }, [isGuidedMode, aiExercises]);
+
+  // Cleanup auto-hide timeout on unmount
+  useEffect(() => {
+    return () => { if (restAutoHideRef.current) clearTimeout(restAutoHideRef.current); };
+  }, []);
 
   const todayWorkout = useMemo(() => {
     const schedule = settings?.onboarding_data?.schedule || {};
-    const today = new Date();
-    const todayName = weekDaysMap[today.getDay()];
+    const todayName = weekDaysMap[new Date().getDay()];
     const muscleGroups = schedule[todayName] || null;
     return muscleGroups
       ? Array.isArray(muscleGroups) ? muscleGroups.join(" + ") : muscleGroups
@@ -208,9 +226,6 @@ const Workout = () => {
     return getExercisesForGroups(todayWorkout.split(" + "));
   }, [todayWorkout]);
 
-  const isLastAIExercise = isGuidedMode && !allAIDone && currentAIIndex === aiExercises.length - 1;
-
-  // Last session stats for the header pill
   const lastSessionInfo = useMemo(() => {
     if (!user || todayMuscleGroups.length === 0) return null;
     const history = getWorkoutHistory(user.id);
@@ -221,24 +236,53 @@ const Workout = () => {
     if (!relevant.length) return null;
     const last = relevant[0];
     const prev = relevant[1] ?? null;
-    const lastDate = new Date(last.date + "T00:00:00");
-    const todayDate = new Date(today + "T00:00:00");
-    const daysAgo = Math.round((todayDate.getTime() - lastDate.getTime()) / 86400000);
+    const daysAgo = Math.round(
+      (new Date(today + "T00:00:00").getTime() - new Date(last.date + "T00:00:00").getTime()) / 86400000
+    );
     const lastVol = last.exerciseLogs?.reduce((s, l) => s + (l.weight || 0) * (l.reps || 0) * (l.sets || 0), 0) ?? 0;
     const prevVol = prev?.exerciseLogs?.reduce((s, l) => s + (l.weight || 0) * (l.reps || 0) * (l.sets || 0), 0) ?? null;
     const volPct = prevVol && prevVol > 0 ? Math.round(((lastVol - prevVol) / prevVol) * 100) : null;
     return { daysAgo, volPct };
   }, [user, todayMuscleGroups]);
 
+  const triggerRestTimer = useCallback(() => {
+    if (restAutoHideRef.current) clearTimeout(restAutoHideRef.current);
+    setShowRestTimer(true);
+    restAutoHideRef.current = setTimeout(() => setShowRestTimer(false), 8000);
+  }, []);
+
+  const handleToggleDone = (item: WorkoutItem) => {
+    const nowDone = !item.done;
+    setWorkoutItems((prev) => prev.map((i) => i.id === item.id ? { ...i, done: nowDone } : i));
+    if (nowDone) {
+      triggerRestTimer();
+      if (item.source === "ai") markExerciseCompleted(item.id);
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+    }
+  };
+
+  const handleRemoveItem = (item: WorkoutItem) => {
+    setWorkoutItems((prev) => prev.filter((i) => i.id !== item.id));
+    if (item.source === "manual") {
+      setSavedExercises((prev) => {
+        let idx = -1;
+        for (let i = prev.length - 1; i >= 0; i--) {
+          const e = prev[i];
+          if (e.name === item.name && e.weight === item.weight && e.reps === parseInt(item.reps) && e.sets === item.sets) {
+            idx = i; break;
+          }
+        }
+        if (idx === -1) return prev;
+        return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+      });
+    }
+  };
+
   const checkAndSaveOneRM = async (exerciseName: string, weightKg: number, repsCount: number) => {
     if (!user?.id || !exerciseName || weightKg <= 0 || repsCount <= 0) return;
     const new1RM = Math.round(weightKg * (1 + repsCount / 30));
-
-    // Update live display
     setCurrentOneRM((prev) => ({ ...prev, [exerciseName]: new1RM }));
-
     try {
-      // Fetch previous best for this exercise
       const { data: existing } = await supabase
         .from("one_rm_records")
         .select("calculated_1rm")
@@ -247,11 +291,8 @@ const Workout = () => {
         .order("calculated_1rm", { ascending: false })
         .limit(1)
         .maybeSingle();
-
       const previousBest = existing?.calculated_1rm ?? 0;
-
       if (new1RM > previousBest) {
-        // Save new record
         await supabase.from("one_rm_records").insert({
           user_id: user.id,
           exercise_name: exerciseName,
@@ -259,39 +300,20 @@ const Workout = () => {
           weight_used: weightKg,
           reps_performed: repsCount,
         });
-
-        // Vibrate
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
-
-        // Toast
-        toast.success(`🏆 Novo recorde! 1RM estimado: ${new1RM}kg`);
-
-        // Trigger CelebrationCard
-        setPrCelebration({
-          exercise_id: exerciseName,
-          type: "new_max",
-          exercise_name: exerciseName,
-          value: new1RM,
-        });
-
-        // Auto-dismiss after 5s
-        setTimeout(() => setPrCelebration(null), 5000);
       }
     } catch (err) {
-      console.error("[1RM] Error checking/saving record:", err);
+      console.error("[1RM] Error:", err);
     }
   };
 
   const handleSaveClick = () => {
     if (!selectedExercise.trim()) { toast.error("Seleciona um exercício primeiro"); return; }
     if (!user) { toast.error("Faz login para guardar exercícios"); return; }
-
     if (isGuidedMode && currentPlannedExercise && !allAIDone) {
       confirmSaveExercise();
       markExerciseCompleted(currentPlannedExercise.id);
-      if (isLastAIExercise) {
-        setTimeout(() => handleCompleteWorkout(), 500);
-      }
+      if (isLastAIExercise) setTimeout(() => handleCompleteWorkout(), 500);
     } else {
       setShowSaveConfirm(true);
     }
@@ -310,16 +332,34 @@ const Workout = () => {
     const updatedExercises = [...savedExercises, newLog];
     setSavedExercises(updatedExercises);
 
-    // 1RM check — online: Supabase, offline: queue
+    // Update unified list
+    if (isGuidedMode && currentPlannedExercise) {
+      setWorkoutItems((prev) => prev.map((i) =>
+        i.id === currentPlannedExercise.id ? { ...i, done: true, weight: newLog.weight } : i
+      ));
+    } else {
+      setWorkoutItems((prev) => [...prev, {
+        id: String(newLog.timestamp),
+        name: newLog.name,
+        sets: newLog.sets,
+        reps: String(newLog.reps),
+        rest: newLog.restTime,
+        weight: newLog.weight,
+        done: false,
+        source: "manual",
+      }]);
+    }
+
+    // 1RM
     if (navigator.onLine) {
       checkAndSaveOneRM(newLog.name, newLog.weight, newLog.reps);
     } else if (user) {
-      const estimated1RM = Math.round(newLog.weight * (1 + newLog.reps / 30));
-      setCurrentOneRM((prev) => ({ ...prev, [newLog.name]: estimated1RM }));
+      const est1RM = Math.round(newLog.weight * (1 + newLog.reps / 30));
+      setCurrentOneRM((prev) => ({ ...prev, [newLog.name]: est1RM }));
       saveToOfflineQueue(user.id, {
         user_id: user.id,
         exercise_name: newLog.name,
-        calculated_1rm: estimated1RM,
+        calculated_1rm: est1RM,
         weight_used: newLog.weight,
         reps_performed: newLog.reps,
       }, "one_rm_record");
@@ -327,10 +367,9 @@ const Workout = () => {
 
     if (!isGuidedMode) {
       const today = new Date();
-      const dateStr = today.toISOString().split("T")[0];
       const muscleGroups = todayWorkout?.split(" + ") || [];
       const session: Omit<WorkoutSession, "timestamp"> = {
-        date: dateStr,
+        date: today.toISOString().split("T")[0],
         dayOfWeek: weekDaysMap[today.getDay()],
         muscleGroups,
         exercisesCompleted: updatedExercises.map((e) => e.name),
@@ -344,8 +383,7 @@ const Workout = () => {
     if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2000);
-    toast.success(`${selectedExercise} guardado! ⏱️ Descanso iniciado`);
-    setAutoStartTrigger((prev) => prev + 1);
+    toast.success(`${selectedExercise} guardado!`);
     setSelectedExercise("");
     setShowSaveConfirm(false);
   };
@@ -353,15 +391,75 @@ const Workout = () => {
   const handleSkipExercise = useCallback(() => {
     if (!currentPlannedExercise) return;
     markExerciseCompleted(currentPlannedExercise.id);
+    setWorkoutItems((prev) => prev.map((i) =>
+      i.id === currentPlannedExercise.id ? { ...i, done: true, skipped: true } : i
+    ));
     toast.info(`${currentPlannedExercise.exercise_name} saltado`);
   }, [currentPlannedExercise, markExerciseCompleted]);
 
+  const handleReturnToGenerator = async () => {
+    setShowExitModal(false);
+    if (!activeSession) return;
+    try {
+      await supabase.from("planned_exercises" as any).delete().eq("session_id", activeSession.id);
+      await supabase.from("workout_sessions").update({ status: "cancelled" as any }).eq("id", activeSession.id);
+      await refreshSession();
+    } catch (err) {
+      console.error("[Workout] Return to generator error:", err);
+    }
+  };
+
+  const handleSaveAndExit = async () => {
+    setShowExitModal(false);
+    if (!user || savedExercises.length === 0) { navigate("/"); return; }
+    setCompleting(true);
+    try {
+      const today = new Date();
+      await completeWorkout({
+        date: activeSession?.date || today.toISOString().split("T")[0],
+        day_of_week: activeSession?.day_of_week || weekDaysMap[today.getDay()],
+        muscle_groups: activeSession?.muscle_groups || todayWorkout?.split(" + ") || [],
+        exercises: savedExercises.map((e) => ({ name: e.name, weight: e.weight, reps: e.reps, sets: e.sets })),
+        session_id: activeSession?.id,
+      });
+    } catch (err) {
+      console.error("[Workout] Save and exit error:", err);
+    } finally {
+      setCompleting(false);
+      navigate("/");
+    }
+  };
+
+  const handleDiscardAndExit = async () => {
+    setShowExitModal(false);
+    if (activeSession) {
+      try {
+        await supabase.from("planned_exercises" as any).delete().eq("session_id", activeSession.id);
+        await supabase.from("workout_sessions").update({ status: "cancelled" as any }).eq("id", activeSession.id);
+      } catch { /* ignore */ }
+    }
+    navigate("/");
+  };
+
   const handleCompleteWorkout = async () => {
     if (!user) return;
-    if (savedExercises.length === 0) return;
+
+    // Allow completion if savedExercises has data, OR if done items exist (guided mode with toggle)
+    const doneItems = workoutItems.filter((i) => i.done && !i.skipped);
+    const fallbackExercises = doneItems.map((i) => ({
+      name: i.name, weight: i.weight, reps: parseInt(i.reps) || 0, sets: i.sets,
+    }));
+    const finalExercises = savedExercises.length > 0
+      ? savedExercises.map((e) => ({ name: e.name, weight: e.weight, reps: e.reps, sets: e.sets }))
+      : fallbackExercises;
+
+    if (finalExercises.length === 0) {
+      toast.error("Marca pelo menos um exercício como concluído");
+      return;
+    }
+
     setCompleting(true);
 
-    // Offline fallback
     if (!navigator.onLine) {
       const today = new Date();
       const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
@@ -370,7 +468,7 @@ const Workout = () => {
         date: activeSession?.date || today.toISOString().split("T")[0],
         day_of_week: activeSession?.day_of_week || weekDaysMap[today.getDay()],
         muscle_groups: muscleGroups,
-        exercises_completed: savedExercises.map((e) => e.name),
+        exercises_completed: finalExercises.map((e) => e.name),
         status: "completed",
       }, "workout_session");
       toast.warning("Sem ligação — treino guardado localmente. Será sincronizado quando voltar online.");
@@ -384,9 +482,7 @@ const Workout = () => {
         date: activeSession?.date || today.toISOString().split("T")[0],
         day_of_week: activeSession?.day_of_week || weekDaysMap[today.getDay()],
         muscle_groups: activeSession?.muscle_groups || todayWorkout?.split(" + ") || [],
-        exercises: savedExercises.map((e) => ({
-          name: e.name, weight: e.weight, reps: e.reps, sets: e.sets,
-        })),
+        exercises: finalExercises,
         session_id: activeSession?.id,
       });
 
@@ -400,7 +496,6 @@ const Workout = () => {
 
       checkFatigueNotification(result.fatigue_index, user?.id);
 
-      // Auto-mark day flow tasks
       if (user?.id) {
         if (!isTaskComplete(user.id, "first_workout_done")) {
           markTaskComplete(user.id, "first_workout_done");
@@ -410,24 +505,21 @@ const Workout = () => {
       }
 
       const durationMin = Math.round((Date.now() - workoutStartRef.current) / 60000);
-      const totalSets   = savedExercises.reduce((acc, e) => acc + e.sets, 0);
-      const totalReps   = savedExercises.reduce((acc, e) => acc + (e.reps * e.sets), 0);
+      const totalSets = savedExercises.reduce((acc, e) => acc + e.sets, 0);
+      const totalReps = savedExercises.reduce((acc, e) => acc + e.reps * e.sets, 0);
       const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
 
       navigate("/workout-complete", {
         state: {
-          workoutName:   muscleGroups.join(" + ") || "Treino",
-          trainingType:  trainingType,
-          exercises:     aiExercises.filter((e) => e.completed).map((e) => ({
-            name: e.exercise_name,
-            sets: e.sets,
-            reps: e.reps,
-            rest: e.rest,
+          workoutName: muscleGroups.join(" + ") || "Treino",
+          trainingType,
+          exercises: aiExercises.filter((e) => e.completed).map((e) => ({
+            name: e.exercise_name, sets: e.sets, reps: e.reps, rest: e.rest,
           })),
-          durationMin:   durationMin || 1,
+          durationMin: durationMin || 1,
           totalSets,
           totalReps,
-          sessionId:     result.session_id,
+          sessionId: result.session_id,
         },
       });
     } catch (err: unknown) {
@@ -439,40 +531,33 @@ const Workout = () => {
   };
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+
   const hasScheduleSet = useMemo(() => {
     const schedule = settings?.onboarding_data?.schedule || {};
-    return Object.values(schedule).some(v => v !== null && v !== undefined);
+    return Object.values(schedule).some((v) => v !== null && v !== undefined);
   }, [settings]);
 
   const saveButtonLabel = useMemo(() => {
     if (!isGuidedMode || allAIDone) return undefined;
-    const isLast = currentAIIndex === aiExercises.length - 1;
-    if (isLast) return "Concluir Treino";
-    return "Guardar e Próximo";
+    return currentAIIndex === aiExercises.length - 1 ? "Concluir Treino" : "Guardar e Próximo";
   }, [isGuidedMode, allAIDone, currentAIIndex, aiExercises.length]);
 
   return (
-    <div className="min-h-screen pb-32" style={{ backgroundColor: "#000000", position: "relative", zIndex: 1 }}>
+    <div className="min-h-screen pb-40" style={{ backgroundColor: "#000000", position: "relative", zIndex: 1 }}>
 
       {/* ── OFFLINE BANNER ── */}
       <AnimatePresence>
         {!isOnline && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             style={{
               position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-              background: "rgba(251,191,36,0.15)",
-              border: "1px solid rgba(251,191,36,0.3)",
-              padding: "10px 20px",
-              display: "flex", alignItems: "center", gap: 8,
+              background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.3)",
+              padding: "10px 20px", display: "flex", alignItems: "center", gap: 8,
             }}
           >
             <motion.div
-              animate={{ opacity: [1, 0.3, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
               style={{ width: 7, height: 7, borderRadius: "50%", background: "#FBBF24", flexShrink: 0 }}
             />
             <span style={{ fontSize: 12, fontWeight: 600, color: "#FBBF24" }}>
@@ -482,48 +567,52 @@ const Workout = () => {
         )}
       </AnimatePresence>
 
-      {/* ── HEADER ── */}
-      <div className="px-6 pt-14 pb-2">
-        {/* 1. Day label + offline indicator */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <p style={{
-            fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
-            letterSpacing: "0.1em", textTransform: "uppercase", margin: 0,
-          }}>
-            {weekDaysMap[new Date().getDay()]}
-          </p>
-          {!isOnline && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <motion.div
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                style={{ width: 6, height: 6, borderRadius: "50%", background: "#FBBF24" }}
-              />
-              <span style={{ fontSize: 11, color: "#FBBF24", fontWeight: 600 }}>Offline</span>
+      {/* ── STICKY HEADER ── */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 40,
+        background: "#000",
+        borderBottom: totalCount > 0 ? "1px solid rgba(255,255,255,0.06)" : "none",
+        paddingTop: isOnline ? 52 : 84,
+      }}>
+        <div style={{ padding: "0 20px 12px" }}>
+          {/* Row 1: day label + exit button */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <p style={{
+                fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
+                letterSpacing: "0.1em", textTransform: "uppercase", margin: 0,
+              }}>
+                {weekDaysMap[new Date().getDay()]}
+              </p>
+              {!isOnline && (
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <motion.div
+                    animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
+                    style={{ width: 6, height: 6, borderRadius: "50%", background: "#FBBF24" }}
+                  />
+                  <span style={{ fontSize: 11, color: "#FBBF24", fontWeight: 600 }}>Offline</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+            <button
+              onClick={() => setShowExitModal(true)}
+              style={{
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 20, padding: "6px 14px",
+                display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
+              }}
+            >
+              <X size={14} style={{ color: "rgba(255,255,255,0.5)" }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Sair</span>
+            </button>
+          </div>
 
-        {!isRestDay && !isLoading && (
-          <>
-            {/* 2. Workout title */}
-            <h1 style={{
-              fontSize: 30, fontWeight: 900, color: "white",
-              letterSpacing: "-0.02em", lineHeight: 1.05, marginBottom: 12,
-            }}>
-              {todayMuscleGroups.map((g, i) => (
-                <span key={g}>
-                  {g}{i < todayMuscleGroups.length - 1 ? " +" : ""}
-                  {i < todayMuscleGroups.length - 1 && <br />}
-                </span>
-              ))}
-            </h1>
-
-            {/* 3. Muscle chips */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+          {/* Row 2: muscle chips */}
+          {!isRestDay && todayMuscleGroups.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: totalCount > 0 ? 10 : 0 }}>
               {todayMuscleGroups.map((mg) => (
                 <span key={mg} style={{
-                  padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700,
+                  padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
                   background: MUSCLE_BG[mg] ?? "rgba(255,255,255,0.08)",
                   color: MUSCLE_COLOR[mg] ?? "rgba(255,255,255,0.6)",
                 }}>
@@ -531,14 +620,86 @@ const Workout = () => {
                 </span>
               ))}
             </div>
+          )}
 
-            {/* 4. Last session pill */}
+          {/* Row 3: progress count */}
+          {totalCount > 0 && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
+                {doneCount} de {totalCount} concluídos
+              </span>
+              <span style={{ fontSize: 11, color: "#4ADE80", fontWeight: 700 }}>
+                {listProgressPercent}%
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* 3px progress bar */}
+        {totalCount > 0 && (
+          <div style={{ height: 3, background: "rgba(255,255,255,0.06)", width: "100%" }}>
+            <motion.div
+              style={{ height: "100%", background: "#4ADE80" }}
+              initial={{ width: 0 }}
+              animate={{ width: `${listProgressPercent}%` }}
+              transition={{ type: "spring", stiffness: 100 }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── FIRST-USE NUDGE ── */}
+      {!hasScheduleSet && !isLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Configura o teu plano semanal</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Define os grupos musculares por dia nas Definições</p>
+          </div>
+          <button onClick={() => navigate("/settings")} className="text-xs font-semibold text-primary flex-shrink-0">
+            Ir →
+          </button>
+        </motion.div>
+      )}
+
+      {/* ── REST DAY ── */}
+      {isRestDay ? (
+        <div>
+          <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "20px 16px" }}>
+            <button disabled style={{
+              width: "100%", height: 44, borderRadius: 14,
+              background: "linear-gradient(90deg, #1D4ED8, #2563EB)",
+              border: "none", color: "white", fontWeight: 700, fontSize: 14,
+              opacity: 0.4, cursor: "not-allowed", pointerEvents: "none",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+              <Sparkles style={{ width: 18, height: 18 }} />
+              Gerar treino
+            </button>
+          </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-16 text-center">
+            <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-6">
+              <Target className="w-10 h-10 text-muted-foreground/50" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground/70 mb-2">Recuperação ativa</h3>
+            <p className="text-muted-foreground max-w-xs mx-auto">O descanso é parte do treino. Aproveita para recuperar.</p>
+          </motion.div>
+        </div>
+      ) : (
+        <div className="space-y-0">
+
+          {/* Last session pill */}
+          {!isLoading && (
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "9px 14px",
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 10, marginBottom: 20,
+              padding: "9px 20px",
+              background: "rgba(255,255,255,0.02)",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <Clock size={14} style={{ color: "white", opacity: 0.35, flexShrink: 0 }} />
@@ -556,326 +717,378 @@ const Workout = () => {
                   </span>
                 </div>
               ) : (
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
-                  Sem dados anteriores
-                </span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>—</span>
               )}
             </div>
+          )}
 
-          </>
-        )}
-      </div>
-
-      {/* First-use nudge: no schedule configured */}
-      {!hasScheduleSet && !isLoading && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", margin: 0, display: "flex", alignItems: "center", gap: 12 }}
-        >
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <Target className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Configura o teu plano semanal</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Define os grupos musculares por dia nas Definições</p>
-          </div>
-          <button
-            onClick={() => navigate("/settings")}
-            className="text-xs font-semibold text-primary flex-shrink-0"
-          >
-            Ir →
-          </button>
-        </motion.div>
-      )}
-
-      {isRestDay ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="px-6 py-16 text-center"
-        >
-          <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-6">
-            <Target className="w-10 h-10 text-muted-foreground/50" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground/70 mb-2">Recuperação ativa</h3>
-          <p className="text-muted-foreground max-w-xs mx-auto">O descanso é parte do treino. Aproveita para recuperar.</p>
-        </motion.div>
-      ) : (
-        <div className="space-y-0">
-          {/* ── TRAINING TYPE SELECTOR ── */}
+          {/* Training type selector — free mode only */}
           {!isGuidedMode && (
-            <div className="space-y-0">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
-              >
-                <span className="text-sm font-medium mb-4 block text-muted-foreground">
-                  Tipo de treino
-                </span>
-                <div className="flex gap-2">
-                  {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
-                    const isSelected = trainingType === type;
-                    return (
-                      <motion.button
-                        key={type}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setTrainingType(type)}
-                        className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                          isSelected
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                            : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                        }`}
-                      >
-                        {type}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-
-              {/* ── AI GENERATOR ── */}
-              <AIWorkoutGenerator
-                todayMuscleGroups={todayMuscleGroups}
-                trainingType={trainingType}
-                onAddExercise={(exercise) => {
-                  setSelectedExercise(exercise.name);
-                  setWeight(String(exercise.weight || 30));
-                  setReps(String(exercise.reps));
-                  setSets(String(exercise.sets));
-                }}
-                onSessionCreated={refreshSession}
-              />
-            </div>
-          )}
-
-          {/* ── GUIDED MODE: Card Stack ── */}
-          {isGuidedMode && aiExercises.length > 0 && (
-            <>
-              <ExerciseCardStack
-                exercises={aiExercises}
-                currentIndex={currentAIIndex}
-                completedCount={completedAICount}
-                onSwipeRight={(ex) => {
-                  // Pre-fill form
-                  setSelectedExercise(ex.exercise_name);
-                  setReps(String(parseInt(ex.reps) || 10));
-                  setSets(String(ex.sets));
-                  if (ex.rest > 0) {
-                    setRestTime(String(ex.rest));
-                  }
-                  // Save + mark completed
-                  handleSaveClick();
-                  markExerciseCompleted(ex.id);
-                }}
-                onSwipeLeft={(ex) => {
-                  markExerciseCompleted(ex.id);
-                  toast.info("Exercício saltado");
-                }}
-                onFinish={handleCompleteWorkout}
-                isCompleting={completing}
-                onUndo={() => {
-                  // Undo last completed exercise
-                  const lastCompleted = [...aiExercises].reverse().find((e) => e.completed);
-                  if (lastCompleted) {
-                    supabase
-                      .from("planned_exercises" as any)
-                      .update({ completed: false })
-                      .eq("id", lastCompleted.id)
-                      .then(() => refreshSession());
-                    toast.info("Exercício desfeito");
-                  }
-                }}
-              />
-            </>
-          )}
-
-          {/* ── EXERCISE REGISTRATION CARD ── */}
-          <div className="space-y-0">
-            {/* Guided mode: current exercise label */}
-            {isGuidedMode && currentPlannedExercise && !allAIDone && (
-              <motion.div
-                key={currentPlannedExercise.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%", display: "flex", alignItems: "center", gap: 12 }}
-              >
-                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-primary font-medium">
-                    Exercício {completedAICount + 1} de {aiExercises.length}
-                  </p>
-                  <p className="text-base font-bold text-foreground">
-                    {currentPlannedExercise.exercise_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Sugestão: {currentPlannedExercise.sets}x{currentPlannedExercise.reps} · {currentPlannedExercise.rest}s
-                  </p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-primary/50" />
-              </motion.div>
-            )}
-
-            {/* Exercise Tools Card */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "20px 16px" }}
             >
-              <ExerciseToolsCard
-                selectedExercise={selectedExercise}
-                setSelectedExercise={setSelectedExercise}
-                weight={weight}
-                setWeight={setWeight}
-                reps={reps}
-                setReps={setReps}
-                sets={sets}
-                setSets={setSets}
-                restTime={restTime}
-                setRestTime={setRestTime}
-                todayExercises={todayExercises}
-                saveExercise={handleSaveClick}
-                justSaved={justSaved}
-                saveButtonLabel={saveButtonLabel}
-                userId={user?.id}
-                focusTrigger={autoStartTrigger}
-                completedSetsCount={savedExercises.filter((e) => e.name === selectedExercise).length}
-                targetSets={parseInt(sets) || undefined}
-                estimatedOneRM={
-                  (() => {
-                    const w = parseFloat(weight);
-                    const r = parseInt(reps);
-                    if (!w || !r || w <= 0 || r <= 0) return undefined;
-                    return Math.round(w * (1 + r / 30));
-                  })()
-                }
-              />
+              <span className="text-sm font-medium mb-4 block text-muted-foreground">Tipo de treino</span>
+              <div className="flex gap-2">
+                {(Object.keys(trainingTypeConfig) as TrainingType[]).map((type) => {
+                  const isSelected = trainingType === type;
+                  return (
+                    <motion.button
+                      key={type} whileTap={{ scale: 0.95 }} onClick={() => setTrainingType(type)}
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {type}
+                    </motion.button>
+                  );
+                })}
+              </div>
             </motion.div>
+          )}
 
-            {/* Barbell Calculator trigger */}
-            <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px" }}>
-              <button
-                onClick={() => setShowBarbellCalc(true)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600,
-                  padding: "4px 8px",
-                }}
-              >
-                🏋️ Calculadora de barbell
-              </button>
-            </div>
+          {/* AI Generator — free mode only */}
+          {!isGuidedMode && (
+            <AIWorkoutGenerator
+              todayMuscleGroups={todayMuscleGroups}
+              trainingType={trainingType}
+              onAddExercise={(exercise) => {
+                setSelectedExercise(exercise.name);
+                setWeight(String(exercise.weight || 30));
+                setReps(String(exercise.reps));
+                setSets(String(exercise.sets));
+              }}
+              onSessionCreated={refreshSession}
+            />
+          )}
 
-            {showBarbellCalc && (
-              <BarbellCalculator
-                onClose={() => setShowBarbellCalc(false)}
-                defaultWeight={parseFloat(weight) || 80}
-              />
-            )}
+          {/* Guided mode: current exercise label */}
+          {isGuidedMode && currentPlannedExercise && !allAIDone && (
+            <motion.div
+              key={currentPlannedExercise.id}
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+              style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span className="text-sm font-bold text-primary">{currentAIIndex + 1}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-primary font-medium">
+                  Exercício {completedAICount + 1} de {aiExercises.length}
+                </p>
+                <p className="text-base font-bold text-foreground">{currentPlannedExercise.exercise_name}</p>
+                <p className="text-xs text-muted-foreground">
+                  Sugestão: {currentPlannedExercise.sets}x{currentPlannedExercise.reps} · {currentPlannedExercise.rest}s
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-primary/50" />
+            </motion.div>
+          )}
 
-            {/* Saved Exercises */}
-            {savedExercises.length > 0 && (
+          {/* Exercise Tools Card */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <ExerciseToolsCard
+              selectedExercise={selectedExercise}
+              setSelectedExercise={setSelectedExercise}
+              weight={weight}
+              setWeight={setWeight}
+              reps={reps}
+              setReps={setReps}
+              sets={sets}
+              setSets={setSets}
+              restTime={restTime}
+              setRestTime={setRestTime}
+              todayExercises={todayExercises}
+              saveExercise={handleSaveClick}
+              justSaved={justSaved}
+              saveButtonLabel={saveButtonLabel}
+              userId={user?.id}
+              focusTrigger={0}
+              completedSetsCount={savedExercises.filter((e) => e.name === selectedExercise).length}
+              targetSets={parseInt(sets) || undefined}
+              estimatedOneRM={(() => {
+                const w = parseFloat(weight);
+                const r = parseInt(reps);
+                if (!w || !r || w <= 0 || r <= 0) return undefined;
+                return Math.round(w * (1 + r / 30));
+              })()}
+            />
+          </motion.div>
+
+          {/* Barbell calculator trigger */}
+          <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px" }}>
+            <button
+              onClick={() => setShowBarbellCalc(true)}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
+                cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600, padding: "4px 8px",
+              }}
+            >
+              🏋️ Calculadora de barbell
+            </button>
+          </div>
+          {showBarbellCalc && (
+            <BarbellCalculator onClose={() => setShowBarbellCalc(false)} defaultWeight={parseFloat(weight) || 80} />
+          )}
+
+          {/* Rest Timer — appears after marking done, auto-hides after 8s */}
+          <AnimatePresence>
+            {showRestTimer && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{ overflow: "hidden" }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Exercícios guardados hoje
-                  </span>
-                  <span className="text-xs px-2 py-1 rounded-full bg-primary/15 text-primary font-medium">
-                    {savedExercises.length}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {savedExercises.map((exercise, index) => (
+                <RestTimerCard
+                  savedExercises={savedExercises}
+                  trainingType={trainingType}
+                  userId={user?.id}
+                  autoStartTrigger={0}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── UNIFIED EXERCISE LIST ── */}
+          {workoutItems.length > 0 && (
+            <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "20px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Exercícios</span>
+                <span style={{
+                  fontSize: 11, fontWeight: 700,
+                  background: "rgba(37,99,235,0.15)", color: "#60A5FA",
+                  padding: "4px 10px", borderRadius: 20,
+                }}>
+                  {doneCount}/{totalCount}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {workoutItems.map((item, index) => {
+                  const isCurrent = isGuidedMode && item.source === "ai"
+                    && item.id === currentPlannedExercise?.id && !item.done;
+                  return (
                     <motion.div
-                      key={exercise.timestamp}
+                      key={item.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="flex items-center justify-between bg-muted/20 rounded-xl px-4 py-3"
+                      transition={{ delay: index * 0.04 }}
+                      style={{
+                        background: "#141414",
+                        border: isCurrent
+                          ? "1px solid rgba(37,99,235,0.35)"
+                          : "1px solid rgba(255,255,255,0.06)",
+                        borderRadius: 16,
+                        padding: 16,
+                        borderLeft: item.done && !item.skipped
+                          ? "3px solid #4ADE80"
+                          : item.skipped
+                          ? "3px solid rgba(255,255,255,0.15)"
+                          : isCurrent
+                          ? "3px solid #2563EB"
+                          : "3px solid transparent",
+                        opacity: item.done ? 0.5 : 1,
+                        transition: "opacity 0.2s, border-left-color 0.2s",
+                      }}
                     >
-                      <div>
-                        <p className="text-sm font-medium text-foreground/70">{exercise.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(exercise.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-primary">{exercise.weight}kg</p>
-                        <p className="text-xs text-muted-foreground">{exercise.sets}x{exercise.reps}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{
+                          fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.25)",
+                          minWidth: 20, textAlign: "center",
+                        }}>
+                          {index + 1}
+                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{
+                            fontSize: 14, fontWeight: 700, color: "white",
+                            textDecoration: item.done ? "line-through" : "none",
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          }}>
+                            {item.name}
+                            {item.source === "ai" && (
+                              <span style={{ fontSize: 10, color: "rgba(96,165,250,0.7)", marginLeft: 6, fontWeight: 600 }}>
+                                IA
+                              </span>
+                            )}
+                          </p>
+                          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 3 }}>
+                            {item.sets}x{item.reps}
+                            {item.weight > 0 ? ` · ${item.weight}kg` : ""}
+                            {item.rest > 0 ? ` · ${item.rest}s` : ""}
+                          </p>
+                        </div>
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                          <button
+                            onClick={() => handleToggleDone(item)}
+                            style={{
+                              width: 32, height: 32, borderRadius: 8,
+                              background: item.done ? "rgba(74,222,128,0.15)" : "rgba(255,255,255,0.06)",
+                              border: item.done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,255,255,0.08)",
+                              color: item.done ? "#4ADE80" : "rgba(255,255,255,0.4)",
+                              fontSize: 14, cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                            }}
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={() => handleRemoveItem(item)}
+                            style={{
+                              width: 32, height: 32, borderRadius: 8,
+                              background: "rgba(255,255,255,0.04)",
+                              border: "1px solid rgba(255,255,255,0.07)",
+                              color: "rgba(255,255,255,0.3)",
+                              fontSize: 12, cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* PR Celebration Card */}
-            <AnimatePresence>
-              {prCelebration && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                >
-                  <CelebrationCard celebration={prCelebration} index={0} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Rest Timer Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <RestTimerCard
-                savedExercises={savedExercises}
-                trainingType={trainingType}
-                userId={user?.id}
-                autoStartTrigger={autoStartTrigger}
-              />
-            </motion.div>
-
-            {/* ── Complete Workout Button ── */}
-            {savedExercises.length > 0 && !isGuidedMode && (
-              <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "16px 20px", width: "100%" }}>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleCompleteWorkout}
-                  disabled={completing}
-                  className="w-full py-4 rounded-2xl text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                  style={{ background: "#0D0D0D", border: "1px solid rgba(255,255,255,0.12)" }}
-                >
-                  {completing ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> A concluir...</>
-                  ) : (
-                    <><Check className="w-4 h-4" /> Concluir Treino ({savedExercises.length} exercícios)</>
-                  )}
-                </motion.button>
+                  );
+                })}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* ── LAST SESSION CARD ── */}
+          {/* Last Session Card */}
           <div>
-            <LastSessionCard
-              todayMuscleGroups={todayMuscleGroups}
-              userId={user?.id}
-            />
+            <LastSessionCard todayMuscleGroups={todayMuscleGroups} userId={user?.id} />
           </div>
         </div>
       )}
 
       <BottomNav />
+
+      {/* ── FIXED BOTTOM BAR ── */}
+      <AnimatePresence>
+        {totalCount > 0 && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            style={{
+              position: "fixed", bottom: 68, left: 0, right: 0,
+              padding: "10px 16px",
+              background: "#000",
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              zIndex: 45,
+              display: "flex", alignItems: "center", gap: 12,
+            }}
+          >
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontWeight: 600, flexShrink: 0 }}>
+              {doneCount} feitos{skippedCount > 0 ? ` · ${skippedCount} saltados` : ""}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleCompleteWorkout}
+              disabled={completing}
+              style={{
+                flex: 1, height: 40, borderRadius: 100,
+                background: doneCount > 0 ? "#2563EB" : "rgba(255,255,255,0.07)",
+                border: doneCount > 0 ? "none" : "1px solid rgba(255,255,255,0.1)",
+                color: doneCount > 0 ? "white" : "rgba(255,255,255,0.35)",
+                fontSize: 13, fontWeight: 800, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                opacity: completing ? 0.7 : 1,
+              }}
+            >
+              {completing ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> A guardar...</>
+              ) : (
+                <>Terminar treino <Check size={14} /></>
+              )}
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── EXIT MODAL ── */}
+      <AnimatePresence>
+        {showExitModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{
+              position: "fixed", inset: 0, zIndex: 9999,
+              background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
+              display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
+            }}
+            onClick={() => setShowExitModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: "#141414", borderRadius: 20, padding: 24, width: "calc(100% - 32px)", maxWidth: 380 }}
+            >
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "white", marginBottom: 8 }}>
+                Sair do treino?
+              </h3>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20, lineHeight: 1.5 }}>
+                {savedExercises.length > 0
+                  ? `Tens ${savedExercises.length} ${savedExercises.length === 1 ? "exercício registado" : "exercícios registados"}. O que queres fazer?`
+                  : "Ainda não registaste nenhum exercício."}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {isGuidedMode ? (
+                  <button
+                    onClick={handleReturnToGenerator}
+                    style={{
+                      width: "100%", height: 44, borderRadius: 12,
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                      color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                    }}
+                  >
+                    ↺ Voltar ao gerador
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowExitModal(false)}
+                    style={{
+                      width: "100%", height: 44, borderRadius: 12,
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                      color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                    }}
+                  >
+                    Continuar treino
+                  </button>
+                )}
+                {savedExercises.length > 0 && (
+                  <button
+                    onClick={handleSaveAndExit}
+                    style={{
+                      width: "100%", height: 44, borderRadius: 12,
+                      background: "#2563EB", border: "none",
+                      color: "white", fontWeight: 800, fontSize: 14, cursor: "pointer",
+                    }}
+                  >
+                    ✓ Guardar e sair
+                  </button>
+                )}
+                <button
+                  onClick={handleDiscardAndExit}
+                  style={{
+                    width: "100%", height: 44, borderRadius: 12,
+                    background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)",
+                    color: "#F87171", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                  }}
+                >
+                  ✕ Descartar e sair
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Save Confirmation Dialog */}
       <AlertDialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>

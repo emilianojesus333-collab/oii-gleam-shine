@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
 import { useAuth } from './useAuth';
 import { invalidateCachePattern } from './useDataCache';
 import { registerCacheCleaner, unregisterCacheCleaner } from './cacheUtils';
@@ -205,28 +204,6 @@ const getWeekStart = () => {
   return new Date(today.setDate(diff)).toISOString().split('T')[0];
 };
 
-// Confetti animation for achievements
-const triggerConfetti = () => {
-  const count = 200;
-  const defaults = {
-    origin: { y: 0.7 },
-    zIndex: 9999,
-  };
-
-  const fire = (particleRatio: number, opts: confetti.Options) => {
-    confetti({
-      ...defaults,
-      ...opts,
-      particleCount: Math.floor(count * particleRatio),
-    });
-  };
-
-  fire(0.25, { spread: 26, startVelocity: 55, colors: ['#10b981', '#34d399', '#6ee7b7'] });
-  fire(0.2, { spread: 60, colors: ['#f59e0b', '#fbbf24', '#fcd34d'] });
-  fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ['#8b5cf6', '#a78bfa', '#c4b5fd'] });
-  fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, colors: ['#ec4899', '#f472b6', '#f9a8d4'] });
-  fire(0.1, { spread: 120, startVelocity: 45, colors: ['#3b82f6', '#60a5fa', '#93c5fd'] });
-};
 
 export const useNutrition = () => {
   const { user } = useAuth();
@@ -447,89 +424,9 @@ export const useNutrition = () => {
   }, []);
 
 
-  const checkAchievements = useCallback((updatedLogs: DailyLog[], updatedTotals: DailyLog['totals']) => {
-    const newAchievements: Achievement[] = [];
-    const today = getToday();
-    let shouldTriggerConfetti = false;
-
-    if (updatedTotals.calories >= state.goals.calories * 0.9 && updatedTotals.calories <= state.goals.calories * 1.1) {
-      const achievementId = `daily_calories_${today}`;
-      if (!hasShownAchievementRef.current.has(achievementId)) {
-        hasShownAchievementRef.current.add(achievementId);
-        shouldTriggerConfetti = true;
-        toast.success('🎯 Meta de Calorias Atingida!', {
-          description: `Consumiste ${updatedTotals.calories} kcal hoje. Excelente!`,
-        });
-        newAchievements.push({
-          id: achievementId,
-          type: 'daily_goal',
-          title: 'Meta Diária de Calorias',
-          description: `Atingiste a meta de ${state.goals.calories} kcal`,
-          unlockedAt: today,
-          icon: '🎯',
-        });
-      }
-    }
-
-    if (updatedTotals.protein >= state.goals.protein) {
-      const achievementId = `daily_protein_${today}`;
-      if (!hasShownAchievementRef.current.has(achievementId)) {
-        hasShownAchievementRef.current.add(achievementId);
-        shouldTriggerConfetti = true;
-        toast.success('💪 Meta de Proteína Atingida!', {
-          description: `${updatedTotals.protein}g de proteína consumidos. Músculos agradecem!`,
-        });
-        newAchievements.push({
-          id: achievementId,
-          type: 'protein_champion',
-          title: 'Campeão da Proteína',
-          description: `Atingiste ${state.goals.protein}g de proteína`,
-          unlockedAt: today,
-          icon: '💪',
-        });
-      }
-    }
-
-    const weekStart = getWeekStart();
-    const daysWithMeals = updatedLogs.filter(log => {
-      const logDate = new Date(log.date);
-      const weekStartDate = new Date(weekStart);
-      return logDate >= weekStartDate && log.meals.length > 0;
-    }).length;
-
-    if (daysWithMeals >= 7) {
-      const achievementId = `weekly_streak_${weekStart}`;
-      if (!hasShownAchievementRef.current.has(achievementId)) {
-        hasShownAchievementRef.current.add(achievementId);
-        shouldTriggerConfetti = true;
-        toast.success('🔥 Semana Completa!', {
-          description: 'Registaste refeições todos os 7 dias desta semana!',
-        });
-        newAchievements.push({
-          id: achievementId,
-          type: 'weekly_streak',
-          title: 'Semana Perfeita',
-          description: 'Registaste refeições durante 7 dias seguidos',
-          unlockedAt: today,
-          icon: '🔥',
-        });
-      }
-    }
-
-    // Trigger confetti and haptic feedback for any new achievement
-    if (shouldTriggerConfetti) {
-      triggerConfetti();
-      hapticFeedback('success');
-    }
-
-    if (newAchievements.length > 0) {
-      setState(prev => ({
-        ...prev,
-        achievements: [...prev.achievements, ...newAchievements],
-        notifiedAchievements: [...prev.notifiedAchievements, ...newAchievements.map(a => a.id)],
-      }));
-    }
-  }, [state.goals]);
+  const checkAchievements = useCallback((_updatedLogs: DailyLog[], _updatedTotals: DailyLog['totals']) => {
+    // Celebrations removed — achievements tracked silently in state only
+  }, []);
 
   const addMeal = useCallback((meal: Omit<Meal, 'id'>) => {
     // Haptic feedback when adding a meal

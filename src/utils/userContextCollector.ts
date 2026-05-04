@@ -154,6 +154,16 @@ export interface UserContext {
     tone: string;
     focus: string;
   };
+
+  // Physique Evaluations
+  physiqueEvaluations: {
+    evaluations: {
+      date: string;
+      daysAgo: number;
+      score: number;
+      bodyFatEstimate: string | null;
+    }[];
+  };
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -229,6 +239,9 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       personality: "motivador",
       tone: "Casual",
       focus: "Tudo",
+    },
+    physiqueEvaluations: {
+      evaluations: [],
     },
   };
 
@@ -673,6 +686,28 @@ export const collectUserContext = async (userId?: string): Promise<UserContext> 
       };
     }
 
+    // 10. Physique evaluations (last 3 from DB)
+    if (currentUserId) {
+      try {
+        const { data: physData } = await supabase
+          .from("physique_evaluations" as never)
+          .select("created_at, score, body_fat_estimate")
+          .eq("user_id", currentUserId)
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        if (physData && (physData as Array<{created_at: string; score: number | null; body_fat_estimate: string | null}>).length > 0) {
+          const now = Date.now();
+          context.physiqueEvaluations.evaluations = (physData as Array<{created_at: string; score: number | null; body_fat_estimate: string | null}>).map((ev) => ({
+            date: new Date(ev.created_at).toLocaleDateString("pt-PT", { day: "numeric", month: "short", year: "numeric" }),
+            daysAgo: Math.round((now - new Date(ev.created_at).getTime()) / 86400000),
+            score: ev.score ?? 0,
+            bodyFatEstimate: ev.body_fat_estimate,
+          }));
+        }
+      } catch { /* non-fatal */ }
+    }
+
   } catch (error) {
     console.error("Error collecting user context:", error);
   }
@@ -920,6 +955,19 @@ ${ctx.weeklyReport.highlights.map(h => `- ${h}`).join("\n")}`);
       parts.push(`\n🎯 ÁREAS A MELHORAR:
 ${ctx.weeklyReport.improvements.map(i => `- ${i}`).join("\n")}`);
     }
+  }
+
+  // Physique Evaluations
+  if (ctx.physiqueEvaluations.evaluations.length > 0) {
+    const evs = ctx.physiqueEvaluations.evaluations;
+    const latest = evs[0];
+    const lines = evs.map((ev, i) =>
+      `- ${i === 0 ? "Mais recente" : `Anterior ${i}`} (${ev.date}, há ${ev.daysAgo} dias): Score ${ev.score.toFixed(1)}/10${ev.bodyFatEstimate ? `, gordura estimada ${ev.bodyFatEstimate}` : ""}`
+    );
+    const delta = evs.length >= 2 ? +(evs[0].score - evs[1].score).toFixed(1) : null;
+    parts.push(`\n🏋️ AVALIAÇÕES FÍSICAS (últimas ${evs.length}):
+${lines.join("\n")}${delta !== null ? `\n- Evolução: ${delta >= 0 ? "+" : ""}${delta} pontos desde a avaliação anterior` : ""}
+- Última avaliação: há ${latest.daysAgo} dias com score ${latest.score.toFixed(1)}/10`);
   }
 
   parts.push(`\n⚙️ CAPACIDADE DE AÇÃO: Quando o utilizador pedir para criar ou alterar calendário, reagendar treinos ou criar metas, inclui na resposta: [ACTION:updateSchedule:{"Segunda-feira":["Peito","Bíceps"]}] — usa dias em português completo. Nunca mostres a linha [ACTION:...] ao utilizador.`);

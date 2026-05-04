@@ -10,6 +10,7 @@ import { QuickCommandsSheet } from "@/components/chat/QuickCommandsSheet";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
@@ -65,6 +66,37 @@ const Chat = () => {
 
   const { settings: userSettings } = useUserSettings();
   const aiName = useMemo(() => userSettings?.ai_name || "LiftMate", [userSettings]);
+
+  // ── Daily message limit ──────────────────────────────────
+  const { isSubscriptionValid } = useSubscriptionContext();
+  const [dailyCount, setDailyCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const today = new Date().toISOString().split("T")[0];
+    const key = `liftmate_chat_usage_${user.id}_${today}`;
+    const saved = JSON.parse(localStorage.getItem(key) || '{"count":0}');
+    setDailyCount(saved.count as number);
+  }, [user?.id]);
+
+  const dailyLimit = isSubscriptionValid() ? 50 : 20;
+  const usagePct = Math.round((dailyCount / dailyLimit) * 100);
+
+  const incrementUsage = () => {
+    if (!user?.id) return;
+    const today = new Date().toISOString().split("T")[0];
+    const key = `liftmate_chat_usage_${user.id}_${today}`;
+    const next = dailyCount + 1;
+    localStorage.setItem(key, JSON.stringify({ count: next, date: today }));
+    setDailyCount(next);
+  };
+
+  const bannerVariant: "hidden" | "warning" | "danger" | "limit" =
+    usagePct >= 100 ? "limit" :
+    usagePct >= 95  ? "danger" :
+    usagePct >= 85  ? "hidden" :
+    usagePct >= 80  ? "warning" : "hidden";
+  // ─────────────────────────────────────────────────────────
 
   // Read prefill message from navigation state (e.g. from FatigueAlertCard)
   useEffect(() => {
@@ -220,12 +252,15 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
           if (jsonStr === "[DONE]") {streamDone = true;break;}
           try {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            const delta = parsed.choices?.[0]?.delta;
+            const content = delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
               const displayText = stripActionsFromText(assistantContent)
                 .replace(/\[ACTION:\w+:[^\]]*(?:\[[^\]]*\][^\]]*)*\]/g, "").trim();
               setMessages((prev) => prev.map((m, i) => i === prev.length - 1 ? { ...m, text: displayText } : m));
+            } else if (delta?.tool_calls?.length > 0) {
+              setThinkingText("A pesquisar na web...");
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -293,9 +328,15 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
     const messageText = text || inputValue;
     if (!messageText.trim() || isLoading) return;
 
+    if (usagePct >= 100) {
+      toast.error(`Atingiste o limite de ${dailyLimit} mensagens diárias. Volta amanhã!`);
+      return;
+    }
+
     const userMessage: ChatMessage = { id: Date.now().toString(), text: messageText, isUser: true, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    incrementUsage();
 
     // Auto-extract facts (localStorage) + persist ao Supabase (chat_memory)
     if (user?.id) {
@@ -453,6 +494,57 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
         </div>
       </div>
 
+      {/* Daily usage banner */}
+      {bannerVariant !== "hidden" && (
+        <div style={{
+          margin: "0 16px 8px",
+          padding: "10px 14px",
+          borderRadius: 12,
+          background: bannerVariant === "limit"
+            ? "rgba(239,68,68,0.12)"
+            : bannerVariant === "danger"
+            ? "rgba(239,68,68,0.08)"
+            : "rgba(251,191,36,0.08)",
+          border: `1px solid ${bannerVariant === "limit" || bannerVariant === "danger" ? "rgba(239,68,68,0.25)" : "rgba(251,191,36,0.2)"}`,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <span style={{
+              fontSize: 12, fontWeight: 600,
+              color: bannerVariant === "limit" || bannerVariant === "danger" ? "rgba(239,68,68,0.9)" : "rgba(251,191,36,0.9)",
+            }}>
+              {bannerVariant === "limit"
+                ? `Limite diário atingido (${dailyLimit}/${dailyLimit})`
+                : `${dailyCount}/${dailyLimit} mensagens hoje`}
+            </span>
+            {bannerVariant === "limit" && !isSubscriptionValid() && (
+              <button
+                onClick={() => navigate("/paywall")}
+                style={{
+                  fontSize: 11, fontWeight: 700, color: "#2563EB",
+                  background: "none", border: "none", cursor: "pointer", padding: 0,
+                }}
+              >
+                Subscrever →
+              </button>
+            )}
+          </div>
+          <div style={{ height: 3, borderRadius: 99, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+            <div style={{
+              height: "100%",
+              width: `${Math.min(usagePct, 100)}%`,
+              borderRadius: 99,
+              background: bannerVariant === "limit" || bannerVariant === "danger" ? "#EF4444" : "#FBBF24",
+              transition: "width 0.3s ease",
+            }} />
+          </div>
+          {bannerVariant === "limit" && (
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
+              {isSubscriptionValid() ? "O limite reinicia à meia-noite." : "Subscreve para aumentar o limite para 50/dia."}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Bottom input bar */}
       <div className="px-4 pb-8 pt-3 safe-area-bottom bg-black">
         {/* Recording indicator */}
@@ -502,8 +594,8 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder={isRecording ? "A gravar..." : "Perguntar ao chat..."}
-            disabled={isLoading || isRecording}
+            placeholder={usagePct >= 100 ? "Limite diário atingido — volta amanhã" : isRecording ? "A gravar..." : "Perguntar ao chat..."}
+            disabled={isLoading || isRecording || usagePct >= 100}
             className="flex-1 bg-transparent text-sm text-[#F3F4F6] placeholder:text-white/30 focus:outline-none disabled:opacity-50" />
           
 
@@ -531,7 +623,7 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
 
           <motion.button
             onClick={() => handleSend()}
-            disabled={!inputValue.trim() || isLoading || isRecording}
+            disabled={!inputValue.trim() || isLoading || isRecording || usagePct >= 100}
             whileTap={{ scale: 0.95 }}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white disabled:opacity-40">
             
