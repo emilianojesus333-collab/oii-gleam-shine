@@ -1,11 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List, Shuffle } from "lucide-react";
+import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List } from "lucide-react";
 import type { PlannedExercise } from "@/hooks/useActiveSession";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { AlternativesSheet } from "@/components/workout/AlternativesSheet";
-import { getAlternativesForExercise } from "@/utils/exerciseAlternatives";
-import type { Equipment, CatalogExercise } from "@/data/exerciseCatalog";
 
 interface ExerciseCardStackProps {
   exercises: PlannedExercise[];
@@ -16,8 +13,6 @@ interface ExerciseCardStackProps {
   onFinish: () => void;
   isCompleting: boolean;
   onUndo?: () => void;
-  availableEquipment?: Equipment[];
-  onSelectAlternative?: (exercise: PlannedExercise, alternative: CatalogExercise) => void;
 }
 
 const SWIPE_THRESHOLD = 100;
@@ -39,7 +34,6 @@ const SwipeableCard = ({
   onSwipeRight,
   onSwipeLeft,
   isTop,
-  onShowAlternatives,
 }: {
   exercise: PlannedExercise;
   index: number;
@@ -47,7 +41,6 @@ const SwipeableCard = ({
   onSwipeRight: () => void;
   onSwipeLeft: () => void;
   isTop: boolean;
-  onShowAlternatives?: () => void;
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
@@ -154,19 +147,6 @@ const SwipeableCard = ({
                   ? "Gerado pela Victoria AI · Controla a fase excêntrica"
                   : "Exercício personalizado"}
               </p>
-              {isTop && onShowAlternatives && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onShowAlternatives(); }}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.2)",
-                    borderRadius: 8, padding: "4px 8px", cursor: "pointer", flexShrink: 0, marginLeft: 8,
-                  }}
-                >
-                  <Shuffle style={{ width: 11, height: 11, color: "#60A5FA" }} />
-                  <span style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>Alternativa</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -226,19 +206,12 @@ export const ExerciseCardStack = ({
   onFinish,
   isCompleting,
   onUndo,
-  availableEquipment = [],
-  onSelectAlternative,
 }: ExerciseCardStackProps) => {
   const remaining = exercises.filter((_, i) => i >= currentIndex);
   const allDone = currentIndex >= exercises.length;
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [altOpen, setAltOpen] = useState(false);
   const [flashVisible, setFlashVisible] = useState(false);
-  const currentExercise = exercises[currentIndex] ?? null;
-  const alternatives = currentExercise
-    ? getAlternativesForExercise(currentExercise.exercise_name, availableEquipment)
-    : [];
 
   const handleSwipeRight = (ex: PlannedExercise, idx: number) => {
     setFlashVisible(true);
@@ -310,7 +283,6 @@ export const ExerciseCardStack = ({
                 isTop={stackIdx === 0}
                 onSwipeRight={() => handleSwipeRight(ex, currentIndex + stackIdx)}
                 onSwipeLeft={() => onSwipeLeft(ex, currentIndex + stackIdx)}
-                onShowAlternatives={stackIdx === 0 ? () => setAltOpen(true) : undefined}
               />
             ))
           )}
@@ -369,20 +341,6 @@ export const ExerciseCardStack = ({
           />
         ))}
       </div>
-
-      {/* Alternatives sheet */}
-      {currentExercise && (
-        <AlternativesSheet
-          open={altOpen}
-          exerciseName={currentExercise.exercise_name}
-          alternatives={alternatives}
-          onClose={() => setAltOpen(false)}
-          onSelect={(alt) => {
-            setAltOpen(false);
-            onSelectAlternative?.(currentExercise, alt);
-          }}
-        />
-      )}
 
       {/* Exercise list link */}
       {!allDone && (
