@@ -33,12 +33,14 @@ const SwipeableCard = ({
   total,
   onSwipeRight,
   onSwipeLeft,
+  isTop,
 }: {
   exercise: PlannedExercise;
   index: number;
   total: number;
   onSwipeRight: () => void;
   onSwipeLeft: () => void;
+  isTop: boolean;
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
@@ -204,19 +206,12 @@ export const ExerciseCardStack = ({
   onFinish,
   isCompleting,
   onUndo,
-  availableEquipment = [],
-  onSelectAlternative,
 }: ExerciseCardStackProps) => {
   const remaining = exercises.filter((_, i) => i >= currentIndex);
   const allDone = currentIndex >= exercises.length;
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [altOpen, setAltOpen] = useState(false);
   const [flashVisible, setFlashVisible] = useState(false);
-  const currentExercise = exercises[currentIndex] ?? null;
-  const alternatives = currentExercise
-    ? getAlternativesForExercise(currentExercise.exercise_name, availableEquipment)
-    : [];
 
   const handleSwipeRight = (ex: PlannedExercise, idx: number) => {
     setFlashVisible(true);
@@ -288,7 +283,6 @@ export const ExerciseCardStack = ({
                 isTop={stackIdx === 0}
                 onSwipeRight={() => handleSwipeRight(ex, currentIndex + stackIdx)}
                 onSwipeLeft={() => onSwipeLeft(ex, currentIndex + stackIdx)}
-                onShowAlternatives={stackIdx === 0 ? () => setAltOpen(true) : undefined}
               />
             ))
           )}
@@ -347,20 +341,6 @@ export const ExerciseCardStack = ({
           />
         ))}
       </div>
-
-      {/* Alternatives sheet */}
-      {currentExercise && (
-        <AlternativesSheet
-          open={altOpen}
-          exerciseName={currentExercise.exercise_name}
-          alternatives={alternatives}
-          onClose={() => setAltOpen(false)}
-          onSelect={(alt) => {
-            setAltOpen(false);
-            onSelectAlternative?.(currentExercise, alt);
-          }}
-        />
-      )}
 
       {/* Exercise list link */}
       {!allDone && (
