@@ -1,11 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence, PanInfo } from "framer-motion";
-import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List, Shuffle } from "lucide-react";
+import { Dumbbell, Check, RotateCcw, ChevronRight, Trophy, List } from "lucide-react";
 import type { PlannedExercise } from "@/hooks/useActiveSession";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { AlternativesSheet } from "@/components/workout/AlternativesSheet";
-import { getAlternativesForExercise } from "@/utils/exerciseAlternatives";
-import type { Equipment, CatalogExercise } from "@/data/exerciseCatalog";
 
 interface ExerciseCardStackProps {
   exercises: PlannedExercise[];
@@ -16,8 +13,6 @@ interface ExerciseCardStackProps {
   onFinish: () => void;
   isCompleting: boolean;
   onUndo?: () => void;
-  availableEquipment?: Equipment[];
-  onSelectAlternative?: (exercise: PlannedExercise, alternative: CatalogExercise) => void;
 }
 
 const SWIPE_THRESHOLD = 100;
@@ -38,16 +33,12 @@ const SwipeableCard = ({
   total,
   onSwipeRight,
   onSwipeLeft,
-  isTop,
-  onShowAlternatives,
 }: {
   exercise: PlannedExercise;
   index: number;
   total: number;
   onSwipeRight: () => void;
   onSwipeLeft: () => void;
-  isTop: boolean;
-  onShowAlternatives?: () => void;
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
@@ -154,19 +145,6 @@ const SwipeableCard = ({
                   ? "Gerado pela Victoria AI · Controla a fase excêntrica"
                   : "Exercício personalizado"}
               </p>
-              {isTop && onShowAlternatives && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onShowAlternatives(); }}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.2)",
-                    borderRadius: 8, padding: "4px 8px", cursor: "pointer", flexShrink: 0, marginLeft: 8,
-                  }}
-                >
-                  <Shuffle style={{ width: 11, height: 11, color: "#60A5FA" }} />
-                  <span style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>Alternativa</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
