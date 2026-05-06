@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Zap, Info } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { useWorkoutNutritionSync } from "@/hooks/useWorkoutNutritionSync";
 
 interface NutritionInsightsProps {
@@ -41,7 +40,6 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
     <div>
       {/* Section title */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 24, marginBottom: 16 }}>
-        <HexBadge label="NU" />
         <h2
           style={{
             fontSize: 20,

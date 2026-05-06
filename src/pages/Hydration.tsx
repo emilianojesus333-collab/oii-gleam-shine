@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Droplets, Minus, Settings2, Info } from 'lucide-react';
-import { HexBadge } from '@/components/ui/HexBadge';
 import { BottomNav } from '@/components/BottomNav';
 import { useAlerts } from '@/hooks/useAlerts';
 import { formatBottleSize, HYDRATION_BOTTLE_SIZES, MAX_HYDRATION_GOAL_LITERS } from '@/lib/hydration';
@@ -96,7 +95,6 @@ const Hydration = () => {
       {/* Header */}
       <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "56px 16px 16px" }} className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <HexBadge label="H₂" />
           <Droplets className="h-5 w-5" style={{ color: CYAN }} />
           <h1 className="text-xl font-bold text-white">Hidratação</h1>
         </div>

@@ -7,7 +7,6 @@ import {
   ReferenceLine,
   YAxis,
 } from "recharts";
-import { HexBadge } from "@/components/ui/HexBadge";
 import type { DailyLog, MacroGoals } from "@/hooks/useNutrition";
 
 type FilterType = "Calorias" | "Proteína" | "Carbs" | "Gordura";
@@ -194,7 +193,6 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
     >
       {/* Section label + title */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-        <HexBadge label="NU" />
         <span
           style={{
             fontSize: 9,

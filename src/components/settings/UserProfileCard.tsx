@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Ruler, Weight, Calendar, Edit2, Check, X, Dumbbell, Camera } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
+import { User, Ruler, Weight, Calendar, Edit2, Check, X, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { Badge } from "@/components/ui/badge";
-import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UserData {
@@ -22,7 +20,6 @@ export const UserProfileCard = () => {
   const { user } = useAuth();
   const { settings, updateSettings } = useUserSettings();
   const { isDeveloper } = useSubscriptionContext();
-  const weeklyStats = useWeeklyStats();
   const [userData, setUserData] = useState<UserData>({
     name: "",
     height: "",
@@ -125,9 +122,6 @@ export const UserProfileCard = () => {
     return null;
   }
 
-  const weeklyWorkouts = weeklyStats?.data?.completedSessions ?? 0;
-  const weeklyVolume = weeklyStats?.data?.totalSets ?? 0;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -138,7 +132,6 @@ export const UserProfileCard = () => {
       {/* Profile Header */}
       <div className="relative px-5 pt-6 pb-5">
         <div className="flex items-center gap-2 mb-3">
-          <HexBadge label="CF" />
           <span className="text-sm font-bold text-foreground">Perfil</span>
         </div>
         <div className="flex items-start gap-4">
@@ -296,29 +289,6 @@ export const UserProfileCard = () => {
         )}
       </AnimatePresence>
 
-      {/* Weekly Stats - Strava-style */}
-      {!isEditing && (
-        <div className="border-t border-border/20 px-5 py-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Dumbbell className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Esta semana</span>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Treinos</p>
-              <p className="text-lg font-bold text-foreground">{weeklyWorkouts}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Séries</p>
-              <p className="text-lg font-bold text-foreground">{weeklyVolume}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Peso</p>
-              <p className="text-lg font-bold text-foreground">{userData.weight ? `${userData.weight}kg` : "—"}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };

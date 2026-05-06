@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Upload, Loader2, Target, TrendingUp, TrendingDown, Dumbbell, Sparkles, Lock, Calendar } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { compressImage } from "@/lib/imageCompression";
@@ -241,7 +240,6 @@ export const PhysiqueEvaluation = () => {
         style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <HexBadge label="CF" />
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
             <Target className="w-5 h-5 text-white" />
           </div>

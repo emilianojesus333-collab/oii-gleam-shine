@@ -26,33 +26,19 @@ function getWorkoutName(workout: string | null, isRestDay: boolean): string {
   return parts.join(" · ");
 }
 
-const muscleChipStyle: Record<string, { bg: string; color: string }> = {
-  "peito":        { bg: "rgba(96,165,250,0.2)",  color: "#60A5FA" },
-  "costas":       { bg: "rgba(167,139,250,0.2)", color: "#A78BFA" },
-  "perna":        { bg: "rgba(74,222,128,0.2)",  color: "#4ADE80" },
-  "ombro":        { bg: "rgba(251,191,36,0.2)",  color: "#FBBF24" },
-  "bícep":        { bg: "rgba(248,113,113,0.2)", color: "#F87171" },
-  "tricep":       { bg: "rgba(251,146,60,0.2)",  color: "#FB923C" },
-  "trícep":       { bg: "rgba(251,146,60,0.2)",  color: "#FB923C" },
-  "core":         { bg: "rgba(236,72,153,0.2)",  color: "#EC4899" },
-};
-const restChipStyle = { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", border: undefined as string | undefined };
+const neutralChip = { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" };
 
 const recoveryChip = {
-  label: "🛋 Descanso ou recuperação ativa",
-  bg: "rgba(251,191,36,0.12)",
-  color: "#FBBF24",
-  border: "1px solid rgba(251,191,36,0.2)",
+  label: "Descanso ou recuperação ativa",
+  bg: "rgba(255,255,255,0.06)",
+  color: "rgba(255,255,255,0.4)",
+  border: "1px solid rgba(255,255,255,0.08)",
 };
 
 function getMuscleChips(workout: string | null): { label: string; bg: string; color: string; border?: string }[] {
   if (!workout) return [];
   const parts = workout.split(/[·•+,]/).map((s) => s.trim()).filter(Boolean);
-  return parts.map((p) => {
-    const key = Object.keys(muscleChipStyle).find((k) => p.toLowerCase().includes(k));
-    const style = key ? muscleChipStyle[key] : restChipStyle;
-    return { label: p, ...style };
-  });
+  return parts.map((p) => ({ label: p, ...neutralChip }));
 }
 
 export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutCardProps) {
@@ -240,15 +226,15 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
         HOJE
       </div>
 
-      {/* Chips de músculos + recuperação */}
+      {/* Chips de músculos + recuperação — máximo 2 visíveis */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-        {muscleChips.map((chip, i) => (
+        {muscleChips.slice(0, 2).map((chip, i) => (
           <span
             key={i}
             style={{
-              padding: "4px 12px",
+              padding: "3px 10px",
               borderRadius: 20,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 700,
               background: chip.bg,
               color: chip.color,
@@ -258,11 +244,23 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
             {chip.label}
           </span>
         ))}
+        {muscleChips.length > 2 && (
+          <span style={{
+            padding: "3px 10px",
+            borderRadius: 20,
+            fontSize: 11,
+            fontWeight: 700,
+            background: "rgba(255,255,255,0.06)",
+            color: "rgba(255,255,255,0.4)",
+          }}>
+            +{muscleChips.length - 2}
+          </span>
+        )}
         {showRecoveryChip && (
           <span style={{
-            padding: "4px 12px",
+            padding: "3px 10px",
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 700,
             background: recoveryChip.bg,
             color: recoveryChip.color,

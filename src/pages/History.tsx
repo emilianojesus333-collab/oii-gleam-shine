@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, TrendingUp, Minus, TrendingDown, Dumbbell, BarChart3, BookOpen } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,7 +101,6 @@ export default function History() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/workout")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <HexBadge label="HI" />
         <h1 className="text-xl font-bold flex-1">Histórico de Treinos</h1>
         <Button
           variant="ghost" size="icon"

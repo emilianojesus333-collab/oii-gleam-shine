@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Calendar,
   Brain,
+  Dumbbell,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -23,7 +24,6 @@ import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { useNutrition } from "@/hooks/useNutrition";
 
 import { supabase } from "@/integrations/supabase/client";
-import { HexBadge } from "@/components/ui/HexBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,7 +110,6 @@ const Settings = () => {
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </motion.button>
           <h1 className="text-xl font-bold text-foreground">Definições</h1>
-          <HexBadge label="CF" />
         </motion.div>
       </div>
 
@@ -173,6 +172,29 @@ const Settings = () => {
             <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
           </button>
 
+          <div className="border-t border-white/[0.06]" />
+
+          {/* Equipamento nav card */}
+          <button
+            onClick={() => navigate("/equipamento")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 14,
+              padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Dumbbell size={18} color="white" />
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>O meu Equipamento</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Alternativas baseadas no teu ginásio</p>
+            </div>
+            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+          </button>
         </motion.div>
 
         {/* ─── Dados ─── */}

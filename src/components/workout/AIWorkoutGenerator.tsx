@@ -16,7 +16,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 interface GeneratedExercise {
   name: string;
@@ -263,7 +262,6 @@ export const AIWorkoutGenerator = ({
     >
       {!hideHeader && (
         <div className="flex items-center gap-3 mb-4">
-          <HexBadge label="IA" />
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white">Treino IA</h3>
             <p className="text-xs text-gray-400">

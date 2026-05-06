@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Brain, Target } from "lucide-react";
 import { AICoaching } from "./AICoaching";
 import { PhysiqueEvaluation } from "./PhysiqueEvaluation";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 const features = [
 { id: 'coaching', title: 'Coaching IA', icon: Brain },
@@ -34,7 +33,6 @@ export const AIFeaturesCarousel = () => {
       {/* Header with navigation */}
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <HexBadge label="IA" />
           <div>
             <h2 className="text-base font-semibold text-foreground">Funcionalidades IA</h2>
             <p className="text-xs text-muted-foreground">Coaching & Avaliação</p>

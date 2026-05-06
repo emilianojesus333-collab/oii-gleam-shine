@@ -594,17 +594,18 @@ const Workout = () => {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setShowExitModal(true)}
-              style={{
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 20, padding: "6px 14px",
-                display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
-              }}
-            >
-              <X size={14} style={{ color: "rgba(255,255,255,0.5)" }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Sair</span>
-            </button>
+            {(isGuidedMode || savedExercises.length > 0) && (
+              <button
+                onClick={() => setShowExitModal(true)}
+                style={{
+                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 20, padding: "6px 14px",
+                  display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>← Voltar</span>
+              </button>
+            )}
           </div>
 
           {/* Row 2: muscle chips */}
@@ -826,7 +827,7 @@ const Workout = () => {
                 cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600, padding: "4px 8px",
               }}
             >
-              🏋️ Calculadora de barbell
+              Calculadora de barbell
             </button>
           </div>
           {showBarbellCalc && (
@@ -1031,37 +1032,24 @@ const Workout = () => {
               style={{ background: "#141414", borderRadius: 20, padding: 24, width: "calc(100% - 32px)", maxWidth: 380 }}
             >
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "white", marginBottom: 8 }}>
-                Sair do treino?
+                Tens a certeza?
               </h3>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20, lineHeight: 1.5 }}>
                 {savedExercises.length > 0
-                  ? `Tens ${savedExercises.length} ${savedExercises.length === 1 ? "exercício registado" : "exercícios registados"}. O que queres fazer?`
-                  : "Ainda não registaste nenhum exercício."}
+                  ? `Tens ${savedExercises.length} ${savedExercises.length === 1 ? "set registado" : "sets registados"}. O que queres fazer?`
+                  : "Ainda não registaste nenhum set."}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {isGuidedMode ? (
-                  <button
-                    onClick={handleReturnToGenerator}
-                    style={{
-                      width: "100%", height: 44, borderRadius: 12,
-                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
-                    }}
-                  >
-                    ↺ Voltar ao gerador
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowExitModal(false)}
-                    style={{
-                      width: "100%", height: 44, borderRadius: 12,
-                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
-                    }}
-                  >
-                    Continuar treino
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowExitModal(false)}
+                  style={{
+                    width: "100%", height: 44, borderRadius: 12,
+                    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                    color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                  }}
+                >
+                  Continuar treino
+                </button>
                 {savedExercises.length > 0 && (
                   <button
                     onClick={handleSaveAndExit}

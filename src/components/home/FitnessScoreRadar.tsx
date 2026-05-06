@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { computeFitnessScore } from "@/hooks/useFitnessScore";
 import { usePerformanceMetrics } from "@/hooks/usePerformanceMetrics";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
@@ -83,7 +82,6 @@ export function FitnessScoreRadar() {
       style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingTop: 8 }}>
-        <HexBadge label="PR" />
         <span style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>Score de Forma</span>
       </div>
       {!hasData ? (

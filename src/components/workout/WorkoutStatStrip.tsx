@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Trophy, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 interface ExercisePR {
   name: string;
@@ -127,7 +126,6 @@ export const WorkoutStatStrip = ({ todayMuscleGroups, todayExerciseNames = [] }:
       style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 0 20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <HexBadge label="PR" size={28} />
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           Recordes Pessoais
         </p>

@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 interface MacroGoals {
   calories: number;
@@ -109,7 +108,7 @@ interface Props {
 export const MealPlanCards = ({ onActivate }: Props) => {
   const { settings, updateSettings } = useUserSettings();
 
-  const storedPlan = (settings?.onboarding_data as unknown as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
+  const storedPlan = (settings?.onboarding_data as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
   const [activePlan, setActivePlan] = useState<string>(storedPlan ?? "definicao");
   const [detailPlan, setDetailPlan] = useState<MealPlan | null>(null);
 
@@ -156,7 +155,6 @@ export const MealPlanCards = ({ onActivate }: Props) => {
     <div>
       {/* Section title */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        <HexBadge label="NU" />
         <h2 style={{ fontSize: 20, fontWeight: 900, color: "white", letterSpacing: "-0.01em", margin: 0 }}>
           Planos Alimentares
         </h2>

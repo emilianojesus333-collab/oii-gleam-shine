@@ -202,7 +202,7 @@ export const UpcomingWorkouts = () => {
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: getMuscleColor(m),
+                      background: "rgba(255,255,255,0.3)",
                       flexShrink: 0,
                     }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{m}</span>
@@ -231,7 +231,7 @@ export const UpcomingWorkouts = () => {
                 <div style={{
                   height: "100%",
                   width: `${day.intensity}%`,
-                  background: day.barColor,
+                  background: day.isToday ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)",
                   borderRadius: 2,
                   transition: "width 0.6s ease",
                 }} />

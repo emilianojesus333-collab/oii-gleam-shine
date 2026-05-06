@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 export function WeeklyProgressCard() {
   const { data, loading } = useWeeklyStats();
@@ -35,7 +34,6 @@ export function WeeklyProgressCard() {
       className="mx-4 mb-3 space-y-3"
     >
       <div className="flex items-center gap-2">
-        <HexBadge label="PR" />
         <h3 className="text-base font-bold text-foreground">Esta semana</h3>
       </div>
 

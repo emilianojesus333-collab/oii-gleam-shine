@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Droplets } from "lucide-react";
 import { useAlerts } from "@/hooks/useAlerts";
 import { formatLiters, roundToOneDecimal } from "@/lib/hydration";
 
 function hydrationContextText(currentIntakeLiters: number, goalLiters: number, pct: number): string {
   const remaining = roundToOneDecimal(Math.max(0, goalLiters - currentIntakeLiters));
-  if (pct >= 100) return "Objetivo atingido! Excelente hidratação hoje. 💧";
+  if (pct >= 100) return "Objetivo atingido! Excelente hidratação hoje.";
   if (pct > 70)   return `Quase lá! Faltam apenas ${formatLiters(remaining)}L para atingir o objetivo.`;
   if (pct >= 30)  return `Estás a ${formatLiters(remaining)}L do objetivo diário de ${formatLiters(goalLiters)}L.`;
   return `Ainda precisas de ${formatLiters(remaining)}L — começa a beber agora.`;
@@ -54,7 +55,7 @@ export const HydrationWidget = () => {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>💧</span>
+          <Droplets size={18} color="#60A5FA" />
           <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Hidratação</span>
         </div>
         <button
