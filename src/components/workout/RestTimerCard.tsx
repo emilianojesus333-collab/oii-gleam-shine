@@ -112,7 +112,7 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
           if (!hasNotifiedRef.current) {
             hasNotifiedRef.current = true;
             notifyTimerEnd();
-            toast.success("Tempo de descanso terminado! 💪");
+            toast.success("Tempo de descanso terminado!");
           }
           return 0;
         }

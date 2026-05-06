@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Send, ArrowLeft, Loader2, MicOff, Volume2, Activity, Clock, Menu, AudioLines } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { motion } from "framer-motion";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { ChatHistorySheet } from "@/components/chat/ChatHistorySheet";
@@ -371,7 +370,6 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
         </button>
 
         <div className="flex items-center gap-2">
-          <HexBadge label="CH" size={30} />
           <Activity className="h-4 w-4 text-[#F3F4F6]" />
           <h1 className="text-base font-semibold text-[#F3F4F6]">{aiName} AI</h1>
         </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Sparkles, Loader2, Lightbulb, TrendingUp, Dumbbell, Moon, RefreshCw, ChevronRight, Target, Scale, Zap, Check } from "lucide-react";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/supabaseHelpers";
 import { getWorkoutStats } from "@/data/workoutHistory";
@@ -335,7 +334,6 @@ export const AICoaching = () => {
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <HexBadge label="IA" />
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
             <Brain className="w-5 h-5 text-white" />
           </div>

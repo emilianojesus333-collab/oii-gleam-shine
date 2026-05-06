@@ -6,7 +6,7 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Level = 1 | 2;
+type Level = 1 | 2 | 3;
 
 interface MuscleEntry {
   name: string;
@@ -18,21 +18,25 @@ interface MuscleEntry {
 const LEVEL_COLOR: Record<Level, string> = {
   1: "#F87171",
   2: "#FBBF24",
+  3: "#60A5FA",
 };
 
 const LEVEL_BG: Record<Level, string> = {
   1: "rgba(248,113,113,0.15)",
   2: "rgba(251,191,36,0.15)",
+  3: "rgba(96,165,250,0.15)",
 };
 
 const LEVEL_BORDER: Record<Level, string> = {
   1: "rgba(248,113,113,0.3)",
   2: "rgba(251,191,36,0.3)",
+  3: "rgba(96,165,250,0.3)",
 };
 
 const LEVEL_LABEL: Record<Level, string> = {
   1: "Músculo principal",
   2: "Músculo secundário",
+  3: "Músculo de suporte",
 };
 
 const DAYS_FULL = [
@@ -61,6 +65,8 @@ const COLUMNS: { header: string; muscles: MuscleEntry[] }[] = [
     muscles: [
       { name: "Peito", level: 1 },
       { name: "Ombros", level: 2 },
+      { name: "Tríceps", level: 3 },
+      { name: "Bíceps", level: 3 },
     ],
   },
   {
@@ -69,12 +75,15 @@ const COLUMNS: { header: string; muscles: MuscleEntry[] }[] = [
       { name: "Costas", level: 1 },
       { name: "Trapézio", level: 2 },
       { name: "Lombar", level: 2 },
+      { name: "Antebraços", level: 3 },
     ],
   },
   {
     header: "Core",
     muscles: [
       { name: "Abdominais", level: 2 },
+      { name: "Oblíquos", level: 3 },
+      { name: "Transverso", level: 3 },
     ],
   },
   {
@@ -84,6 +93,7 @@ const COLUMNS: { header: string; muscles: MuscleEntry[] }[] = [
       { name: "Posteriores", level: 1 },
       { name: "Glúteos", level: 1 },
       { name: "Panturrilhas", level: 2 },
+      { name: "Adutores", level: 3 },
     ],
   },
 ];
@@ -194,6 +204,7 @@ export const WeeklyPlanCalendar = () => {
             {([
               { color: "#F87171", label: "Principal" },
               { color: "#FBBF24", label: "Secundário" },
+              { color: "#60A5FA", label: "Suporte" },
             ] as const).map((item) => (
               <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <div

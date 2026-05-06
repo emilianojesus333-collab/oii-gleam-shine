@@ -4,7 +4,6 @@ import { ArrowLeft, TrendingUp, Minus, TrendingDown, Dumbbell } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { useWorkoutSession } from "@/hooks/useWorkoutSession";
 import { PerformanceScoreCard } from "@/components/workout/PerformanceScoreCard";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 const decisionConfig = {
   progress: { label: "Progredir", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
@@ -71,7 +70,6 @@ export default function WorkoutSummary() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/history")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <HexBadge label="TR" />
         <div>
           <h1 className="text-xl font-bold">Resumo do Treino</h1>
           <p className="text-xs text-muted-foreground">

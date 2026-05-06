@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 function pctChange(current: number, previous: number): number {
   if (previous === 0) return current > 0 ? 100 : 0;
@@ -35,7 +34,6 @@ export function WeeklyStatsGrid() {
         style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
-          <HexBadge label="PR" size={22} />
           <BarChart3 className="h-3.5 w-3.5 text-[#06B6D4]" />
           <h4 className="text-[10px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
             Volume
@@ -81,7 +79,6 @@ export function WeeklyStatsGrid() {
         style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
-          <HexBadge label="PR" size={22} />
           <TrendingUp className="h-3.5 w-3.5 text-[#22C55E]" />
           <h4 className="text-[10px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
             Tendência

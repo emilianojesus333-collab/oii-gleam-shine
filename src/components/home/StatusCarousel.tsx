@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Clock, Dumbbell, Droplets, BarChart2, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { HexBadge } from "@/components/ui/HexBadge";
 import { useMuscleFatigue, getMuscleLabel } from "@/hooks/useMuscleFatigue";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
@@ -162,7 +161,6 @@ export const StatusCarousel = () => {
               {/* Recovery in progress */}
               <div style={{ ...CARD_STYLE, minHeight: 160 }}>
                 <div className="flex items-center gap-3 mb-4">
-                  <HexBadge label="RC" />
                   <p className="text-sm font-bold text-white">Recuperação em progresso</p>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -227,7 +225,6 @@ export const StatusCarousel = () => {
                   className="cursor-pointer"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <HexBadge label="RC" />
                     <p className="text-sm font-bold text-white">Fadiga elevada detectada</p>
                   </div>
                   <div className="space-y-2 mb-3">

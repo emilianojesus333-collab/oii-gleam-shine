@@ -28,7 +28,7 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const updated = { ...((current?.onboarding_data as Record<string, any>) || {}), schedule: data };
+      const updated = { ...(current?.onboarding_data || {}), schedule: data };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "updateSchedule", message: "Calendário atualizado com sucesso!" };
     }
@@ -40,10 +40,10 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const schedule = ((current?.onboarding_data as Record<string, any>)?.schedule as Record<string, any>) || {};
+      const schedule = current?.onboarding_data?.schedule || {};
       schedule[to] = schedule[from];
       schedule[from] = ["Descanso"];
-      const updated = { ...((current?.onboarding_data as Record<string, any>) || {}), schedule };
+      const updated = { ...(current?.onboarding_data || {}), schedule };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "rescheduleWorkout", message: `Treino movido de ${from} para ${to}!` };
     }

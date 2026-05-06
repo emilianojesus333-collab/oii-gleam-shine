@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { BatteryCharging, Battery, BatteryMedium, BatteryWarning, BatteryFull } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 interface FatigueIndexCardProps {
   score: number | null | undefined;
@@ -73,7 +72,6 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
         style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
       >
         <div className="flex items-center gap-2 mb-3">
-          <HexBadge label="PR" />
           <h2 className="font-semibold text-sm">Estado de Recuperação</h2>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -95,7 +93,6 @@ export function FatigueIndexCard({ score }: FatigueIndexCardProps) {
       style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", margin: 0 }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <HexBadge label="PR" />
         <h2 className="font-semibold text-sm">Estado de Recuperação</h2>
       </div>
 

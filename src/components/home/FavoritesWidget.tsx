@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { Heart, Apple, ChevronRight } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useNavigate } from 'react-router-dom';
-import { HexBadge } from '@/components/ui/HexBadge';
 
 export const FavoritesWidget = () => {
   const { favorites, totalFavorites } = useFavorites();
@@ -33,7 +32,6 @@ export const FavoritesWidget = () => {
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">
-          <HexBadge label="NU" size={28} />
           Favoritos Rápidos
         </h3>
         <motion.button

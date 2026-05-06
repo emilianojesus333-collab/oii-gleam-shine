@@ -5,7 +5,6 @@ import { Sparkles, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
-import { HexBadge } from "@/components/ui/HexBadge";
 
 // Get user-specific storage key
 const getStorageKey = (userId?: string) => userId ? `liftmate_name_banner_dismissed_${userId}` : null;
@@ -66,7 +65,6 @@ export const NameAIBanner = () => {
           </button>
 
           <div className="flex items-start gap-4">
-            <HexBadge label="IA" size={42} />
             
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-foreground mb-1">

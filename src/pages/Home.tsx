@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { TodayWorkoutCard } from "@/components/home/TodayWorkoutCard";
 import { UpcomingWorkouts } from "@/components/home/UpcomingWorkouts";
-import { NameAIBanner } from "@/components/home/NameAIBanner";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
@@ -186,7 +185,6 @@ const Home = () => {
 
       {/* Content */}
       <main className="relative z-10 flex-1">
-        <NameAIBanner />
 
         {/* Weekly Date Strip */}
         <div className="px-4 pb-2">

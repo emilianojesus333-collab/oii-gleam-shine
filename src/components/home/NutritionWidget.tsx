@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Apple } from "lucide-react";
 import { useNutrition } from "@/hooks/useNutrition";
 
 function nutritionContextText(proteinEaten: number, proteinGoal: number, hasMeals: boolean): string {
@@ -57,7 +58,7 @@ export const NutritionWidget = () => {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>🍎</span>
+          <Apple size={18} color="#4ADE80" />
           <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Nutrição hoje</span>
         </div>
         <button

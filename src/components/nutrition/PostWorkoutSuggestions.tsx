@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Clock, Sparkles, Loader2 } from 'lucide-react';
-import { HexBadge } from "@/components/ui/HexBadge";
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -117,7 +116,6 @@ export const PostWorkoutSuggestions = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
-        <HexBadge label="TR" />
         <h3 className="font-semibold text-white text-sm">Recuperação Pós-Treino</h3>
         <Sparkles style={{ width: 12, height: 12, color: '#60A5FA' }} />
       </div>

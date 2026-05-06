@@ -16,7 +16,6 @@ import { PostWorkoutSuggestions } from '@/components/nutrition/PostWorkoutSugges
 import { MealSuggestionsSection } from '@/components/nutrition/MealSuggestionsSection';
 import { NutritionInsights } from '@/components/nutrition/NutritionInsights';
 import { useWorkoutNutritionSync } from '@/hooks/useWorkoutNutritionSync';
-import { HexBadge } from '@/components/ui/HexBadge';
 import { FoodSearchSheet } from '@/components/nutrition/FoodSearchSheet';
 import { CustomMealsSection } from '@/components/nutrition/CustomMealsSection';
 import type { CustomMealFood } from '@/utils/customMeals';
@@ -219,7 +218,6 @@ const Nutrition = () => {
         {/* Today's meals */}
         <div style={{ background: "#1A1A1A", borderRadius: 0, border: "none", borderBottom: "1px solid #2A2A2A", padding: "20px 16px", width: "100%", marginTop: 12, marginBottom: 12 }}>
           <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
-            <HexBadge label="NU" size={28} />
             <Utensils className="w-4 h-4" />
             Refeições de Hoje
           </h3>
