@@ -84,6 +84,103 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 // ── Page ───────────────────────────────────────────────────────────────
+const DAYS_ORDER = [
+  "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira",
+  "Sexta-feira", "Sábado", "Domingo",
+];
+
+function SuggestedPlanCard({
+  plan, reason, userId,
+}: { plan: WeeklyPlan; reason?: string; userId: string }) {
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState(false);
+
+  const handleApply = async () => {
+    setApplying(true);
+    const ok = await updateWeeklyPlan(userId, plan);
+    setApplying(false);
+    if (ok) {
+      setApplied(true);
+      toast.success("Plano semanal atualizado com sucesso!");
+    } else {
+      toast.error("Não foi possível atualizar o plano.");
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.75 }}
+      style={{
+        background: "rgba(37,99,235,0.06)",
+        border: "1px solid rgba(37,99,235,0.2)",
+        borderRadius: 16, padding: 16, marginBottom: 12,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        <Sparkles size={16} color="#60A5FA" />
+        <span style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Plano sugerido pela IA</span>
+      </div>
+      {reason && (
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 12 }}>
+          {reason}
+        </p>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+        {DAYS_ORDER.map((day) => {
+          const value: DayPlan | undefined = plan[day];
+          const isRest = !value || value === "descanso";
+          return (
+            <div key={day} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+              <span style={{ width: 92, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>{day}</span>
+              {isRest ? (
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>Descanso</span>
+              ) : (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ color: "#4ADE80", fontWeight: 700 }}>
+                    {(value as { principal: string }).principal}
+                  </span>
+                  {(value as { secundario?: string | null }).secundario && (
+                    <span style={{ color: "#60A5FA", fontWeight: 700 }}>
+                      + {(value as { secundario: string }).secundario}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          disabled={applying}
+          style={{
+            flex: 1, height: 42, borderRadius: 12,
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 700,
+            cursor: "pointer",
+          }}
+          onClick={() => toast("Plano atual mantido.")}
+        >
+          Manter atual
+        </button>
+        <button
+          disabled={applying || applied}
+          onClick={handleApply}
+          style={{
+            flex: 1, height: 42, borderRadius: 12, border: "none",
+            background: applied ? "#16A34A" : "#2563EB", color: "#fff",
+            fontSize: 13, fontWeight: 700, cursor: applying ? "wait" : "pointer",
+          }}
+        >
+          {applied ? "Aplicado" : applying ? "A aplicar..." : "Aplicar este plano"}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 const AvaliacaoFisica = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
