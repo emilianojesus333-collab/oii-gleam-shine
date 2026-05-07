@@ -4,7 +4,7 @@ import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, hasCompletedOnboarding, isLoading } = useOnboardingStatus();
+  const { isAuthenticated, hasCompletedOnboarding, isLoading, session } = useOnboardingStatus();
   const [timedOut, setTimedOut] = useState(false);
 
   // Timeout: if loading takes more than 8s, show error
@@ -28,8 +28,18 @@ const Index = () => {
       return;
     }
 
+    const userId = session?.user?.id;
+    const hasInitialEval = userId
+      ? localStorage.getItem(`liftmate_initial_evaluation_done_${userId}`)
+      : true;
+
+    if (!hasInitialEval) {
+      navigate("/avaliacao-inicial", { replace: true });
+      return;
+    }
+
     navigate("/home", { replace: true });
-  }, [isLoading, isAuthenticated, hasCompletedOnboarding, navigate]);
+  }, [isLoading, isAuthenticated, hasCompletedOnboarding, session, navigate]);
 
   if (timedOut) {
     return (
