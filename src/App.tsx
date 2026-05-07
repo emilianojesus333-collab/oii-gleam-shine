@@ -45,6 +45,7 @@ import ExerciseLibrary from "./pages/ExerciseLibrary";
 import PlanoSemanal from "./pages/PlanoSemanal";
 import ChatIA from "./pages/ChatIA";
 import MeuEquipamento from "./pages/MeuEquipamento";
+import AvaliacaoInicial from "./pages/AvaliacaoInicial";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -220,6 +221,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireSubscription>
                   <MeuEquipamento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/avaliacao-inicial"
+              element={
+                <ProtectedRoute requireOnboarding>
+                  <AvaliacaoInicial />
                 </ProtectedRoute>
               }
             />
