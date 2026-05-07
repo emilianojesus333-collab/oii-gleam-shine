@@ -11,6 +11,7 @@ import { compressImage } from "@/lib/imageCompression";
 import { useAuth } from "@/hooks/useAuth";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
+import { updateWeeklyPlan, type WeeklyPlan, type DayPlan } from "@/utils/weeklyPlanManager";
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface MuscleAnalysis {
@@ -38,6 +39,8 @@ interface PhysiqueAnalysis {
     weaknesses: MuscleAnalysis[];
     recommendations: Recommendation[];
     motivationalMessage: string;
+    suggestedPlan?: WeeklyPlan;
+    planReason?: string;
   };
 }
 
