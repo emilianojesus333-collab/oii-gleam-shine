@@ -40,10 +40,11 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const schedule = current?.onboarding_data?.schedule || {};
-      schedule[to] = schedule[from];
+      const ob = (current?.onboarding_data as Record<string, unknown> | null) || {};
+      const schedule = ((ob.schedule as Record<string, string[]>) || {});
+      schedule[to] = schedule[from] || [];
       schedule[from] = ["Descanso"];
-      const updated = { ...(current?.onboarding_data || {}), schedule };
+      const updated = { ...ob, schedule };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "rescheduleWorkout", message: `Treino movido de ${from} para ${to}!` };
     }
