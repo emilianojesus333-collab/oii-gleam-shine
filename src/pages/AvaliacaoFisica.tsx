@@ -603,6 +603,15 @@ const AvaliacaoFisica = () => {
                 </motion.div>
               )}
 
+              {/* Plano sugerido pela IA */}
+              {results.analysis.suggestedPlan && user?.id && (
+                <SuggestedPlanCard
+                  plan={results.analysis.suggestedPlan}
+                  reason={results.analysis.planReason}
+                  userId={user.id}
+                />
+              )}
+
               {/* Fechar */}
               <button onClick={() => setShowResults(false)}
                 style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 16 }}>
