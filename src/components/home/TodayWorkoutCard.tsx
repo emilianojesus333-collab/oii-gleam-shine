@@ -271,33 +271,6 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
         )}
       </div>
 
-      {/* Dica dinâmica da IA — typewriter */}
-      <div
-        style={{
-          fontSize: 11,
-          fontStyle: "italic",
-          color: "rgba(255,255,255,0.50)",
-          fontWeight: 500,
-          lineHeight: 1.5,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical" as const,
-          overflow: "hidden",
-          marginBottom: 4,
-          minHeight: 16,
-        }}
-      >
-        {displayedTip}
-        {showCursor && (
-          <motion.span
-            animate={{ opacity: [1, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
-            style={{ marginLeft: 1, fontStyle: "normal", fontWeight: 400 }}
-          >
-            |
-          </motion.span>
-        )}
-      </div>
 
       {/* Assinatura do assistente */}
       <div
