@@ -19,7 +19,7 @@ interface CustomMealsSectionProps {
 
 const MacroPill = ({ label, color, bg }: { label: string; color: string; bg: string }) => (
   <span style={{
-    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
     color, background: bg,
   }}>
     {label}
@@ -113,7 +113,7 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <ChefHat size={18} color="rgba(255,255,255,0.6)" />
+          <ChefHat size={18} color="rgba(255,255,255,0.70)" />
           <span style={{ fontSize: 14, fontWeight: 800, color: "white" }}>As minhas refeições</span>
         </div>
 
@@ -146,7 +146,7 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
               background: "rgba(37,99,235,0.06)", border: "1px solid rgba(37,99,235,0.15)",
               borderRadius: 12, padding: "14px",
             }}>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8, fontWeight: 600 }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginBottom: 8, fontWeight: 600 }}>
                 NOME DA REFEIÇÃO
               </p>
               <div style={{ display: "flex", gap: 8 }}>
@@ -158,7 +158,7 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
                   onKeyDown={(e) => e.key === "Enter" && handleSaveCurrent()}
                   style={{
                     flex: 1, padding: "10px 12px", borderRadius: 10,
-                    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
                     color: "white", fontSize: 13, outline: "none",
                   }}
                 />
@@ -187,13 +187,13 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
       {/* List */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}>
-          <Loader2 size={20} color="rgba(255,255,255,0.3)" className="animate-spin" />
+          <Loader2 size={20} color="rgba(255,255,255,0.30)" className="animate-spin" />
         </div>
       ) : meals.length === 0 ? (
         <div style={{ textAlign: "center", padding: "20px 0" }}>
-          <ChefHat size={28} color="rgba(255,255,255,0.12)" style={{ margin: "0 auto 8px" }} />
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>Ainda sem refeições guardadas</p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>
+          <ChefHat size={28} color="rgba(255,255,255,0.15)" style={{ margin: "0 auto 8px" }} />
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)" }}>Ainda sem refeições guardadas</p>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>
             Adiciona alimentos e usa "Guardar atual" para criar a primeira.
           </p>
         </div>
@@ -203,12 +203,12 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
             <div key={meal.id} style={{
               background: "#141414", borderRadius: 12,
               padding: "12px 14px",
-              border: "1px solid rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.07)",
             }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 800, color: "white", marginBottom: 2 }}>{meal.name}</p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                     {meal.foods.length} alimento{meal.foods.length !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
                   onClick={() => handleDelete(meal.id, meal.name)}
                   style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
                 >
-                  <Trash2 size={14} color="rgba(255,255,255,0.25)" />
+                  <Trash2 size={14} color="rgba(255,255,255,0.30)" />
                 </button>
               </div>
 
@@ -233,8 +233,8 @@ export const CustomMealsSection = ({ userId, currentFoods = [], onUseMeal }: Cus
                 onClick={() => handleUseMeal(meal)}
                 style={{
                   width: "100%", padding: "9px 0", borderRadius: 10,
-                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
+                  color: "rgba(255,255,255,0.70)", fontSize: 12, fontWeight: 700, cursor: "pointer",
                 }}
               >
                 Usar esta refeição

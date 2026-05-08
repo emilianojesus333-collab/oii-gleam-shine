@@ -114,6 +114,10 @@ interface CacheEntry {
 const localCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Module-level guard: prevents multiple useNutrition() instances from
+// firing simultaneous Supabase fetches for the same user
+const globalSyncingUsers = new Set<string>();
+
 const getCached = <T>(key: string): T | null => {
   const entry = localCache.get(key);
   if (entry && Date.now() < entry.expiresAt) {
@@ -263,14 +267,13 @@ export const useNutrition = () => {
   }, [user?.id]);
 
   const hasShownAchievementRef = useRef<Set<string>>(new Set(state.notifiedAchievements));
-  const syncInProgressRef = useRef(false);
 
   // Sync with Supabase when user is logged in
   useEffect(() => {
-    if (!user || syncInProgressRef.current) return;
+    if (!user || globalSyncingUsers.has(user.id)) return;
 
     const syncWithSupabase = async () => {
-      syncInProgressRef.current = true;
+      globalSyncingUsers.add(user.id);
       setState(prev => ({ ...prev, loading: true }));
 
       try {
@@ -363,7 +366,7 @@ export const useNutrition = () => {
       } catch (error) {
         console.error('Error syncing nutrition:', error);
       } finally {
-        syncInProgressRef.current = false;
+        globalSyncingUsers.delete(user.id);
         setState(prev => ({ ...prev, loading: false }));
       }
     };

@@ -103,10 +103,10 @@ export const MacroRings = ({ goals, consumed, progress }: MacroRingProps) => {
                 style={{
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                   padding: "0 12px",
-                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.1)" : "none",
+                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.15)" : "none",
                 }}
               >
-                <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", margin: 0 }}>{label}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.50)", margin: 0 }}>{label}</p>
                 <div style={{ width: "100%", height: 3, borderRadius: 2, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
                   <motion.div
                     style={{ height: "100%", borderRadius: 2, backgroundColor: isOver ? "hsl(0, 84%, 60%)" : "#4ADE80" }}

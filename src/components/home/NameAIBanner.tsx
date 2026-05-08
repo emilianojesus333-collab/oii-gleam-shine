@@ -54,7 +54,7 @@ export const NameAIBanner = () => {
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
           className="mx-4 mb-3 relative overflow-hidden"
-          style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+          style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
         >
           {/* Dismiss button */}
           <button

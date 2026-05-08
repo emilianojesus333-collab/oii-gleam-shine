@@ -13,6 +13,12 @@ import {
   ArrowUp,
   Sparkles,
   X,
+  Power,
+  AlignLeft,
+  Footprints,
+  Timer,
+  Droplets,
+  BarChart2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -69,7 +75,7 @@ const MUSCLE_COLOR: Record<string, string> = {
   Ombros: "#FBBF24",
   Bíceps: "#F87171",
   Peito: "#60A5FA",
-  Pernas: "#34D399",
+  Pernas: "#4ADE80",
   Tríceps: "#FB923C",
   Abdominais: "#22D3EE",
 };
@@ -79,7 +85,7 @@ const MUSCLE_BG: Record<string, string> = {
   Ombros: "rgba(251,191,36,0.15)",
   Bíceps: "rgba(248,113,113,0.15)",
   Peito: "rgba(96,165,250,0.15)",
-  Pernas: "rgba(52,211,153,0.15)",
+  Pernas: "rgba(74,222,128,0.15)",
   Tríceps: "rgba(251,146,60,0.15)",
   Abdominais: "rgba(34,211,238,0.15)",
 };
@@ -106,6 +112,7 @@ const Workout = () => {
   const [sets, setSets] = useState("3");
   const [restTime, setRestTime] = useState("90");
   const [savedExercises, setSavedExercises] = useState<ExerciseLog[]>([]);
+  const savedExercisesRef = useRef<ExerciseLog[]>([]); // Always up-to-date mirror — avoids stale closures in setTimeout
   const [workoutItems, setWorkoutItems] = useState<WorkoutItem[]>([]);
   const [showRestTimer, setShowRestTimer] = useState(false);
   const restAutoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -180,7 +187,10 @@ const Workout = () => {
     const history = getWorkoutHistory(user.id);
     const today = new Date().toISOString().split("T")[0];
     const todaySession = history.sessions.find((s) => s.date === today);
-    if (todaySession?.exerciseLogs) setSavedExercises(todaySession.exerciseLogs);
+    if (todaySession?.exerciseLogs) {
+      savedExercisesRef.current = todaySession.exerciseLogs;
+      setSavedExercises(todaySession.exerciseLogs);
+    }
   }, [user]);
 
   // Populate AI exercises into workoutItems once
@@ -330,6 +340,7 @@ const Workout = () => {
       timestamp: Date.now(),
     };
     const updatedExercises = [...savedExercises, newLog];
+    savedExercisesRef.current = updatedExercises; // Sync ref immediately — avoids stale closure in handleCompleteWorkout
     setSavedExercises(updatedExercises);
 
     // Update unified list
@@ -449,8 +460,8 @@ const Workout = () => {
     const fallbackExercises = doneItems.map((i) => ({
       name: i.name, weight: i.weight, reps: parseInt(i.reps) || 0, sets: i.sets,
     }));
-    const finalExercises = savedExercises.length > 0
-      ? savedExercises.map((e) => ({ name: e.name, weight: e.weight, reps: e.reps, sets: e.sets }))
+    const finalExercises = savedExercisesRef.current.length > 0
+      ? savedExercisesRef.current.map((e) => ({ name: e.name, weight: e.weight, reps: e.reps, sets: e.sets }))
       : fallbackExercises;
 
     if (finalExercises.length === 0) {
@@ -505,8 +516,8 @@ const Workout = () => {
       }
 
       const durationMin = Math.round((Date.now() - workoutStartRef.current) / 60000);
-      const totalSets = savedExercises.reduce((acc, e) => acc + e.sets, 0);
-      const totalReps = savedExercises.reduce((acc, e) => acc + e.reps * e.sets, 0);
+      const totalSets = savedExercisesRef.current.reduce((acc, e) => acc + e.sets, 0);
+      const totalReps = savedExercisesRef.current.reduce((acc, e) => acc + e.reps * e.sets, 0);
       const muscleGroups = activeSession?.muscle_groups || todayWorkout?.split(" + ") || [];
 
       navigate("/workout-complete", {
@@ -531,6 +542,40 @@ const Workout = () => {
   };
 
   const isRestDay = !todayWorkout || todayWorkout === "Descanso";
+
+  // Weekly stats for rest day screen
+  const weeklyWorkouts = useMemo(() => {
+    if (!user) return null;
+    const history = getWorkoutHistory(user.id);
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    return history.sessions.filter((s) => s.date >= weekStartStr && s.status === "completed").length;
+  }, [user]);
+
+  const weeklyVolume = useMemo(() => {
+    if (!user) return null;
+    const history = getWorkoutHistory(user.id);
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    const vol = history.sessions
+      .filter((s) => s.date >= weekStartStr && s.status === "completed")
+      .reduce((acc, s) => acc + (s.exerciseLogs?.reduce((a, e) => a + e.sets.reduce((b, st) => b + (st.weight || 0) * (st.reps || 0), 0), 0) || 0), 0);
+    return vol > 0 ? Math.round(vol) : null;
+  }, [user]);
+
+  const consistencyPct = useMemo(() => {
+    if (!user) return null;
+    const history = getWorkoutHistory(user.id);
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+    const daysInMonth = now.getDate();
+    const completed = history.sessions.filter((s) => s.date >= monthStart && s.status === "completed").length;
+    return Math.round((completed / Math.max(daysInMonth / 2, 1)) * 100);
+  }, [user]);
 
   const hasScheduleSet = useMemo(() => {
     const schedule = settings?.onboarding_data?.schedule || {};
@@ -571,7 +616,7 @@ const Workout = () => {
       <div style={{
         position: "sticky", top: 0, zIndex: 40,
         background: "#000",
-        borderBottom: totalCount > 0 ? "1px solid rgba(255,255,255,0.06)" : "none",
+        borderBottom: totalCount > 0 ? "1px solid rgba(255,255,255,0.07)" : "none",
         paddingTop: isOnline ? 52 : 84,
       }}>
         <div style={{ padding: "0 20px 12px" }}>
@@ -579,7 +624,7 @@ const Workout = () => {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <p style={{
-                fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
+                fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)",
                 letterSpacing: "0.1em", textTransform: "uppercase", margin: 0,
               }}>
                 {weekDaysMap[new Date().getDay()]}
@@ -598,12 +643,12 @@ const Workout = () => {
               <button
                 onClick={() => setShowExitModal(true)}
                 style={{
-                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.07)",
                   borderRadius: 20, padding: "6px 14px",
                   display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>← Voltar</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.50)" }}>← Voltar</span>
               </button>
             )}
           </div>
@@ -614,8 +659,8 @@ const Workout = () => {
               {todayMuscleGroups.map((mg) => (
                 <span key={mg} style={{
                   padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
-                  background: MUSCLE_BG[mg] ?? "rgba(255,255,255,0.08)",
-                  color: MUSCLE_COLOR[mg] ?? "rgba(255,255,255,0.6)",
+                  background: MUSCLE_BG[mg] ?? "rgba(255,255,255,0.07)",
+                  color: MUSCLE_COLOR[mg] ?? "rgba(255,255,255,0.70)",
                 }}>
                   {mg}
                 </span>
@@ -626,7 +671,7 @@ const Workout = () => {
           {/* Row 3: progress count */}
           {totalCount > 0 && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>
                 {doneCount} de {totalCount} concluídos
               </span>
               <span style={{ fontSize: 11, color: "#4ADE80", fontWeight: 700 }}>
@@ -638,7 +683,7 @@ const Workout = () => {
 
         {/* 3px progress bar */}
         {totalCount > 0 && (
-          <div style={{ height: 3, background: "rgba(255,255,255,0.06)", width: "100%" }}>
+          <div style={{ height: 3, background: "rgba(255,255,255,0.07)", width: "100%" }}>
             <motion.div
               style={{ height: "100%", background: "#4ADE80" }}
               initial={{ width: 0 }}
@@ -670,27 +715,117 @@ const Workout = () => {
 
       {/* ── REST DAY ── */}
       {isRestDay ? (
-        <div>
-          <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "20px 16px" }}>
-            <button disabled style={{
-              width: "100%", height: 44, borderRadius: 14,
-              background: "linear-gradient(90deg, #1D4ED8, #2563EB)",
-              border: "none", color: "white", fontWeight: 700, fontSize: 14,
-              opacity: 0.4, cursor: "not-allowed", pointerEvents: "none",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: 90 }}>
+
+          {/* Hero card */}
+          <div style={{
+            margin: "16px 16px 0",
+            background: "rgba(99,102,241,0.08)",
+            border: "1px solid rgba(99,102,241,0.18)",
+            borderRadius: 20, padding: 18,
+            display: "flex", alignItems: "center", gap: 14,
+          }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: "rgba(99,102,241,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <Sparkles style={{ width: 18, height: 18 }} />
-              Gerar treino
-            </button>
-          </div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-6">
-              <Target className="w-10 h-10 text-muted-foreground/50" />
+              <Power size={22} strokeWidth={1.8} color="rgba(167,139,250,0.85)" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground/70 mb-2">Recuperação ativa</h3>
-            <p className="text-muted-foreground max-w-xs mx-auto">O descanso é parte do treino. Aproveita para recuperar.</p>
-          </motion.div>
-        </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(167,139,250,0.65)", textTransform: "uppercase", marginBottom: 3 }}>
+                Hoje
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 3 }}>Recuperação ativa</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", lineHeight: 1.45 }}>
+                O descanso é parte do treino. O teu corpo cresce enquanto recupera.
+              </div>
+            </div>
+          </div>
+
+          {/* CTA — criar treino para amanhã */}
+          <button
+            onClick={() => navigate("/chat")}
+            style={{
+              margin: "14px 16px 0", width: "calc(100% - 32px)",
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              borderRadius: 16, padding: "16px 18px",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              border: "none", cursor: "pointer",
+              boxShadow: "0 8px 24px rgba(37,99,235,0.25)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{
+                width: 40, height: 40, background: "rgba(255,255,255,0.15)",
+                borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Sparkles size={18} color="#fff" />
+              </div>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.50)", textTransform: "uppercase", marginBottom: 3 }}>
+                  Buddy IA
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Criar treino para amanhã</div>
+              </div>
+            </div>
+            <ChevronRight size={18} color="rgba(255,255,255,0.70)" />
+          </button>
+
+          {/* Recovery activities grid */}
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.30)", textTransform: "uppercase", padding: "18px 16px 8px" }}>
+            Recuperação ativa
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px" }}>
+            {([
+              { icon: AlignLeft,  label: "Alongamentos",   dur: "10–15 min"  },
+              { icon: Footprints, label: "Caminhada leve", dur: "20–30 min"  },
+              { icon: Timer,      label: "Respiração",     dur: "5 min"      },
+              { icon: Droplets,   label: "Hidratação",     dur: "Meta: 2.5L" },
+            ] as const).map(({ icon: Icon, label, dur }) => (
+              <div key={label} style={{
+                background: "#141414", border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 16, padding: 14,
+                display: "flex", flexDirection: "column", gap: 10,
+              }}>
+                <div style={{
+                  width: 38, height: 38, background: "rgba(255,255,255,0.04)",
+                  borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <Icon size={17} strokeWidth={1.8} color="rgba(255,255,255,0.50)" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>{label}</div>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.30)", marginTop: 1 }}>{dur}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Weekly stats strip */}
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.30)", textTransform: "uppercase", padding: "18px 16px 8px" }}>
+            Esta semana
+          </div>
+          <div style={{ display: "flex", gap: 10, padding: "0 16px 16px" }}>
+            {([
+              { val: weeklyWorkouts ?? "—", unit: "treinos", lbl: "Concluídos"   },
+              { val: weeklyVolume   ?? "—", unit: "kg",      lbl: "Volume"       },
+              { val: consistencyPct ?? "—", unit: "%",       lbl: "Consistência" },
+            ] as const).map(({ val, unit, lbl }) => (
+              <div key={lbl} style={{
+                flex: 1, background: "#141414",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 14, padding: 12,
+              }}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: "#fff", marginBottom: 2 }}>
+                  {val} <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.30)" }}>{unit}</span>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.30)" }}>{lbl}</div>
+              </div>
+            ))}
+          </div>
+
+        </motion.div>
       ) : (
         <div className="space-y-0">
 
@@ -699,12 +834,12 @@ const Workout = () => {
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "9px 20px",
-              background: "rgba(255,255,255,0.02)",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              background: "rgba(255,255,255,0.04)",
+              borderBottom: "1px solid rgba(255,255,255,0.04)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <Clock size={14} style={{ color: "white", opacity: 0.35, flexShrink: 0 }} />
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.38)", fontWeight: 500 }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 500 }}>
                   {lastSessionInfo
                     ? `Última sessão · há ${lastSessionInfo.daysAgo} ${lastSessionInfo.daysAgo === 1 ? "dia" : "dias"}`
                     : "Sem sessões anteriores"}
@@ -712,13 +847,13 @@ const Workout = () => {
               </div>
               {lastSessionInfo?.volPct !== null && lastSessionInfo?.volPct !== undefined ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <ArrowUp size={12} color="#34D399" />
-                  <span style={{ fontSize: 11, color: "#34D399", fontWeight: 700 }}>
+                  <ArrowUp size={12} color="#4ADE80" />
+                  <span style={{ fontSize: 11, color: "#4ADE80", fontWeight: 700 }}>
                     {lastSessionInfo.volPct > 0 ? "+" : ""}{lastSessionInfo.volPct}% volume
                   </span>
                 </div>
               ) : (
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>—</span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>—</span>
               )}
             </div>
           )}
@@ -824,7 +959,7 @@ const Workout = () => {
               onClick={() => setShowBarbellCalc(true)}
               style={{
                 display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
-                cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600, padding: "4px 8px",
+                cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 600, padding: "4px 8px",
               }}
             >
               Calculadora de barbell
@@ -858,7 +993,7 @@ const Workout = () => {
           {workoutItems.length > 0 && (
             <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "20px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Exercícios</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.50)" }}>Exercícios</span>
                 <span style={{
                   fontSize: 11, fontWeight: 700,
                   background: "rgba(37,99,235,0.15)", color: "#60A5FA",
@@ -882,7 +1017,7 @@ const Workout = () => {
                         background: "#141414",
                         border: isCurrent
                           ? "1px solid rgba(37,99,235,0.35)"
-                          : "1px solid rgba(255,255,255,0.06)",
+                          : "1px solid rgba(255,255,255,0.07)",
                         borderRadius: 16,
                         padding: 16,
                         borderLeft: item.done && !item.skipped
@@ -898,7 +1033,7 @@ const Workout = () => {
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{
-                          fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.25)",
+                          fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.30)",
                           minWidth: 20, textAlign: "center",
                         }}>
                           {index + 1}
@@ -911,12 +1046,12 @@ const Workout = () => {
                           }}>
                             {item.name}
                             {item.source === "ai" && (
-                              <span style={{ fontSize: 10, color: "rgba(96,165,250,0.7)", marginLeft: 6, fontWeight: 600 }}>
+                              <span style={{ fontSize: 11, color: "rgba(96,165,250,0.7)", marginLeft: 6, fontWeight: 600 }}>
                                 IA
                               </span>
                             )}
                           </p>
-                          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 3 }}>
+                          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>
                             {item.sets}x{item.reps}
                             {item.weight > 0 ? ` · ${item.weight}kg` : ""}
                             {item.rest > 0 ? ` · ${item.rest}s` : ""}
@@ -927,9 +1062,9 @@ const Workout = () => {
                             onClick={() => handleToggleDone(item)}
                             style={{
                               width: 32, height: 32, borderRadius: 8,
-                              background: item.done ? "rgba(74,222,128,0.15)" : "rgba(255,255,255,0.06)",
-                              border: item.done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,255,255,0.08)",
-                              color: item.done ? "#4ADE80" : "rgba(255,255,255,0.4)",
+                              background: item.done ? "rgba(74,222,128,0.15)" : "rgba(255,255,255,0.07)",
+                              border: item.done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,255,255,0.07)",
+                              color: item.done ? "#4ADE80" : "rgba(255,255,255,0.50)",
                               fontSize: 14, cursor: "pointer",
                               display: "flex", alignItems: "center", justifyContent: "center",
                             }}
@@ -942,7 +1077,7 @@ const Workout = () => {
                               width: 32, height: 32, borderRadius: 8,
                               background: "rgba(255,255,255,0.04)",
                               border: "1px solid rgba(255,255,255,0.07)",
-                              color: "rgba(255,255,255,0.3)",
+                              color: "rgba(255,255,255,0.30)",
                               fontSize: 12, cursor: "pointer",
                               display: "flex", alignItems: "center", justifyContent: "center",
                             }}
@@ -979,12 +1114,12 @@ const Workout = () => {
               position: "fixed", bottom: 68, left: 0, right: 0,
               padding: "10px 16px",
               background: "#000",
-              borderTop: "1px solid rgba(255,255,255,0.06)",
+              borderTop: "1px solid rgba(255,255,255,0.07)",
               zIndex: 45,
               display: "flex", alignItems: "center", gap: 12,
             }}
           >
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontWeight: 600, flexShrink: 0 }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", fontWeight: 600, flexShrink: 0 }}>
               {doneCount} feitos{skippedCount > 0 ? ` · ${skippedCount} saltados` : ""}
             </span>
             <motion.button
@@ -994,8 +1129,8 @@ const Workout = () => {
               style={{
                 flex: 1, height: 40, borderRadius: 100,
                 background: doneCount > 0 ? "#2563EB" : "rgba(255,255,255,0.07)",
-                border: doneCount > 0 ? "none" : "1px solid rgba(255,255,255,0.1)",
-                color: doneCount > 0 ? "white" : "rgba(255,255,255,0.35)",
+                border: doneCount > 0 ? "none" : "1px solid rgba(255,255,255,0.15)",
+                color: doneCount > 0 ? "white" : "rgba(255,255,255,0.30)",
                 fontSize: 13, fontWeight: 800, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                 opacity: completing ? 0.7 : 1,
@@ -1034,7 +1169,7 @@ const Workout = () => {
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "white", marginBottom: 8 }}>
                 Tens a certeza?
               </h3>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", marginBottom: 20, lineHeight: 1.5 }}>
                 {savedExercises.length > 0
                   ? `Tens ${savedExercises.length} ${savedExercises.length === 1 ? "set registado" : "sets registados"}. O que queres fazer?`
                   : "Ainda não registaste nenhum set."}
@@ -1044,8 +1179,8 @@ const Workout = () => {
                   onClick={() => setShowExitModal(false)}
                   style={{
                     width: "100%", height: 44, borderRadius: 12,
-                    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.70)", fontWeight: 700, fontSize: 14, cursor: "pointer",
                   }}
                 >
                   Continuar treino

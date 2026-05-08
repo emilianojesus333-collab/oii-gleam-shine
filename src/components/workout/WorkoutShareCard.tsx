@@ -71,7 +71,7 @@ function RadarChart({ exercises }: { exercises: ExerciseShareData[] }) {
 
       {/* Axis lines */}
       {axisPoints.map((p, i) => (
-        <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.12)" strokeWidth={0.8} />
+        <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.15)" strokeWidth={0.8} />
       ))}
 
       {/* Data polygon */}
@@ -94,7 +94,7 @@ function RadarChart({ exercises }: { exercises: ExerciseShareData[] }) {
         const shortName = ex.name.length > 12 ? ex.name.slice(0, 12) + "…" : ex.name;
         return (
           <g key={i}>
-            <text x={lx} y={ly - 3} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize={7.5} fontWeight="700" fontFamily="system-ui, sans-serif">
+            <text x={lx} y={ly - 3} textAnchor="middle" fill="rgba(255,255,255,0.90)" fontSize={7.5} fontWeight="700" fontFamily="system-ui, sans-serif">
               {shortName}
             </text>
             <text x={lx} y={ly + 9} textAnchor="middle" fill="rgba(74,222,128,0.65)" fontSize={6.5} fontFamily="system-ui, sans-serif">
@@ -189,9 +189,9 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             onClick={onClose}
-            style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 20, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 20, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
           >
-            <X size={16} color="rgba(255,255,255,0.6)" />
+            <X size={16} color="rgba(255,255,255,0.70)" />
           </button>
         </div>
 
@@ -221,7 +221,7 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
             {/* Header row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <span style={{ fontSize: 15, fontWeight: 900, color: "#1D4ED8", letterSpacing: "0.08em" }}>LIFTMATE</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{dateStr}</span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.70)", fontWeight: 600 }}>{dateStr}</span>
             </div>
 
             {/* Workout name + type */}
@@ -245,8 +245,8 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
 
             {/* Stats row */}
             <div style={{
-              borderTop: "1px solid rgba(255,255,255,0.06)",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              borderTop: "1px solid rgba(255,255,255,0.07)",
+              borderBottom: "1px solid rgba(255,255,255,0.07)",
               padding: "14px 0",
               display: "flex",
               justifyContent: "space-around",
@@ -259,7 +259,7 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
               ].map(({ value, label }) => (
                 <div key={label} style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{value}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>{label}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -267,13 +267,13 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
             {/* Footer branding */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
               <svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="9" width="3" height="6" rx="1.5" fill="rgba(255,255,255,0.25)" />
-                <rect x="18" y="9" width="3" height="6" rx="1.5" fill="rgba(255,255,255,0.25)" />
-                <rect x="6" y="7" width="2.5" height="10" rx="1.25" fill="rgba(255,255,255,0.25)" />
-                <rect x="15.5" y="7" width="2.5" height="10" rx="1.25" fill="rgba(255,255,255,0.25)" />
-                <rect x="8.5" y="11" width="7" height="2" rx="1" fill="rgba(255,255,255,0.25)" />
+                <rect x="3" y="9" width="3" height="6" rx="1.5" fill="rgba(255,255,255,0.30)" />
+                <rect x="18" y="9" width="3" height="6" rx="1.5" fill="rgba(255,255,255,0.30)" />
+                <rect x="6" y="7" width="2.5" height="10" rx="1.25" fill="rgba(255,255,255,0.30)" />
+                <rect x="15.5" y="7" width="2.5" height="10" rx="1.25" fill="rgba(255,255,255,0.30)" />
+                <rect x="8.5" y="11" width="7" height="2" rx="1" fill="rgba(255,255,255,0.30)" />
               </svg>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.12em" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.12em" }}>
                 LIFTMATE.APP
               </span>
             </div>
@@ -286,9 +286,9 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
             onClick={() => setMode("dark")}
             style={{
               flex: 1, height: 40, borderRadius: 12, cursor: "pointer",
-              border: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}`,
-              background: mode === "dark" ? "rgba(255,255,255,0.08)" : "transparent",
-              color: mode === "dark" ? "#fff" : "rgba(255,255,255,0.4)",
+              border: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.07)"}`,
+              background: mode === "dark" ? "rgba(255,255,255,0.07)" : "transparent",
+              color: mode === "dark" ? "#fff" : "rgba(255,255,255,0.50)",
               fontSize: 13, fontWeight: 600,
             }}
           >
@@ -301,9 +301,9 @@ export const WorkoutShareCard = ({ open, onClose, data }: WorkoutShareCardProps)
             onClick={() => photoInputRef.current?.click()}
             style={{
               flex: 1, height: 40, borderRadius: 12, cursor: "pointer",
-              border: `1px solid ${mode === "photo" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}`,
-              background: mode === "photo" ? "rgba(255,255,255,0.08)" : "transparent",
-              color: mode === "photo" ? "#fff" : "rgba(255,255,255,0.4)",
+              border: `1px solid ${mode === "photo" ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.07)"}`,
+              background: mode === "photo" ? "rgba(255,255,255,0.07)" : "transparent",
+              color: mode === "photo" ? "#fff" : "rgba(255,255,255,0.50)",
               fontSize: 13, fontWeight: 600,
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             }}

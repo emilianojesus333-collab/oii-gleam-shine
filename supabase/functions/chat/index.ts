@@ -204,24 +204,6 @@ REGRAS DE RECUPERAÇÃO E FADIGA:
 OBJETIVO:
 O teu objetivo é comportar-te como um parceiro de treino inteligente, ajudando o utilizador a tomar melhores decisões, manter a consistência e melhorar a forma física ao longo do tempo.`;
 
-    // Append schedule action instructions
-    const scheduleInstructions = `
-
-═══════════════════════════════════════════════════════════════
-AÇÕES — PLANO SEMANAL:
-═══════════════════════════════════════════════════════════════
-Quando o utilizador pedir para mudar, criar ou ajustar o plano semanal, usa SEMPRE a ação no formato exato:
-
-[ACTION:updateSchedule:{"Segunda-feira":{"principal":"Peito","secundario":"Tríceps"},"Terça-feira":{"principal":"Costas","secundario":"Bíceps"},"Quarta-feira":"descanso","Quinta-feira":{"principal":"Pernas","secundario":null},"Sexta-feira":{"principal":"Ombros","secundario":null},"Sábado":"descanso","Domingo":"descanso"}]
-
-REGRAS:
-- Cada dia tem APENAS 1 músculo principal (obrigatório) e opcionalmente 1 secundário.
-- Dias de descanso são a string "descanso".
-- O plano novo SUBSTITUI completamente o anterior — nunca parcialmente.
-- Confirma sempre em linguagem natural o que foi alterado, em frase curta após a tag.
-`;
-    const finalSystemPrompt = systemPrompt + scheduleInstructions;
-
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -231,7 +213,7 @@ REGRAS:
       body: JSON.stringify({
         model: "gpt-4o",
         messages: [
-          { role: 'system', content: finalSystemPrompt },
+          { role: 'system', content: systemPrompt },
           ...messages,
         ],
         tools: [

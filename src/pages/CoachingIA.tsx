@@ -52,7 +52,7 @@ const CATEGORY_BORDER: Record<string, string> = {
   treino:      "#4ADE80",
   recuperação: "#FBBF24",
   nutrição:    "#60A5FA",
-  geral:       "rgba(255,255,255,0.3)",
+  geral:       "rgba(255,255,255,0.30)",
 };
 
 // ── Shimmer keyframe (injected once) ──────────────────────────────────
@@ -224,7 +224,7 @@ const CoachingIA = () => {
       <div style={{ background: "#000", padding: "48px 24px 0" }}>
         <button
           onClick={() => navigate(-1)}
-          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.4)", fontSize: 14, padding: 0 }}
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.50)", fontSize: 14, padding: 0 }}
         >
           <ArrowLeft size={18} />
         </button>
@@ -236,7 +236,7 @@ const CoachingIA = () => {
         <div style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", marginBottom: 8 }}>
           Coaching IA
         </div>
-        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: 28 }}>
+        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", lineHeight: 1.5, marginBottom: 28 }}>
           Dicas personalizadas com base nos teus dados de treino
         </div>
       </div>
@@ -244,8 +244,8 @@ const CoachingIA = () => {
       <div style={{ padding: "0 16px" }}>
 
         {/* ── SECÇÃO 1 — ESTA SEMANA ── */}
-        <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginBottom: 12 }}>
+        <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.30)", textTransform: "uppercase", marginBottom: 12 }}>
             ESTA SEMANA
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
@@ -256,7 +256,7 @@ const CoachingIA = () => {
             ].map(({ value, label }) => (
               <div key={label} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>{label}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -266,38 +266,38 @@ const CoachingIA = () => {
         <AnimatePresence mode="wait">
           {isAnalyzing ? (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 32, marginBottom: 12, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 32, marginBottom: 12, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <Loader2 size={32} color="#60A5FA" style={{ animation: "spin 1s linear infinite" }} />
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, textAlign: "center" }}>A gerar dicas para os teus objetivos...</p>
+              <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 14, textAlign: "center" }}>A gerar dicas para os teus objetivos...</p>
             </motion.div>
 
           ) : step === "goals" ? (
             <motion.div key="goals" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
 
               <p style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 16 }}>Define os teus objetivos</p>
 
               {/* Peso */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.50)", marginBottom: 8 }}>
                   <Scale size={14} /> Objetivo de peso (kg)
                 </label>
                 <input
                   type="number" value={tempWeightGoal} onChange={(e) => setTempWeightGoal(e.target.value)}
                   placeholder="Ex: 5 para ganhar, -3 para perder"
-                  style={{ width: "100%", height: 44, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "0 16px", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+                  style={{ width: "100%", height: 44, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "0 16px", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box" }}
                 />
               </div>
 
               {/* Foco de treino */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 8 }}>Foco de treino</label>
+                <label style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", display: "block", marginBottom: 8 }}>Foco de treino</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                   {TRAINING_FOCUS_OPTIONS.map(({ value, label, icon: Icon }) => {
                     const active = tempTrainingFocus === value;
                     return (
                       <button key={value} onClick={() => setTempTrainingFocus(value)}
-                        style={{ padding: "10px 8px", borderRadius: 12, border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.08)"}`, background: active ? "rgba(29,78,216,0.15)" : "#1A1A1A", color: active ? "#60A5FA" : "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                        style={{ padding: "10px 8px", borderRadius: 12, border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.07)"}`, background: active ? "rgba(29,78,216,0.15)" : "#1A1A1A", color: active ? "#60A5FA" : "rgba(255,255,255,0.50)", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                         <Icon size={16} />
                         {label}
                       </button>
@@ -308,7 +308,7 @@ const CoachingIA = () => {
 
               {/* Músculos */}
               <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 8 }}>Músculos a melhorar (máx. 3)</label>
+                <label style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", display: "block", marginBottom: 8 }}>Músculos a melhorar (máx. 3)</label>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {MUSCLE_OPTIONS.map((m) => {
                     const isFullBody = m === "Full Body";
@@ -316,7 +316,7 @@ const CoachingIA = () => {
                     const disabled = !isFullBody && tempFocusMuscles.includes("Full Body");
                     return (
                       <button key={m} onClick={() => toggleMuscle(m)} disabled={disabled}
-                        style={{ padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${selected ? (isFullBody ? "rgba(167,139,250,0.5)" : "rgba(96,165,250,0.5)") : "rgba(255,255,255,0.1)"}`, background: selected ? (isFullBody ? "rgba(167,139,250,0.15)" : "rgba(96,165,250,0.15)") : "rgba(255,255,255,0.04)", color: selected ? (isFullBody ? "#A78BFA" : "#60A5FA") : disabled ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.5)", cursor: disabled ? "not-allowed" : "pointer" }}>
+                        style={{ padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${selected ? (isFullBody ? "rgba(167,139,250,0.5)" : "rgba(96,165,250,0.5)") : "rgba(255,255,255,0.15)"}`, background: selected ? (isFullBody ? "rgba(167,139,250,0.15)" : "rgba(96,165,250,0.15)") : "rgba(255,255,255,0.04)", color: selected ? (isFullBody ? "#A78BFA" : "#60A5FA") : disabled ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.50)", cursor: disabled ? "not-allowed" : "pointer" }}>
                         {m}
                       </button>
                     );
@@ -326,7 +326,7 @@ const CoachingIA = () => {
 
               {/* Botão gerar */}
               <button onClick={handleGoToConfirm}
-                style={{ width: "100%", height: 50, borderRadius: 14, border: "none", cursor: "pointer", background: "linear-gradient(90deg, #1D4ED8, #3B82F6, #1D4ED8)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite", color: "#fff", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                style={{ width: "100%", height: 50, borderRadius: 14, border: "none", cursor: "pointer", background: "linear-gradient(90deg, #1D4ED8, #60A5FA, #1D4ED8)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite", color: "#fff", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <Sparkles size={18} />
                 ✦ Gerar Coaching IA
                 <ChevronRight size={16} />
@@ -335,7 +335,7 @@ const CoachingIA = () => {
 
           ) : step === "confirm" ? (
             <motion.div key="confirm" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+              style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
 
               <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 16 }}>Confirma os teus objetivos</p>
               <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
@@ -344,14 +344,14 @@ const CoachingIA = () => {
                   tempTrainingFocus && `Foco: ${TRAINING_FOCUS_OPTIONS.find((o) => o.value === tempTrainingFocus)?.label}`,
                   tempFocusMuscles.length && `Músculos: ${tempFocusMuscles.join(", ")}`,
                 ].filter(Boolean).map((text, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 8 }}>
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "rgba(255,255,255,0.70)", marginBottom: 8 }}>
                     <Check size={14} color="#4ADE80" /> {text}
                   </div>
                 ))}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => setStep("goals")}
-                  style={{ flex: 1, height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                  style={{ flex: 1, height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", color: "rgba(255,255,255,0.70)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
                   Voltar
                 </button>
                 <button onClick={handleConfirmGoals}
@@ -375,14 +375,14 @@ const CoachingIA = () => {
                 <Target size={12} /> Alterar objetivos
               </button>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {lastUpdate && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{formatLastUpdate()}</span>}
+                {lastUpdate && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>{formatLastUpdate()}</span>}
                 {canRefresh ? (
                   <button onClick={analyzePatterns}
                     style={{ background: "rgba(29,78,216,0.2)", border: "none", borderRadius: 8, padding: "4px 10px", color: "#60A5FA", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
                     <RefreshCw size={11} /> Atualizar
                   </button>
                 ) : hoursUntilRefresh > 0 ? (
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>Próxima em {hoursUntilRefresh}h</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Próxima em {hoursUntilRefresh}h</span>
                 ) : null}
               </div>
             </div>
@@ -390,7 +390,7 @@ const CoachingIA = () => {
             {/* Resumo geral */}
             {summary && (
               <div style={{ background: "rgba(29,78,216,0.08)", border: "1px solid rgba(29,78,216,0.2)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>{summary}</p>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.90)", lineHeight: 1.6 }}>{summary}</p>
               </div>
             )}
 
@@ -403,23 +403,23 @@ const CoachingIA = () => {
                     return (
                       <motion.div key={i}
                         initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-                        style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderLeft: `3px solid ${borderColor}`, borderRadius: 16, padding: 16 }}>
+                        style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderLeft: `3px solid ${borderColor}`, borderRadius: 16, padding: 16 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             {tip.category === "treino" && <Dumbbell size={14} color="#4ADE80" />}
                             {tip.category === "recuperação" && <Moon size={14} color="#FBBF24" />}
                             {tip.category === "nutrição" && <Sparkles size={14} color="#60A5FA" />}
-                            {tip.category === "geral" && <Lightbulb size={14} color="rgba(255,255,255,0.4)" />}
-                            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: borderColor }}>
+                            {tip.category === "geral" && <Lightbulb size={14} color="rgba(255,255,255,0.50)" />}
+                            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: borderColor }}>
                               {tip.category}
                             </span>
                           </div>
-                          <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: tip.priority === "high" ? "rgba(248,113,113,0.15)" : tip.priority === "medium" ? "rgba(251,146,60,0.15)" : "rgba(255,255,255,0.06)", color: tip.priority === "high" ? "#F87171" : tip.priority === "medium" ? "#FB923C" : "rgba(255,255,255,0.35)" }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: tip.priority === "high" ? "rgba(248,113,113,0.15)" : tip.priority === "medium" ? "rgba(251,146,60,0.15)" : "rgba(255,255,255,0.07)", color: tip.priority === "high" ? "#F87171" : tip.priority === "medium" ? "#FB923C" : "rgba(255,255,255,0.30)" }}>
                             {tip.priority === "high" ? "Urgente" : tip.priority === "medium" ? "Importante" : "Dica"}
                           </span>
                         </div>
                         <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{tip.title}</p>
-                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 8 }}>{tip.message}</p>
+                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", lineHeight: 1.5, marginBottom: 8 }}>{tip.message}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: borderColor }}>
                           <TrendingUp size={12} /> {tip.actionable}
                         </div>
@@ -430,7 +430,7 @@ const CoachingIA = () => {
               </div>
             ) : (
               <button onClick={analyzePatterns}
-                style={{ width: "100%", height: 50, borderRadius: 14, border: "none", cursor: "pointer", background: "linear-gradient(90deg, #1D4ED8, #3B82F6, #1D4ED8)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite", color: "#fff", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                style={{ width: "100%", height: 50, borderRadius: 14, border: "none", cursor: "pointer", background: "linear-gradient(90deg, #1D4ED8, #60A5FA, #1D4ED8)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite", color: "#fff", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <Sparkles size={18} /> Gerar Dicas
               </button>
             )}

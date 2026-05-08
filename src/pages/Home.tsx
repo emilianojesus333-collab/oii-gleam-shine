@@ -204,8 +204,8 @@ const Home = () => {
                     <div className="w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold"
                       style={{
                         background: isToday ? "rgba(255,255,255,0.15)" : "transparent",
-                        border: isToday ? "none" : "1.5px dashed rgba(255,255,255,0.2)",
-                        color: isToday ? "#fff" : "rgba(255,255,255,0.45)",
+                        border: isToday ? "none" : "1.5px dashed rgba(255,255,255,0.30)",
+                        color: isToday ? "#fff" : "rgba(255,255,255,0.50)",
                       }}>
                       {date.getDate()}
                     </div>

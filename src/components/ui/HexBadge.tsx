@@ -23,7 +23,7 @@ export const HexBadge = ({ label, size = 38 }: HexBadgeProps) => (
     <span
       style={{
         color: "white",
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 900,
         letterSpacing: "-0.5px",
         lineHeight: 1,

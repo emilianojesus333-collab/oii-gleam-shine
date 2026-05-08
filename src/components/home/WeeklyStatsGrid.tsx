@@ -31,7 +31,7 @@ export function WeeklyStatsGrid() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+        style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
           <BarChart3 className="h-3.5 w-3.5 text-[#06B6D4]" />
@@ -76,7 +76,7 @@ export function WeeklyStatsGrid() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.75 }}
-        style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+        style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
           <TrendingUp className="h-3.5 w-3.5 text-[#22C55E]" />

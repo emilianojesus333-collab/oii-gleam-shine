@@ -82,7 +82,7 @@ export const MilestoneModal = ({ milestone, onDismiss }: Props) => {
               {milestone.title}
             </h2>
 
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: 28 }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", lineHeight: 1.6, marginBottom: 28 }}>
               {milestone.description}
             </p>
 

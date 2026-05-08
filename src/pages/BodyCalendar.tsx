@@ -27,7 +27,7 @@ const MUSCLES: MuscleGroup[] = [
   {
     id: "chest",
     label: "Peito",
-    color: "#3B82F6",
+    color: "#60A5FA",
     front: "M 95 130 C 95 120 110 112 130 115 L 150 120 L 150 155 C 140 162 120 162 105 155 Z M 205 130 C 205 120 190 112 170 115 L 150 120 L 150 155 C 160 162 180 162 195 155 Z",
   },
   {
@@ -59,7 +59,7 @@ const MUSCLES: MuscleGroup[] = [
   {
     id: "abs",
     label: "Abdominais",
-    color: "#10B981",
+    color: "#22C55E",
     front: "M 135 162 L 165 162 L 165 230 L 135 230 Z",
   },
   {
@@ -236,7 +236,7 @@ export default function BodyCalendar() {
           whileTap={{ scale: 0.92 }}
           onClick={flipSide}
           className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-semibold text-white/70"
-          style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}
+          style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)" }}
         >
           <RotateCcw className="w-3.5 h-3.5" />
           {side === "front" ? "Ver costas" : "Ver frente"}
@@ -423,12 +423,12 @@ export default function BodyCalendar() {
                       className="flex flex-col items-center gap-1.5 py-3 rounded-2xl transition-all"
                       style={{
                         background: isActive ? `${selectedMuscle.color}22` : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${isActive ? selectedMuscle.color + "55" : "rgba(255,255,255,0.08)"}`,
+                        border: `1px solid ${isActive ? selectedMuscle.color + "55" : "rgba(255,255,255,0.07)"}`,
                       }}
                     >
                       <span
                         className="text-[10px] font-bold"
-                        style={{ color: isActive ? selectedMuscle.color : "rgba(255,255,255,0.4)" }}
+                        style={{ color: isActive ? selectedMuscle.color : "rgba(255,255,255,0.50)" }}
                       >
                         {day}
                       </span>

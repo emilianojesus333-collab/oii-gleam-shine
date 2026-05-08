@@ -131,7 +131,7 @@ export const WeeklyReportView = () => {
       </div>
 
       {/* Nutrition Stats */}
-      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Utensils className="w-5 h-5 text-orange-400" />
           Nutrição
@@ -157,7 +157,7 @@ export const WeeklyReportView = () => {
       </div>
 
       {/* Workout Stats */}
-      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-blue-400" />
           Treinos

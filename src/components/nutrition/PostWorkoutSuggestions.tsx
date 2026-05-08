@@ -104,7 +104,7 @@ export const PostWorkoutSuggestions = () => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 0', color: 'rgba(255,255,255,0.35)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 0', color: 'rgba(255,255,255,0.30)' }}>
         <Loader2 style={{ width: 14, height: 14, flexShrink: 0, animation: 'spin 1s linear infinite' }} />
         <span style={{ fontSize: 12 }}>A gerar sugestões pós-treino com IA...</span>
       </div>

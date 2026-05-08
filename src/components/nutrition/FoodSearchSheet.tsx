@@ -28,13 +28,13 @@ const CARD_STYLE: React.CSSProperties = {
   background: "#141414",
   borderRadius: 12,
   padding: "12px 16px",
-  border: "1px solid rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.07)",
   cursor: "pointer",
 };
 
 const MacroPill = ({ label, color, bg }: { label: string; color: string; bg: string }) => (
   <span style={{
-    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
     color, background: bg, flexShrink: 0,
   }}>
     {label}
@@ -47,7 +47,7 @@ const SkeletonCard = () => (
     <div style={{ height: 10, width: "35%", background: "rgba(255,255,255,0.04)", borderRadius: 6, marginBottom: 10, animation: "pulse 1.5s infinite" }} />
     <div style={{ display: "flex", gap: 6 }}>
       {[40, 40, 40, 40].map((w, i) => (
-        <div key={i} style={{ height: 18, width: w, background: "rgba(255,255,255,0.05)", borderRadius: 20, animation: "pulse 1.5s infinite" }} />
+        <div key={i} style={{ height: 18, width: w, background: "rgba(255,255,255,0.04)", borderRadius: 20, animation: "pulse 1.5s infinite" }} />
       ))}
     </div>
   </div>
@@ -171,7 +171,7 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
         transition={{ type: "spring", damping: 32, stiffness: 300 }}
         style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 95,
-          background: "#111",
+          background: "#141414",
           borderRadius: "20px 20px 0 0",
           maxHeight: "92vh",
           display: "flex", flexDirection: "column",
@@ -186,8 +186,8 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <span style={{ fontSize: 16, fontWeight: 800, color: "white" }}>Adicionar Alimento</span>
             <button type="button" onClick={onClose}
-              style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <X size={16} color="rgba(255,255,255,0.6)" />
+              style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.07)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <X size={16} color="rgba(255,255,255,0.70)" />
             </button>
           </div>
 
@@ -202,9 +202,9 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
                   flexShrink: 0,
                   padding: "6px 12px", borderRadius: 20,
                   fontSize: 11, fontWeight: 700, cursor: "pointer",
-                  background: mealType === mt.value ? "rgba(37,99,235,0.15)" : "rgba(255,255,255,0.05)",
+                  background: mealType === mt.value ? "rgba(37,99,235,0.15)" : "rgba(255,255,255,0.04)",
                   border: mealType === mt.value ? "1px solid rgba(37,99,235,0.3)" : "1px solid rgba(255,255,255,0.07)",
-                  color: mealType === mt.value ? "#60A5FA" : "rgba(255,255,255,0.35)",
+                  color: mealType === mt.value ? "#60A5FA" : "rgba(255,255,255,0.30)",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -217,10 +217,10 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
           <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
             <div style={{
               flex: 1, display: "flex", alignItems: "center", gap: 10,
-              background: "rgba(255,255,255,0.06)", borderRadius: 12,
-              padding: "0 14px", border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.07)", borderRadius: 12,
+              padding: "0 14px", border: "1px solid rgba(255,255,255,0.07)",
             }}>
-              <Search size={16} color="rgba(255,255,255,0.3)" />
+              <Search size={16} color="rgba(255,255,255,0.30)" />
               <input
                 ref={inputRef}
                 type="text"
@@ -232,18 +232,18 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
                   color: "white", fontSize: 14, padding: "13px 0",
                 }}
               />
-              {loading && <Loader2 size={16} color="rgba(255,255,255,0.3)" className="animate-spin" />}
+              {loading && <Loader2 size={16} color="rgba(255,255,255,0.30)" className="animate-spin" />}
             </div>
             <button
               type="button"
               onClick={() => setShowScanner(true)}
               style={{
                 width: 50, height: 50, borderRadius: 12, flexShrink: 0,
-                background: "#141414", border: "1px solid rgba(255,255,255,0.1)",
+                background: "#141414", border: "1px solid rgba(255,255,255,0.15)",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <Camera size={20} color="rgba(255,255,255,0.6)" />
+              <Camera size={20} color="rgba(255,255,255,0.70)" />
             </button>
           </div>
         </div>
@@ -267,35 +267,35 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 800, color: "white", marginBottom: 2 }}>{selected.name}</p>
-                    {selected.brand && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{selected.brand}</p>}
+                    {selected.brand && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)" }}>{selected.brand}</p>}
                   </div>
                   <button type="button" onClick={() => setSelected(null)}
                     style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
-                    <X size={14} color="rgba(255,255,255,0.4)" />
+                    <X size={14} color="rgba(255,255,255,0.50)" />
                   </button>
                 </div>
 
                 {/* Quantity input */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>QUANTIDADE</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 700 }}>QUANTIDADE</span>
                   <div style={{
                     display: "flex", alignItems: "center",
-                    background: "rgba(255,255,255,0.06)", borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden",
+                    background: "rgba(255,255,255,0.07)", borderRadius: 10,
+                    border: "1px solid rgba(255,255,255,0.15)", overflow: "hidden",
                   }}>
                     <button type="button"
                       onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 10)))}
-                      style={{ width: 36, height: 36, background: "transparent", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                      style={{ width: 36, height: 36, background: "transparent", border: "none", color: "rgba(255,255,255,0.50)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                     <input
                       type="text" inputMode="decimal" value={quantity}
                       onChange={(e) => setQuantity(e.target.value.replace(/[^0-9.]/g, ""))}
                       onFocus={(e) => e.currentTarget.select()}
                       style={{ width: 52, textAlign: "center", background: "transparent", border: "none", outline: "none", color: "white", fontSize: 15, fontWeight: 800 }}
                     />
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", paddingRight: 8 }}>g</span>
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", paddingRight: 8 }}>g</span>
                     <button type="button"
                       onClick={() => setQuantity(String(parseFloat(quantity) + 10))}
-                      style={{ width: 36, height: 36, background: "transparent", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                      style={{ width: 36, height: 36, background: "transparent", border: "none", color: "rgba(255,255,255,0.50)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                   </div>
                 </div>
 
@@ -309,7 +309,7 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
                       <MacroPill label={`P ${m.protein}g`}    color="#60A5FA" bg="rgba(96,165,250,0.12)" />
                       <MacroPill label={`C ${m.carbs}g`}      color="#FBBF24" bg="rgba(251,191,36,0.12)" />
                       <MacroPill label={`G ${m.fat}g`}        color="#F87171" bg="rgba(248,113,113,0.12)" />
-                      {m.fiber > 0 && <MacroPill label={`F ${m.fiber}g`} color="#34D399" bg="rgba(52,211,153,0.12)" />}
+                      {m.fiber > 0 && <MacroPill label={`F ${m.fiber}g`} color="#4ADE80" bg="rgba(74,222,128,0.12)" />}
                     </div>
                   );
                 })()}
@@ -345,8 +345,8 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
           {/* No results */}
           {!loading && searched && results.length === 0 && query.trim() && (
             <div style={{ textAlign: "center", padding: "32px 16px" }}>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>Nenhum resultado para "{query}"</p>
-              <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, marginTop: 6 }}>
+              <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 14 }}>Nenhum resultado para "{query}"</p>
+              <p style={{ color: "rgba(255,255,255,0.30)", fontSize: 12, marginTop: 6 }}>
                 Tenta um nome diferente ou usa o scanner de código de barras.
               </p>
             </div>
@@ -356,8 +356,8 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
           {!query.trim() && !loading && cache.length > 0 && (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-                <Clock size={12} color="rgba(255,255,255,0.3)" />
-                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em" }}>
+                <Clock size={12} color="rgba(255,255,255,0.30)" />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em" }}>
                   RECENTES
                 </span>
               </div>
@@ -373,7 +373,7 @@ export const FoodSearchSheet = ({ open, onClose, onAddMeal, userId }: FoodSearch
           {!query.trim() && !loading && cache.length === 0 && (
             <div style={{ textAlign: "center", padding: "32px 16px" }}>
               <Search size={32} color="rgba(255,255,255,0.15)" style={{ margin: "0 auto 12px" }} />
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>
+              <p style={{ color: "rgba(255,255,255,0.30)", fontSize: 13 }}>
                 Pesquisa por nome ou lê um código de barras
               </p>
             </div>
@@ -395,7 +395,7 @@ const FoodResultCard = ({
     onClick={() => onSelect(food)}
     style={{
       ...CARD_STYLE,
-      border: selected ? "1px solid rgba(37,99,235,0.4)" : "1px solid rgba(255,255,255,0.06)",
+      border: selected ? "1px solid rgba(37,99,235,0.4)" : "1px solid rgba(255,255,255,0.07)",
       background: selected ? "rgba(37,99,235,0.08)" : "#141414",
     }}
   >
@@ -403,7 +403,7 @@ const FoodResultCard = ({
       {food.name}
     </p>
     {food.brand && (
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>{food.brand}</p>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginBottom: 8 }}>{food.brand}</p>
     )}
     <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
       <MacroPill label={`${food.calories} kcal`} color="#F97316" bg="rgba(249,115,22,0.1)" />
@@ -411,7 +411,7 @@ const FoodResultCard = ({
       <MacroPill label={`C ${food.carbs}g`}      color="#FBBF24" bg="rgba(251,191,36,0.1)" />
       <MacroPill label={`G ${food.fat}g`}        color="#F87171" bg="rgba(248,113,113,0.1)" />
     </div>
-    <p style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 6 }}>por 100g</p>
+    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 6 }}>por 100g</p>
   </div>
 );
 

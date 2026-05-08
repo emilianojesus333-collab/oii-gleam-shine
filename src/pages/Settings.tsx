@@ -13,6 +13,7 @@ import {
   Calendar,
   Brain,
   Dumbbell,
+  PersonStanding,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -143,9 +144,33 @@ const Settings = () => {
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Plano Semanal</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Define os teus dias de treino</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Define os teus dias de treino</p>
             </div>
-            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+            <ChevronRight size={16} color="rgba(255,255,255,0.30)" />
+          </button>
+
+          <div className="border-t border-white/[0.06]" />
+
+          {/* Body Calendar nav card */}
+          <button
+            onClick={() => navigate("/body-calendar")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 14,
+              padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <PersonStanding size={18} color="white" />
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Mapa Muscular</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Planeia visualmente por grupo muscular</p>
+            </div>
+            <ChevronRight size={16} color="rgba(255,255,255,0.30)" />
           </button>
 
           <div className="border-t border-white/[0.06]" />
@@ -167,9 +192,9 @@ const Settings = () => {
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Chat & IA</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Personaliza o teu assistente</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Personaliza o teu assistente</p>
             </div>
-            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+            <ChevronRight size={16} color="rgba(255,255,255,0.30)" />
           </button>
 
           <div className="border-t border-white/[0.06]" />
@@ -191,9 +216,9 @@ const Settings = () => {
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>O meu Equipamento</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Alternativas baseadas no teu ginásio</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Alternativas baseadas no teu ginásio</p>
             </div>
-            <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+            <ChevronRight size={16} color="rgba(255,255,255,0.30)" />
           </button>
         </motion.div>
 

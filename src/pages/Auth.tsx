@@ -176,7 +176,7 @@ const Auth = () => {
             <div style={{
               marginTop: 12,
               fontSize: 11, letterSpacing: "0.2em",
-              color: "rgba(255,255,255,0.4)", textTransform: "uppercase",
+              color: "rgba(255,255,255,0.50)", textTransform: "uppercase",
             }}>
               O MOMENTO QUE MUDA O JOGO
             </div>
@@ -205,24 +205,24 @@ const Auth = () => {
             ENTRAR
           </button>
 
-          <div style={{ marginTop: 16, textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+          <div style={{ marginTop: 16, textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.50)" }}>
             <button
               onClick={() => { resetForm(); setView("register"); }}
-              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.50)", fontSize: 13, cursor: "pointer" }}
             >
               {"Criar conta"}
             </button>
             {" • "}
             <button
               onClick={handleGoogleLogin}
-              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.50)", fontSize: 13, cursor: "pointer" }}
             >
               Google
             </button>
             {" • "}
             <button
               onClick={handleAppleLogin}
-              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.50)", fontSize: 13, cursor: "pointer" }}
             >
               Apple
             </button>
@@ -255,7 +255,7 @@ const Auth = () => {
             style={{
               background: "none", border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", gap: 6,
-              color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 32,
+              color: "rgba(255,255,255,0.50)", fontSize: 14, marginBottom: 32,
               padding: 0,
             }}
           >
@@ -279,7 +279,7 @@ const Auth = () => {
                     <Mail size={28} color="#60A5FA" />
                   </div>
                   <p style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Email enviado!</p>
-                  <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14 }}>
+                  <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 14 }}>
                     Verifica a tua caixa de entrada em <span style={{ color: "#fff" }}>{email}</span>.
                   </p>
                   <button
@@ -291,7 +291,7 @@ const Auth = () => {
                 </div>
               ) : (
                 <>
-                  <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14, marginBottom: 8 }}>
+                  <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 14, marginBottom: 8 }}>
                     Envia-te um link para redefinir a password.
                   </p>
                   <div>
@@ -345,7 +345,7 @@ const Auth = () => {
                     <button
                       type="button"
                       onClick={() => { resetForm(); setView("forgotPassword"); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.35)" }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.30)" }}
                     >
                       Esqueceu a password?
                     </button>
@@ -363,7 +363,7 @@ const Auth = () => {
                     onClick={() => setShowPassword((v) => !v)}
                     style={{
                       position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
-                      background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.35)",
+                      background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.30)",
                       display: "flex", alignItems: "center",
                     }}
                   >
@@ -379,11 +379,11 @@ const Auth = () => {
 
               {/* Divisor */}
               <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "4px 0" }}>
-                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)" }}>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.15)" }} />
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.30)" }}>
                   OU CONTINUAR COM
                 </span>
-                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.15)" }} />
               </div>
 
               {/* Google */}
@@ -414,7 +414,7 @@ const Auth = () => {
               {/* Toggle login/register */}
               <div style={{ textAlign: "center", marginTop: 8 }}>
                 {isRegister ? (
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
+                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.30)" }}>
                     Já tens conta?{" "}
                     <button
                       type="button"
@@ -425,7 +425,7 @@ const Auth = () => {
                     </button>
                   </span>
                 ) : (
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
+                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.30)" }}>
                     Não tens conta?{" "}
                     <button
                       type="button"
@@ -439,7 +439,7 @@ const Auth = () => {
               </div>
 
               {/* Termos */}
-              <div style={{ textAlign: "center", marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.2)" }}>
+              <div style={{ textAlign: "center", marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                 Termos de Uso • Política de Privacidade
               </div>
             </form>
@@ -491,7 +491,7 @@ const socialBtnStyle: React.CSSProperties = {
   width: "100%",
   height: 44,
   background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  border: "1px solid rgba(255,255,255,0.15)",
   borderRadius: 12,
   display: "flex",
   alignItems: "center",
@@ -501,7 +501,7 @@ const socialBtnStyle: React.CSSProperties = {
 };
 
 const Spinner = () => (
-  <div style={{ width: 20, height: 20, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+  <div style={{ width: 20, height: 20, border: "2px solid rgba(255,255,255,0.30)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
 );
 
 export default Auth;

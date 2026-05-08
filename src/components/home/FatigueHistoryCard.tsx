@@ -100,7 +100,7 @@ export const FatigueHistoryCard = () => {
       transition={{ delay: 0.35 }}
       className="rounded-none"
       className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
@@ -130,13 +130,13 @@ export const FatigueHistoryCard = () => {
                   dataKey="date"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                   interval="preserveStartEnd"
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                   domain={[0, 100]}
                   ticks={[0, 50, 100]}
                 />

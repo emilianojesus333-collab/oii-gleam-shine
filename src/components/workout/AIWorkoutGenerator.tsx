@@ -306,8 +306,8 @@ export const AIWorkoutGenerator = ({
               onClick={() => setWorkout(null)}
               style={{
                 flex: 1, height: 44, borderRadius: 100,
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 700,
+                background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.70)", fontSize: 14, fontWeight: 700,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               }}
             >
@@ -348,9 +348,9 @@ export const AIWorkoutGenerator = ({
               { value: workout.difficulty,              label: "Nível" },
               { value: workout.exercises.length,        label: "Exercícios" },
             ].map(({ value, label }) => (
-              <div key={label} style={{ flex: 1, background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "14px 10px", textAlign: "center" }}>
+              <div key={label} style={{ flex: 1, background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", padding: "14px 10px", textAlign: "center" }}>
                 <p style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>{value}</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>{label}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>{label}</p>
               </div>
             ))}
           </div>
@@ -364,7 +364,7 @@ export const AIWorkoutGenerator = ({
               </h4>
               <div className="space-y-1">
                 {workout.warmup.map((w, i) => (
-                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>
                     <span style={{ color: "#FBBF24" }}>•</span> {w.name} - {w.duration}
                   </p>
                 ))}
@@ -383,7 +383,7 @@ export const AIWorkoutGenerator = ({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  style={{ background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}
+                  style={{ background: "#141414", borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}
                 >
                   <div
                     className="flex items-center gap-3 p-4 cursor-pointer"
@@ -394,7 +394,7 @@ export const AIWorkoutGenerator = ({
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-white">{exercise.name}</p>
                         {exercise.category === "accessory" && (
-                          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 20, background: "rgba(96,165,250,0.12)", color: "#60A5FA" }}>Acessório</span>
+                          <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 20, background: "rgba(96,165,250,0.12)", color: "#60A5FA" }}>Acessório</span>
                         )}
                       </div>
                       <p className="text-xs text-gray-400">
@@ -444,7 +444,7 @@ export const AIWorkoutGenerator = ({
               <h4 style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", marginBottom: 10 }}>Alongamento</h4>
               <div className="space-y-1">
                 {workout.stretching.map((s, i) => (
-                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                  <p key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>
                     <span style={{ color: "#A78BFA" }}>•</span> {s.name} - {s.duration}
                   </p>
                 ))}
@@ -456,7 +456,7 @@ export const AIWorkoutGenerator = ({
           {workout.cooldown && (
             <div style={{ background: "#141414", borderRadius: 16, border: "1px solid rgba(96,165,250,0.12)", padding: 16 }}>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: "#60A5FA", marginBottom: 8 }}>Arrefecimento</h4>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{workout.cooldown}</p>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>{workout.cooldown}</p>
             </div>
           )}
 
@@ -464,7 +464,7 @@ export const AIWorkoutGenerator = ({
           {workout.notes && (
             <div style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.1)", borderRadius: 12, padding: 12, display: "flex", alignItems: "flex-start", gap: 8 }}>
               <AlertCircle style={{ width: 14, height: 14, color: "#FBBF24", marginTop: 2, flexShrink: 0 }} />
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{workout.notes}</p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>{workout.notes}</p>
             </div>
           )}
 

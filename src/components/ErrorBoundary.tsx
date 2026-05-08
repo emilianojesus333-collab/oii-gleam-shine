@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
             justifyContent: "center",
             padding: "24px",
             textAlign: "center",
-            background: "#0d0d0d",
+            background: "#141414",
             color: "#f3f4f6",
             gap: "16px",
           }}

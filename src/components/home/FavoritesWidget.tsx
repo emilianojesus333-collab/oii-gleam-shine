@@ -28,7 +28,7 @@ export const FavoritesWidget = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
       className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-white/70 flex items-center gap-2">

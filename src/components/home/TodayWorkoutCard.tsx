@@ -26,13 +26,13 @@ function getWorkoutName(workout: string | null, isRestDay: boolean): string {
   return parts.join(" · ");
 }
 
-const neutralChip = { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" };
+const neutralChip = { bg: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.15)" };
 
 const recoveryChip = {
   label: "Descanso ou recuperação ativa",
-  bg: "rgba(255,255,255,0.06)",
-  color: "rgba(255,255,255,0.4)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  bg: "rgba(255,255,255,0.07)",
+  color: "rgba(255,255,255,0.50)",
+  border: "1px solid rgba(255,255,255,0.07)",
 };
 
 function getMuscleChips(workout: string | null): { label: string; bg: string; color: string; border?: string }[] {
@@ -215,10 +215,10 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
       {/* Label HOJE */}
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 700,
           letterSpacing: "0.15em",
-          color: "rgba(255,255,255,0.5)",
+          color: "rgba(255,255,255,0.50)",
           textTransform: "uppercase",
           marginBottom: 8,
         }}
@@ -250,8 +250,8 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
             borderRadius: 20,
             fontSize: 11,
             fontWeight: 700,
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.4)",
+            background: "rgba(255,255,255,0.07)",
+            color: "rgba(255,255,255,0.50)",
           }}>
             +{muscleChips.length - 2}
           </span>
@@ -276,7 +276,7 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
         style={{
           fontSize: 11,
           fontStyle: "italic",
-          color: "rgba(255,255,255,0.45)",
+          color: "rgba(255,255,255,0.50)",
           fontWeight: 500,
           lineHeight: 1.5,
           display: "-webkit-box",
@@ -302,9 +302,9 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
       {/* Assinatura do assistente */}
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          color: "rgba(255,255,255,0.2)",
+          color: "rgba(255,255,255,0.30)",
           letterSpacing: "0.06em",
           marginBottom: 16,
         }}

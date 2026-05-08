@@ -104,7 +104,7 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
               </span>
               <span
                 style={{
-                  fontSize: 8,
+                  fontSize: 11,
                   fontWeight: 800,
                   padding: "2px 7px",
                   borderRadius: 20,
@@ -124,7 +124,7 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
             <p
               style={{
                 fontSize: 11,
-                color: "rgba(255,255,255,0.4)",
+                color: "rgba(255,255,255,0.50)",
                 lineHeight: 1.6,
                 margin: 0,
                 marginTop: 6,
@@ -183,7 +183,7 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
               </span>
               <span
                 style={{
-                  fontSize: 8,
+                  fontSize: 11,
                   fontWeight: 800,
                   padding: "2px 7px",
                   borderRadius: 20,
@@ -203,7 +203,7 @@ export const NutritionInsights = ({ proteinConsumed, proteinGoal }: NutritionIns
             <p
               style={{
                 fontSize: 11,
-                color: "rgba(255,255,255,0.4)",
+                color: "rgba(255,255,255,0.50)",
                 lineHeight: 1.6,
                 margin: 0,
                 marginTop: 6,

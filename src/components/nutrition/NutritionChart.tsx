@@ -92,11 +92,11 @@ const CustomTooltip = ({ active, payload, unit }: any) => {
 };
 
 const STAT_LABEL: React.CSSProperties = {
-  fontSize: 9,
+  fontSize: 11,
   fontWeight: 700,
   textTransform: "uppercase",
   letterSpacing: "0.1em",
-  color: "rgba(255,255,255,0.3)",
+  color: "rgba(255,255,255,0.30)",
   display: "block",
   marginBottom: 3,
 };
@@ -110,8 +110,8 @@ const STAT_VALUE: React.CSSProperties = {
 };
 
 const STAT_SUB: React.CSSProperties = {
-  fontSize: 9,
-  color: "rgba(255,255,255,0.25)",
+  fontSize: 11,
+  color: "rgba(255,255,255,0.30)",
   marginTop: 3,
   display: "block",
 };
@@ -195,11 +195,11 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
         <span
           style={{
-            fontSize: 9,
+            fontSize: 11,
             fontWeight: 700,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.25)",
+            color: "rgba(255,255,255,0.30)",
           }}
         >
           NUTRIÇÃO
@@ -224,22 +224,22 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
           <span style={STAT_LABEL}>Média Diária</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
             <span style={STAT_VALUE}>{avgCalories}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)" }}>kcal</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.30)" }}>kcal</span>
           </div>
           <span style={STAT_SUB}>Meta: {goals.calories}kcal</span>
         </div>
 
-        <div style={{ width: 1, background: "rgba(255,255,255,0.06)", margin: "0 14px" }} />
+        <div style={{ width: 1, background: "rgba(255,255,255,0.07)", margin: "0 14px" }} />
 
         {/* Days on goal */}
         <div style={{ flex: 1, paddingLeft: 0, paddingRight: 14 }}>
           <span style={STAT_LABEL}>Dias no Objectivo</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
             <span style={STAT_VALUE}>{daysOnGoal}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)" }}>/ 7</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.30)" }}>/ 7</span>
           </div>
           {goalDiff !== null ? (
-            <span style={{ ...STAT_SUB, color: goalDiff >= 0 ? ACCENT : "rgba(255,255,255,0.25)" }}>
+            <span style={{ ...STAT_SUB, color: goalDiff >= 0 ? ACCENT : "rgba(255,255,255,0.30)" }}>
               {goalDiff >= 0 ? "↑" : "↓"} {goalDiff >= 0 ? "+" : ""}{goalDiff} vs sem. ant.
             </span>
           ) : (
@@ -247,14 +247,14 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
           )}
         </div>
 
-        <div style={{ width: 1, background: "rgba(255,255,255,0.06)", margin: "0 14px" }} />
+        <div style={{ width: 1, background: "rgba(255,255,255,0.07)", margin: "0 14px" }} />
 
         {/* Avg protein */}
         <div style={{ flex: 1 }}>
           <span style={STAT_LABEL}>Proteína Média</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
             <span style={STAT_VALUE}>{avgProtein}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)" }}>g</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.30)" }}>g</span>
           </div>
           <span style={STAT_SUB}>Meta: {goals.protein}g</span>
         </div>
@@ -270,9 +270,9 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
               type="button"
               onClick={() => setFilter(f)}
               style={{
-                background: active ? "rgba(232,101,10,0.15)" : "rgba(255,255,255,0.05)",
-                color: active ? ACCENT : "rgba(255,255,255,0.35)",
-                border: active ? `1px solid rgba(232,101,10,0.35)` : "1px solid rgba(255,255,255,0.08)",
+                background: active ? "rgba(232,101,10,0.15)" : "rgba(255,255,255,0.04)",
+                color: active ? ACCENT : "rgba(255,255,255,0.30)",
+                border: active ? `1px solid rgba(232,101,10,0.35)` : "1px solid rgba(255,255,255,0.07)",
                 borderRadius: 20,
                 padding: "6px 13px",
                 fontSize: 11,
@@ -294,7 +294,7 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
             <YAxis hide domain={[0, maxVal]} />
             <ReferenceLine
               y={metaValue}
-              stroke="rgba(255,255,255,0.18)"
+              stroke="rgba(255,255,255,0.15)"
               strokeDasharray="5 4"
               strokeWidth={1.5}
             />
@@ -302,7 +302,7 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
               content={(props) => (
                 <CustomTooltip {...props} unit={UNIT[filter]} />
               )}
-              cursor={{ stroke: "rgba(255,255,255,0.08)", strokeWidth: 1 }}
+              cursor={{ stroke: "rgba(255,255,255,0.07)", strokeWidth: 1 }}
             />
             <Line
               key={filter}
@@ -325,9 +325,9 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
           <span
             key={i}
             style={{
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: d.shortDay === "Hoje" ? 800 : 600,
-              color: d.shortDay === "Hoje" ? ACCENT : "rgba(255,255,255,0.22)",
+              color: d.shortDay === "Hoje" ? ACCENT : "rgba(255,255,255,0.30)",
             }}
           >
             {d.shortDay}
@@ -356,7 +356,7 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
               flexShrink: 0,
             }}
           />
-          <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.30)" }}>
             {filter}
           </span>
         </div>
@@ -364,10 +364,10 @@ export const NutritionChart = ({ weeklyData, goals, allLogs }: NutritionChartPro
           <div
             style={{
               width: 18,
-              borderTop: "2px dashed rgba(255,255,255,0.3)",
+              borderTop: "2px dashed rgba(255,255,255,0.30)",
             }}
           />
-          <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.30)" }}>
             Meta
           </span>
         </div>

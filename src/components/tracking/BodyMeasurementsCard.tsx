@@ -308,7 +308,7 @@ export const MeasurementsHistory = () => {
     <div className="space-y-4">
       {/* Weight Chart */}
       {progressData.length > 1 && (
-        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
+        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 0, borderBottom: "1px solid #2A2A2A", padding: "16px" }}>
           <h3 className="font-semibold mb-3">Evolução do Peso</h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
@@ -317,12 +317,12 @@ export const MeasurementsHistory = () => {
                 <XAxis 
                   dataKey="date" 
                   stroke="#666"
-                  fontSize={10}
+                  fontSize={11}
                   tickFormatter={(value) => new Date(value).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' })}
                 />
-                <YAxis stroke="#666" fontSize={10} domain={['auto', 'auto']} />
+                <YAxis stroke="#666" fontSize={11} domain={['auto', 'auto']} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                  contentStyle={{ backgroundColor: '#1A1A1A', border: '1px solid #333' }}
                   labelFormatter={(value) => new Date(value).toLocaleDateString('pt-PT')}
                 />
                 <Line type="monotone" dataKey="weight" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7' }} />

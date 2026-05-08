@@ -39,10 +39,10 @@ export function RecoveryRingsCard() {
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 + i * 0.07 }}
             className="rounded-2xl p-4"
-            style={{ background: "#0F1923", border: "1px solid rgba(255,255,255,0.07)" }}
+            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)" }}
           >
             <p className="text-sm font-bold text-white mb-3">{label}</p>
-            <div className="w-full h-1.5 rounded-full mb-2" style={{ background: "rgba(255,255,255,0.1)" }}>
+            <div className="w-full h-1.5 rounded-full mb-2" style={{ background: "rgba(255,255,255,0.15)" }}>
               <div
                 style={{
                   height: "100%",

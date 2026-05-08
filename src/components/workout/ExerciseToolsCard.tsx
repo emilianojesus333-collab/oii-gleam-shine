@@ -25,19 +25,19 @@ interface ExerciseToolsCardProps {
 }
 
 const FIELD_LABEL_STYLE: React.CSSProperties = {
-  fontSize: 9,
+  fontSize: 11,
   fontWeight: 700,
   letterSpacing: "0.14em",
   textTransform: "uppercase",
-  color: "rgba(255,255,255,0.28)",
+  color: "rgba(255,255,255,0.30)",
   marginBottom: 6,
   display: "block",
 };
 
 const INPUT_STYLE: React.CSSProperties = {
   width: "100%",
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.07)",
   borderRadius: 10,
   padding: "13px 14px",
   color: "white",
@@ -75,8 +75,8 @@ const QuickStepper = ({
     <div style={{
       display: "flex",
       alignItems: "center",
-      background: "rgba(255,255,255,0.05)",
-      border: "1px solid rgba(255,255,255,0.08)",
+      background: "rgba(255,255,255,0.04)",
+      border: "1px solid rgba(255,255,255,0.07)",
       borderRadius: 12,
       height: 60,
       overflow: "hidden",
@@ -87,7 +87,7 @@ const QuickStepper = ({
         style={{
           width: 48, height: "100%", flexShrink: 0,
           background: "transparent", border: "none",
-          color: "rgba(255,255,255,0.4)", fontSize: 24,
+          color: "rgba(255,255,255,0.50)", fontSize: 24,
           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >−</button>
@@ -123,7 +123,7 @@ const QuickStepper = ({
         style={{
           width: 48, height: "100%", flexShrink: 0,
           background: "transparent", border: "none",
-          color: "rgba(255,255,255,0.4)", fontSize: 24,
+          color: "rgba(255,255,255,0.50)", fontSize: 24,
           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >+</button>
@@ -142,12 +142,12 @@ const MiniStepper = ({ value, onChange, min = 0, step = 1 }: MiniStepperProps) =
   }}>
     <button type="button" onClick={() => onChange(Math.max(min, value - step))}
       style={{ width: 40, height: "100%", background: "transparent", border: "none",
-        color: "rgba(255,255,255,0.35)", fontSize: 20, cursor: "pointer",
+        color: "rgba(255,255,255,0.30)", fontSize: 20, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
     <div style={{ flex: 1, textAlign: "center", fontSize: 18, fontWeight: 800, color: "white" }}>{value}</div>
     <button type="button" onClick={() => onChange(value + step)}
       style={{ width: 40, height: "100%", background: "transparent", border: "none",
-        color: "rgba(255,255,255,0.35)", fontSize: 20, cursor: "pointer",
+        color: "rgba(255,255,255,0.30)", fontSize: 20, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
   </div>
 );
@@ -224,7 +224,7 @@ export const ExerciseToolsCard = ({
     fontSize: 12, fontWeight: 700, cursor: "pointer",
     background: "transparent", border: "none",
     borderBottom: active ? "2px solid #2563EB" : "2px solid transparent",
-    color: active ? "white" : "rgba(255,255,255,0.3)",
+    color: active ? "white" : "rgba(255,255,255,0.30)",
     position: "relative", top: active ? 1 : 0,
     transition: "color 0.15s, border-color 0.15s",
   });
@@ -247,7 +247,7 @@ export const ExerciseToolsCard = ({
       transition: "background 0.2s ease, box-shadow 0.2s ease",
     }}>
       {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <button style={tabStyle(activeTab === 0)} onClick={() => setActiveTab(0)}>Registar Set</button>
         <button style={tabStyle(activeTab === 1)} onClick={() => setActiveTab(1)}>Calculadora 1RM</button>
       </div>
@@ -286,13 +286,13 @@ export const ExerciseToolsCard = ({
                 placeholder="Escreve ou seleciona um exercício..."
                 style={INPUT_STYLE}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(96,165,250,0.35)")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
               />
               <datalist id="exercise-options-tools">
                 {todayExercises.map((ex) => <option key={ex.name} value={ex.name} />)}
               </datalist>
               {estimatedOneRM !== undefined && estimatedOneRM > 0 && (
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 6 }}>
                   1RM estimado:{" "}
                   <span style={{ fontWeight: 700, color: "rgba(96,165,250,0.7)" }}>{estimatedOneRM}kg</span>
                 </p>
@@ -353,7 +353,7 @@ export const ExerciseToolsCard = ({
               >
                 <div style={{
                   width: 28, height: 16, borderRadius: 8,
-                  background: barbellMode ? "#2563EB" : "rgba(255,255,255,0.12)",
+                  background: barbellMode ? "#2563EB" : "rgba(255,255,255,0.15)",
                   position: "relative", transition: "background 0.2s", flexShrink: 0,
                 }}>
                   <div style={{
@@ -363,7 +363,7 @@ export const ExerciseToolsCard = ({
                     background: "white", transition: "left 0.2s",
                   }} />
                 </div>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>
                   Calcular por lado
                 </span>
               </button>
@@ -430,7 +430,7 @@ export const ExerciseToolsCard = ({
                 placeholder="Ex: Supino Reto, Agachamento"
                 style={INPUT_STYLE}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(96,165,250,0.35)")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
               />
               <datalist id="calc-exercise-options-tools">
                 {todayExercises.map((ex) => <option key={ex.name} value={ex.name} />)}
@@ -451,22 +451,22 @@ export const ExerciseToolsCard = ({
             {oneRM !== null && (
               <div style={{
                 marginTop: 12,
-                background: "rgba(52,211,153,0.1)",
-                border: "1px solid rgba(52,211,153,0.2)",
+                background: "rgba(74,222,128,0.1)",
+                border: "1px solid rgba(74,222,128,0.2)",
                 borderRadius: 12, padding: "14px 16px",
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
                 <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.14em",
-                    textTransform: "uppercase", color: "rgba(52,211,153,0.6)", marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em",
+                    textTransform: "uppercase", color: "rgba(74,222,128,0.6)", marginBottom: 4 }}>
                     1RM Estimado
                   </div>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: "#34D399", lineHeight: 1 }}>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: "#4ADE80", lineHeight: 1 }}>
                     {oneRM}
                     <span style={{ fontSize: 14, fontWeight: 600, marginLeft: 4, opacity: 0.7 }}>kg</span>
                   </div>
                 </div>
-                <Activity size={28} color="#34D399" />
+                <Activity size={28} color="#4ADE80" />
               </div>
             )}
 
@@ -475,8 +475,8 @@ export const ExerciseToolsCard = ({
               onClick={() => setOneRM(Math.round(calcWeight * (1 + calcReps / 30)))}
               style={{
                 width: "100%", marginTop: 14, padding: 15,
-                background: "rgba(52,211,153,0.14)", color: "#34D399",
-                border: "1px solid rgba(52,211,153,0.25)", borderRadius: 12,
+                background: "rgba(74,222,128,0.14)", color: "#4ADE80",
+                border: "1px solid rgba(74,222,128,0.25)", borderRadius: 12,
                 fontSize: 13, fontWeight: 800, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 boxSizing: "border-box",

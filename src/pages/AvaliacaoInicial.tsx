@@ -155,7 +155,7 @@ export default function AvaliacaoInicial() {
 
   const cardStyle = {
     background: "#141414",
-    border: "1px solid rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.07)",
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
@@ -256,7 +256,7 @@ export default function AvaliacaoInicial() {
                       </span>
                       {(plan as DayPlan).secundario && (
                         <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                          style={{ background: "rgba(37,99,235,0.15)", color: "#3B82F6", border: "1px solid rgba(37,99,235,0.3)" }}>
+                          style={{ background: "rgba(37,99,235,0.15)", color: "#60A5FA", border: "1px solid rgba(37,99,235,0.3)" }}>
                           {(plan as DayPlan).secundario}
                         </span>
                       )}
@@ -313,7 +313,7 @@ export default function AvaliacaoInicial() {
             disabled={saving}
             onClick={() => savePlan("/plano-semanal")}
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold text-white"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)" }}>
             Fazer alterações
             <ChevronRight className="w-4 h-4" />
           </button>

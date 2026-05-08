@@ -27,6 +27,14 @@ const WorkoutComplete = () => {
   const { user } = useAuth();
 
   const state = (location.state as WorkoutCompleteState) || {};
+
+  // Guard: if there's no state (e.g. user refreshed the page), redirect home
+  useEffect(() => {
+    if (!location.state) {
+      navigate("/home", { replace: true });
+    }
+  }, []);
+
   const workoutName  = state.workoutName  || "Treino";
   const trainingType = state.trainingType || "";
   const exercises    = state.exercises    || [];
@@ -143,7 +151,7 @@ const WorkoutComplete = () => {
       {/* ── Subtitle ── */}
       <motion.div {...fadeUp(0.3)} style={{ textAlign: "center", marginBottom: 32 }}>
         <div style={{ fontSize: 16, color: "#4ADE80", fontWeight: 700 }}>{workoutName}</div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginTop: 4 }}>
           {exercises.length > 0 ? `${exercises.length} exercícios completados` : `${totalSets} séries completadas`}
         </div>
       </motion.div>
@@ -162,28 +170,28 @@ const WorkoutComplete = () => {
             key={label}
             style={{
               background: "#141414",
-              border: "1px solid rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.07)",
               borderRadius: 16,
               padding: "16px 10px",
               textAlign: "center",
             }}
           >
-            <Icon size={16} color="rgba(255,255,255,0.25)" style={{ margin: "0 auto 8px" }} />
+            <Icon size={16} color="rgba(255,255,255,0.30)" style={{ margin: "0 auto 8px" }} />
             <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{value}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>{label}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>{label}</div>
           </div>
         ))}
       </motion.div>
 
       {/* ── AI phrase ── */}
       <motion.div {...fadeUp(0.54)} style={{ width: "100%", maxWidth: 400, textAlign: "center", marginBottom: 6 }}>
-        <p style={{ fontSize: 14, fontStyle: "italic", color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
+        <p style={{ fontSize: 14, fontStyle: "italic", color: "rgba(255,255,255,0.50)", lineHeight: 1.7 }}>
           {aiPhrase}
         </p>
       </motion.div>
 
       <motion.div {...fadeUp(0.6)} style={{ marginBottom: 32 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.18)", letterSpacing: "0.06em" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.15)", letterSpacing: "0.06em" }}>
           ✦ {aiName}
         </span>
       </motion.div>
@@ -212,9 +220,9 @@ const WorkoutComplete = () => {
           onClick={() => navigate("/home")}
           style={{
             width: "100%", height: 44, borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.07)",
             background: "transparent",
-            color: "rgba(255,255,255,0.4)",
+            color: "rgba(255,255,255,0.50)",
             fontSize: 14, fontWeight: 600,
             cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,

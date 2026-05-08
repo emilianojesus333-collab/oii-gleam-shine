@@ -51,7 +51,7 @@ const ExerciseSheet = ({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 480,
-          background: "#111", borderRadius: "20px 20px 0 0",
+          background: "#141414", borderRadius: "20px 20px 0 0",
           padding: "24px 20px 40px",
           maxHeight: "85vh", overflowY: "auto",
         }}
@@ -65,13 +65,13 @@ const ExerciseSheet = ({
             <p style={{ fontSize: 18, fontWeight: 900, color: "white", marginBottom: 3, lineHeight: 1.2 }}>
               {exercise.name.pt}
             </p>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{exercise.name.en}</p>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)" }}>{exercise.name.en}</p>
           </div>
           <button
             onClick={onClose}
-            style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
+            style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
           >
-            <X size={16} color="rgba(255,255,255,0.6)" />
+            <X size={16} color="rgba(255,255,255,0.70)" />
           </button>
         </div>
 
@@ -95,7 +95,7 @@ const ExerciseSheet = ({
           {exercise.equipment.map((eq) => (
             <span key={eq} style={{
               fontSize: 11, padding: "4px 10px", borderRadius: 20,
-              background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+              background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)",
             }}>
               {eq}
             </span>
@@ -104,23 +104,23 @@ const ExerciseSheet = ({
 
         {/* Instructions */}
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginBottom: 8 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", marginBottom: 8 }}>
             EXECUÇÃO
           </p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", lineHeight: 1.6 }}>
             {exercise.instructions}
           </p>
         </div>
 
         {/* Tips */}
         <div style={{ marginBottom: 20 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginBottom: 8 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", marginBottom: 8 }}>
             DICAS TÉCNICAS
           </p>
           {exercise.tips.map((tip, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
               <span style={{ color: "#60A5FA", fontSize: 12, marginTop: 1 }}>•</span>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>{tip}</p>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", lineHeight: 1.5 }}>{tip}</p>
             </div>
           ))}
         </div>
@@ -128,14 +128,14 @@ const ExerciseSheet = ({
         {/* Secondary muscles */}
         {exercise.secondaryMuscles.length > 0 && (
           <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginBottom: 8 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", marginBottom: 8 }}>
               MÚSCULOS SECUNDÁRIOS
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
               {exercise.secondaryMuscles.map((m) => (
                 <span key={m} style={{
                   fontSize: 11, padding: "3px 10px", borderRadius: 20,
-                  background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)",
+                  background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)",
                 }}>
                   {m}
                 </span>
@@ -147,23 +147,23 @@ const ExerciseSheet = ({
         {/* Alternatives */}
         {alternatives.length > 0 && (
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginBottom: 10 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", marginBottom: 10 }}>
               ALTERNATIVAS
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {alternatives.map((alt) => (
                 <div key={alt.id} style={{
-                  background: "#1a1a1a", borderRadius: 10, padding: "10px 12px",
+                  background: "#1A1A1A", borderRadius: 10, padding: "10px 12px",
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                 }}>
                   <div>
                     <p style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{alt.name.pt}</p>
-                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                       {alt.equipment.join(", ")}
                     </p>
                   </div>
                   <span style={{
-                    fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
+                    fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
                     background: DIFFICULTY_CONFIG[alt.difficulty].bg,
                     color: DIFFICULTY_CONFIG[alt.difficulty].color,
                   }}>
@@ -197,7 +197,7 @@ const ExerciseCard = ({
       onClick={onPress}
       style={{
         width: "100%", textAlign: "left", background: "#141414",
-        border: "1px solid rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.07)",
         borderRadius: 12, padding: "13px 14px",
         cursor: "pointer", marginBottom: 8,
       }}
@@ -207,13 +207,13 @@ const ExerciseCard = ({
           <p style={{ fontSize: 13, fontWeight: 800, color: "white", marginBottom: 2, lineHeight: 1.3 }}>
             {exercise.name.pt}
           </p>
-          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginBottom: 8 }}>
             {exercise.name.en}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
             {exercise.muscleGroups.map((m) => (
               <span key={m} style={{
-                fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
                 background: `${MUSCLE_COLORS[m] ?? "#60A5FA"}18`,
                 color: MUSCLE_COLORS[m] ?? "#60A5FA",
               }}>
@@ -222,8 +222,8 @@ const ExerciseCard = ({
             ))}
             {exercise.equipment.slice(0, 2).map((eq) => (
               <span key={eq} style={{
-                fontSize: 10, padding: "2px 8px", borderRadius: 20,
-                background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)",
+                fontSize: 11, padding: "2px 8px", borderRadius: 20,
+                background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)",
               }}>
                 {eq}
               </span>
@@ -232,12 +232,12 @@ const ExerciseCard = ({
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
           <span style={{
-            fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
+            fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
             background: cfg.bg, color: cfg.color,
           }}>
             {cfg.label}
           </span>
-          <Info size={14} color="rgba(255,255,255,0.2)" />
+          <Info size={14} color="rgba(255,255,255,0.30)" />
         </div>
       </div>
     </motion.button>
@@ -262,9 +262,9 @@ const FilterChip = ({
     style={{
       flexShrink: 0, padding: "6px 14px", borderRadius: 20, cursor: "pointer",
       fontSize: 12, fontWeight: 700, whiteSpace: "nowrap",
-      background: active ? (color ? `${color}22` : "rgba(96,165,250,0.18)") : "rgba(255,255,255,0.06)",
-      border: `1px solid ${active ? (color ?? "#60A5FA") + "55" : "rgba(255,255,255,0.08)"}`,
-      color: active ? (color ?? "#60A5FA") : "rgba(255,255,255,0.45)",
+      background: active ? (color ? `${color}22` : "rgba(96,165,250,0.18)") : "rgba(255,255,255,0.07)",
+      border: `1px solid ${active ? (color ?? "#60A5FA") + "55" : "rgba(255,255,255,0.07)"}`,
+      color: active ? (color ?? "#60A5FA") : "rgba(255,255,255,0.50)",
       transition: "all 0.15s",
     }}
   >
@@ -302,20 +302,20 @@ const ExerciseLibrary = () => {
         background: "linear-gradient(180deg, #0d1117 0%, #000 100%)",
         padding: "52px 16px 16px",
         position: "sticky", top: 0, zIndex: 10,
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
           <button
             onClick={() => navigate(-1)}
             style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 10, padding: "6px 8px", cursor: "pointer" }}
           >
-            <ChevronLeft size={18} color="rgba(255,255,255,0.7)" />
+            <ChevronLeft size={18} color="rgba(255,255,255,0.70)" />
           </button>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 20, fontWeight: 900, color: "white", lineHeight: 1 }}>
               Biblioteca de Exercícios
             </h1>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 2 }}>
               {totalCount} exercícios catalogados
             </p>
           </div>
@@ -331,10 +331,10 @@ const ExerciseLibrary = () => {
         {/* Search bar */}
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
-          background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
+          background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.07)",
           borderRadius: 12, padding: "10px 14px", marginBottom: 14,
         }}>
-          <Search size={15} color="rgba(255,255,255,0.3)" />
+          <Search size={15} color="rgba(255,255,255,0.30)" />
           <input
             ref={searchRef}
             value={query}
@@ -347,7 +347,7 @@ const ExerciseLibrary = () => {
           />
           {query && (
             <button onClick={() => setQuery("")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-              <X size={14} color="rgba(255,255,255,0.3)" />
+              <X size={14} color="rgba(255,255,255,0.30)" />
             </button>
           )}
         </div>
@@ -395,7 +395,7 @@ const ExerciseLibrary = () => {
           />
         ))}
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", alignSelf: "center" }}>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", alignSelf: "center" }}>
           {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
         </span>
       </div>
@@ -405,10 +405,10 @@ const ExerciseLibrary = () => {
         {filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <p style={{ fontSize: 32, marginBottom: 12 }}>🔍</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.50)" }}>
               Nenhum exercício encontrado
             </p>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>
               Tenta outros filtros ou outra pesquisa
             </p>
           </div>

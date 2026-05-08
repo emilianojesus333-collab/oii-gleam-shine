@@ -96,7 +96,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
           onClick={onClose}
           style={{
             width: 36, height: 36, borderRadius: "50%",
-            background: "rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.15)",
             border: "none", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
@@ -154,7 +154,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
 
           <p style={{
             position: "absolute", bottom: 100,
-            color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 500,
+            color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 500,
           }}>
             Aponta para o código de barras
           </p>
@@ -189,8 +189,8 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
           alignItems: "center", justifyContent: "center", gap: 16,
           padding: 32,
         }}>
-          <Camera size={48} color="rgba(255,255,255,0.3)" />
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, textAlign: "center" }}>
+          <Camera size={48} color="rgba(255,255,255,0.30)" />
+          <p style={{ color: "rgba(255,255,255,0.70)", fontSize: 14, textAlign: "center" }}>
             A pedir acesso à câmara...
           </p>
         </div>
@@ -208,7 +208,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
           <p style={{ color: "white", fontSize: 15, fontWeight: 700, textAlign: "center" }}>
             Permissão de câmara negada
           </p>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textAlign: "center" }}>
+          <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 13, textAlign: "center" }}>
             Vai às definições do teu browser e permite o acesso à câmara para usar o scanner.
           </p>
           <button
@@ -216,7 +216,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
             onClick={onClose}
             style={{
               padding: "12px 24px", borderRadius: 12,
-              background: "rgba(255,255,255,0.1)", border: "none",
+              background: "rgba(255,255,255,0.15)", border: "none",
               color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer",
             }}
           >
@@ -237,7 +237,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
             Câmara não disponível
           </p>
           <button type="button" onClick={onClose}
-            style={{ padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.1)", border: "none", color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+            style={{ padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.15)", border: "none", color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
             Fechar
           </button>
         </div>
@@ -250,7 +250,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
           background: "#1A1A1A",
           borderRadius: "20px 20px 0 0",
           padding: "24px 20px 40px",
-          border: "1px solid rgba(255,255,255,0.08)",
+          border: "1px solid rgba(255,255,255,0.07)",
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 20px" }} />
 
@@ -261,7 +261,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
             {foundFood.name}
           </p>
           {foundFood.brand && (
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>{foundFood.brand}</p>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", marginBottom: 16 }}>{foundFood.brand}</p>
           )}
 
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
@@ -277,8 +277,8 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
               onClick={() => { detectedRef.current = false; setStatus("scanning"); setFoundFood(null); }}
               style={{
                 flex: 1, padding: 14, borderRadius: 12,
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.70)", fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
             >
               Voltar
@@ -303,7 +303,7 @@ export const BarcodeScanner = ({ onFoodFound, onClose }: BarcodeScannerProps) =>
 
 const MacroPill = ({ label, color, bg }: { label: string; color: string; bg: string }) => (
   <span style={{
-    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
     color, background: bg,
   }}>
     {label}

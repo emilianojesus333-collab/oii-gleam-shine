@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
 import { formatMemoryForAI, extractAndStoreFromMessage } from "@/lib/chatMemory";
 import { executeActionsFromResponse, stripActionsFromText } from "@/lib/chatActions";
-import { loadMemories, formatMemoriesForAI, detectAndSaveMemories } from "@/utils/chatMemory";
+import { loadMemories, formatMemoriesForAI } from "@/utils/chatMemory";
 import { executeChatAction } from "@/utils/chatActions";
 
 const thinkingStates = [
@@ -91,9 +91,8 @@ const Chat = () => {
   };
 
   const bannerVariant: "hidden" | "warning" | "danger" | "limit" =
-    usagePct >= 100 ? "limit" :
-    usagePct >= 95  ? "danger" :
-    usagePct >= 85  ? "hidden" :
+    usagePct >= 100 ? "limit"   :
+    usagePct >= 95  ? "danger"  :
     usagePct >= 80  ? "warning" : "hidden";
   // ─────────────────────────────────────────────────────────
 
@@ -337,10 +336,9 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
     setInputValue("");
     incrementUsage();
 
-    // Auto-extract facts (localStorage) + persist ao Supabase (chat_memory)
+    // Auto-extract facts from user message into localStorage memory
     if (user?.id) {
       extractAndStoreFromMessage(user.id, messageText);
-      detectAndSaveMemories(user.id, messageText);
     }
 
     let convId = currentConversationId;
@@ -420,7 +418,7 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
                       {[0, 1, 2].map((i) =>
                   <motion.span
                     key={i}
-                    className="h-2 w-2 rounded-full bg-[#3B82F6]"
+                    className="h-2 w-2 rounded-full bg-[#60A5FA]"
                     animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }} />
 
@@ -461,12 +459,12 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
               className="flex justify-start"
             >
               <div style={{ maxWidth: '85%' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', marginBottom: 4, paddingLeft: 4 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.06em', marginBottom: 4, paddingLeft: 4 }}>
                   ✦ {aiName}
                 </div>
                 <div style={{
                   background: '#141414',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: '18px 18px 18px 4px',
                   padding: '14px 18px',
                   display: 'flex', alignItems: 'center', gap: 10
@@ -475,12 +473,12 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
                     {[0, 1, 2].map(i => (
                       <div key={i} style={{
                         width: 7, height: 7, borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.4)',
+                        background: 'rgba(255,255,255,0.50)',
                         animation: `dotPulse 1.4s ease-in-out ${i * 0.2}s infinite`
                       }} />
                     ))}
                   </div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', fontStyle: 'italic' }}>
                     {thinkingText}
                   </div>
                 </div>
@@ -526,7 +524,7 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
               </button>
             )}
           </div>
-          <div style={{ height: 3, borderRadius: 99, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+          <div style={{ height: 3, borderRadius: 99, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
             <div style={{
               height: "100%",
               width: `${Math.min(usagePct, 100)}%`,
@@ -536,7 +534,7 @@ REGRAS ABSOLUTAS SOBRE AÇÕES:
             }} />
           </div>
           {bannerVariant === "limit" && (
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 6 }}>
               {isSubscriptionValid() ? "O limite reinicia à meia-noite." : "Subscreve para aumentar o limite para 50/dia."}
             </p>
           )}

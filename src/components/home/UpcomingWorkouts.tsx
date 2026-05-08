@@ -117,10 +117,10 @@ export const UpcomingWorkouts = () => {
     >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 700,
           letterSpacing: "0.12em",
-          color: "rgba(255,255,255,0.25)",
+          color: "rgba(255,255,255,0.30)",
           textTransform: "uppercase",
           marginBottom: 6,
           paddingLeft: 16,
@@ -129,7 +129,7 @@ export const UpcomingWorkouts = () => {
         PRÓXIMOS TREINOS
       </div>
 
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginBottom: 10, paddingLeft: 16 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", fontWeight: 500, marginBottom: 10, paddingLeft: 16 }}>
         {weeklyWorkoutCount} treinos planeados esta semana — mantém o ritmo.
       </p>
 
@@ -159,7 +159,7 @@ export const UpcomingWorkouts = () => {
               background: day.isToday
                 ? "linear-gradient(135deg, #1E3A8A, #1D4ED8)"
                 : "#141414",
-              border: `1px solid ${day.isToday ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.06)"}`,
+              border: `1px solid ${day.isToday ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.07)"}`,
               borderRadius: 20,
               padding: 16,
               display: "flex",
@@ -169,11 +169,11 @@ export const UpcomingWorkouts = () => {
           >
             {/* Abreviação do dia */}
             <span style={{
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 700,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: day.isToday ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.4)",
+              color: day.isToday ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.50)",
             }}>
               {day.abbr}
             </span>
@@ -192,7 +192,7 @@ export const UpcomingWorkouts = () => {
             {/* Músculos */}
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               {day.isRest ? (
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.30)" }}>
                   Descanso
                 </span>
               ) : (
@@ -202,7 +202,7 @@ export const UpcomingWorkouts = () => {
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "rgba(255,255,255,0.3)",
+                      background: "rgba(255,255,255,0.30)",
                       flexShrink: 0,
                     }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{m}</span>
@@ -214,9 +214,9 @@ export const UpcomingWorkouts = () => {
             {/* Barra de intensidade */}
             <div style={{ marginTop: "auto" }}>
               <div style={{
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.3)",
+                color: "rgba(255,255,255,0.30)",
                 marginBottom: 4,
                 letterSpacing: "0.08em",
               }}>
@@ -224,14 +224,14 @@ export const UpcomingWorkouts = () => {
               </div>
               <div style={{
                 height: 3,
-                background: "rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.07)",
                 borderRadius: 2,
                 overflow: "hidden",
               }}>
                 <div style={{
                   height: "100%",
                   width: `${day.intensity}%`,
-                  background: day.isToday ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)",
+                  background: day.isToday ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.30)",
                   borderRadius: 2,
                   transition: "width 0.6s ease",
                 }} />

@@ -75,7 +75,7 @@ export const FatigueAlertCard = ({ fatigueIndex }: FatigueAlertCardProps) => {
           transition={{ duration: 0.3 }}
           className={`relative rounded-none p-4 mb-2 ${colorClasses.bg}`}
           className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
         >
           <button
             onClick={handleDismiss}
