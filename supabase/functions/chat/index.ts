@@ -216,13 +216,6 @@ O teu objetivo é comportar-te como um parceiro de treino inteligente, ajudando 
           { role: 'system', content: systemPrompt },
           ...messages,
         ],
-        tools: [
-          {
-            type: "web_search_preview",
-            search_context_size: "medium"
-          }
-        ],
-        tool_choice: "auto",
         max_tokens: 1500,
         stream: true,
       }),
