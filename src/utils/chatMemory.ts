@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
+const sb = supabase as unknown as { from: (table: string) => any };
 
 export const saveMemory = async (userId: string, type: string, content: string) => {
-  await supabase.from("chat_memory").insert({
+  await sb.from("chat_memory").insert({
     user_id: userId,
     memory_type: type,
     content
@@ -9,7 +10,7 @@ export const saveMemory = async (userId: string, type: string, content: string) 
 };
 
 export const loadMemories = async (userId: string) => {
-  const { data } = await supabase
+  const { data } = await sb
     .from("chat_memory")
     .select("*")
     .eq("user_id", userId)
