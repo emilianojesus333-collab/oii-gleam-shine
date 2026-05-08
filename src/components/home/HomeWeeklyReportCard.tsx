@@ -7,11 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 const MacroPill = ({ label, value, color }: { label: string; value: string; color: string }) => (
   <div style={{
     flex: 1, minWidth: 0,
-    background: "rgba(255,255,255,0.06)", borderRadius: 10,
+    background: "rgba(255,255,255,0.07)", borderRadius: 10,
     padding: "10px 8px", textAlign: "center",
   }}>
     <p style={{ fontSize: 18, fontWeight: 900, color, lineHeight: 1 }}>{value}</p>
-    <p style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 4, fontWeight: 600 }}>{label}</p>
+    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4, fontWeight: 600 }}>{label}</p>
   </div>
 );
 
@@ -68,7 +68,7 @@ export const HomeWeeklyReportCard = () => {
             <div>
               <p style={{ fontSize: 13, fontWeight: 800, color: "white", lineHeight: 1.1 }}>Relatório Semanal</p>
               {report.weekStart && (
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 1 }}>
                   {formatDate(report.weekStart)} — {formatDate(report.weekEnd)}
                 </p>
               )}
@@ -82,8 +82,8 @@ export const HomeWeeklyReportCard = () => {
               style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
             >
               {expanded
-                ? <ChevronUp size={16} color="rgba(255,255,255,0.4)" />
-                : <ChevronDown size={16} color="rgba(255,255,255,0.4)" />
+                ? <ChevronUp size={16} color="rgba(255,255,255,0.50)" />
+                : <ChevronDown size={16} color="rgba(255,255,255,0.50)" />
               }
             </button>
           </div>
@@ -104,7 +104,7 @@ export const HomeWeeklyReportCard = () => {
             {[1, 2, 3].map((i) => (
               <div key={i} style={{
                 flex: 1, height: 52, borderRadius: 10,
-                background: "rgba(255,255,255,0.05)", animation: "pulse 1.5s infinite",
+                background: "rgba(255,255,255,0.04)", animation: "pulse 1.5s infinite",
               }} />
             ))}
           </div>
@@ -118,7 +118,7 @@ export const HomeWeeklyReportCard = () => {
               border: "2px solid rgba(74,222,128,0.2)", borderTopColor: "#4ADE80",
               animation: "spin 0.8s linear infinite", flexShrink: 0,
             }} />
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", fontStyle: "italic" }}>
               A gerar resumo da semana...
             </p>
             <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
@@ -127,7 +127,7 @@ export const HomeWeeklyReportCard = () => {
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Sparkles size={13} color="#4ADE80" style={{ flexShrink: 0, marginTop: 2 }} />
             <p style={{
-              fontSize: 12, color: "rgba(255,255,255,0.7)",
+              fontSize: 12, color: "rgba(255,255,255,0.70)",
               lineHeight: 1.6, fontStyle: "italic",
             }}>
               {cleanSummary}
@@ -154,7 +154,7 @@ export const HomeWeeklyReportCard = () => {
               {/* Muscle groups */}
               {report.stats.muscleGroupsHit.length > 0 && (
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6 }}>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6 }}>
                     GRUPOS MUSCULARES
                   </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
@@ -176,11 +176,11 @@ export const HomeWeeklyReportCard = () => {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <TrendingUp size={13} color="#60A5FA" />
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Melhor exercício</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>Melhor exercício</span>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{report.stats.bestExercise}</p>
-                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                       {(report.stats.bestVolume / 1000).toFixed(1)}t de volume
                     </p>
                   </div>
@@ -192,7 +192,7 @@ export const HomeWeeklyReportCard = () => {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <Dumbbell size={13} color="#FBBF24" />
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Volume médio / sessão</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>Volume médio / sessão</span>
                   </div>
                   <p style={{ fontSize: 12, fontWeight: 700, color: "white" }}>
                     {(report.stats.avgVolumePerSession / 1000).toFixed(1)}t

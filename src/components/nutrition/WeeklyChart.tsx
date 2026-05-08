@@ -40,7 +40,7 @@ export const WeeklyChart = ({ data }: WeeklyChartProps) => {
               dataKey="dayName"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+              tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
 
             <YAxis
               hide

@@ -72,7 +72,7 @@ export const DeloadAlertBanner = () => {
           }}>
             {isUrgent ? "Deload recomendado" : "Considera uma semana de deload"}
           </p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", lineHeight: 1.5 }}>
             {alert.volumeSpike > 0
               ? `Volume aumentou ${alert.volumeSpike}% nas últimas 3 semanas`
               : "Volume elevado por várias semanas consecutivas"}
@@ -100,7 +100,7 @@ export const DeloadAlertBanner = () => {
           onClick={handleDismiss}
           style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0 }}
         >
-          <X size={14} color="rgba(255,255,255,0.25)" />
+          <X size={14} color="rgba(255,255,255,0.30)" />
         </button>
       </motion.div>
     </AnimatePresence>

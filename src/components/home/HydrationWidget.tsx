@@ -31,7 +31,7 @@ export const HydrationWidget = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
       style={{
-        background: "#121212",
+        background: "#141414",
         border: "1px solid rgba(56,189,248,0.55)",
         borderRadius: 20,
         boxShadow: "0 0 32px rgba(56,189,248,0.18), 0 0 8px rgba(56,189,248,0.1)",
@@ -67,7 +67,7 @@ export const HydrationWidget = () => {
       </div>
 
       {/* Contexto */}
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 500, marginBottom: 12, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", fontWeight: 500, marginBottom: 12, lineHeight: 1.5 }}>
         {hydrationContextText(currentIntakeLiters, goalLiters, clampedPct)}
       </p>
 
@@ -77,7 +77,7 @@ export const HydrationWidget = () => {
           <svg width={RING_SIZE} height={RING_SIZE} style={{ transform: "rotate(-90deg)" }}>
             <circle
               cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS}
-              fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={RING_STROKE}
+              fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={RING_STROKE}
             />
             <motion.circle
               cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS}
@@ -102,14 +102,14 @@ export const HydrationWidget = () => {
           <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>
             {formatLiters(currentIntakeLiters)}L
           </div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", marginTop: 2 }}>
             de {formatLiters(goalLiters)}L hoje
           </div>
         </div>
       </div>
 
       {/* Barra de progresso */}
-      <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden", marginBottom: 14 }}>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden", marginBottom: 14 }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${clampedPct}%` }}
@@ -126,8 +126,8 @@ export const HydrationWidget = () => {
             onClick={() => addWaterIntake(liters)}
             style={{
               flex: 1, height: 36, borderRadius: 10,
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+              color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 700, cursor: "pointer",
             }}
           >
             {label}

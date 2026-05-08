@@ -46,6 +46,7 @@ import PlanoSemanal from "./pages/PlanoSemanal";
 import ChatIA from "./pages/ChatIA";
 import MeuEquipamento from "./pages/MeuEquipamento";
 import AvaliacaoInicial from "./pages/AvaliacaoInicial";
+import BodyCalendar from "./pages/BodyCalendar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -205,6 +206,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireSubscription>
                   <PlanoSemanal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/body-calendar"
+              element={
+                <ProtectedRoute requireSubscription>
+                  <BodyCalendar />
                 </ProtectedRoute>
               }
             />

@@ -117,24 +117,24 @@ export const OneRMProgressChart = ({ records, exerciseName }: OneRMProgressChart
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#6B7280", fontSize: 9 }}
+              tick={{ fill: "#6B7280", fontSize: 11 }}
               interval="preserveStartEnd"
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#6B7280", fontSize: 9 }}
+              tick={{ fill: "#6B7280", fontSize: 11 }}
               tickFormatter={(value) => `${value}kg`}
               domain={["dataMin - 5", "dataMax + 5"]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1E1E1E",
+                backgroundColor: "#1A1A1A",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "8px 12px",
               }}
-              labelStyle={{ color: "#9CA3AF", fontSize: 10 }}
+              labelStyle={{ color: "#9CA3AF", fontSize: 11 }}
               formatter={(value: number) => [`${value} kg`, "1RM"]}
               labelFormatter={(_, payload) => payload?.[0]?.payload?.fullDate || ""}
             />

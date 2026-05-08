@@ -15,8 +15,8 @@ const SECTION_STYLE: React.CSSProperties = {
 
 const SectionTitle = ({ icon: Icon, label }: { icon: typeof BarChart3; label: string }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-    <Icon size={15} color="rgba(255,255,255,0.5)" />
-    <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+    <Icon size={15} color="rgba(255,255,255,0.50)" />
+    <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
       {label}
     </span>
   </div>
@@ -30,22 +30,22 @@ export default function Analytics() {
     <div className="min-h-screen bg-black pb-32">
 
       {/* ── Header ── */}
-      <div style={{ background: "#0D0D0D", borderBottom: "1px solid #1A1A1A", padding: "52px 20px 16px" }}>
+      <div style={{ background: "#141414", borderBottom: "1px solid #1A1A1A", padding: "52px 20px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button
             type="button"
             onClick={() => navigate(-1)}
             style={{
               width: 36, height: 36, borderRadius: 10,
-              background: "rgba(255,255,255,0.06)", border: "none",
+              background: "rgba(255,255,255,0.07)", border: "none",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <ArrowLeft size={18} color="rgba(255,255,255,0.7)" />
+            <ArrowLeft size={18} color="rgba(255,255,255,0.70)" />
           </button>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 900, color: "white", lineHeight: 1.1 }}>Analytics</h1>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>Progresso & volume</p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 1 }}>Progresso & volume</p>
           </div>
         </div>
 
@@ -54,7 +54,7 @@ export default function Analytics() {
           <div style={{ display: "flex", gap: 10, marginTop: 16, overflowX: "auto", paddingBottom: 2 }}>
             {[
               { label: "Volume semanal", value: metrics.weeklyVolume > 0 ? `${(metrics.weeklyVolume / 1000).toFixed(1)}t` : "—", color: "#60A5FA" },
-              { label: "Sessões / semana", value: String(metrics.weeklyFrequency), color: "#34D399" },
+              { label: "Sessões / semana", value: String(metrics.weeklyFrequency), color: "#4ADE80" },
               { label: "Perf. média 30d", value: metrics.avgPerformance30d !== null ? `${metrics.avgPerformance30d}%` : "—", color: "#FBBF24" },
               { label: "Fadiga", value: metrics.fatigueIndex !== null ? String(metrics.fatigueIndex) : "—", color: metrics.fatigueIndex !== null && metrics.fatigueIndex >= 61 ? "#F87171" : "#A78BFA" },
             ].map((m) => (
@@ -64,7 +64,7 @@ export default function Analytics() {
                 padding: "10px 14px", minWidth: 90,
               }}>
                 <p style={{ fontSize: 18, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.value}</p>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 3 }}>{m.label}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>{m.label}</p>
               </div>
             ))}
           </div>

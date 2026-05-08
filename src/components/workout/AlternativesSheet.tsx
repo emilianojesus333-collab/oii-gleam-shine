@@ -38,7 +38,7 @@ export const AlternativesSheet = ({
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "100%", maxWidth: 480,
-            background: "#111", borderRadius: "20px 20px 0 0",
+            background: "#141414", borderRadius: "20px 20px 0 0",
             padding: "20px 20px 40px",
           }}
         >
@@ -51,25 +51,25 @@ export const AlternativesSheet = ({
               <p style={{ fontSize: 16, fontWeight: 900, color: "white" }}>
                 Alternativas
               </p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>
                 Para: {exerciseName}
               </p>
             </div>
             <button
               onClick={onClose}
-              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
+              style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
             >
-              <X size={16} color="rgba(255,255,255,0.6)" />
+              <X size={16} color="rgba(255,255,255,0.70)" />
             </button>
           </div>
 
           {alternatives.length === 0 ? (
             <div style={{ textAlign: "center", padding: "32px 0" }}>
               <p style={{ fontSize: 28, marginBottom: 10 }}>🔍</p>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)" }}>
                 Sem alternativas para o teu equipamento
               </p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 4 }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>
                 Adiciona mais equipamento nas Definições
               </p>
             </div>
@@ -86,7 +86,7 @@ export const AlternativesSheet = ({
                     onClick={() => onSelect(alt)}
                     style={{
                       width: "100%", textAlign: "left",
-                      background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.07)",
+                      background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.07)",
                       borderRadius: 14, padding: "14px 14px",
                       cursor: "pointer",
                     }}
@@ -109,7 +109,7 @@ export const AlternativesSheet = ({
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                           {alt.muscleGroups.map((m) => (
                             <span key={m} style={{
-                              fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 20,
+                              fontSize: 11, fontWeight: 600, padding: "2px 7px", borderRadius: 20,
                               background: `${MUSCLE_COLORS[m] ?? "#60A5FA"}18`,
                               color: MUSCLE_COLORS[m] ?? "#60A5FA",
                             }}>
@@ -118,8 +118,8 @@ export const AlternativesSheet = ({
                           ))}
                           {alt.equipment.slice(0, 2).map((eq) => (
                             <span key={eq} style={{
-                              fontSize: 10, padding: "2px 7px", borderRadius: 20,
-                              background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)",
+                              fontSize: 11, padding: "2px 7px", borderRadius: 20,
+                              background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)",
                             }}>
                               {eq}
                             </span>
@@ -130,13 +130,13 @@ export const AlternativesSheet = ({
                       {/* Difficulty + arrow */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
                         <span style={{
-                          fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
+                          fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
                           background: cfg.bg, color: cfg.color,
                         }}>
                           {cfg.label}
                         </span>
                         <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                          <span style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>Usar esta</span>
+                          <span style={{ fontSize: 11, color: "#60A5FA", fontWeight: 700 }}>Usar esta</span>
                           <ArrowRight size={11} color="#60A5FA" />
                         </div>
                       </div>

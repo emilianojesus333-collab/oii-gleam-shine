@@ -35,7 +35,7 @@ const PLANS: MealPlan[] = [
     protein: 200,
     carbs: 180,
     fat: 70,
-    accentColor: "#34D399",
+    accentColor: "#4ADE80",
     ideal: "Perda de gordura com manutenção muscular",
     eat: ["Frango", "Ovos", "Batata-doce", "Arroz integral", "Atum"],
     avoid: ["Álcool", "Açúcar", "Fritos", "Fast food"],
@@ -77,7 +77,7 @@ const PLANS: MealPlan[] = [
     protein: 150,
     carbs: 280,
     fat: 80,
-    accentColor: "#34D399",
+    accentColor: "#4ADE80",
     ideal: "Alimentação plant-based equilibrada",
     eat: ["Tofu", "Leguminosas", "Quinoa", "Nozes", "Vegetais"],
     avoid: ["Carnes", "Peixe", "Lacticínios em excesso"],
@@ -91,10 +91,10 @@ const MacroBar = ({ label, value, max, color }: { label: string; value: number; 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{label}</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>{label}</span>
         <span style={{ fontSize: 12, fontWeight: 800, color: "white" }}>{value}g</span>
       </div>
-      <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden" }}>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 2, transition: "width 0.5s ease" }} />
       </div>
     </div>
@@ -160,7 +160,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
         </h2>
       </div>
 
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 10, marginTop: -8 }}>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginBottom: 10, marginTop: -8 }}>
         1 toque para ativar · 2 toques para detalhes
       </p>
 
@@ -200,26 +200,26 @@ export const MealPlanCards = ({ onActivate }: Props) => {
                     </span>
                     {isActive && (
                       <span style={{
-                        fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 20,
+                        fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20,
                         letterSpacing: "0.06em", textTransform: "uppercase",
-                        background: "rgba(52,211,153,0.15)", color: "#34D399",
-                        border: "1px solid rgba(52,211,153,0.28)", flexShrink: 0,
+                        background: "rgba(74,222,128,0.15)", color: "#4ADE80",
+                        border: "1px solid rgba(74,222,128,0.28)", flexShrink: 0,
                       }}>
                         Activo
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.32)" }}>{plan.description}</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>{plan.description}</span>
                 </div>
 
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
                   <span style={{
                     fontSize: 18, fontWeight: 900, lineHeight: 1, display: "block",
-                    color: isActive ? plan.accentColor : "rgba(255,255,255,0.55)",
+                    color: isActive ? plan.accentColor : "rgba(255,255,255,0.50)",
                   }}>
                     {plan.calories}
                   </span>
-                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", marginTop: 1, display: "block" }}>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 1, display: "block" }}>
                     kcal/dia
                   </span>
                   <div style={{ display: "flex", gap: 4, marginTop: 5, justifyContent: "flex-end" }}>
@@ -266,7 +266,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
               style={{
                 position: "fixed", bottom: 0, left: 0, right: 0,
-                background: "#111111", borderRadius: "20px 20px 0 0",
+                background: "#141414", borderRadius: "20px 20px 0 0",
                 zIndex: 51, maxHeight: "85vh", overflowY: "auto",
                 paddingBottom: 32,
               }}
@@ -287,7 +287,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
                   cursor: "pointer",
                 }}
               >
-                <X size={16} color="rgba(255,255,255,0.5)" />
+                <X size={16} color="rgba(255,255,255,0.50)" />
               </button>
 
               <div style={{ padding: "0 20px" }}>
@@ -297,7 +297,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
                   <h3 style={{ fontSize: 22, fontWeight: 900, color: "white", margin: "0 0 6px" }}>
                     {detailPlan.name}
                   </h3>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", margin: 0 }}>
                     {detailPlan.description}
                   </p>
                 </div>
@@ -311,7 +311,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
                   <span style={{ fontSize: 42, fontWeight: 900, color: detailPlan.accentColor, lineHeight: 1 }}>
                     {detailPlan.calories}
                   </span>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: "4px 0 0" }}>kcal por dia</p>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", margin: "4px 0 0" }}>kcal por dia</p>
                 </div>
 
                 {/* Macro bars */}
@@ -330,17 +330,17 @@ export const MealPlanCards = ({ onActivate }: Props) => {
                   background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.2)",
                   borderRadius: 12, padding: "12px 14px", marginBottom: 14,
                 }}>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", marginBottom: 4 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.50)", letterSpacing: "0.1em", marginBottom: 4 }}>
                     IDEAL PARA
                   </p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: 0, fontWeight: 600 }}>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.90)", margin: 0, fontWeight: 600 }}>
                     {detailPlan.ideal}
                   </p>
                 </div>
 
                 {/* Comer mais */}
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.50)", letterSpacing: "0.08em", marginBottom: 8 }}>
                     ✅ COMER MAIS
                   </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -358,7 +358,7 @@ export const MealPlanCards = ({ onActivate }: Props) => {
 
                 {/* Evitar */}
                 <div style={{ marginBottom: 24 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.50)", letterSpacing: "0.08em", marginBottom: 8 }}>
                     ❌ EVITAR
                   </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

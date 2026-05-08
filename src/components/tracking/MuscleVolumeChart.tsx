@@ -7,7 +7,7 @@ import { TrendingUp } from "lucide-react";
 import { useMuscleVolume, MUSCLE_COLORS, ALL_MUSCLES } from "@/hooks/useMuscleVolume";
 
 const SkeletonBar = ({ w }: { w: number }) => (
-  <div style={{ height: 12, width: `${w}%`, borderRadius: 6, background: "rgba(255,255,255,0.06)", animation: "pulse 1.5s infinite" }} />
+  <div style={{ height: 12, width: `${w}%`, borderRadius: 6, background: "rgba(255,255,255,0.07)", animation: "pulse 1.5s infinite" }} />
 );
 
 const CustomTooltip = ({ active, payload, label }: {
@@ -18,10 +18,10 @@ const CustomTooltip = ({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.1)",
+      background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.15)",
       borderRadius: 10, padding: "10px 14px", minWidth: 140,
     }}>
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>{label}</p>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginBottom: 6 }}>{label}</p>
       {payload.map((p) => (
         <div key={p.name} style={{ display: "flex", justifyContent: "space-between", gap: 16, marginBottom: 3 }}>
           <span style={{ fontSize: 12, color: p.color, fontWeight: 600 }}>{p.name}</span>
@@ -48,7 +48,7 @@ export const MuscleVolumeChart = () => {
   return (
     <div style={{
       background: "#141414", borderRadius: 16, padding: "20px 16px",
-      border: "1px solid rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.07)",
     }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
 
@@ -56,7 +56,7 @@ export const MuscleVolumeChart = () => {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
         <TrendingUp size={16} color="#60A5FA" />
         <span style={{ fontSize: 14, fontWeight: 800, color: "white" }}>Volume por músculo</span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginLeft: "auto" }}>últimas 8 semanas</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginLeft: "auto" }}>últimas 8 semanas</span>
       </div>
 
       {/* Muscle toggles */}
@@ -75,7 +75,7 @@ export const MuscleVolumeChart = () => {
                   cursor: "pointer", transition: "all 0.15s",
                   background: on ? `${color}1A` : "rgba(255,255,255,0.04)",
                   border: `1px solid ${on ? color + "40" : "rgba(255,255,255,0.07)"}`,
-                  color: on ? color : "rgba(255,255,255,0.3)",
+                  color: on ? color : "rgba(255,255,255,0.30)",
                 }}
               >
                 {m}
@@ -89,16 +89,16 @@ export const MuscleVolumeChart = () => {
       {loading && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "12px 0" }}>
           <SkeletonBar w={80} />
-          <div style={{ height: 180, background: "rgba(255,255,255,0.03)", borderRadius: 10, animation: "pulse 1.5s infinite" }} />
+          <div style={{ height: 180, background: "rgba(255,255,255,0.04)", borderRadius: 10, animation: "pulse 1.5s infinite" }} />
         </div>
       )}
 
       {/* Empty state */}
       {!loading && muscles.length === 0 && (
         <div style={{ textAlign: "center", padding: "32px 0" }}>
-          <TrendingUp size={32} color="rgba(255,255,255,0.12)" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>Ainda sem dados de volume</p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>Completa alguns treinos para ver o gráfico</p>
+          <TrendingUp size={32} color="rgba(255,255,255,0.15)" style={{ margin: "0 auto 10px" }} />
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)" }}>Ainda sem dados de volume</p>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 4 }}>Completa alguns treinos para ver o gráfico</p>
         </div>
       )}
 
@@ -109,12 +109,12 @@ export const MuscleVolumeChart = () => {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis
               dataKey="weekLabel"
-              tick={{ fontSize: 10, fill: "rgba(255,255,255,0.3)" }}
+              tick={{ fontSize: 11, fill: "rgba(255,255,255,0.30)" }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 9, fill: "rgba(255,255,255,0.25)" }}
+              tick={{ fontSize: 11, fill: "rgba(255,255,255,0.30)" }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
@@ -142,7 +142,7 @@ export const MuscleVolumeChart = () => {
           {visibleMuscles.map((m) => (
             <div key={m} style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <div style={{ width: 20, height: 2, borderRadius: 1, background: MUSCLE_COLORS[m] ?? "#60A5FA" }} />
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>{m}</span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)" }}>{m}</span>
             </div>
           ))}
         </div>

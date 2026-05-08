@@ -37,7 +37,7 @@ export function WeeklyProgressCard() {
         <h3 className="text-base font-bold text-foreground">Esta semana</h3>
       </div>
 
-      <div style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}>
+      <div style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}>
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative flex-shrink-0">

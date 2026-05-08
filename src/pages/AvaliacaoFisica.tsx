@@ -11,7 +11,6 @@ import { compressImage } from "@/lib/imageCompression";
 import { useAuth } from "@/hooks/useAuth";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
-import { updateWeeklyPlan, type WeeklyPlan, type DayPlan } from "@/utils/weeklyPlanManager";
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface MuscleAnalysis {
@@ -39,8 +38,6 @@ interface PhysiqueAnalysis {
     weaknesses: MuscleAnalysis[];
     recommendations: Recommendation[];
     motivationalMessage: string;
-    suggestedPlan?: WeeklyPlan;
-    planReason?: string;
   };
 }
 
@@ -77,110 +74,13 @@ function ScoreRing({ score }: { score: number }) {
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <span style={{ fontSize: 28, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{score.toFixed(1)}</span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Score</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Score</span>
       </div>
     </div>
   );
 }
 
 // ── Page ───────────────────────────────────────────────────────────────
-const DAYS_ORDER = [
-  "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira",
-  "Sexta-feira", "Sábado", "Domingo",
-];
-
-function SuggestedPlanCard({
-  plan, reason, userId,
-}: { plan: WeeklyPlan; reason?: string; userId: string }) {
-  const [applying, setApplying] = useState(false);
-  const [applied, setApplied] = useState(false);
-
-  const handleApply = async () => {
-    setApplying(true);
-    const ok = await updateWeeklyPlan(userId, plan);
-    setApplying(false);
-    if (ok) {
-      setApplied(true);
-      toast.success("Plano semanal atualizado com sucesso!");
-    } else {
-      toast.error("Não foi possível atualizar o plano.");
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.75 }}
-      style={{
-        background: "rgba(37,99,235,0.06)",
-        border: "1px solid rgba(37,99,235,0.2)",
-        borderRadius: 16, padding: 16, marginBottom: 12,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <Sparkles size={16} color="#60A5FA" />
-        <span style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Plano sugerido pela IA</span>
-      </div>
-      {reason && (
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 12 }}>
-          {reason}
-        </p>
-      )}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
-        {DAYS_ORDER.map((day) => {
-          const value: DayPlan | undefined = plan[day];
-          const isRest = !value || value === "descanso";
-          return (
-            <div key={day} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-              <span style={{ width: 92, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>{day}</span>
-              {isRest ? (
-                <span style={{ color: "rgba(255,255,255,0.35)" }}>Descanso</span>
-              ) : (
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  <span style={{ color: "#4ADE80", fontWeight: 700 }}>
-                    {(value as { principal: string }).principal}
-                  </span>
-                  {(value as { secundario?: string | null }).secundario && (
-                    <span style={{ color: "#60A5FA", fontWeight: 700 }}>
-                      + {(value as { secundario: string }).secundario}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <button
-          disabled={applying}
-          style={{
-            flex: 1, height: 42, borderRadius: 12,
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 700,
-            cursor: "pointer",
-          }}
-          onClick={() => toast("Plano atual mantido.")}
-        >
-          Manter atual
-        </button>
-        <button
-          disabled={applying || applied}
-          onClick={handleApply}
-          style={{
-            flex: 1, height: 42, borderRadius: 12, border: "none",
-            background: applied ? "#16A34A" : "#2563EB", color: "#fff",
-            fontSize: 13, fontWeight: 700, cursor: applying ? "wait" : "pointer",
-          }}
-        >
-          {applied ? "Aplicado" : applying ? "A aplicar..." : "Aplicar este plano"}
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
 const AvaliacaoFisica = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -397,7 +297,7 @@ const AvaliacaoFisica = () => {
       {/* ── HEADER ── */}
       <div style={{ background: "#000", padding: "48px 24px 0" }}>
         <button onClick={() => navigate(-1)}
-          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.4)", fontSize: 14, padding: 0 }}>
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.50)", fontSize: 14, padding: 0 }}>
           <ArrowLeft size={18} />
         </button>
 
@@ -408,7 +308,7 @@ const AvaliacaoFisica = () => {
         <div style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", marginBottom: 8 }}>
           Avaliação Física
         </div>
-        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: 28 }}>
+        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", lineHeight: 1.5, marginBottom: 28 }}>
           Analisa o teu físico com IA e recebe um plano personalizado
         </div>
       </div>
@@ -428,7 +328,7 @@ const AvaliacaoFisica = () => {
               </div>
             )}
             <Loader2 size={32} color="#A78BFA" style={{ animation: "spin 1s linear infinite" }} />
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
+            <p style={{ color: "rgba(255,255,255,0.50)", fontSize: 14 }}>
               {previousPhotoPath ? "A comparar com avaliação anterior..." : "A analisar o teu físico..."}
             </p>
           </div>
@@ -441,7 +341,7 @@ const AvaliacaoFisica = () => {
             style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 12 }}>
               <AlertTriangle size={18} color="#F87171" style={{ flexShrink: 0, marginTop: 1 }} />
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", lineHeight: 1.5 }}>
                 ⚠️ Detetámos uma diferença significativa em relação à tua avaliação anterior. Para um acompanhamento preciso do teu progresso, confirma que és tu na foto e que foi tirada agora.
               </p>
             </div>
@@ -464,10 +364,10 @@ const AvaliacaoFisica = () => {
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA" }}>Próxima avaliação em {daysRemaining} dias</p>
                   {lastEvaluationDate && (
-                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>Última: {formatDate(lastEvaluationDate)}</p>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 2 }}>Última: {formatDate(lastEvaluationDate)}</p>
                   )}
                 </div>
-                <div style={{ marginLeft: "auto", width: 60, height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ marginLeft: "auto", width: 60, height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 4, overflow: "hidden" }}>
                   <div style={{ width: `${progressPct}%`, height: "100%", background: "#A78BFA", borderRadius: 4 }} />
                 </div>
               </div>
@@ -480,14 +380,14 @@ const AvaliacaoFisica = () => {
                 style={{ background: "#1A1A1A", border: "1px solid rgba(167,139,250,0.2)", borderRadius: 14, padding: 20, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: isLocked ? 0.5 : 1 }}>
                 <Camera size={24} color="#A78BFA" />
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Tirar Foto</span>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Câmara agora</span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Câmara agora</span>
               </button>
               <button
                 onClick={() => { if (isLocked) { toast.error(`Disponível em ${daysRemaining} dias`); return; } galleryInputRef.current?.click(); }}
                 style={{ background: "#1A1A1A", border: "1px solid rgba(236,72,153,0.2)", borderRadius: 14, padding: 20, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: isLocked ? 0.5 : 1 }}>
                 <Upload size={24} color="#EC4899" />
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Carregar</span>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Da galeria</span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Da galeria</span>
               </button>
             </div>
 
@@ -503,9 +403,9 @@ const AvaliacaoFisica = () => {
             )}
 
             {/* Privacy notice — updated text */}
-            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: 12, marginBottom: 12, display: "flex", alignItems: "flex-start", gap: 10 }}>
-              <Calendar size={14} color="rgba(255,255,255,0.3)" style={{ marginTop: 1, flexShrink: 0 }} />
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>
+            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: 12, marginBottom: 12, display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <Calendar size={14} color="rgba(255,255,255,0.30)" style={{ marginTop: 1, flexShrink: 0 }} />
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", lineHeight: 1.5 }}>
                 A tua foto é guardada de forma segura e privada para acompanhar o teu progresso. Avaliações disponíveis a cada 15 dias.
               </p>
             </div>
@@ -529,12 +429,12 @@ const AvaliacaoFisica = () => {
         {/* ── HISTÓRICO DE AVALIAÇÕES ── */}
         {evaluationHistory.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
               Histórico
             </p>
             <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
               {evaluationHistory.map((ev, i) => (
-                <div key={ev.id} style={{ flexShrink: 0, width: 90, background: "#141414", border: `1px solid ${i === 0 ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: 12, overflow: "hidden" }}>
+                <div key={ev.id} style={{ flexShrink: 0, width: 90, background: "#141414", border: `1px solid ${i === 0 ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.07)"}`, borderRadius: 12, overflow: "hidden" }}>
                   {/* Thumbnail */}
                   <div style={{ height: 72, background: "rgba(255,255,255,0.04)", position: "relative" }}>
                     {ev.photo_thumb ? (
@@ -545,7 +445,7 @@ const AvaliacaoFisica = () => {
                       </div>
                     )}
                     {i === 0 && (
-                      <div style={{ position: "absolute", top: 4, right: 4, background: "#7C3AED", borderRadius: 6, padding: "1px 5px", fontSize: 8, fontWeight: 800, color: "#fff" }}>
+                      <div style={{ position: "absolute", top: 4, right: 4, background: "#7C3AED", borderRadius: 6, padding: "1px 5px", fontSize: 11, fontWeight: 800, color: "#fff" }}>
                         ATUAL
                       </div>
                     )}
@@ -555,7 +455,7 @@ const AvaliacaoFisica = () => {
                     <p style={{ fontSize: 16, fontWeight: 900, color: "#A78BFA", lineHeight: 1 }}>
                       {ev.score != null ? ev.score.toFixed(1) : "—"}
                     </p>
-                    <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", marginTop: 3 }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>
                       {formatDateShort(ev.created_at)}
                     </p>
                   </div>
@@ -574,7 +474,7 @@ const AvaliacaoFisica = () => {
                         {diff >= 0
                           ? <TrendingUp size={12} color="#4ADE80" />
                           : <TrendingDown size={12} color="#F87171" />}
-                        <span style={{ fontSize: 10, fontWeight: 700, color: diff >= 0 ? "#4ADE80" : "#F87171" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: diff >= 0 ? "#4ADE80" : "#F87171" }}>
                           {diff >= 0 ? "+" : ""}{diff.toFixed(1)}
                         </span>
                       </div>
@@ -594,7 +494,7 @@ const AvaliacaoFisica = () => {
               {/* Score geral */}
               <div style={{ background: "#141414", border: "1px solid rgba(167,139,250,0.15)", borderRadius: 16, padding: 20, marginBottom: 12, textAlign: "center" }}>
                 <ScoreRing score={results.analysis.overallScore} />
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginTop: 10 }}>
                   Gordura corporal estimada: <span style={{ color: "#fff", fontWeight: 700 }}>{results.analysis.bodyFatEstimate}</span>
                 </p>
                 {scoreDelta !== null && (
@@ -611,7 +511,7 @@ const AvaliacaoFisica = () => {
 
               {/* Pontos Fortes */}
               {results.analysis.strengths.length > 0 && (
-                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderLeft: "3px solid #4ADE80", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderLeft: "3px solid #4ADE80", borderRadius: 16, padding: 16, marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                     <TrendingUp size={16} color="#4ADE80" />
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Pontos Fortes</span>
@@ -623,8 +523,8 @@ const AvaliacaoFisica = () => {
                           <span style={{ fontSize: 13, fontWeight: 700, color: "#4ADE80" }}>{s.muscleGroup}</span>
                           <span style={{ fontSize: 12, color: "#4ADE80" }}>{s.score}/10</span>
                         </div>
-                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.4, marginBottom: 6 }}>{s.description}</p>
-                        <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", lineHeight: 1.4, marginBottom: 6 }}>{s.description}</p>
+                        <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
                           <motion.div initial={{ width: 0 }} animate={{ width: `${s.score * 10}%` }} transition={{ duration: 0.6, delay: i * 0.07 }} style={{ height: "100%", background: "#4ADE80", borderRadius: 2 }} />
                         </div>
                       </motion.div>
@@ -635,7 +535,7 @@ const AvaliacaoFisica = () => {
 
               {/* Áreas a Melhorar */}
               {results.analysis.weaknesses.length > 0 && (
-                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderLeft: "3px solid #F87171", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderLeft: "3px solid #F87171", borderRadius: 16, padding: 16, marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                     <TrendingDown size={16} color="#F87171" />
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Áreas a Melhorar</span>
@@ -647,13 +547,13 @@ const AvaliacaoFisica = () => {
                           <span style={{ fontSize: 13, fontWeight: 700, color: "#F87171" }}>{w.muscleGroup}</span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             {w.priority === "alta" && (
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 20, background: "rgba(248,113,113,0.15)", color: "#F87171" }}>PRIORITÁRIO</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 6px", borderRadius: 20, background: "rgba(248,113,113,0.15)", color: "#F87171" }}>PRIORITÁRIO</span>
                             )}
                             <span style={{ fontSize: 12, color: "#F87171" }}>{w.score}/10</span>
                           </div>
                         </div>
-                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.4, marginBottom: 6 }}>{w.description}</p>
-                        <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", lineHeight: 1.4, marginBottom: 6 }}>{w.description}</p>
+                        <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
                           <motion.div initial={{ width: 0 }} animate={{ width: `${w.score * 10}%` }} transition={{ duration: 0.6, delay: 0.2 + i * 0.07 }} style={{ height: "100%", background: "#F87171", borderRadius: 2 }} />
                         </div>
                       </motion.div>
@@ -664,7 +564,7 @@ const AvaliacaoFisica = () => {
 
               {/* Plano de Ação */}
               {results.analysis.recommendations.length > 0 && (
-                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
+                <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16, marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                     <Dumbbell size={16} color="#A78BFA" />
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Plano de Ação</span>
@@ -675,14 +575,14 @@ const AvaliacaoFisica = () => {
                         style={{ background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.15)", borderRadius: 12, padding: 14 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                           <span style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA" }}>{rec.focus}</span>
-                          <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(167,139,250,0.15)", color: "#A78BFA" }}>{rec.frequency}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(167,139,250,0.15)", color: "#A78BFA" }}>{rec.frequency}</span>
                         </div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
                           {rec.exercises.map((ex, j) => (
-                            <span key={j} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}>{ex}</span>
+                            <span key={j} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)" }}>{ex}</span>
                           ))}
                         </div>
-                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.4 }}>{rec.tip}</p>
+                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", lineHeight: 1.4 }}>{rec.tip}</p>
                       </motion.div>
                     ))}
                   </div>
@@ -694,24 +594,15 @@ const AvaliacaoFisica = () => {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
                   style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)", borderRadius: 16, padding: 16, marginBottom: 12, display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <Target size={16} color="#A78BFA" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <p style={{ fontSize: 13, fontStyle: "italic", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 13, fontStyle: "italic", color: "rgba(255,255,255,0.70)", lineHeight: 1.6 }}>
                     "{results.analysis.motivationalMessage}"
                   </p>
                 </motion.div>
               )}
 
-              {/* Plano sugerido pela IA */}
-              {results.analysis.suggestedPlan && user?.id && (
-                <SuggestedPlanCard
-                  plan={results.analysis.suggestedPlan}
-                  reason={results.analysis.planReason}
-                  userId={user.id}
-                />
-              )}
-
               {/* Fechar */}
               <button onClick={() => setShowResults(false)}
-                style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 16 }}>
+                style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", color: "rgba(255,255,255,0.50)", fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 16 }}>
                 Fechar resultados
               </button>
             </motion.div>

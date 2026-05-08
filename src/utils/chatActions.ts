@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { updateWeeklyPlan, type WeeklyPlan } from "./weeklyPlanManager";
 
 export const executeChatAction = async (userId: string, actionStr: string) => {
   try {
@@ -24,13 +23,14 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
     const data = JSON.parse(actionStr.slice(headerEnd, idx + 1));
 
     if (actionType === "updateSchedule") {
-      const ok = await updateWeeklyPlan(userId, data as WeeklyPlan);
-      return {
-        type: "updateSchedule",
-        message: ok
-          ? "Plano semanal atualizado! As alterações já estão ativas."
-          : "Não foi possível atualizar o plano. Tenta novamente.",
-      };
+      const { data: current } = await supabase
+        .from("user_settings")
+        .select("onboarding_data")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const updated = { ...(current?.onboarding_data || {}), schedule: data };
+      await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
+      return { type: "updateSchedule", message: "Calendário atualizado com sucesso!" };
     }
 
     if (actionType === "rescheduleWorkout") {
@@ -40,11 +40,10 @@ export const executeChatAction = async (userId: string, actionStr: string) => {
         .select("onboarding_data")
         .eq("user_id", userId)
         .maybeSingle();
-      const ob = (current?.onboarding_data as Record<string, unknown> | null) || {};
-      const schedule = ((ob.schedule as Record<string, string[]>) || {});
-      schedule[to] = schedule[from] || [];
+      const schedule = current?.onboarding_data?.schedule || {};
+      schedule[to] = schedule[from];
       schedule[from] = ["Descanso"];
-      const updated = { ...ob, schedule };
+      const updated = { ...(current?.onboarding_data || {}), schedule };
       await supabase.from("user_settings").update({ onboarding_data: updated }).eq("user_id", userId);
       return { type: "rescheduleWorkout", message: `Treino movido de ${from} para ${to}!` };
     }

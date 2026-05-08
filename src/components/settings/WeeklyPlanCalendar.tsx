@@ -195,7 +195,7 @@ export const WeeklyPlanCalendar = () => {
           <h3 style={{ fontSize: 16, fontWeight: 900, color: "#fff", marginBottom: 4 }}>
             Plano Semanal
           </h3>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 0 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginBottom: 0 }}>
             Toca num músculo para atribuir o dia de treino
           </p>
 
@@ -216,7 +216,7 @@ export const WeeklyPlanCalendar = () => {
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>
                   {item.label}
                 </span>
               </div>
@@ -238,11 +238,11 @@ export const WeeklyPlanCalendar = () => {
               style={{
                 padding: "8px 4px",
                 textAlign: "center",
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: 800,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.45)",
+                color: "rgba(255,255,255,0.50)",
                 borderBottom: "1px solid #2A2A2A",
                 borderRight: ci < COLUMNS.length - 1 ? "1px solid #2A2A2A" : "none",
               }}
@@ -261,7 +261,7 @@ export const WeeklyPlanCalendar = () => {
                   <div
                     key={`empty-${ci}-${rowIdx}`}
                     style={{
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      borderBottom: "1px solid rgba(255,255,255,0.04)",
                       borderRight: ci < COLUMNS.length - 1 ? "1px solid #2A2A2A" : "none",
                     }}
                   />
@@ -285,7 +285,7 @@ export const WeeklyPlanCalendar = () => {
                     alignItems: "center",
                     gap: 5,
                     textAlign: "center",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    borderBottom: "1px solid rgba(255,255,255,0.04)",
                     borderRight: ci < COLUMNS.length - 1 ? "1px solid #2A2A2A" : "none",
                     cursor: "pointer",
                     background: isSelected ? "rgba(255,255,255,0.04)" : "transparent",
@@ -315,7 +315,7 @@ export const WeeklyPlanCalendar = () => {
                         exit={{ opacity: 0, y: 4 }}
                         transition={{ duration: 0.22, ease: "easeOut" }}
                         style={{
-                          fontSize: 9,
+                          fontSize: 11,
                           fontWeight: 800,
                           padding: "2px 7px",
                           borderRadius: 20,
@@ -438,7 +438,7 @@ export const WeeklyPlanCalendar = () => {
                     cursor: "pointer",
                   }}
                 >
-                  <X size={14} color="rgba(255,255,255,0.5)" />
+                  <X size={14} color="rgba(255,255,255,0.50)" />
                 </button>
               </div>
 
@@ -460,7 +460,7 @@ export const WeeklyPlanCalendar = () => {
                         padding: "14px 20px",
                         borderBottom:
                           i < DAYS_FULL.length - 1
-                            ? "1px solid rgba(255,255,255,0.05)"
+                            ? "1px solid rgba(255,255,255,0.04)"
                             : "none",
                         background: "transparent",
                         cursor: "pointer",

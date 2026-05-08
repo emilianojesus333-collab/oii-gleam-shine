@@ -16,7 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 
 const CYAN = '#22D3EE';
-const GREEN = '#34D399';
+const GREEN = '#4ADE80';
 const CIRCUMFERENCE = 2 * Math.PI * 84; // ≈ 527.8
 const PT_DAY_SHORT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
@@ -28,11 +28,11 @@ const QUICK_ADDS = [
 ];
 
 const SECTION_LABEL: React.CSSProperties = {
-  fontSize: 9,
+  fontSize: 11,
   fontWeight: 700,
   letterSpacing: '0.16em',
   textTransform: 'uppercase',
-  color: 'rgba(255,255,255,0.25)',
+  color: 'rgba(255,255,255,0.30)',
   display: 'block',
 };
 
@@ -179,7 +179,7 @@ const Hydration = () => {
                 <span style={{ fontSize: 30, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1 }}>
                   {currentMl}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>ml</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.30)' }}>ml</span>
               </div>
             </div>
             {/* Right */}
@@ -187,11 +187,11 @@ const Hydration = () => {
               <span style={{ fontSize: 26, fontWeight: 900, color: CYAN, letterSpacing: '-0.02em', display: 'block', lineHeight: 1 }}>
                 {pct}%
               </span>
-              <span style={{ fontSize: 10, color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>
+              <span style={{ fontSize: 11, color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>
                 da meta
               </span>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 3, display: 'block' }}>
-                Faltam <span style={{ color: 'rgba(255,255,255,0.45)' }}>{remainMl}</span> ml
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)', marginTop: 3, display: 'block' }}>
+                Faltam <span style={{ color: 'rgba(255,255,255,0.50)' }}>{remainMl}</span> ml
               </span>
             </div>
           </div>
@@ -201,7 +201,7 @@ const Hydration = () => {
             <div style={{ position: 'relative', width: 200, height: 200 }}>
               <svg width="200" height="200" viewBox="0 0 200 200">
                 {/* Track */}
-                <circle cx="100" cy="100" r="84" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+                <circle cx="100" cy="100" r="84" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="14" />
                 {/* Progress */}
                 <circle
                   cx="100" cy="100" r="84"
@@ -228,7 +228,7 @@ const Hydration = () => {
                 <span style={{ fontSize: 28, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1 }}>
                   {currentMl}
                 </span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>ml bebidos</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.30)' }}>ml bebidos</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: CYAN, marginTop: 2 }}>{pct}% da meta</span>
               </div>
             </div>
@@ -242,10 +242,10 @@ const Hydration = () => {
               borderRadius: 12,
               padding: 10,
             }}>
-              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.25)', marginBottom: 3 }}>META</span>
+              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.30)', marginBottom: 3 }}>META</span>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                 <span style={{ fontSize: 16, fontWeight: 900, color: 'white' }}>{goalMl}</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>ml</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)' }}>ml</span>
               </div>
             </div>
             <div style={{
@@ -255,10 +255,10 @@ const Hydration = () => {
               borderRadius: 12,
               padding: 10,
             }}>
-              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.28)', marginBottom: 3 }}>FALTAM</span>
+              <span style={{ ...SECTION_LABEL, color: 'rgba(255,255,255,0.30)', marginBottom: 3 }}>FALTAM</span>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                 <span style={{ fontSize: 16, fontWeight: 900, color: CYAN }}>{remainMl}</span>
-                <span style={{ fontSize: 10, color: 'rgba(34,211,238,0.5)' }}>ml</span>
+                <span style={{ fontSize: 11, color: 'rgba(34,211,238,0.5)' }}>ml</span>
               </div>
             </div>
           </div>
@@ -300,8 +300,8 @@ const Hydration = () => {
                 height: 52,
                 flexShrink: 0,
                 borderRadius: 14,
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -309,7 +309,7 @@ const Hydration = () => {
                 opacity: currentIntakeLiters <= 0 ? 0.3 : 1,
               }}
             >
-              <Minus size={18} color="rgba(255,255,255,0.5)" />
+              <Minus size={18} color="rgba(255,255,255,0.50)" />
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -393,9 +393,9 @@ const Hydration = () => {
               return (
                 <div key={day.date} style={{ flex: 1, textAlign: 'center' }}>
                   <span style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: isToday ? 800 : 600,
-                    color: isToday ? CYAN : 'rgba(255,255,255,0.22)',
+                    color: isToday ? CYAN : 'rgba(255,255,255,0.30)',
                   }}>
                     {label}
                   </span>
@@ -406,12 +406,12 @@ const Hydration = () => {
 
           {/* Bottom row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)' }}>
               Média: {avgMl} ml/dia
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginLeft: 'auto' }}>
               <div style={{ width: 7, height: 7, borderRadius: 2, background: GREEN }} />
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Meta atingida</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)' }}>Meta atingida</span>
             </div>
           </div>
         </div>

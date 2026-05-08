@@ -230,7 +230,7 @@ export const NutritionHistory = ({
                           <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                           <XAxis 
                             dataKey="day" 
-                            tick={{ fontSize: 10 }}
+                            tick={{ fontSize: 11 }}
                             tickLine={false}
                           />
                           <YAxis hide />

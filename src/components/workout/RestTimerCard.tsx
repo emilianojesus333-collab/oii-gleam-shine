@@ -166,9 +166,9 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
     mainLabel = "Pausar";
   } else if (isFinished) {
     mainHeight = 50;
-    mainBg = "rgba(52,211,153,0.15)";
-    mainColor = "#34D399";
-    mainBorder = "1px solid rgba(52,211,153,0.25)";
+    mainBg = "rgba(74,222,128,0.15)";
+    mainColor = "#4ADE80";
+    mainBorder = "1px solid rgba(74,222,128,0.25)";
     mainIcon = <Check size={16} />;
     mainLabel = "Concluído";
   }
@@ -183,7 +183,7 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
           <span style={{
             background: "rgba(37,99,235,0.15)",
             color: "#60A5FA",
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 700,
             padding: "5px 10px",
             borderRadius: 20,
@@ -198,17 +198,17 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
           {/* Base */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.25)", flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>Tempo base</span>
+              <div style={{ width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.30)", flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.50)" }}>Tempo base</span>
             </div>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>{base}s</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", fontWeight: 700 }}>{base}s</span>
           </div>
 
           {/* Weight */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#60A5FA", flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)" }}>Peso ({lastWeight}kg)</span>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>Peso ({lastWeight}kg)</span>
             </div>
             <span style={{ fontSize: 13, color: "#60A5FA", fontWeight: 700 }}>+{weightMod}s</span>
           </div>
@@ -217,14 +217,14 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#FBBF24", flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)" }}>Repetições ({lastReps})</span>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>Repetições ({lastReps})</span>
             </div>
             <span style={{ fontSize: 13, color: "#FBBF24", fontWeight: 700 }}>+{repsMod}s</span>
           </div>
         </div>
 
         {/* Separator + total */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 12 }}>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>Total recomendado</span>
             <span style={{ fontSize: 22, fontWeight: 900, color: "#60A5FA", letterSpacing: "-0.02em" }}>{total}s</span>
@@ -241,14 +241,14 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
             <circle
               cx="80" cy="80" r="68"
               fill="none"
-              stroke="rgba(255,255,255,0.06)"
+              stroke="rgba(255,255,255,0.07)"
               strokeWidth="10"
             />
             {/* Progress ring */}
             <circle
               cx="80" cy="80" r="68"
               fill="none"
-              stroke={isFinished ? "#34D399" : "#2563EB"}
+              stroke={isFinished ? "#4ADE80" : "#2563EB"}
               strokeWidth="10"
               strokeLinecap="round"
               strokeDasharray={CIRCUMFERENCE}
@@ -276,9 +276,9 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
               {formatTime(timeRemaining)}
             </span>
             <span style={{
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 600,
-              color: "rgba(255,255,255,0.3)",
+              color: "rgba(255,255,255,0.30)",
               marginTop: 2,
             }}>
               restante
@@ -301,9 +301,9 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
                   fontSize: 11,
                   fontWeight: 700,
                   cursor: "pointer",
-                  background: active ? "rgba(37,99,235,0.15)" : "rgba(255,255,255,0.05)",
-                  border: active ? "1px solid rgba(37,99,235,0.3)" : "1px solid rgba(255,255,255,0.08)",
-                  color: active ? "#60A5FA" : "rgba(255,255,255,0.35)",
+                  background: active ? "rgba(37,99,235,0.15)" : "rgba(255,255,255,0.04)",
+                  border: active ? "1px solid rgba(37,99,235,0.3)" : "1px solid rgba(255,255,255,0.07)",
+                  color: active ? "#60A5FA" : "rgba(255,255,255,0.30)",
                   transition: "all 0.15s",
                 }}
               >
@@ -345,8 +345,8 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
               width: 50,
               height: 50,
               borderRadius: 12,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.07)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -354,7 +354,7 @@ export const RestTimerCard = ({ savedExercises, trainingType, userId, autoStartT
               flexShrink: 0,
             }}
           >
-            <RotateCcw size={18} color="rgba(255,255,255,0.5)" />
+            <RotateCcw size={18} color="rgba(255,255,255,0.50)" />
           </button>
         </div>
       </div>

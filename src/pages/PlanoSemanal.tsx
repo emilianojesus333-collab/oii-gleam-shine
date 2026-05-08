@@ -101,7 +101,7 @@ export default function PlanoSemanal() {
           style={{
             display: "flex", alignItems: "center", gap: 8,
             background: "none", border: "none", cursor: "pointer",
-            color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600,
+            color: "rgba(255,255,255,0.50)", fontSize: 14, fontWeight: 600,
             marginBottom: 20,
           }}
         >
@@ -111,14 +111,14 @@ export default function PlanoSemanal() {
         <h1 style={{ fontSize: 26, fontWeight: 900, color: "white", marginBottom: 4 }}>
           Plano Semanal
         </h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)" }}>
           Seleciona os músculos e atribui os dias de treino
         </p>
       </div>
 
       {/* Muscle list */}
       <div style={{ padding: "24px 20px 0" }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
           Grupos musculares
         </p>
 
@@ -145,18 +145,18 @@ export default function PlanoSemanal() {
                   {/* Checkbox */}
                   <div style={{
                     width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-                    background: isSelected ? "#2563EB" : "rgba(255,255,255,0.06)",
+                    background: isSelected ? "#2563EB" : "rgba(255,255,255,0.07)",
                     border: isSelected ? "none" : "1px solid rgba(255,255,255,0.15)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {isSelected && <Check size={13} color="white" strokeWidth={3} />}
                   </div>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: isSelected ? "white" : "rgba(255,255,255,0.75)" }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: isSelected ? "white" : "rgba(255,255,255,0.70)" }}>
                     {m}
                   </span>
                 </div>
                 {assignedDays.length > 0 && (
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 600 }}>
                     {assignedDays.join(", ")}
                   </span>
                 )}
@@ -174,9 +174,9 @@ export default function PlanoSemanal() {
           disabled={selectedMuscles.length === 0}
           style={{
             width: "100%", height: 50, borderRadius: 14,
-            background: selectedMuscles.length > 0 ? "#2563EB" : "rgba(255,255,255,0.05)",
-            border: selectedMuscles.length > 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
-            color: selectedMuscles.length > 0 ? "white" : "rgba(255,255,255,0.3)",
+            background: selectedMuscles.length > 0 ? "#2563EB" : "rgba(255,255,255,0.04)",
+            border: selectedMuscles.length > 0 ? "none" : "1px solid rgba(255,255,255,0.07)",
+            color: selectedMuscles.length > 0 ? "white" : "rgba(255,255,255,0.30)",
             fontSize: 15, fontWeight: 700, cursor: selectedMuscles.length > 0 ? "pointer" : "not-allowed",
           }}
         >
@@ -189,7 +189,7 @@ export default function PlanoSemanal() {
       {/* Current schedule summary */}
       {Object.keys(existingSchedule).length > 0 && (
         <div style={{ padding: "28px 20px 0" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
             Plano atual
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -200,19 +200,19 @@ export default function PlanoSemanal() {
                 <div key={d.full} style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "10px 14px",
-                  background: "#111", borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "#141414", borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.04)",
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", minWidth: 28 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", minWidth: 28 }}>
                     {d.short}
                   </span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {muscles.map((mg) => (
                       <span key={mg} style={{
                         padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600,
-                        background: "rgba(255,255,255,0.08)",
-                        color: "rgba(255,255,255,0.7)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        background: "rgba(255,255,255,0.07)",
+                        color: "rgba(255,255,255,0.70)",
+                        border: "1px solid rgba(255,255,255,0.15)",
                       }}>
                         {mg}
                       </span>
@@ -261,7 +261,7 @@ export default function PlanoSemanal() {
                   onClick={() => setShowModal(false)}
                   style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
                 >
-                  <X size={18} color="rgba(255,255,255,0.4)" />
+                  <X size={18} color="rgba(255,255,255,0.50)" />
                 </button>
               </div>
 
@@ -290,9 +290,9 @@ export default function PlanoSemanal() {
                       onClick={() => toggleDay(d.full)}
                       style={{
                         height: 52, borderRadius: 12,
-                        background: active ? "#2563EB" : "rgba(255,255,255,0.06)",
-                        border: active ? "none" : "1px solid rgba(255,255,255,0.09)",
-                        color: active ? "white" : "rgba(255,255,255,0.5)",
+                        background: active ? "#2563EB" : "rgba(255,255,255,0.07)",
+                        border: active ? "none" : "1px solid rgba(255,255,255,0.07)",
+                        color: active ? "white" : "rgba(255,255,255,0.50)",
                         fontSize: 13, fontWeight: 700,
                         cursor: "pointer",
                       }}
@@ -310,9 +310,9 @@ export default function PlanoSemanal() {
                 disabled={saving || selectedDays.length === 0}
                 style={{
                   width: "100%", height: 48, borderRadius: 12,
-                  background: selectedDays.length > 0 ? "#2563EB" : "rgba(255,255,255,0.06)",
+                  background: selectedDays.length > 0 ? "#2563EB" : "rgba(255,255,255,0.07)",
                   border: "none",
-                  color: selectedDays.length > 0 ? "white" : "rgba(255,255,255,0.3)",
+                  color: selectedDays.length > 0 ? "white" : "rgba(255,255,255,0.30)",
                   fontSize: 15, fontWeight: 800, cursor: selectedDays.length > 0 ? "pointer" : "not-allowed",
                   opacity: saving ? 0.7 : 1,
                 }}

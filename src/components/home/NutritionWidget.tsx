@@ -34,7 +34,7 @@ export const NutritionWidget = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
       style={{
-        background: "#121212",
+        background: "#141414",
         border: "1px solid rgba(74,222,128,0.55)",
         borderRadius: 20,
         boxShadow: "0 0 32px rgba(74,222,128,0.18), 0 0 8px rgba(74,222,128,0.1)",
@@ -70,7 +70,7 @@ export const NutritionWidget = () => {
       </div>
 
       {/* Contexto */}
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 500, marginBottom: 12, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", fontWeight: 500, marginBottom: 12, lineHeight: 1.5 }}>
         {contextText}
       </p>
 
@@ -79,7 +79,7 @@ export const NutritionWidget = () => {
         <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1 }}>
           {Math.round(calories)}
         </span>
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.50)" }}>
           de {calGoal} kcal
         </span>
         <span style={{
@@ -92,7 +92,7 @@ export const NutritionWidget = () => {
       </div>
 
       {/* Barra de calorias */}
-      <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${calPct}%` }}
@@ -110,10 +110,10 @@ export const NutritionWidget = () => {
           return (
             <div key={key}>
               <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{val}g</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 5 }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginBottom: 5 }}>
                 {label} / {goal}g
               </div>
-              <div style={{ height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{ height: 3, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
@@ -131,8 +131,8 @@ export const NutritionWidget = () => {
         onClick={() => navigate("/nutrition")}
         style={{
           width: "100%", height: 36, borderRadius: 10,
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-          color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: 600, cursor: "pointer",
+          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
+          color: "rgba(255,255,255,0.50)", fontSize: 13, fontWeight: 600, cursor: "pointer",
         }}
       >
         + Adicionar refeição

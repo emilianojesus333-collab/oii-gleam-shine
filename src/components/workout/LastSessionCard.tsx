@@ -50,19 +50,19 @@ interface LastSessionCardProps {
 }
 
 const SECTION_LABEL: React.CSSProperties = {
-  fontSize: 9,
+  fontSize: 11,
   fontWeight: 700,
   letterSpacing: "0.16em",
   textTransform: "uppercase",
-  color: "rgba(255,255,255,0.25)",
+  color: "rgba(255,255,255,0.30)",
   marginBottom: 14,
   display: "block",
 };
 
 const STAT_LABEL: React.CSSProperties = {
-  fontSize: 9,
+  fontSize: 11,
   fontWeight: 600,
-  color: "rgba(255,255,255,0.28)",
+  color: "rgba(255,255,255,0.30)",
   textTransform: "uppercase",
   letterSpacing: "0.08em",
   marginTop: 3,
@@ -124,7 +124,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
     const entry = muscles.find((m) => m.muscle_group === firstGroup || firstGroup.startsWith(m.muscle_group));
     if (!entry) return null;
     const fatigue = entry.fatigue_pct;
-    if (fatigue <= 20) return { label: "Recuperado", bg: "rgba(52,211,153,0.12)", color: "#34D399", border: "1px solid rgba(52,211,153,0.2)", showCheck: true };
+    if (fatigue <= 20) return { label: "Recuperado", bg: "rgba(74,222,128,0.12)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.2)", showCheck: true };
     if (fatigue <= 75) return { label: "Recuperando", bg: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.2)", showCheck: false };
     return { label: "Fatigado", bg: "rgba(248,113,113,0.12)", color: "#F87171", border: "1px solid rgba(248,113,113,0.2)", showCheck: false };
   }, [lastSession, muscles]);
@@ -138,7 +138,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           <p style={{ fontSize: 15, fontWeight: 900, color: "white", marginBottom: 6 }}>
             Sem sessões anteriores
           </p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 18 }}>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", marginBottom: 18 }}>
             Ainda não tens registos para este grupo muscular
           </p>
           <button
@@ -186,7 +186,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           <span style={{ fontSize: 16, fontWeight: 900, color: "white", letterSpacing: "-0.01em" }}>
             {lastSession.muscleGroups.join(" · ")}
           </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 500 }}>
             há {days} {days === 1 ? "dia" : "dias"} · {dayName}
           </span>
         </div>
@@ -196,7 +196,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
             background: recoveryBadge.bg,
             color: recoveryBadge.color,
             border: recoveryBadge.border,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 700,
             padding: "5px 11px",
             borderRadius: 20,
@@ -222,7 +222,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           <div key={stat.label} style={{
             flex: 1,
             background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.07)",
             borderRadius: 12,
             padding: 10,
           }}>
@@ -241,18 +241,18 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           alignItems: "center",
           gap: 8,
           padding: "10px 12px",
-          background: "rgba(255,255,255,0.03)",
+          background: "rgba(255,255,255,0.04)",
           borderRadius: 10,
           marginBottom: 14,
         }}>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 500, flex: 1, whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 500, flex: 1, whiteSpace: "nowrap" }}>
             Volume vs sessão anterior
           </span>
           <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
             <div style={{
               height: "100%",
               width: `${volBarWidth}%`,
-              background: volDiff >= 0 ? "#34D399" : "#F87171",
+              background: volDiff >= 0 ? "#4ADE80" : "#F87171",
               borderRadius: 2,
               transition: "width 0.4s ease",
             }} />
@@ -260,7 +260,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           <span style={{
             fontSize: 11,
             fontWeight: 800,
-            color: volDiff >= 0 ? "#34D399" : "#F87171",
+            color: volDiff >= 0 ? "#4ADE80" : "#F87171",
             whiteSpace: "nowrap",
           }}>
             {volDiff >= 0 ? "+" : ""}{volDiff}%
@@ -282,13 +282,13 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
               justifyContent: "space-between",
               alignItems: "center",
               padding: "9px 0",
-              borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)",
+              borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.04)",
             }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.70)" }}>
                 {log.name}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                   {log.sets} × {log.weight}kg
                 </span>
                 {isPR && (
@@ -296,7 +296,7 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
                     background: "rgba(251,191,36,0.12)",
                     color: "#FBBF24",
                     border: "1px solid rgba(251,191,36,0.2)",
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: 800,
                     padding: "2px 7px",
                     borderRadius: 20,
@@ -318,10 +318,10 @@ export const LastSessionCard = ({ todayMuscleGroups, userId }: LastSessionCardPr
           width: "100%",
           marginTop: 14,
           padding: 12,
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.07)",
           borderRadius: 12,
-          color: "rgba(255,255,255,0.5)",
+          color: "rgba(255,255,255,0.50)",
           fontSize: 12,
           fontWeight: 700,
           cursor: "pointer",

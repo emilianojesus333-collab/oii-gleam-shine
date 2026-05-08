@@ -6,7 +6,7 @@ import { useMuscleFatigue, getMuscleLabel } from "@/hooks/useMuscleFatigue";
 import { useWeeklyStats } from "@/hooks/useWeeklyStats";
 
 function trendColor(curr: number, prev: number) {
-  if (prev === 0) return "rgba(255,255,255,0.4)";
+  if (prev === 0) return "rgba(255,255,255,0.50)";
   return curr >= prev ? "#4ADE80" : "#F87171";
 }
 function trendPct(curr: number, prev: number): string {
@@ -15,14 +15,14 @@ function trendPct(curr: number, prev: number): string {
   return `${pct > 0 ? "+" : ""}${pct}%`;
 }
 function TrendIcon({ curr, prev }: { curr: number; prev: number }) {
-  if (prev === 0) return <Minus size={10} color="rgba(255,255,255,0.4)" />;
+  if (prev === 0) return <Minus size={10} color="rgba(255,255,255,0.50)" />;
   if (curr >= prev) return <TrendingUp size={10} color="#4ADE80" />;
   return <TrendingDown size={10} color="#F87171" />;
 }
 
 const CARD_STYLE = {
   background: "#141414",
-  border: "1px solid rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.07)",
   borderRadius: 16,
   padding: "16px",
 };
@@ -88,7 +88,7 @@ export const StatusCarousel = () => {
                       style={CARD_STYLE}
                     >
                       <p className="text-sm font-bold text-white mb-3">{label}</p>
-                      <div className="w-full h-1.5 rounded-full mb-2" style={{ background: "rgba(255,255,255,0.1)" }}>
+                      <div className="w-full h-1.5 rounded-full mb-2" style={{ background: "rgba(255,255,255,0.15)" }}>
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${pct}%` }}
@@ -100,7 +100,7 @@ export const StatusCarousel = () => {
                       <p className="text-xs font-semibold" style={{ color: isRecovered ? "#4ADE80" : "#FBBF24" }}>
                         {isRecovered ? "Recuperado" : `${pct}%`}
                       </p>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontWeight: 500, marginTop: 3 }}>
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 500, marginTop: 3 }}>
                         {m.last_trained_at
                           ? `Último treino há ${Math.max(0, Math.floor((Date.now() - new Date(m.last_trained_at).getTime()) / (1000 * 60 * 60 * 24)))} dias`
                           : "Sem histórico"}
@@ -115,7 +115,7 @@ export const StatusCarousel = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0">
                     <svg width={ringSize} height={ringSize} className="-rotate-90">
-                      <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={ringStroke} />
+                      <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={ringStroke} />
                       <motion.circle
                         cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none"
                         stroke="#4ADE80" strokeWidth={ringStroke} strokeLinecap="round"
@@ -145,7 +145,7 @@ export const StatusCarousel = () => {
                     <div
                       key={i}
                       className="h-1.5 flex-1 rounded-full"
-                      style={{ backgroundColor: active ? "#4ADE80" : "rgba(255,255,255,0.08)" }}
+                      style={{ backgroundColor: active ? "#4ADE80" : "rgba(255,255,255,0.07)" }}
                     />
                   ))}
                 </div>
@@ -197,7 +197,7 @@ export const StatusCarousel = () => {
               </div>
 
               {/* Hydration */}
-              <div className="rounded-xl p-3" style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="rounded-xl p-3" style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <div className="flex items-start gap-2">
                   <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-[#4ADE80]" />
                   <div>
@@ -247,8 +247,8 @@ export const StatusCarousel = () => {
             <div className="mx-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
 
               {/* Card Volume */}
-              <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
+              <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
                   <BarChart2 size={10} />
                   VOLUME
                 </div>
@@ -260,15 +260,15 @@ export const StatusCarousel = () => {
                   ].map(({ value, label }) => (
                     <div key={label} style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
                       <span style={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>{value}</span>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{label}</span>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>{label}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Card Tendência */}
-              <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
+              <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
                   <TrendingUp size={10} />
                   TENDÊNCIA
                 </div>
@@ -279,17 +279,17 @@ export const StatusCarousel = () => {
                     { label: "Frequência", curr: totalReps, prev: prevReps },
                   ].map(({ label, curr, prev }) => (
                     <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)" }}>{label}</span>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.50)" }}>{label}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                         <TrendIcon curr={curr} prev={prev} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: prev === 0 ? "rgba(255,255,255,0.4)" : trendColor(curr, prev) }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: prev === 0 ? "rgba(255,255,255,0.50)" : trendColor(curr, prev) }}>
                           {trendPct(curr, prev)}
                         </span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 10, fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
+                <div style={{ marginTop: 10, fontSize: 11, color: "rgba(255,255,255,0.30)" }}>
                   Comparado à semana passada
                 </div>
               </div>
@@ -303,7 +303,7 @@ export const StatusCarousel = () => {
       {/* Dot indicators */}
       <div className="mt-3 flex justify-center gap-1.5">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
+          <div key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.30)" }} />
         ))}
       </div>
     </motion.div>

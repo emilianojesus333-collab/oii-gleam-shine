@@ -109,10 +109,10 @@ const Paywall = () => {
           disabled={loggingOut}
           style={{
             position: "absolute", top: 48, right: 16,
-            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
             borderRadius: 20, padding: "6px 12px",
             display: "flex", alignItems: "center", gap: 6,
-            color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            color: "rgba(255,255,255,0.70)", fontSize: 12, fontWeight: 600, cursor: "pointer",
           }}
         >
           <LogOut size={13} />
@@ -123,7 +123,7 @@ const Paywall = () => {
         <div style={{
           position: "absolute", bottom: 24, left: 0, right: 0, textAlign: "center", padding: "0 24px",
         }}>
-          <p style={{ fontSize: 11, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 6 }}>
+          <p style={{ fontSize: 11, letterSpacing: "0.2em", color: "rgba(255,255,255,0.50)", textTransform: "uppercase", marginBottom: 6 }}>
             LIFTMATE
           </p>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1.15, margin: 0 }}>
@@ -136,7 +136,7 @@ const Paywall = () => {
       <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px 40px" }}>
 
         {/* Subtitle */}
-        <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>
+        <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.50)", marginBottom: 24 }}>
           Junta-te a milhares de atletas que já usam o LiftMate
         </p>
 
@@ -151,7 +151,7 @@ const Paywall = () => {
               }}>
                 <Check size={11} color="#22C55E" strokeWidth={3} />
               </div>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>{f}</span>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", fontWeight: 500 }}>{f}</span>
             </div>
           ))}
         </div>
@@ -170,7 +170,7 @@ const Paywall = () => {
                 : "#141414",
               border: selectedPlan === "annual"
                 ? "2px solid #2563EB"
-                : "1px solid rgba(255,255,255,0.1)",
+                : "1px solid rgba(255,255,255,0.15)",
               borderRadius: 16, padding: "16px 16px 14px", position: "relative", overflow: "hidden",
             }}
           >
@@ -178,7 +178,7 @@ const Paywall = () => {
             <span style={{
               position: "absolute", top: 12, right: 12,
               background: "#FBBF24", color: "#000",
-              fontSize: 9, fontWeight: 800, letterSpacing: "0.05em",
+              fontSize: 11, fontWeight: 800, letterSpacing: "0.05em",
               padding: "3px 8px", borderRadius: 20,
             }}>
               POUPA {savingsPercent}%
@@ -186,12 +186,12 @@ const Paywall = () => {
             <p style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 4 }}>Anual</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
               {pricingLoading
-                ? <div style={{ width: 60, height: 28, background: "rgba(255,255,255,0.1)", borderRadius: 6 }} />
+                ? <div style={{ width: 60, height: 28, background: "rgba(255,255,255,0.15)", borderRadius: 6 }} />
                 : <span style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>{annualMonthly}</span>
               }
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>/mês</span>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>
               = {annualTotal}/ano · faturado anualmente
             </p>
           </motion.button>
@@ -202,22 +202,22 @@ const Paywall = () => {
             onClick={() => setSelectedPlan("monthly")}
             style={{
               width: "100%", textAlign: "left", cursor: "pointer",
-              background: selectedPlan === "monthly" ? "#1A1A1A" : "#0D0D0D",
+              background: selectedPlan === "monthly" ? "#1A1A1A" : "#141414",
               border: selectedPlan === "monthly"
-                ? "2px solid rgba(255,255,255,0.25)"
-                : "1px solid rgba(255,255,255,0.1)",
+                ? "2px solid rgba(255,255,255,0.30)"
+                : "1px solid rgba(255,255,255,0.15)",
               borderRadius: 16, padding: "16px 16px 14px",
             }}
           >
             <p style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 4 }}>Mensal</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
               {pricingLoading
-                ? <div style={{ width: 48, height: 28, background: "rgba(255,255,255,0.1)", borderRadius: 6 }} />
+                ? <div style={{ width: 48, height: 28, background: "rgba(255,255,255,0.15)", borderRadius: 6 }} />
                 : <span style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>{monthlyPrice}</span>
               }
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>/mês</span>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Cancela quando quiseres</p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>Cancela quando quiseres</p>
           </motion.button>
         </div>
 
@@ -236,7 +236,7 @@ const Paywall = () => {
           }}
         >
           {loadingCheckout ? (
-            <div style={{ width: 20, height: 20, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+            <div style={{ width: 20, height: 20, border: "2px solid rgba(255,255,255,0.50)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
           ) : (
             <>
               <Crown size={16} />
@@ -246,13 +246,13 @@ const Paywall = () => {
         </motion.button>
 
         {/* Footer */}
-        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 20 }}>
+        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.30)", marginBottom: 20 }}>
           Sem compromisso · Cancela quando quiseres
         </p>
 
         {/* Trust + restore */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.3)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.30)" }}>
             <Shield size={13} />
             <span style={{ fontSize: 11 }}>Pagamento seguro via Stripe</span>
           </div>
@@ -272,7 +272,7 @@ const Paywall = () => {
             }}
             style={{
               background: "none", border: "none", cursor: "pointer",
-              fontSize: 11, color: "rgba(255,255,255,0.3)",
+              fontSize: 11, color: "rgba(255,255,255,0.30)",
               textDecoration: "underline", textUnderlineOffset: 2,
             }}
           >

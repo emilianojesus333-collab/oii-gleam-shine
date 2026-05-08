@@ -8,7 +8,7 @@ const PLATE_COLORS: Record<number, string> = {
   25: "#F87171",   // red
   20: "#60A5FA",   // blue
   15: "#FBBF24",   // yellow
-  10: "#34D399",   // green
+  10: "#4ADE80",   // green
   5:  "#C084FC",   // purple
   2.5: "#FB923C",  // orange
   1.25: "#94A3B8", // gray
@@ -76,7 +76,7 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "100%", maxWidth: 480,
-            background: "#111", borderRadius: "20px 20px 0 0",
+            background: "#141414", borderRadius: "20px 20px 0 0",
             padding: "20px 20px 48px",
           }}
         >
@@ -87,13 +87,13 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
               <p style={{ fontSize: 16, fontWeight: 900, color: "white" }}>Calculadora de Barra</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Placas por lado</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 2 }}>Placas por lado</p>
             </div>
             <button
               onClick={onClose}
-              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
+              style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer" }}
             >
-              <X size={16} color="rgba(255,255,255,0.6)" />
+              <X size={16} color="rgba(255,255,255,0.70)" />
             </button>
           </div>
 
@@ -107,8 +107,8 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
                   flexShrink: 0, padding: "6px 12px", borderRadius: 20, cursor: "pointer",
                   fontSize: 11, fontWeight: 700,
                   background: barTypeIdx === i ? "rgba(96,165,250,0.15)" : "#141414",
-                  border: `1px solid ${barTypeIdx === i ? "rgba(96,165,250,0.4)" : "rgba(255,255,255,0.08)"}`,
-                  color: barTypeIdx === i ? "#60A5FA" : "rgba(255,255,255,0.4)",
+                  border: `1px solid ${barTypeIdx === i ? "rgba(96,165,250,0.4)" : "rgba(255,255,255,0.07)"}`,
+                  color: barTypeIdx === i ? "#60A5FA" : "rgba(255,255,255,0.50)",
                 }}
               >
                 {bt.label} ({bt.weight}kg)
@@ -118,25 +118,25 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
 
           {/* Weight input */}
           <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 8 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 8 }}>
               PESO ALVO
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
                 onClick={() => setTargetWeight((w) => Math.max(barWeight, Math.round((w - 2.5) * 100) / 100))}
-                style={{ width: 48, height: 48, borderRadius: 12, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 22, cursor: "pointer" }}
+                style={{ width: 48, height: 48, borderRadius: 12, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.15)", color: "white", fontSize: 22, cursor: "pointer" }}
               >−</button>
               <div style={{
                 flex: 1, height: 48, background: "#1A1A1A", borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               }}>
                 <span style={{ fontSize: 26, fontWeight: 900, color: "white" }}>{targetWeight}</span>
-                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>kg</span>
+                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>kg</span>
               </div>
               <button
                 onClick={() => setTargetWeight((w) => Math.round((w + 2.5) * 100) / 100)}
-                style={{ width: 48, height: 48, borderRadius: 12, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 22, cursor: "pointer" }}
+                style={{ width: 48, height: 48, borderRadius: 12, background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.15)", color: "white", fontSize: 22, cursor: "pointer" }}
               >+</button>
             </div>
           </div>
@@ -144,7 +144,7 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
           {/* Barbell visual */}
           <div style={{
             background: "#141414", borderRadius: 16, padding: "20px 16px",
-            border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16,
+            border: "1px solid rgba(255,255,255,0.07)", marginBottom: 16,
           }}>
             {/* Bar + plates visual */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 60, gap: 0 }}>
@@ -182,17 +182,17 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}>
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 18, fontWeight: 900, color: "#60A5FA" }}>{actualWeight}kg</p>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Peso real</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Peso real</p>
               </div>
               <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: 18, fontWeight: 900, color: diff === 0 ? "#34D399" : "#FBBF24" }}>
+                <p style={{ fontSize: 18, fontWeight: 900, color: diff === 0 ? "#4ADE80" : "#FBBF24" }}>
                   {diff === 0 ? "Exato" : `±${Math.abs(diff)}kg`}
                 </p>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Diferença</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Diferença</p>
               </div>
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 18, fontWeight: 900, color: "white" }}>{plates.length}</p>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Placas/lado</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>Placas/lado</p>
               </div>
             </div>
           </div>
@@ -200,7 +200,7 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
           {/* Plate list */}
           {plates.length > 0 ? (
             <div>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 10 }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 10 }}>
                 POR LADO
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -223,7 +223,7 @@ export const BarbellCalculator = ({ onClose, defaultWeight = 80 }: BarbellCalcul
               </div>
             </div>
           ) : (
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)", textAlign: "center" }}>
               Só a barra ({barWeight}kg)
             </p>
           )}

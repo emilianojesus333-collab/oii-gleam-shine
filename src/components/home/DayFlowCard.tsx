@@ -47,7 +47,7 @@ export const DayFlowCard = ({ task, dayNumber, completedCount, onMarkComplete }:
 
       {/* Day label */}
       <p style={{
-        fontSize: 10, fontWeight: 800, letterSpacing: "0.14em",
+        fontSize: 11, fontWeight: 800, letterSpacing: "0.14em",
         color: "rgba(147,197,253,0.7)", marginBottom: 6, textTransform: "uppercase",
       }}>
         DIA {dayNumber} DE 7
@@ -57,22 +57,22 @@ export const DayFlowCard = ({ task, dayNumber, completedCount, onMarkComplete }:
       <p style={{ fontSize: 15, fontWeight: 800, color: "white", marginBottom: 4, lineHeight: 1.3 }}>
         {task.title}
       </p>
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 14, lineHeight: 1.4 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", marginBottom: 14, lineHeight: 1.4 }}>
         {task.description}
       </p>
 
       {/* Progress bar */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>
             Progresso da 1ª semana
           </p>
-          <p style={{ fontSize: 10, color: "#93C5FD", fontWeight: 700 }}>
+          <p style={{ fontSize: 11, color: "#60A5FA", fontWeight: 700 }}>
             {completedCount}/{totalDays} tarefas
           </p>
         </div>
         <div style={{
-          height: 4, borderRadius: 4, background: "rgba(255,255,255,0.1)",
+          height: 4, borderRadius: 4, background: "rgba(255,255,255,0.15)",
           overflow: "hidden",
         }}>
           <motion.div
@@ -91,7 +91,7 @@ export const DayFlowCard = ({ task, dayNumber, completedCount, onMarkComplete }:
         style={{
           width: "100%", padding: "11px 0", borderRadius: 10, cursor: "pointer",
           background: "rgba(96,165,250,0.2)", border: "1px solid rgba(96,165,250,0.3)",
-          color: "#93C5FD", fontSize: 13, fontWeight: 800,
+          color: "#60A5FA", fontSize: 13, fontWeight: 800,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
         }}
       >
@@ -123,7 +123,7 @@ export const DayFlowCompleted = ({ completedCount }: CompletedProps) => (
       <p style={{ fontSize: 14, fontWeight: 800, color: "white" }}>
         Primeira semana concluída! 🎉
       </p>
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>
         {completedCount}/7 tarefas completadas · Continua assim!
       </p>
     </div>

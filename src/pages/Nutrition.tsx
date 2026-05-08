@@ -153,7 +153,7 @@ const Nutrition = () => {
             {/* Shimmer interior */}
             <div style={{
               position: "absolute", inset: 0, borderRadius: 14,
-              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.30), transparent)",
               backgroundSize: "200% 100%",
               animation: "shimmer 2s linear infinite",
               pointerEvents: "none",
@@ -166,8 +166,8 @@ const Nutrition = () => {
               onClick={() => setScannerOpen(true)}
               style={{
                 flex: 1, height: 46, borderRadius: 12,
-                background: "#141414", border: "1px solid rgba(255,255,255,0.08)",
-                color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                background: "#141414", border: "1px solid rgba(255,255,255,0.07)",
+                color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: 700, cursor: "pointer",
               }}
             >
               📷 Scanner

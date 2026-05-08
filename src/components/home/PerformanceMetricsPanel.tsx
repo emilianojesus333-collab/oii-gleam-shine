@@ -90,11 +90,11 @@ export const PerformanceMetricsPanel = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.42 }}
       className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <Activity size={16} color="rgba(255,255,255,0.4)" />
-        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+        <Activity size={16} color="rgba(255,255,255,0.50)" />
+        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.70)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
           Métricas
         </span>
       </div>
@@ -109,15 +109,15 @@ export const PerformanceMetricsPanel = () => {
               style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px 14px", border: "1px solid rgba(255,255,255,0.07)" }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                <Icon size={12} color={card.color || "rgba(255,255,255,0.4)"} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <Icon size={12} color={card.color || "rgba(255,255,255,0.50)"} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.50)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {card.label}
                 </span>
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: card.color || "#fff", lineHeight: 1 }}>
                 {card.value}
               </div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 3 }}>{card.sub}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>{card.sub}</div>
             </div>
           );
         })}
@@ -126,7 +126,7 @@ export const PerformanceMetricsPanel = () => {
       {/* Performance trend chart */}
       {performanceTrend && performanceTrend.length > 0 && (
         <div>
-          <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.30)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Tendência 30 dias
           </span>
           <div style={{ marginTop: 8, height: 80 }}>
@@ -138,8 +138,8 @@ export const PerformanceMetricsPanel = () => {
                     <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.25)" }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "rgba(255,255,255,0.25)" }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "rgba(255,255,255,0.30)" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "rgba(255,255,255,0.30)" }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="score" stroke="#2563EB" strokeWidth={1.5} fill="url(#perfGrad)" dot={false} />
               </AreaChart>

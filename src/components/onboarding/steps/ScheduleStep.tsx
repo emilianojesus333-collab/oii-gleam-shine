@@ -35,8 +35,8 @@ const MUSCLE_GROUPS = [
 ];
 
 const GROUP_COLORS: Record<string, string> = {
-  Peito: "#3B82F6", Costas: "#8B5CF6", Ombros: "#F59E0B",
-  Bíceps: "#10B981", Tríceps: "#06B6D4", Pernas: "#EF4444",
+  Peito: "#60A5FA", Costas: "#8B5CF6", Ombros: "#F59E0B",
+  Bíceps: "#22C55E", Tríceps: "#06B6D4", Pernas: "#EF4444",
   Glúteos: "#EC4899", Abdominais: "#F97316", Descanso: "#6B7280",
 };
 
@@ -107,14 +107,14 @@ export const ScheduleStep = ({
                   background: isSelected
                     ? "rgba(34,197,94,0.15)"
                     : hasWorkout
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(255,255,255,0.03)",
+                    ? "rgba(255,255,255,0.07)"
+                    : "rgba(255,255,255,0.04)",
                   border: `1px solid ${
                     isSelected
                       ? "rgba(34,197,94,0.5)"
                       : hasWorkout
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(255,255,255,0.06)"
+                      ? "rgba(255,255,255,0.15)"
+                      : "rgba(255,255,255,0.07)"
                   }`,
                   minWidth: 52,
                 }}
@@ -166,8 +166,8 @@ export const ScheduleStep = ({
                     onClick={() => toggleMuscle(selectedDay, muscle)}
                     className="rounded-xl px-3.5 py-2 text-sm font-medium transition-all"
                     style={{
-                      background: active ? `${color}22` : "rgba(255,255,255,0.05)",
-                      border: `1px solid ${active ? color : "rgba(255,255,255,0.1)"}`,
+                      background: active ? `${color}22` : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${active ? color : "rgba(255,255,255,0.15)"}`,
                       color: active ? color : "#9CA3AF",
                     }}
                   >

@@ -164,7 +164,7 @@ const SwipeableCard = ({
                   }}
                 >
                   <Shuffle style={{ width: 11, height: 11, color: "#60A5FA" }} />
-                  <span style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>Alternativa</span>
+                  <span style={{ fontSize: 11, color: "#60A5FA", fontWeight: 700 }}>Alternativa</span>
                 </button>
               )}
             </div>
@@ -192,7 +192,7 @@ const FinishCard = ({
     <div
       className="relative h-full rounded-2xl overflow-hidden border border-white/[0.05] flex flex-col items-center justify-center p-8 text-center gap-5"
       style={{
-        backgroundColor: '#1A1A2E',
+        backgroundColor: '#1A1A1A',
         boxShadow: '0 10px 28px -6px rgba(0,0,0,0.4)',
       }}
     >
@@ -320,7 +320,7 @@ export const ExerciseCardStack = ({
       {/* Swipe hints */}
       {!allDone && (
         <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: 4, paddingRight: 4 }}>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontWeight: 600 }}>← Saltar</span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", fontWeight: 600 }}>← Saltar</span>
           <span style={{ fontSize: 11, color: "rgba(34,197,94,0.6)", fontWeight: 600 }}>Feito →</span>
         </div>
       )}
@@ -339,12 +339,12 @@ export const ExerciseCardStack = ({
               justifyContent: "center",
               gap: 6,
               margin: "0 auto",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.15)",
               borderRadius: 10,
               padding: "6px 12px",
               fontSize: 12,
-              color: "rgba(255,255,255,0.5)",
+              color: "rgba(255,255,255,0.50)",
               cursor: "pointer",
             }}
           >
@@ -396,7 +396,7 @@ export const ExerciseCardStack = ({
           <SheetContent
             side="bottom"
             className="rounded-t-2xl max-h-[60vh] border-white/[0.05]"
-            style={{ backgroundColor: '#1A1A2E' }}
+            style={{ backgroundColor: '#1A1A1A' }}
           >
             <SheetHeader>
               <SheetTitle className="text-[#E5E7EB]">Exercícios do Plano</SheetTitle>

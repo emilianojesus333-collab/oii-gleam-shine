@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const steps = [
   {
     icon: Dumbbell,
-    color: "#3B82F6",
+    color: "#60A5FA",
     bg: "rgba(59,130,246,0.12)",
     title: "Primeiro treino",
     desc: "Gera um plano com IA",
@@ -39,7 +39,7 @@ export const FirstUseCard = () => {
       transition={{ delay: 0.3 }}
       className="overflow-hidden"
       className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-center gap-2 mb-2">

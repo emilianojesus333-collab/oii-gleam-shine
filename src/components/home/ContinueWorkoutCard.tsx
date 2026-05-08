@@ -20,7 +20,7 @@ export const ContinueWorkoutCard = () => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-none p-4 overflow-hidden mb-2"
       className="mx-4 mb-3"
-      style={{ background: "#0F1923", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
+      style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="flex items-center gap-3 mb-3">
         <div className="flex-1">

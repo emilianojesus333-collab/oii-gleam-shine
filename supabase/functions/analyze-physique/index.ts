@@ -129,17 +129,7 @@ Caso contrário, retorna SEMPRE JSON válido:
     "strengths": [{"muscleGroup": "Ombros", "description": "Boa separação", "score": 6}],
     "weaknesses": [{"muscleGroup": "Pernas", "description": "Em desenvolvimento", "priority": "alta", "score": 4}],
     "recommendations": [{"focus": "Pernas", "frequency": "2x/semana", "exercises": ["Agachamento", "Leg Press"], "tip": "Aumenta o volume"}],
-    "motivationalMessage": "Mensagem motivacional honesta aqui.",
-    "suggestedPlan": {
-      "Segunda-feira": { "principal": "Peito", "secundario": "Tríceps" },
-      "Terça-feira":  { "principal": "Costas", "secundario": "Bíceps" },
-      "Quarta-feira": "descanso",
-      "Quinta-feira": { "principal": "Pernas", "secundario": null },
-      "Sexta-feira":  { "principal": "Ombros", "secundario": null },
-      "Sábado": "descanso",
-      "Domingo": "descanso"
-    },
-    "planReason": "Razão breve da sugestão em 1 frase."
+    "motivationalMessage": "Mensagem motivacional honesta aqui."
   }
 }`;
 

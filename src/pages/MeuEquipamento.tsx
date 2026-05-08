@@ -42,7 +42,7 @@ export default function MeuEquipamento() {
           style={{
             display: "flex", alignItems: "center", gap: 8,
             background: "none", border: "none", cursor: "pointer",
-            color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600,
+            color: "rgba(255,255,255,0.50)", fontSize: 14, fontWeight: 600,
             marginBottom: 24,
           }}
         >
@@ -62,7 +62,7 @@ export default function MeuEquipamento() {
             <h1 style={{ fontSize: 28, fontWeight: 900, color: "white", lineHeight: 1.1 }}>
               O meu Equipamento
             </h1>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", marginTop: 4 }}>
               Usado para sugerir alternativas de exercícios
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function MeuEquipamento() {
 
       {/* Content */}
       <div style={{ padding: "24px 20px 0" }}>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginBottom: 20 }}>
           Seleciona o equipamento que tens disponível. O LiftMate vai sugerir alternativas compatíveis durante o treino.
         </p>
 
@@ -85,7 +85,7 @@ export default function MeuEquipamento() {
                 style={{
                   display: "flex", alignItems: "center", gap: 10,
                   background: active ? "rgba(29,78,216,0.08)" : "#1A1A1A",
-                  border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.06)"}`,
+                  border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.07)"}`,
                   borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left",
                 }}
               >
@@ -93,7 +93,7 @@ export default function MeuEquipamento() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{
                     fontSize: 13, fontWeight: 600,
-                    color: active ? "#60A5FA" : "rgba(255,255,255,0.6)",
+                    color: active ? "#60A5FA" : "rgba(255,255,255,0.70)",
                     lineHeight: 1.3,
                   }}>
                     {opt.label}
@@ -101,8 +101,8 @@ export default function MeuEquipamento() {
                 </div>
                 <div style={{
                   width: 20, height: 20, borderRadius: 6, flexShrink: 0,
-                  background: active ? "#1D4ED8" : "rgba(255,255,255,0.06)",
-                  border: `1.5px solid ${active ? "#1D4ED8" : "rgba(255,255,255,0.12)"}`,
+                  background: active ? "#1D4ED8" : "rgba(255,255,255,0.07)",
+                  border: `1.5px solid ${active ? "#1D4ED8" : "rgba(255,255,255,0.15)"}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                   {active && (

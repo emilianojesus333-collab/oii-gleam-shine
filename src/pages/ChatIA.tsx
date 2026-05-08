@@ -70,7 +70,7 @@ export default function ChatIA() {
           style={{
             display: "flex", alignItems: "center", gap: 8,
             background: "none", border: "none", cursor: "pointer",
-            color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600,
+            color: "rgba(255,255,255,0.50)", fontSize: 14, fontWeight: 600,
             marginBottom: 24,
           }}
         >
@@ -90,7 +90,7 @@ export default function ChatIA() {
             <h1 style={{ fontSize: 28, fontWeight: 900, color: "white", lineHeight: 1.1 }}>
               Chat &amp; IA
             </h1>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.50)", marginTop: 4 }}>
               Personaliza o teu assistente
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function ChatIA() {
       <div style={{ padding: "24px 20px 0" }}>
         {/* Nome do assistente */}
         <div style={{ marginBottom: 28 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.50)", marginBottom: 10 }}>
             NOME DO ASSISTENTE
           </p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -113,7 +113,7 @@ export default function ChatIA() {
               style={{
                 flex: 1, height: 44,
                 background: "#1A1A1A",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.07)",
                 borderRadius: 12, padding: "0 16px",
                 color: "#fff", fontSize: 14, outline: "none",
               }}
@@ -123,7 +123,7 @@ export default function ChatIA() {
 
         {/* Personalidade */}
         <div style={{ marginBottom: 28 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.50)", marginBottom: 12 }}>
             PERSONALIDADE
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -135,13 +135,13 @@ export default function ChatIA() {
                   onClick={() => setPersonality(p.id)}
                   style={{
                     background: active ? "rgba(29,78,216,0.08)" : "#1A1A1A",
-                    border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.06)"}`,
+                    border: `1px solid ${active ? "rgba(29,78,216,0.5)" : "rgba(255,255,255,0.07)"}`,
                     borderRadius: 14, padding: 12, textAlign: "left", cursor: "pointer",
                   }}
                 >
                   <div style={{ fontSize: 18, marginBottom: 4 }}>{p.emoji}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", marginBottom: 2 }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{p.desc}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.30)" }}>{p.desc}</div>
                 </button>
               );
             })}
@@ -150,7 +150,7 @@ export default function ChatIA() {
 
         {/* Tom */}
         <div style={{ marginBottom: 28 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.50)", marginBottom: 12 }}>
             TOM
           </p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -163,8 +163,8 @@ export default function ChatIA() {
                   style={{
                     flex: 1, height: 44, borderRadius: 12, cursor: "pointer",
                     background: active ? "rgba(29,78,216,0.15)" : "#1A1A1A",
-                    border: `1px solid ${active ? "rgba(29,78,216,0.4)" : "rgba(255,255,255,0.06)"}`,
-                    color: active ? "#60A5FA" : "rgba(255,255,255,0.5)",
+                    border: `1px solid ${active ? "rgba(29,78,216,0.4)" : "rgba(255,255,255,0.07)"}`,
+                    color: active ? "#60A5FA" : "rgba(255,255,255,0.50)",
                     fontSize: 14, fontWeight: 600,
                   } as React.CSSProperties}
                 >
@@ -177,7 +177,7 @@ export default function ChatIA() {
 
         {/* Foco */}
         <div style={{ marginBottom: 32 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.50)", marginBottom: 12 }}>
             FOCO
           </p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -190,8 +190,8 @@ export default function ChatIA() {
                   style={{
                     flex: 1, height: 44, borderRadius: 12, cursor: "pointer",
                     background: active ? "rgba(29,78,216,0.15)" : "#1A1A1A",
-                    border: `1px solid ${active ? "rgba(29,78,216,0.4)" : "rgba(255,255,255,0.06)"}`,
-                    color: active ? "#60A5FA" : "rgba(255,255,255,0.5)",
+                    border: `1px solid ${active ? "rgba(29,78,216,0.4)" : "rgba(255,255,255,0.07)"}`,
+                    color: active ? "#60A5FA" : "rgba(255,255,255,0.50)",
                     fontSize: 14, fontWeight: 600,
                   } as React.CSSProperties}
                 >
