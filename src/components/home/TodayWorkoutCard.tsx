@@ -5,11 +5,7 @@ import { Dumbbell } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useMuscleFatigue } from "@/hooks/useMuscleFatigue";
-import { collectUserContext, formatContextForAI } from "@/utils/userContextCollector";
 import { supabase } from "@/integrations/supabase/client";
-
-const TIP_TTL = 4 * 60 * 60 * 1000; // 4 horas
-const DEFAULT_TIP = "Foca na técnica hoje. A carga certa é aquela que te permite executar bem todos os sets.";
 
 interface TodayWorkoutCardProps {
   workout: string | null;
@@ -46,12 +42,8 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
   const { settings } = useUserSettings();
   const { user } = useAuth();
   const { muscles } = useMuscleFatigue();
-  const [tip, setTip] = useState<string>(DEFAULT_TIP);
-  const [displayedTip, setDisplayedTip] = useState<string>("");
-  const [showCursor, setShowCursor] = useState(false);
   const [restSignals, setRestSignals] = useState({ consecutiveDays: 0, lastSessionSets: 0 });
 
-  const aiName = settings?.ai_name || "LiftMate AI";
   const workoutName = getWorkoutName(workout, isRestDay);
   const muscleChips = getMuscleChips(workout);
 
@@ -92,118 +84,6 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
       restSignals.lastSessionSets > 20
     );
   }, [isRestDay, muscles, restSignals]);
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const cacheKey = `liftmate_dynamic_tip_${user.id}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const { text, ts } = JSON.parse(cached);
-        if (Date.now() - ts < TIP_TTL && text) {
-          setTip(text);
-          return;
-        }
-      } catch {
-        // cache corrompida, ignora
-      }
-    }
-
-    (async () => {
-      try {
-        const ctx = await collectUserContext(user.id);
-        const contextStr = formatContextForAI(ctx);
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-        const res = await fetch(`${supabaseUrl}/functions/v1/chat`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-            apikey: supabaseAnonKey,
-          },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: "user",
-                content: `Com base no que sabes sobre este utilizador, gera UMA dica curta e personalizada para o treino de hoje: ${workoutName}. Baseia-te no histórico real — última sessão, dores mencionadas, progressão de carga.
-
-REGRAS OBRIGATÓRIAS PARA A DICA:
-- Máximo 15 palavras — dica MUITO curta
-- A frase deve estar 100% completa — nunca cortar palavras a meio
-- Sem abreviações de nenhum tipo
-- Linguagem simples e direta
-- Exemplos corretos:
-  ✅ "Foca na execução hoje, não no peso."
-  ✅ "Hidrata bem antes de treinar."
-  ❌ "Concentra-te em aument a intensidade dos exercíc..."
-- Revê a frase antes de responder — deve estar completamente terminada com ponto final
-- Responde APENAS com a dica, nada mais.`,
-              },
-            ],
-            context: contextStr,
-          }),
-        });
-
-        if (!res.ok || !res.body) return;
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let accumulated = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split("\n")) {
-            if (!line.startsWith("data: ")) continue;
-            const payload = line.slice(6);
-            if (payload === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(payload);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) accumulated += content;
-            } catch {
-              // linha mal formada, ignora
-            }
-          }
-        }
-
-        if (accumulated.trim()) {
-          setTip(accumulated.trim());
-          localStorage.setItem(
-            cacheKey,
-            JSON.stringify({ text: accumulated.trim(), ts: Date.now() })
-          );
-        }
-      } catch (err) {
-        console.error("[TodayWorkoutCard] Erro ao buscar dica dinâmica:", err);
-      }
-    })();
-  }, [user?.id, workoutName]);
-
-  // Typewriter: revela a dica letra a letra sempre que `tip` muda
-  useEffect(() => {
-    if (!tip) return;
-    setDisplayedTip("");
-    setShowCursor(true);
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setDisplayedTip(tip.slice(0, i));
-      if (i >= tip.length) {
-        clearInterval(interval);
-        setShowCursor(false);
-      }
-    }, 25);
-    return () => clearInterval(interval);
-  }, [tip]);
 
   return (
     <motion.div
@@ -271,19 +151,6 @@ REGRAS OBRIGATÓRIAS PARA A DICA:
         )}
       </div>
 
-
-      {/* Assinatura do assistente */}
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: "rgba(255,255,255,0.30)",
-          letterSpacing: "0.06em",
-          marginBottom: 16,
-        }}
-      >
-        ✦ {aiName}
-      </div>
 
       <motion.button
         whileTap={isRestDay ? {} : { scale: 0.97 }}
