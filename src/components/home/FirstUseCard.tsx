@@ -37,8 +37,7 @@ export const FirstUseCard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="overflow-hidden"
-      className="mx-4 mb-3"
+      className="overflow-hidden mx-4 mb-3"
       style={{ background: "#141414", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)", padding: "18px" }}
     >
       <div className="px-5 pt-5 pb-3">
