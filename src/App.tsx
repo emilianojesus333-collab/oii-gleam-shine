@@ -44,9 +44,7 @@ import Analytics from "./pages/Analytics";
 import ExerciseLibrary from "./pages/ExerciseLibrary";
 import PlanoSemanal from "./pages/PlanoSemanal";
 import ChatIA from "./pages/ChatIA";
-import MeuEquipamento from "./pages/MeuEquipamento";
 import AvaliacaoInicial from "./pages/AvaliacaoInicial";
-import BodyCalendar from "./pages/BodyCalendar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -210,26 +208,10 @@ const App = () => (
               }
             />
             <Route
-              path="/body-calendar"
-              element={
-                <ProtectedRoute requireSubscription>
-                  <BodyCalendar />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/chat-ia"
               element={
                 <ProtectedRoute requireSubscription>
                   <ChatIA />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/equipamento"
-              element={
-                <ProtectedRoute requireSubscription>
-                  <MeuEquipamento />
                 </ProtectedRoute>
               }
             />
