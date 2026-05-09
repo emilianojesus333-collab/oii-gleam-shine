@@ -12,8 +12,6 @@ import {
   RefreshCw,
   Calendar,
   Brain,
-  Dumbbell,
-  PersonStanding,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
