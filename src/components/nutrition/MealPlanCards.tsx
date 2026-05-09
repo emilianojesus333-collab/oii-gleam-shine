@@ -108,7 +108,7 @@ interface Props {
 export const MealPlanCards = ({ onActivate }: Props) => {
   const { settings, updateSettings } = useUserSettings();
 
-  const storedPlan = (settings?.onboarding_data as unknown as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
+  const storedPlan = (settings?.onboarding_data as Record<string, unknown> | null)?.nutrition_plan as string | undefined;
   const [activePlan, setActivePlan] = useState<string>(storedPlan ?? "definicao");
   const [detailPlan, setDetailPlan] = useState<MealPlan | null>(null);
 
