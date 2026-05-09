@@ -140,15 +140,6 @@ const Home = () => {
             <Settings className="h-4 w-4 text-white/70" />
           </motion.button>
         </div>
-        <div className="mt-3">
-          <p className="text-xs text-white/50">{(() => {
-            const h = new Date().getHours();
-            return h < 12 ? "Bom dia," : h < 19 ? "Boa tarde," : "Boa noite,";
-          })()}</p>
-          <p className="text-lg font-bold text-white">
-            {settings?.onboarding_data?.personal?.name || user?.email?.split("@")[0] || "Atleta"}
-          </p>
-        </div>
       </motion.header>
 
       {/* Settings Modal */}
