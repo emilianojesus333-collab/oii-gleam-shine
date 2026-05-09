@@ -151,34 +151,6 @@ export function TodayWorkoutCard({ workout, stimulus, isRestDay }: TodayWorkoutC
         )}
       </div>
 
-
-      <motion.button
-        whileTap={isRestDay ? {} : { scale: 0.97 }}
-        onClick={isRestDay ? undefined : () => navigate("/workout")}
-        style={{
-          width: "100%",
-          margin: "0 0",
-          height: 40,
-          borderRadius: 100,
-          background: "linear-gradient(135deg, #1D4ED8, #2563EB)",
-          border: "none",
-          color: "white",
-          fontSize: 13,
-          fontWeight: 800,
-          letterSpacing: "0.02em",
-          cursor: isRestDay ? "not-allowed" : "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          animation: isRestDay ? undefined : "glowBreath 3s ease-in-out infinite",
-          opacity: isRestDay ? 0.4 : 1,
-          pointerEvents: isRestDay ? "none" : undefined,
-        }}
-      >
-        <Dumbbell style={{ width: 16, height: 16, color: "white" }} />
-        Iniciar treino
-      </motion.button>
     </motion.div>
   );
 }
