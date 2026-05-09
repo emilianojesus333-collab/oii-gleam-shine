@@ -979,25 +979,13 @@ const Workout = () => {
             <BarbellCalculator onClose={() => setShowBarbellCalc(false)} defaultWeight={parseFloat(weight) || 80} />
           )}
 
-          {/* Rest Timer — appears after marking done, auto-hides after 8s */}
-          <AnimatePresence>
-            {showRestTimer && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
-                style={{ overflow: "hidden" }}
-              >
-                <RestTimerCard
-                  savedExercises={savedExercises}
-                  trainingType={trainingType}
-                  userId={user?.id}
-                  autoStartTrigger={0}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Rest Timer — sempre visível */}
+          <RestTimerCard
+            savedExercises={savedExercises}
+            trainingType={trainingType}
+            userId={user?.id}
+            autoStartTrigger={0}
+          />
 
           {/* ── UNIFIED EXERCISE LIST ── */}
           {workoutItems.length > 0 && (
