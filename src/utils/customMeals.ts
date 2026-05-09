@@ -27,10 +27,10 @@ export const saveCustomMeal = async (
   userId: string,
   meal: Omit<CustomMeal, "id" | "created_at">
 ) => {
-  const { error } = await (supabase.from("custom_meals") as any).insert({
+  const { error } = await supabase.from("custom_meals").insert({
     user_id: userId,
     name: meal.name,
-    foods: meal.foods,
+    foods: meal.foods as unknown as Record<string, unknown>[],
     total_calories: meal.total_calories,
     total_protein: meal.total_protein,
     total_carbs: meal.total_carbs,

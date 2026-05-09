@@ -551,7 +551,7 @@ const Workout = () => {
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay());
     const weekStartStr = weekStart.toISOString().split("T")[0];
-    return ((history as any).sessions as any[]).filter((s: any) => s.date >= weekStartStr && s.status === "completed").length;
+    return history.sessions.filter((s) => s.date >= weekStartStr && s.status === "completed").length;
   }, [user]);
 
   const weeklyVolume = useMemo(() => {
@@ -561,19 +561,9 @@ const Workout = () => {
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay());
     const weekStartStr = weekStart.toISOString().split("T")[0];
-    const vol = ((history as any).sessions as any[])
-      .filter((s: any) => s.date >= weekStartStr && s.status === "completed")
-      .reduce((acc: number, s: any) => {
-        const logs = (s.exerciseLogs as any[]) || [];
-        const sessionVol = logs.reduce((a: number, e: any) => {
-          const sets = (e.sets as any);
-          if (Array.isArray(sets)) {
-            return a + sets.reduce((b: number, st: any) => b + (st.weight || 0) * (st.reps || 0), 0);
-          }
-          return a + (e.weight || 0) * (e.reps || 0) * (sets || 0);
-        }, 0);
-        return acc + sessionVol;
-      }, 0);
+    const vol = history.sessions
+      .filter((s) => s.date >= weekStartStr && s.status === "completed")
+      .reduce((acc, s) => acc + (s.exerciseLogs?.reduce((a, e) => a + e.sets.reduce((b, st) => b + (st.weight || 0) * (st.reps || 0), 0), 0) || 0), 0);
     return vol > 0 ? Math.round(vol) : null;
   }, [user]);
 
@@ -583,7 +573,7 @@ const Workout = () => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
     const daysInMonth = now.getDate();
-    const completed = ((history as any).sessions as any[]).filter((s: any) => s.date >= monthStart && s.status === "completed").length;
+    const completed = history.sessions.filter((s) => s.date >= monthStart && s.status === "completed").length;
     return Math.round((completed / Math.max(daysInMonth / 2, 1)) * 100);
   }, [user]);
 
